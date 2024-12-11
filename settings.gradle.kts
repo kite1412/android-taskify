@@ -21,7 +21,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "Taskify"
 include(":app")
-include(":core")
 include(":core:database")
 include(":core:designsystem")
 include(":core:domain")
+include(":feature:taskmanagement")
+include(":feature:todayplan")

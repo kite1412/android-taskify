@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.nrr.taskify"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.nrr.taskify"
