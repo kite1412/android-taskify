@@ -21,5 +21,15 @@ dependencies {
 }
 
 gradlePlugin {
-    // TODO add plugins
+    plugins {
+        register("androidApplication") {
+            id = "taskify.android.application"
+            implementationClass = "AndroidApplicationConventionPlugin"
+        }
+
+        register("androidApplicationCompose") {
+            id = "taskify.android.application.compose"
+            implementationClass = "AndroidApplicationComposeConventionPlugin"
+        }
+    }
 }
