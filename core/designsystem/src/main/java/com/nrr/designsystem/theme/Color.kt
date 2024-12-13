@@ -1,4 +1,4 @@
-package com.nrr.taskify.ui.theme
+package com.nrr.designsystem.theme
 
 import androidx.compose.ui.graphics.Color
 
