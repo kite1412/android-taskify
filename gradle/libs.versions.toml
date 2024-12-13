@@ -58,3 +58,5 @@ jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrai
 
 taskify-android-application = { id = "taskify.android.application", version = "unspecified" }
 taskify-android-application-compose = { id = "taskify.android.application.compose", version = "unspecified" }
+taskify-android-library = { id = "taskify.android.library", version = "unspecified" }
+taskify-android-library-compose = { id = "taskify.android.library.compose", version = "unspecified" }

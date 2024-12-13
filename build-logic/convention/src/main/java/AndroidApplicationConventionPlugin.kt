@@ -1,5 +1,7 @@
 
 import com.android.build.api.dsl.ApplicationExtension
+import com.nrr.convention.ExtensionType
+import com.nrr.convention.configureBuildTypes
 import com.nrr.convention.configureKotlinAndroid
 import com.nrr.convention.libs
 import org.gradle.api.Plugin
@@ -9,8 +11,10 @@ import org.gradle.kotlin.dsl.configure
 class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         target.run {
-            pluginManager.apply("com.android.application")
-            pluginManager.apply("org.jetbrains.kotlin.android")
+            pluginManager.run {
+                apply("com.android.application")
+                apply("org.jetbrains.kotlin.android")
+            }
 
             extensions.configure<ApplicationExtension> {
                 defaultConfig {
@@ -20,6 +24,10 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                     versionName = libs.findVersion("projectVersionName").get().toString()
                 }
                 configureKotlinAndroid(this)
+                configureBuildTypes(
+                    commonExtension = this,
+                    type = ExtensionType.APPLICATION
+                )
             }
         }
     }
