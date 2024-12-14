@@ -10,7 +10,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
+private val LightColorScheme = darkColorScheme(
     primary = VelvetRose,
     secondary = SpinachWhite,
     tertiary = SpinachWhite,
@@ -19,7 +19,7 @@ private val DarkColorScheme = darkColorScheme(
     surface = CilantroCream
 )
 
-private val LightColorScheme = lightColorScheme(
+private val DarkColorScheme = lightColorScheme(
     primary = VelvetRose,
     secondary = CharcoalClay,
     tertiary = CharcoalClay,
@@ -32,7 +32,7 @@ private val LightColorScheme = lightColorScheme(
 fun TaskifyTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
