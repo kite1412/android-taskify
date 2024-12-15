@@ -1,10 +1,13 @@
+
 import com.android.build.gradle.LibraryExtension
 import com.nrr.convention.ExtensionType
 import com.nrr.convention.configureBuildTypes
 import com.nrr.convention.configureKotlinAndroid
+import com.nrr.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.dependencies
 
 class AndroidLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -24,6 +27,12 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
 
                 defaultConfig {
                     consumerProguardFiles("consumer-rules.pro")
+                }
+
+                dependencies {
+                    "testImplementation"(libs.findLibrary("junit").get())
+                    "androidTestImplementation"(libs.findLibrary("androidx.junit").get())
+                    "androidTestImplementation"(libs.findLibrary("androidx.espresso.core").get())
                 }
             }
         }
