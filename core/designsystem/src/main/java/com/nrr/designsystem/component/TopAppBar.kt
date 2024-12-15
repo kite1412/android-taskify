@@ -5,34 +5,47 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nrr.designsystem.R
 import com.nrr.designsystem.theme.TaskifyTheme
+import kotlinx.coroutines.delay
+
+val defaultLogoHeight = 55.dp
+val defaultLogoWidth = 46.dp
 
 @Composable
-fun TopAppBar(modifier: Modifier = Modifier) {
+fun TopAppBar(
+    titleIndex: Int,
+    modifier: Modifier = Modifier,
+    titles: List<SlidingTextData> = listOf()
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .height(defaultLogoHeight)
             .background(MaterialTheme.colorScheme.background),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         AppLogo()
-        Text(
-            text = "Taskify",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold
+        SlidingText(
+            texts = titles,
+            textIndex = titleIndex,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
@@ -40,8 +53,24 @@ fun TopAppBar(modifier: Modifier = Modifier) {
 @Preview
 @Composable
 private fun TopAppBarPreview() {
+    var currentTitleIndex by remember { mutableIntStateOf(0) }
+    val titles = listOf(
+        SlidingTextData("Taskify"),
+        SlidingTextData("Boost your productivity", fontSize = 18.sp),
+        SlidingTextData("Organize, prioritize, succeed", fontSize = 18.sp)
+    )
     TaskifyTheme {
-        TopAppBar()
+        LaunchedEffect(true) {
+            while (true) {
+                delay(2000)
+                if (currentTitleIndex < 2) currentTitleIndex++
+                else currentTitleIndex = 0
+            }
+        }
+        TopAppBar(
+            titleIndex = currentTitleIndex,
+            titles = titles
+        )
     }
 }
 
@@ -50,6 +79,6 @@ fun AppLogo(modifier: Modifier = Modifier) {
     Image(
         painter = painterResource(R.drawable.app_icon),
         contentDescription = "taskify logo",
-        modifier = modifier.size(height = 55.dp, width = 46.dp)
+        modifier = modifier.size(height = defaultLogoHeight, width = defaultLogoWidth)
     )
 }
