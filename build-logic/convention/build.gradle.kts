@@ -41,5 +41,10 @@ gradlePlugin {
             id = "taskify.android.library.compose"
             implementationClass = "AndroidLibraryComposeConventionPlugin"
         }
+
+        register("androidFeature") {
+            id = "taskify.android.feature"
+            implementationClass = "AndroidFeatureConventionPlugin"
+        }
     }
 }
