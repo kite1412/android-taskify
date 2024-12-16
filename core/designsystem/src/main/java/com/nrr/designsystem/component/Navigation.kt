@@ -2,9 +2,13 @@ package com.nrr.designsystem.component
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -35,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import com.nrr.designsystem.R
 import com.nrr.designsystem.theme.CharcoalClay
 import com.nrr.designsystem.theme.TaskifyTheme
+import kotlin.math.abs
 
 data class NavigationData(
     val id: Int,
@@ -84,49 +89,56 @@ private fun BottomNavigationBarPreview() {
         ),
     )
     var selectedIndex by remember { mutableIntStateOf(0) }
+    var prevSelectedIndex by remember { mutableIntStateOf(selectedIndex) }
     TaskifyTheme {
         BottomNavigationBar {
             icons.forEachIndexed { i, d ->
                 NavigationItem(
                     data = d,
-                    selectedIndex = selectedIndex,
-                    indexInList = i
-                ) { selectedIndex = i }
+                    prevSelectedIndex = prevSelectedIndex,
+                    indexInList = i,
+                    selected = selectedIndex == i,
+                ) {
+                    prevSelectedIndex = selectedIndex
+                    selectedIndex = i
+                }
             }
         }
     }
 }
 
-@SuppressLint("UnrememberedMutableInteractionSource")
 @Composable
 private fun NavigationItem(
     data: NavigationData,
     indexInList: Int,
-    selectedIndex: Int,
+    prevSelectedIndex: Int,
+    selected: Boolean,
     modifier: Modifier = Modifier,
     onClick: (NavigationData) -> Unit
 ) {
-    val selected = indexInList == selectedIndex
     val animatedColor by animateColorAsState(
         targetValue = if (selected) data.selectedColor else data.color,
         label = "icon color"
     )
+    val contentTransform = indicatorAnimationLogic(indexInList, prevSelectedIndex)
+    val interactionSource = remember { MutableInteractionSource() }
     Box(
         modifier = modifier
             .size(
                 width = data.width + 16.dp,
                 height = data.height + 16.dp
             )
-            .clickable(indication = null, interactionSource = MutableInteractionSource()) {
-                onClick(
-                    data
-                )
+            .clickable(
+                indication = null,
+                interactionSource = interactionSource
+            ) {
+                onClick(data)
             }
     ) {
         AnimatedVisibility(
             visible = selected,
-            enter = slideInHorizontally { -it },
-            exit = slideOutHorizontally { it },
+            enter = contentTransform.targetContentEnter,
+            exit = contentTransform.initialContentExit,
             modifier = Modifier.fillMaxSize()
         ) {
             Box(
@@ -154,4 +166,18 @@ private fun NavigationItem(
             )
         }
     }
+}
+
+@SuppressLint("ComposableNaming")
+@Composable
+private fun indicatorAnimationLogic(
+    indexInList: Int,
+    prevSelectedIndex: Int,
+    horizontal: Boolean = true
+): ContentTransform {
+    val initialOffset = { size: Int ->
+        (if (indexInList > prevSelectedIndex) -size else size) * abs(indexInList - prevSelectedIndex)
+    }
+    return if (horizontal) slideInHorizontally { initialOffset(it) } togetherWith slideOutHorizontally { 0 }
+    else slideInVertically { initialOffset(it) } togetherWith slideOutVertically { 0 }
 }
