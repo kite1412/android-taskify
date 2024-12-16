@@ -27,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,78 +41,74 @@ import com.nrr.designsystem.theme.CharcoalClay
 import com.nrr.designsystem.theme.TaskifyTheme
 import kotlin.math.abs
 
-data class NavigationData(
+enum class Navigation(
     val id: Int,
     val label: String,
-    val color: Color = Color.Black,
-    val selectedColor: Color = Color.White,
-    val indicatorColor: Color = CharcoalClay,
-    val height: Dp = 40.dp,
-    val width: Dp = 40.dp,
-    val showLabel: Boolean = false
-)
+    var color: Color = Color.Black,
+    var selectedColor: Color = Color.White,
+    var indicatorColor: Color = CharcoalClay,
+    var height: Dp = 40.dp,
+    var width: Dp = 40.dp,
+    var showLabel: Boolean = false
+) {
+    HOME(
+        id = R.drawable.home,
+        label = "Home"
+    ),
+    TASKS(
+        id = R.drawable.note,
+        label = "Tasks"
+    ),
+    ANALYTICS(
+        id = R.drawable.chart,
+        label = "Analytics"
+    ),
+    PROFILE(
+        id = R.drawable.profile,
+        label = "Profile"
+    )
+}
 
+/**
+ * Adjust navigation item's styles based on app theme
+ */
 @SuppressLint("ComposableNaming")
 @Composable
-fun appMenus(): List<NavigationData> {
+private fun adjustNavigationData() {
     val darkTheme = isSystemInDarkTheme()
     val color = if (!darkTheme) Color.Black else Color.White
     val selectedColor = if (!darkTheme) Color.White else CharcoalClay
     val indicatorColor = if (!darkTheme) CharcoalClay else Color.White
-    return listOf(
-        NavigationData(
-            id = R.drawable.home,
-            label = "Home",
-            color = color,
-            selectedColor = selectedColor,
-            indicatorColor = indicatorColor
-        ),
-        NavigationData(
-            id = R.drawable.note,
-            label = "Tasks",
-            color = color,
-            selectedColor = selectedColor,
-            indicatorColor = indicatorColor
-        ),
-        NavigationData(
-            id = R.drawable.chart,
-            label = "Analytics",
-            color = color,
-            selectedColor = selectedColor,
-            indicatorColor = indicatorColor
-        ),
-        NavigationData(
-            id = R.drawable.profile,
-            label = "Profile",
-            color = color,
-            selectedColor = selectedColor,
-            indicatorColor = indicatorColor
-        )
-    )
+    Navigation.entries.forEach {
+        it.color = color
+        it.selectedColor = selectedColor
+        it.indicatorColor = indicatorColor
+    }
 }
 
 @Composable
-fun BottomNavigationBar(modifier: Modifier = Modifier) {
-    val menus = appMenus()
-    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
-    var prevSelectedIndex by rememberSaveable { mutableIntStateOf(selectedIndex) }
+private fun BottomNavigationBar(
+    selectedIndex: Int,
+    prevSelectedIndex: Int,
+    onClick: (Navigation) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(100.dp))
             .background(MaterialTheme.colorScheme.onBackground)
             .padding(4.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        menus.forEachIndexed { i, d ->
+        Navigation.entries.forEachIndexed { i, d ->
             NavigationItem(
                 data = d,
                 prevSelectedIndex = prevSelectedIndex,
                 indexInList = i,
                 selected = selectedIndex == i,
-            ) {
-                prevSelectedIndex = selectedIndex
-                selectedIndex = i
-            }
+                onClick = onClick
+            )
         }
     }
 }
@@ -121,25 +116,77 @@ fun BottomNavigationBar(modifier: Modifier = Modifier) {
 @Preview
 @Composable
 private fun BottomNavigationBarPreview() {
+    var selectedIndex by remember { mutableIntStateOf(0) }
+    var prevSelectedIndex by remember { mutableIntStateOf(0) }
+    adjustNavigationData()
     TaskifyTheme {
-        BottomNavigationBar()
+        BottomNavigationBar(
+            selectedIndex = selectedIndex,
+            prevSelectedIndex = prevSelectedIndex,
+            onClick = {
+                prevSelectedIndex = selectedIndex
+                selectedIndex = it.ordinal
+            }
+        )
+    }
+}
+
+@Composable
+private fun NavigationRail(
+    selectedIndex: Int,
+    prevSelectedIndex: Int,
+    onClick: (Navigation) -> Unit,
+    modifier: Modifier = Modifier
+) = androidx.compose.material3.NavigationRail {
+    Navigation.entries.forEachIndexed { i, d ->
+        NavigationItem(
+            data = d,
+            indexInList = i,
+            prevSelectedIndex = prevSelectedIndex,
+            selected = selectedIndex == i,
+            onClick = onClick,
+            horizontalAnimation = false
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun NavigationRailPreview() {
+    var selectedIndex by remember { mutableIntStateOf(0) }
+    var prevSelectedIndex by remember { mutableIntStateOf(0) }
+    adjustNavigationData()
+    TaskifyTheme {
+        NavigationRail(
+            selectedIndex = selectedIndex,
+            prevSelectedIndex = prevSelectedIndex,
+            onClick = {
+                prevSelectedIndex = selectedIndex
+                selectedIndex = it.ordinal
+            }
+        )
     }
 }
 
 @Composable
 private fun NavigationItem(
-    data: NavigationData,
+    data: Navigation,
     indexInList: Int,
     prevSelectedIndex: Int,
     selected: Boolean,
     modifier: Modifier = Modifier,
-    onClick: (NavigationData) -> Unit
+    horizontalAnimation: Boolean = true,
+    onClick: (Navigation) -> Unit
 ) {
     val animatedColor by animateColorAsState(
         targetValue = if (selected) data.selectedColor else data.color,
         label = "icon color"
     )
-    val contentTransform = indicatorAnimationLogic(indexInList, prevSelectedIndex)
+    val contentTransform = indicatorAnimationLogic(
+        indexInList = indexInList,
+        prevSelectedIndex = prevSelectedIndex,
+        horizontal = horizontalAnimation
+    )
     val interactionSource = remember { MutableInteractionSource() }
     Box(
         modifier = modifier
