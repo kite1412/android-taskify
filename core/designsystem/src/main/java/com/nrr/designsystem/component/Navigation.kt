@@ -12,10 +12,10 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,58 +53,76 @@ data class NavigationData(
     val showLabel: Boolean = false
 )
 
+@SuppressLint("ComposableNaming")
 @Composable
-fun BottomNavigationBar(
-    modifier: Modifier = Modifier,
-    content: @Composable RowScope.() -> Unit
-) {
+fun appMenus(): List<NavigationData> {
+    val darkTheme = isSystemInDarkTheme()
+    val color = if (!darkTheme) Color.Black else Color.White
+    val selectedColor = if (!darkTheme) Color.White else CharcoalClay
+    val indicatorColor = if (!darkTheme) CharcoalClay else Color.White
+    return listOf(
+        NavigationData(
+            id = R.drawable.home,
+            label = "Home",
+            color = color,
+            selectedColor = selectedColor,
+            indicatorColor = indicatorColor
+        ),
+        NavigationData(
+            id = R.drawable.note,
+            label = "Tasks",
+            color = color,
+            selectedColor = selectedColor,
+            indicatorColor = indicatorColor
+        ),
+        NavigationData(
+            id = R.drawable.chart,
+            label = "Analytics",
+            color = color,
+            selectedColor = selectedColor,
+            indicatorColor = indicatorColor
+        ),
+        NavigationData(
+            id = R.drawable.profile,
+            label = "Profile",
+            color = color,
+            selectedColor = selectedColor,
+            indicatorColor = indicatorColor
+        )
+    )
+}
+
+@Composable
+fun BottomNavigationBar(modifier: Modifier = Modifier) {
+    val menus = appMenus()
+    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
+    var prevSelectedIndex by rememberSaveable { mutableIntStateOf(selectedIndex) }
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(100.dp))
             .background(MaterialTheme.colorScheme.onBackground)
             .padding(4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        content = content
-    )
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        menus.forEachIndexed { i, d ->
+            NavigationItem(
+                data = d,
+                prevSelectedIndex = prevSelectedIndex,
+                indexInList = i,
+                selected = selectedIndex == i,
+            ) {
+                prevSelectedIndex = selectedIndex
+                selectedIndex = i
+            }
+        }
+    }
 }
 
 @Preview
 @Composable
 private fun BottomNavigationBarPreview() {
-    val icons = listOf(
-        NavigationData(
-            id = R.drawable.home,
-            label = "Home",
-        ),
-        NavigationData(
-            id = R.drawable.note,
-            label = "Tasks",
-        ),
-        NavigationData(
-            id = R.drawable.chart,
-            label = "Analytics",
-        ),
-        NavigationData(
-            id = R.drawable.profile,
-            label = "Profile",
-        ),
-    )
-    var selectedIndex by remember { mutableIntStateOf(0) }
-    var prevSelectedIndex by remember { mutableIntStateOf(selectedIndex) }
     TaskifyTheme {
-        BottomNavigationBar {
-            icons.forEachIndexed { i, d ->
-                NavigationItem(
-                    data = d,
-                    prevSelectedIndex = prevSelectedIndex,
-                    indexInList = i,
-                    selected = selectedIndex == i,
-                ) {
-                    prevSelectedIndex = selectedIndex
-                    selectedIndex = i
-                }
-            }
-        }
+        BottomNavigationBar()
     }
 }
 
