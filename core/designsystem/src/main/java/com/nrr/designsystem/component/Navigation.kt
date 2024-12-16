@@ -1,9 +1,18 @@
 package com.nrr.designsystem.component
 
+import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,6 +20,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,9 +56,8 @@ fun BottomNavigationBar(
         modifier = modifier
             .clip(RoundedCornerShape(100.dp))
             .background(MaterialTheme.colorScheme.onBackground)
-            .padding(16.dp),
+            .padding(4.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
         content = content
     )
 }
@@ -54,42 +66,92 @@ fun BottomNavigationBar(
 @Composable
 private fun BottomNavigationBarPreview() {
     val icons = listOf(
-        NavigationData(R.drawable.home, "Home"),
-        NavigationData(R.drawable.note, "Tasks"),
-        NavigationData(R.drawable.chart, "Analytics"),
-        NavigationData(R.drawable.profile, "Profile"),
+        NavigationData(
+            id = R.drawable.home,
+            label = "Home",
+        ),
+        NavigationData(
+            id = R.drawable.note,
+            label = "Tasks",
+        ),
+        NavigationData(
+            id = R.drawable.chart,
+            label = "Analytics",
+        ),
+        NavigationData(
+            id = R.drawable.profile,
+            label = "Profile",
+        ),
     )
+    var selectedIndex by remember { mutableIntStateOf(0) }
     TaskifyTheme {
         BottomNavigationBar {
-            icons.forEach {
-                NavigationItem(it,true)
+            icons.forEachIndexed { i, d ->
+                NavigationItem(
+                    data = d,
+                    selectedIndex = selectedIndex,
+                    indexInList = i
+                ) { selectedIndex = i }
             }
         }
     }
 }
 
+@SuppressLint("UnrememberedMutableInteractionSource")
 @Composable
-fun NavigationItem(
+private fun NavigationItem(
     data: NavigationData,
-    selected: Boolean,
-    modifier: Modifier = Modifier
+    indexInList: Int,
+    selectedIndex: Int,
+    modifier: Modifier = Modifier,
+    onClick: (NavigationData) -> Unit
 ) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(if (data.showLabel) 8.dp else 0.dp),
-        verticalAlignment = Alignment.CenterVertically
+    val selected = indexInList == selectedIndex
+    val animatedColor by animateColorAsState(
+        targetValue = if (selected) data.selectedColor else data.color,
+        label = "icon color"
+    )
+    Box(
+        modifier = modifier
+            .size(
+                width = data.width + 16.dp,
+                height = data.height + 16.dp
+            )
+            .clickable(indication = null, interactionSource = MutableInteractionSource()) {
+                onClick(
+                    data
+                )
+            }
     ) {
-        Icon(
-            painter = painterResource(data.id),
-            contentDescription = data.label,
-            modifier = Modifier
-                .size(data.height, data.width)
-                .background(if (selected) data.indicatorColor else Color.Transparent),
-            tint = if (selected) data.selectedColor else data.color
-        )
-        if (data.showLabel) Text(
-            text = data.label,
-            color = if (selected) data.selectedColor else data.color
-        )
+        AnimatedVisibility(
+            visible = selected,
+            enter = slideInHorizontally { -it },
+            exit = slideOutHorizontally { it },
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(100.dp))
+                    .background(data.indicatorColor)
+            )
+        }
+        Row(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalArrangement = Arrangement.spacedBy(if (data.showLabel) 8.dp else 0.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(data.id),
+                contentDescription = data.label,
+                modifier = Modifier
+                    .size(data.height, data.width),
+                tint = animatedColor
+            )
+            if (data.showLabel) Text(
+                text = data.label,
+                color = if (selected) data.selectedColor else data.color
+            )
+        }
     }
 }
