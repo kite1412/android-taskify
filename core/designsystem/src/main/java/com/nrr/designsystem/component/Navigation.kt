@@ -15,6 +15,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -22,6 +23,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,8 +51,7 @@ enum class Navigation(
     var selectedColor: Color = Color.White,
     var indicatorColor: Color = CharcoalClay,
     var height: Dp = 40.dp,
-    var width: Dp = 40.dp,
-    var showLabel: Boolean = false
+    var width: Dp = 40.dp
 ) {
     HOME(
         id = R.drawable.home,
@@ -66,7 +68,32 @@ enum class Navigation(
     PROFILE(
         id = R.drawable.profile,
         label = "Profile"
-    )
+    );
+
+    internal companion object {
+        @Composable
+        fun toNavigation(
+            selectedIndex: Int,
+            prevSelectedIndex: Int,
+            onClick: (Navigation) -> Unit,
+            modifier: Modifier = Modifier,
+            showLabel: Boolean = false,
+            horizontalAnimation: Boolean = true
+        ) {
+            entries.forEachIndexed { i, d ->
+                NavigationItem(
+                    data = d,
+                    indexInList = i,
+                    prevSelectedIndex = prevSelectedIndex,
+                    selected = i == selectedIndex,
+                    onClick = onClick,
+                    modifier = modifier,
+                    showLabel = showLabel,
+                    horizontalAnimation = horizontalAnimation
+                )
+            }
+        }
+    }
 }
 
 /**
@@ -101,15 +128,11 @@ private fun BottomNavigationBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Navigation.entries.forEachIndexed { i, d ->
-            NavigationItem(
-                data = d,
-                prevSelectedIndex = prevSelectedIndex,
-                indexInList = i,
-                selected = selectedIndex == i,
-                onClick = onClick
-            )
-        }
+        Navigation.toNavigation(
+            onClick = onClick,
+            selectedIndex = selectedIndex,
+            prevSelectedIndex = prevSelectedIndex
+        )
     }
 }
 
@@ -138,16 +161,12 @@ private fun NavigationRail(
     onClick: (Navigation) -> Unit,
     modifier: Modifier = Modifier
 ) = androidx.compose.material3.NavigationRail {
-    Navigation.entries.forEachIndexed { i, d ->
-        NavigationItem(
-            data = d,
-            indexInList = i,
-            prevSelectedIndex = prevSelectedIndex,
-            selected = selectedIndex == i,
-            onClick = onClick,
-            horizontalAnimation = false
-        )
-    }
+    Navigation.toNavigation(
+        onClick = onClick,
+        selectedIndex = selectedIndex,
+        prevSelectedIndex = prevSelectedIndex,
+        horizontalAnimation = false
+    )
 }
 
 @Preview
@@ -169,6 +188,56 @@ private fun NavigationRailPreview() {
 }
 
 @Composable
+private fun NavigationDrawer(
+    selectedIndex: Int,
+    prevSelectedIndex: Int,
+    onClick: (Navigation) -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) = PermanentNavigationDrawer(
+    drawerContent = {
+        ModalDrawerSheet {
+            Column(
+                modifier = Modifier.padding(
+                    horizontal = 16.dp,
+                    vertical = 8.dp
+                )
+            ) {
+                Navigation.toNavigation(
+                    onClick = onClick,
+                    selectedIndex = selectedIndex,
+                    prevSelectedIndex = prevSelectedIndex,
+                    showLabel = true,
+                    horizontalAnimation = false
+                )
+            }
+        }
+    },
+    modifier = modifier,
+    content = content
+)
+
+@Preview
+@Composable
+private fun NavigationDrawerPreview() {
+    var selectedIndex by remember { mutableIntStateOf(0) }
+    var prevSelectedIndex by remember { mutableIntStateOf(0) }
+    adjustNavigationData()
+    TaskifyTheme {
+        NavigationDrawer(
+            onClick = {
+                prevSelectedIndex = selectedIndex
+                selectedIndex = it.ordinal
+            },
+            selectedIndex = selectedIndex,
+            prevSelectedIndex = prevSelectedIndex
+        ) {
+            Text("A text")
+        }
+    }
+}
+
+@Composable
 private fun NavigationItem(
     data: Navigation,
     indexInList: Int,
@@ -176,6 +245,7 @@ private fun NavigationItem(
     selected: Boolean,
     modifier: Modifier = Modifier,
     horizontalAnimation: Boolean = true,
+    showLabel: Boolean = false,
     onClick: (Navigation) -> Unit
 ) {
     val animatedColor by animateColorAsState(
@@ -187,12 +257,13 @@ private fun NavigationItem(
         prevSelectedIndex = prevSelectedIndex,
         horizontal = horizontalAnimation
     )
+    val itemOuterSpace = 16.dp
     val interactionSource = remember { MutableInteractionSource() }
     Box(
         modifier = modifier
             .size(
-                width = data.width + 16.dp,
-                height = data.height + 16.dp
+                width = if (!showLabel) data.width + itemOuterSpace else 200.dp /* TODO change */,
+                height = data.height + itemOuterSpace
             )
             .clickable(
                 indication = null,
@@ -215,8 +286,10 @@ private fun NavigationItem(
             )
         }
         Row(
-            modifier = Modifier.align(Alignment.Center),
-            horizontalArrangement = Arrangement.spacedBy(if (data.showLabel) 8.dp else 0.dp),
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = itemOuterSpace / 2),
+            horizontalArrangement = Arrangement.spacedBy(if (showLabel) 8.dp else 0.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -226,7 +299,7 @@ private fun NavigationItem(
                     .size(data.height, data.width),
                 tint = animatedColor
             )
-            if (data.showLabel) Text(
+            if (showLabel) Text(
                 text = data.label,
                 color = if (selected) data.selectedColor else data.color
             )
