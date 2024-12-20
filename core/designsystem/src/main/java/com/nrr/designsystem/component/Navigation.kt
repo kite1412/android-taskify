@@ -71,6 +71,7 @@ enum class Navigation(
     );
 
     internal companion object {
+        @SuppressLint("ComposableNaming")
         @Composable
         fun toNavigation(
             selectedIndex: Int,
@@ -278,7 +279,7 @@ private fun NavigationItem(
             exit = contentTransform.initialContentExit,
             modifier = Modifier.fillMaxSize()
         ) {
-            Box(
+            if (selected) Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(100.dp))
