@@ -26,10 +26,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.WindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowWidthSizeClass
 import com.nrr.designsystem.R
 import com.nrr.designsystem.theme.CharcoalClay
 import com.nrr.designsystem.theme.TaskifyTheme
@@ -320,4 +324,62 @@ private fun indicatorAnimationLogic(
     }
     return if (horizontal) slideInHorizontally { initialOffset(it) } togetherWith slideOutHorizontally { 0 }
     else slideInVertically { initialOffset(it) } togetherWith slideOutVertically { 0 }
+}
+
+@Composable
+fun NavigationScaffold(
+    onClick: (Navigation) -> Unit,
+    modifier: Modifier = Modifier,
+    windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo(),
+    content: @Composable () -> Unit
+) {
+    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
+    var prevSelectedIndex by rememberSaveable { mutableIntStateOf(0) }
+    val onClickWrapper = { data: Navigation ->
+        prevSelectedIndex = selectedIndex
+        selectedIndex = data.ordinal
+        onClick(data)
+    }
+    adjustNavigationData()
+    Box(modifier = modifier.fillMaxSize()) {
+        when (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass) {
+            WindowWidthSizeClass.COMPACT -> {
+                content()
+                BottomNavigationBar(
+                    selectedIndex = selectedIndex,
+                    prevSelectedIndex = prevSelectedIndex,
+                    onClick = onClickWrapper,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 30.dp)
+                )
+            }
+            WindowWidthSizeClass.MEDIUM -> Row(modifier = Modifier.fillMaxSize()) {
+                NavigationRail(
+                    selectedIndex = selectedIndex,
+                    prevSelectedIndex = prevSelectedIndex,
+                    onClick = onClickWrapper
+                )
+                content()
+            }
+            else -> NavigationDrawer(
+                selectedIndex = selectedIndex,
+                prevSelectedIndex = prevSelectedIndex,
+                onClick = onClickWrapper,
+                content = content
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun NavigationScaffoldPreview() {
+    TaskifyTheme {
+        NavigationScaffold(
+            onClick = {}
+        ) {
+            Text("A text")
+        }
+    }
 }

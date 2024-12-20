@@ -8,9 +8,6 @@
       <SelectionState runConfigName="TopAppBarPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="SlidingTextPreview">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="BottomNavigationBarPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
@@ -19,6 +16,17 @@
       </SelectionState>
       <SelectionState runConfigName="NavigationDrawerPreview">
         <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="NavigationScaffoldPreview">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2024-12-20T03:51:19.231953900Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\User\.android\avd\Resizable_Experimental_API_34.avd" />
+            </handle>
+          </Target>
+        </DropdownSelection>
+        <DialogSelection />
       </SelectionState>
     </selectionStates>
   </component>
