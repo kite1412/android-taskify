@@ -51,5 +51,10 @@ gradlePlugin {
             id = "taskify.jvm.library"
             implementationClass = "JvmLibraryConventionPlugin"
         }
+
+        register("hilt") {
+            id = "taskify.hilt"
+            implementationClass = "HiltConventionPlugin"
+        }
     }
 }

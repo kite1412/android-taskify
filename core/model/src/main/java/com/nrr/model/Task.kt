@@ -2,7 +2,7 @@ package com.nrr.model
 
 import kotlinx.datetime.Instant
 
-data class Task (
+data class Task(
     val id: String,
     val title: String,
     val description: String?,
