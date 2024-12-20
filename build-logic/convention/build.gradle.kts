@@ -46,5 +46,10 @@ gradlePlugin {
             id = "taskify.android.feature"
             implementationClass = "AndroidFeatureConventionPlugin"
         }
+
+        register("jvmLibrary") {
+            id = "taskify.jvm.library"
+            implementationClass = "JvmLibraryConventionPlugin"
+        }
     }
 }

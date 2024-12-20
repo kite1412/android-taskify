@@ -62,3 +62,4 @@ taskify-android-application-compose = { id = "taskify.android.application.compos
 taskify-android-library = { id = "taskify.android.library", version = "unspecified" }
 taskify-android-library-compose = { id = "taskify.android.library.compose", version = "unspecified" }
 taskify-android-feature = { id = "taskify.android.feature", version = "unspecified" }
+taskify-jvm-library = { id = "taskify.jvm.library", version = "unspecified" }
