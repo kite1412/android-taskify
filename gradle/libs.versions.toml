@@ -1,4 +1,5 @@
 [versions]
+adaptive = "1.0.0"
 agp = "8.7.3"
 kotlin = "2.0.0"
 coreKtx = "1.15.0"
@@ -24,6 +25,7 @@ projectCompileSdkVersion = "35"
 projectVersionCode = "1"
 
 [libraries]
+androidx-adaptive = { module = "androidx.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
