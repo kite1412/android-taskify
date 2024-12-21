@@ -1,14 +1,17 @@
 package com.nrr.designsystem.component
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -16,13 +19,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -41,9 +44,13 @@ fun Swipeable(
     state: SwipeableState = rememberSwipeableState(),
     minActionWidth: Dp = 50.dp,
     actionWidthFactor: Float = 0.5f,
-    content: @Composable () -> Unit
+    content: @Composable (Modifier) -> Unit
 ) {
     val density = LocalDensity.current
+    val animatedOffset by animateDpAsState(
+        targetValue = state.offset,
+        label = "swipeableContentOffset"
+    )
 
     SubcomposeLayout(modifier = modifier.fillMaxWidth()) { c ->
         val actionWidth = with(density) {
@@ -52,9 +59,24 @@ fun Swipeable(
                 b = c.maxWidth.toDp() / actions.size * actionWidthFactor
             )
         }
+        state.maxOffset = -(actionWidth * actions.size)
         val swipeableContent = subcompose(
             slotId = "swipeableContent",
-            content = content
+            content = {
+                content(
+                    Modifier
+                        .offset(x = animatedOffset)
+                        .pointerInput(Unit) {
+                            detectHorizontalDragGestures(
+                                onDragEnd = state::onSwipeEnd
+                            ) { _, dragAmount ->
+                                with(density) {
+                                    state.onSwipe(dragAmount.toDp())
+                                }
+                            }
+                        }
+                )
+            }
         ).map {
             it.measure(c)
         }
@@ -123,7 +145,7 @@ private fun SwipeablePreview() {
             modifier = Modifier.padding(16.dp)
         ) {
             Box(
-                modifier = Modifier
+                modifier = it
                     .height(50.dp)
                     .background(Color.Yellow.copy(alpha = 0.5f))
             ) {
@@ -174,23 +196,32 @@ data class Action(
 )
 
 class SwipeableState {
-    var maxOffset: Float = 0f
-        private set
+    var maxOffset: Dp = 0.dp
+        internal set
 
-    var offset by mutableFloatStateOf(0f)
+    var offset by mutableStateOf(0.dp)
         private set
 
     var isOpen by mutableStateOf(false)
+        private set
 
-    internal fun onSwipe(offset: Float) {
+    internal fun onSwipe(dragAmount: Dp) {
+        if (dragAmount < 0.dp) offset += dragAmount
+        else if (offset < 0.dp) offset += dragAmount
+    }
 
+    internal fun onSwipeEnd() {
+        if (offset < maxOffset / 2 && !isOpen) swipeOpen()
+        else reset()
     }
 
     fun reset() {
-
+        offset = 0.dp
+        isOpen = false
     }
 
     fun swipeOpen() {
-
+        offset = maxOffset
+        isOpen = true
     }
 }
