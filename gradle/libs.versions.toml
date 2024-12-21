@@ -66,6 +66,8 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 
 taskify-android-application = { id = "taskify.android.application", version = "unspecified" }
 taskify-android-application-compose = { id = "taskify.android.application.compose", version = "unspecified" }
@@ -73,3 +75,4 @@ taskify-android-library = { id = "taskify.android.library", version = "unspecifi
 taskify-android-library-compose = { id = "taskify.android.library.compose", version = "unspecified" }
 taskify-android-feature = { id = "taskify.android.feature", version = "unspecified" }
 taskify-jvm-library = { id = "taskify.jvm.library", version = "unspecified" }
+taskify-hilt = { id = "taskify.hilt", version = "unspecified" }
