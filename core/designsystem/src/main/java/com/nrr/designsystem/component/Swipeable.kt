@@ -43,7 +43,7 @@ fun Swipeable(
     modifier: Modifier = Modifier,
     state: SwipeableState = rememberSwipeableState(),
     minActionWidth: Dp = 50.dp,
-    actionWidthFactor: Float = 0.5f,
+    actionWidthFactor: Float = actions.size * 0.2f,
     content: @Composable (Modifier) -> Unit
 ) {
     val density = LocalDensity.current
@@ -53,18 +53,19 @@ fun Swipeable(
     )
 
     SubcomposeLayout(modifier = modifier.fillMaxWidth()) { c ->
-        val actionWidth = with(density) {
+        val actionWidth = if (actions.isNotEmpty()) with(density) {
             max(
                 a = minActionWidth,
                 b = c.maxWidth.toDp() / actions.size * actionWidthFactor
             )
-        }
+        } else 0.dp
+
         state.maxOffset = -(actionWidth * actions.size)
         val swipeableContent = subcompose(
             slotId = "swipeableContent",
             content = {
                 content(
-                    Modifier
+                    if (actions.isNotEmpty()) Modifier
                         .offset(x = animatedOffset)
                         .pointerInput(Unit) {
                             detectHorizontalDragGestures(
@@ -75,6 +76,7 @@ fun Swipeable(
                                 }
                             }
                         }
+                    else Modifier
                 )
             }
         ).map {
