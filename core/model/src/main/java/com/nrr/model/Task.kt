@@ -10,6 +10,7 @@ data class Task(
     val updateAt: Instant,
     val startTime: Time?,
     val endTime: Time?,
+    val taskType: TaskType,
     val priority: TaskPriority,
     val isSet: Boolean,
     val isDefault: Boolean

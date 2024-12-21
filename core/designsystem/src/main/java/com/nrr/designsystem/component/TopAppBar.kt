@@ -20,7 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nrr.designsystem.R
+import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
 import kotlinx.coroutines.delay
 
@@ -77,7 +77,7 @@ private fun TopAppBarPreview() {
 @Composable
 fun AppLogo(modifier: Modifier = Modifier) {
     Image(
-        painter = painterResource(R.drawable.app_icon),
+        painter = painterResource(TaskifyIcon.appIcon),
         contentDescription = "taskify logo",
         modifier = modifier.size(height = defaultLogoHeight, width = defaultLogoWidth)
     )
