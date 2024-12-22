@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -24,7 +25,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
@@ -35,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import com.nrr.designsystem.R
 import com.nrr.designsystem.theme.TaskifyTheme
-import kotlin.math.roundToInt
 
 @Composable
 fun Swipeable(
@@ -44,6 +47,7 @@ fun Swipeable(
     state: SwipeableState = rememberSwipeableState(),
     minActionWidth: Dp = 50.dp,
     actionWidthFactor: Float = actions.size * 0.2f,
+    actionButtonsBorderShape: Shape = RectangleShape,
     content: @Composable (Modifier) -> Unit
 ) {
     val density = LocalDensity.current
@@ -87,11 +91,14 @@ fun Swipeable(
         )
 
         layout(constraints.maxWidth, constraints.maxHeight) {
-            subcompose("swipeableActions") {
+            if (actions.isNotEmpty()) subcompose("swipeableActions") {
                 Row(
                     modifier = Modifier
                         .width(with(density) { constraints.maxWidth.toDp() })
                         .height(with(density) { constraints.maxHeight.toDp() })
+                        .clip(actionButtonsBorderShape)
+                        .background(actions.last().color),
+                    horizontalArrangement = Arrangement.End
                 ) {
                     actions.forEach { action ->
                         SwipeableAction(
@@ -103,10 +110,7 @@ fun Swipeable(
                     }
                 }
             }.forEach {
-                it.measure(constraints).placeRelative(
-                    x = constraints.maxWidth - (actionWidth.toPx().roundToInt() * actions.size),
-                    y = 0
-                )
+                it.measure(constraints).placeRelative(0, 0)
             }
             swipeableContent.forEach { it.placeRelative(0, 0) }
         }

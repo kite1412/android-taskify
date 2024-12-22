@@ -59,17 +59,12 @@ fun TaskCard(
         Swipeable(
             actions = actions,
             modifier = Modifier
-                .clip(
-                    RoundedCornerShape(
-                        topEnd = swipeableClip,
-                        bottomEnd = swipeableClip
-                    )
-                )
                 .padding(
-                    start = if (showStartTime) with(density) {
-                        textWidth.toDp() + 8.dp
-                    } else 0.dp
-                )
+                    start = with(density) {
+                        if (showStartTime) textWidth.toDp() + 8.dp else 0.dp
+                    }
+                ),
+            actionButtonsBorderShape = RoundedCornerShape(swipeableClip)
         ) { m ->
             Row(
                 modifier = m
