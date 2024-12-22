@@ -213,7 +213,7 @@ class SwipeableState {
     }
 
     internal fun onSwipeEnd() {
-        if (offset < maxOffset / 2) swipeOpen()
+        if (offset < 0.dp && (!isOpen || offset < maxOffset)) swipeOpen()
         else reset()
     }
 
