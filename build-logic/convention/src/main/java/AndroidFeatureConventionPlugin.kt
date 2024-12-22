@@ -9,12 +9,14 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
             pluginManager.run {
                 apply("taskify.android.library.compose")
                 apply("taskify.hilt")
+                apply("org.jetbrains.kotlin.plugin.serialization")
             }
             dependencies {
-                "implementation"(project(":core:designsystem"))
                 "implementation"(project(":core:ui"))
 
                 "implementation"(libs.findLibrary("androidx.hilt.navigation.compose").get())
+                "implementation"(libs.findLibrary("androidx.navigation.compose").get())
+                "implementation"(libs.findLibrary("kotlinx.serialization.json").get())
             }
         }
     }
