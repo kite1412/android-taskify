@@ -3,6 +3,7 @@ package com.nrr.database.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.PrimaryKey
 import com.nrr.model.ActiveStatus
 import com.nrr.model.TaskPeriod
 import com.nrr.model.TaskPriority
@@ -20,7 +21,8 @@ import kotlinx.datetime.Instant
     ]
 )
 data class ActiveTaskEntity(
-    val id: Int,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     @ColumnInfo(name = "task_id")
     val taskId: Int,
     @ColumnInfo(name = "task_priority")
@@ -37,11 +39,20 @@ data class ActiveTaskEntity(
     val isDefault: Boolean
 )
 
-fun ActiveTaskEntity.asExternalModel() =
-    ActiveStatus(
-        startDate = startDate,
-        dueDate = dueDate,
-        priority = taskPriority,
-        period = taskPeriod,
-        isDefault = isDefault
-    )
+fun ActiveTaskEntity.asExternalModel() = ActiveStatus(
+    startDate = startDate,
+    dueDate = dueDate,
+    priority = taskPriority,
+    period = taskPeriod,
+    isDefault = isDefault
+)
+
+fun ActiveStatus.asEntity(taskId: Int) = ActiveTaskEntity(
+    taskId = taskId,
+    taskPriority = priority,
+    taskPeriod = period,
+    reminderSet = false,
+    startDate = startDate,
+    dueDate = dueDate,
+    isDefault = isDefault
+)
