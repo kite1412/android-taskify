@@ -12,6 +12,7 @@ data class Task(
     val endTime: Time?,
     val taskType: TaskType,
     val priority: TaskPriority,
+    val period: TaskPeriod,
     val isSet: Boolean,
     val isDefault: Boolean
 )
