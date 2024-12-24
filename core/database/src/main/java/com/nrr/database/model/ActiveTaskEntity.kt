@@ -22,9 +22,9 @@ import kotlinx.datetime.Instant
 )
 data class ActiveTaskEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    val id: Long = 0,
     @ColumnInfo(name = "task_id")
-    val taskId: Int,
+    val taskId: Long,
     @ColumnInfo(name = "task_priority")
     val taskPriority: TaskPriority,
     @ColumnInfo(name = "task_period")
@@ -47,7 +47,7 @@ fun ActiveTaskEntity.asExternalModel() = ActiveStatus(
     isDefault = isDefault
 )
 
-fun ActiveStatus.asEntity(taskId: Int) = ActiveTaskEntity(
+fun ActiveStatus.asEntity(taskId: Long) = ActiveTaskEntity(
     taskId = taskId,
     taskPriority = priority,
     taskPeriod = period,

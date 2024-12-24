@@ -10,7 +10,7 @@ import kotlinx.datetime.Instant
 @Entity(tableName = "tasks")
 data class TaskEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    val id: Long = 0,
     val title: String,
     val description: String?,
     @ColumnInfo(name = "created_at")

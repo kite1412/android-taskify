@@ -3,7 +3,7 @@ package com.nrr.model
 import kotlinx.datetime.Instant
 
 data class Task(
-    val id: Int,
+    val id: Long,
     val title: String,
     val description: String?,
     val createdAt: Instant,
