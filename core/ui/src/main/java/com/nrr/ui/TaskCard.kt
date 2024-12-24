@@ -48,13 +48,13 @@ fun TaskCard(
     val swipeableClip = 10.dp
     val density = LocalDensity.current
     var textWidth by remember { mutableIntStateOf(0) }
-    val showTime = showStartTime && task.activeStatus?.startDate != null
+    val showTime = showStartTime && task.activeStatus != null
 
     Box(
         modifier = modifier.fillMaxWidth()
     ) {
         if (showTime) Text(
-            text = task.activeStatus!!.startDate!!.toTimeString(),
+            text = task.activeStatus!!.startDate.toTimeString(),
             modifier = Modifier.align(Alignment.CenterStart),
             fontWeight = FontWeight.Bold,
             onTextLayout = { textWidth = it.size.width }

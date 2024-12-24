@@ -1,6 +1,7 @@
 package com.nrr.database.di
 
 import com.nrr.database.TaskifyDatabase
+import com.nrr.database.dao.ActiveTaskDao
 import com.nrr.database.dao.TaskDao
 import dagger.Module
 import dagger.Provides
@@ -14,4 +15,9 @@ internal object DaosModule {
     fun providesTaskDao(
         database: TaskifyDatabase,
     ): TaskDao = database.taskDao()
+
+    @Provides
+    fun providesActiveTaskDao(
+        database: TaskifyDatabase,
+    ): ActiveTaskDao = database.activeTaskDao()
 }

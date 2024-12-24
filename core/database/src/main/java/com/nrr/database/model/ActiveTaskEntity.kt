@@ -32,7 +32,7 @@ data class ActiveTaskEntity(
     @ColumnInfo(name = "start_date")
     val startDate: Instant,
     @ColumnInfo(name = "due_date")
-    val dueDate: Instant,
+    val dueDate: Instant?,
     @ColumnInfo(name = "is_default")
     val isDefault: Boolean
 )
