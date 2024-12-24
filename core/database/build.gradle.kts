@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.taskify.android.room)
+    alias(libs.plugins.taskify.hilt)
 }
 
 android {
