@@ -30,10 +30,12 @@ import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.Swipeable
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
+import com.nrr.model.ActiveStatus
 import com.nrr.model.Task
+import com.nrr.model.TaskPeriod
 import com.nrr.model.TaskPriority
 import com.nrr.model.TaskType
-import com.nrr.model.Time
+import com.nrr.model.toTimeString
 import kotlinx.datetime.Clock
 
 @Composable
@@ -46,12 +48,13 @@ fun TaskCard(
     val swipeableClip = 10.dp
     val density = LocalDensity.current
     var textWidth by remember { mutableIntStateOf(0) }
+    val showTime = showStartTime && task.activeStatus?.startDate != null
 
     Box(
         modifier = modifier.fillMaxWidth()
     ) {
-        if (showStartTime) Text(
-            text = task.startTime.toString(),
+        if (showTime) Text(
+            text = task.activeStatus!!.startDate!!.toTimeString(),
             modifier = Modifier.align(Alignment.CenterStart),
             fontWeight = FontWeight.Bold,
             onTextLayout = { textWidth = it.size.width }
@@ -61,7 +64,7 @@ fun TaskCard(
             modifier = Modifier
                 .padding(
                     start = with(density) {
-                        if (showStartTime) textWidth.toDp() + 8.dp else 0.dp
+                        if (showTime) textWidth.toDp() + 8.dp else 0.dp
                     }
                 ),
             actionButtonsBorderShape = RoundedCornerShape(swipeableClip)
@@ -111,17 +114,19 @@ private fun TaskCardPreview() {
     val task = @Composable { s: Boolean ->
         TaskCard(
             task = Task(
-                id = "1",
+                id = 1,
                 title = "Learn Android",
                 description = "Learn Android Development",
                 createdAt = Clock.System.now(),
                 updateAt = Clock.System.now(),
-                startTime = Time(12, 0),
-                endTime = null,
                 taskType = TaskType.LEARNING,
-                priority = TaskPriority.NORMAL,
-                isSet = false,
-                isDefault = false
+                activeStatus = ActiveStatus(
+                    startDate = Clock.System.now(),
+                    dueDate = Clock.System.now(),
+                    priority = TaskPriority.HIGH,
+                    period = TaskPeriod.DAY,
+                    isDefault = true
+                )
             ),
             actions = listOf(
                 Action(

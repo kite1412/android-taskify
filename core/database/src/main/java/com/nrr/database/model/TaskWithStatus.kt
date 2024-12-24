@@ -2,6 +2,7 @@ package com.nrr.database.model
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import com.nrr.model.Task
 
 data class TaskWithStatus(
     @Embedded
@@ -12,3 +13,14 @@ data class TaskWithStatus(
     )
     val activeStatus: ActiveTaskEntity?
 )
+
+fun TaskWithStatus.asExternalModel() =
+    Task(
+        id = task.id,
+        title = task.title,
+        description = task.description,
+        createdAt = task.createdAt,
+        updateAt = task.updateAt,
+        taskType = task.taskType,
+        activeStatus = activeStatus?.asExternalModel()
+    )
