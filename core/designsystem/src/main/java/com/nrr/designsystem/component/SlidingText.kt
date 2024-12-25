@@ -8,7 +8,6 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -17,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
@@ -38,12 +36,11 @@ fun SlidingText(
                     enter = d.transitionSpec.targetContentEnter,
                     exit = d.transitionSpec.initialContentExit
                 ) {
-                    Text(
+                    AdaptiveText(
                         text = d.text,
-                        fontSize = d.fontSize,
+                        initialFontSize = d.fontSize,
                         fontWeight = d.fontWeight,
-                        maxLines = 1,
-                        overflow = TextOverflow.Clip
+                        maxLines = 1
                     )
                 }
             }

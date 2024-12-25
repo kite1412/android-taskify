@@ -26,6 +26,11 @@ import kotlinx.coroutines.delay
 
 val defaultLogoHeight = 55.dp
 val defaultLogoWidth = 46.dp
+val defaultTitles = listOf(
+    SlidingTextData("Taskify"),
+    SlidingTextData("Boost your productivity", fontSize = 18.sp),
+    SlidingTextData("Organize, prioritize, succeed", fontSize = 18.sp)
+)
 
 @Composable
 fun TopAppBar(
@@ -54,11 +59,7 @@ fun TopAppBar(
 @Composable
 private fun TopAppBarPreview() {
     var currentTitleIndex by remember { mutableIntStateOf(0) }
-    val titles = listOf(
-        SlidingTextData("Taskify"),
-        SlidingTextData("Boost your productivity", fontSize = 18.sp),
-        SlidingTextData("Organize, prioritize, succeed", fontSize = 18.sp)
-    )
+    val titles = defaultTitles
     TaskifyTheme {
         LaunchedEffect(true) {
             while (true) {
