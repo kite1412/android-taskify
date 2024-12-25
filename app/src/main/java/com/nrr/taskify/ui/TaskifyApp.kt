@@ -1,14 +1,11 @@
 package com.nrr.taskify.ui
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nrr.designsystem.component.Destination
@@ -16,11 +13,21 @@ import com.nrr.designsystem.component.NavigationScaffold
 import com.nrr.designsystem.component.SlidingTextData
 import com.nrr.designsystem.component.TaskifyTopAppBarDefaults
 import com.nrr.designsystem.component.TopAppBar
-import com.nrr.designsystem.theme.TaskifyTheme
 
 @Composable
-internal fun TaskifyApp(modifier: Modifier = Modifier) {
-
+internal fun TaskifyApp(
+    modifier: Modifier = Modifier,
+    viewModel: TaskifyViewModel = viewModel()
+) {
+    TaskifyScaffold(
+        topBarTitles = viewModel.topBarTitles,
+        topBarTitleIndex = viewModel.titleIndex,
+        currentDestination = viewModel.currentDestination,
+        onDestinationChange = viewModel::onDestinationChange,
+        modifier = modifier
+    ) {
+        // TODO use NavHost
+    }
 }
 
 @Composable
@@ -35,7 +42,7 @@ internal fun TaskifyScaffold(
     Scaffold(modifier) { innerPadding ->
         NavigationScaffold(
             onClick = onDestinationChange,
-            modifier = Modifier.consumeWindowInsets(innerPadding),
+            modifier = Modifier.padding(innerPadding),
             initialDestination = currentDestination
         ) {
             Box(
@@ -55,22 +62,6 @@ internal fun TaskifyScaffold(
                     titles = topBarTitles
                 )
             }
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun TaskifyScaffoldPreview() {
-    val vm: TaskifyViewModel = viewModel()
-    TaskifyTheme {
-        TaskifyScaffold(
-            topBarTitles = vm.topBarTitles,
-            topBarTitleIndex = vm.titleIndex,
-            currentDestination = vm.currentDestination,
-            onDestinationChange = vm::onDestinationChange
-        ) {
-            Text("A text")
         }
     }
 }
