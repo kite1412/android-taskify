@@ -5,3 +5,7 @@ plugins {
 android {
     namespace = "com.nrr.todayplan"
 }
+
+dependencies {
+    implementation(projects.core.domain)
+}
