@@ -48,7 +48,7 @@ import com.nrr.designsystem.theme.CharcoalClay
 import com.nrr.designsystem.theme.TaskifyTheme
 import kotlin.math.abs
 
-enum class Navigation(
+enum class Destination(
     val id: Int,
     val label: String,
     var color: Color = Color.Black,
@@ -77,10 +77,10 @@ enum class Navigation(
     internal companion object {
         @SuppressLint("ComposableNaming")
         @Composable
-        fun toNavigation(
+        fun toComposable(
             selectedIndex: Int,
             prevSelectedIndex: Int,
-            onClick: (Navigation) -> Unit,
+            onClick: (Destination) -> Unit,
             modifier: Modifier = Modifier,
             showLabel: Boolean = false,
             horizontalAnimation: Boolean = true
@@ -111,7 +111,7 @@ private fun adjustNavigationData() {
     val color = if (!darkTheme) Color.Black else Color.White
     val selectedColor = if (!darkTheme) Color.White else CharcoalClay
     val indicatorColor = if (!darkTheme) CharcoalClay else Color.White
-    Navigation.entries.forEach {
+    Destination.entries.forEach {
         it.color = color
         it.selectedColor = selectedColor
         it.indicatorColor = indicatorColor
@@ -122,7 +122,7 @@ private fun adjustNavigationData() {
 private fun BottomNavigationBar(
     selectedIndex: Int,
     prevSelectedIndex: Int,
-    onClick: (Navigation) -> Unit,
+    onClick: (Destination) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -133,7 +133,7 @@ private fun BottomNavigationBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Navigation.toNavigation(
+        Destination.toComposable(
             onClick = onClick,
             selectedIndex = selectedIndex,
             prevSelectedIndex = prevSelectedIndex
@@ -163,10 +163,10 @@ private fun BottomNavigationBarPreview() {
 private fun NavigationRail(
     selectedIndex: Int,
     prevSelectedIndex: Int,
-    onClick: (Navigation) -> Unit,
+    onClick: (Destination) -> Unit,
     modifier: Modifier = Modifier
 ) = androidx.compose.material3.NavigationRail {
-    Navigation.toNavigation(
+    Destination.toComposable(
         onClick = onClick,
         selectedIndex = selectedIndex,
         prevSelectedIndex = prevSelectedIndex,
@@ -196,7 +196,7 @@ private fun NavigationRailPreview() {
 private fun NavigationDrawer(
     selectedIndex: Int,
     prevSelectedIndex: Int,
-    onClick: (Navigation) -> Unit,
+    onClick: (Destination) -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) = PermanentNavigationDrawer(
@@ -208,7 +208,7 @@ private fun NavigationDrawer(
                     vertical = 8.dp
                 )
             ) {
-                Navigation.toNavigation(
+                Destination.toComposable(
                     onClick = onClick,
                     selectedIndex = selectedIndex,
                     prevSelectedIndex = prevSelectedIndex,
@@ -244,14 +244,14 @@ private fun NavigationDrawerPreview() {
 
 @Composable
 private fun NavigationItem(
-    data: Navigation,
+    data: Destination,
     indexInList: Int,
     prevSelectedIndex: Int,
     selected: Boolean,
     modifier: Modifier = Modifier,
     horizontalAnimation: Boolean = true,
     showLabel: Boolean = false,
-    onClick: (Navigation) -> Unit
+    onClick: (Destination) -> Unit
 ) {
     val animatedColor by animateColorAsState(
         targetValue = if (selected) data.selectedColor else data.color,
@@ -328,14 +328,15 @@ private fun indicatorAnimationLogic(
 
 @Composable
 fun NavigationScaffold(
-    onClick: (Navigation) -> Unit,
+    onClick: (Destination) -> Unit,
     modifier: Modifier = Modifier,
+    initialDestination: Destination = Destination.HOME,
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo(),
     content: @Composable () -> Unit
 ) {
-    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
-    var prevSelectedIndex by rememberSaveable { mutableIntStateOf(0) }
-    val onClickWrapper = { data: Navigation ->
+    var selectedIndex by rememberSaveable { mutableIntStateOf(initialDestination.ordinal) }
+    var prevSelectedIndex by rememberSaveable { mutableIntStateOf(initialDestination.ordinal) }
+    val onClickWrapper = { data: Destination ->
         prevSelectedIndex = selectedIndex
         selectedIndex = data.ordinal
         onClick(data)

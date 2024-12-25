@@ -24,13 +24,15 @@ import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
 import kotlinx.coroutines.delay
 
-val defaultLogoHeight = 55.dp
-val defaultLogoWidth = 46.dp
-val defaultTitles = listOf(
-    SlidingTextData("Taskify"),
-    SlidingTextData("Boost your productivity", fontSize = 18.sp),
-    SlidingTextData("Organize, prioritize, succeed", fontSize = 18.sp)
-)
+object TaskifyTopAppBarDefaults {
+    val defaultTopBarHeight = 55.dp
+    val defaultLogoWidth = 46.dp
+    val defaultTitles = listOf(
+        SlidingTextData("Taskify"),
+        SlidingTextData("Boost your productivity", fontSize = 18.sp),
+        SlidingTextData("Organize, prioritize, succeed", fontSize = 18.sp)
+    )
+}
 
 @Composable
 fun TopAppBar(
@@ -41,7 +43,7 @@ fun TopAppBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(defaultLogoHeight)
+            .height(TaskifyTopAppBarDefaults.defaultTopBarHeight)
             .background(MaterialTheme.colorScheme.background),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -59,7 +61,7 @@ fun TopAppBar(
 @Composable
 private fun TopAppBarPreview() {
     var currentTitleIndex by remember { mutableIntStateOf(0) }
-    val titles = defaultTitles
+    val titles = TaskifyTopAppBarDefaults.defaultTitles
     TaskifyTheme {
         LaunchedEffect(true) {
             while (true) {
@@ -80,6 +82,9 @@ fun AppLogo(modifier: Modifier = Modifier) {
     Image(
         painter = painterResource(TaskifyIcon.appIcon),
         contentDescription = "taskify logo",
-        modifier = modifier.size(height = defaultLogoHeight, width = defaultLogoWidth)
+        modifier = modifier.size(
+            height = TaskifyTopAppBarDefaults.defaultTopBarHeight,
+            width = TaskifyTopAppBarDefaults.defaultLogoWidth
+        )
     )
 }
