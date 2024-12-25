@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+// datastore module namespace
+option java_package = "com.nrr.datastore";
+option java_multiple_files = true;
+
+message UserPreferences {
+    string username = 1;
+}

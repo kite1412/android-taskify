@@ -30,6 +30,7 @@ include(":core:ui")
 include(":core:domain")
 include(":core:model")
 include(":core:data")
+include(":core:datastore")
+include(":core:datastore-proto")
 include(":feature:taskmanagement")
 include(":feature:todayplan")
-
