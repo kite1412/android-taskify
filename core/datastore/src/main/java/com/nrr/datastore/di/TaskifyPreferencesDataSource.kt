@@ -20,13 +20,15 @@ class TaskifyPreferencesDataSource @Inject constructor(
             )
         }
 
-    suspend fun setUsername(newUsername: String) = try {
-        userPreferences.updateData {
-            it.copy {
-                username = newUsername
+    suspend fun setUsername(newUsername: String) {
+        try {
+            userPreferences.updateData {
+                it.copy {
+                    username = newUsername
+                }
             }
+        } catch (e: Exception) {
+            Log.e(tag, "Error updating username", e)
         }
-    } catch (e: Exception) {
-        Log.e(tag, "Error updating username", e)
     }
 }
