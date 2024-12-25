@@ -8,9 +8,6 @@
       <SelectionState runConfigName="TaskifyScaffoldPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="AdaptiveTextPreview">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="TopAppBarPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
