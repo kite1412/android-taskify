@@ -8,7 +8,7 @@ import com.nrr.model.UserData
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class TaskifyDataSource @Inject constructor(
+class TaskifyPreferencesDataSource @Inject constructor(
     private val userPreferences: DataStore<UserPreferences>
 ) {
     private val tag = "TaskifyDataSource"
