@@ -13,6 +13,7 @@ import com.nrr.designsystem.component.NavigationScaffold
 import com.nrr.designsystem.component.SlidingTextData
 import com.nrr.designsystem.component.TaskifyTopAppBarDefaults
 import com.nrr.designsystem.component.TopAppBar
+import com.nrr.taskify.navigation.TaskifyNavHost
 
 @Composable
 internal fun TaskifyApp(
@@ -26,7 +27,7 @@ internal fun TaskifyApp(
         onDestinationChange = viewModel::onDestinationChange,
         modifier = modifier
     ) {
-        // TODO use NavHost
+        TaskifyNavHost()
     }
 }
 

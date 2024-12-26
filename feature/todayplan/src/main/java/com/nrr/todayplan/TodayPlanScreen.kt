@@ -132,7 +132,7 @@ private fun GreetingHeader(
                 lineHeight = (initialNameSize + 2).sp
             )
         }
-        Box(
+        if (username.isNotEmpty()) Box(
             modifier = Modifier
                 .clip(CircleShape)
                 .background(PastelGreen)
