@@ -6,20 +6,28 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,22 +41,77 @@ import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.PastelGreen
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.theme.lightOrangeGradient
+import com.nrr.designsystem.util.drawRoundedShadow
 import com.nrr.todayplan.util.TodayPlanDictionary
 
 @Composable
 internal fun TodayPlanScreen(
+    onPlanForTodayClick: () -> Unit,
+    onSettingClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TodayPlanViewModel = hiltViewModel()
 ) {
     val todayPlan by viewModel.todayPlan.collectAsStateWithLifecycle()
+    val username by viewModel.username.collectAsStateWithLifecycle()
 
-    Column(modifier = modifier) {
+    Content(
+        username = username,
+        onPlanForTodayClick = onPlanForTodayClick,
+        onSettingClick = onSettingClick,
+        modifier = modifier
+    )
+}
 
+@Composable
+private fun Content(
+    username: String,
+    onPlanForTodayClick: () -> Unit,
+    onSettingClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(32.dp)
+    ) {
+        GreetingHeader(username)
+        Row(
+            modifier = Modifier.height(IntrinsicSize.Max),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            PlanForToday(
+                modifier = Modifier.weight(0.9f),
+                onClick = onPlanForTodayClick
+            )
+            IconButton(
+                onClick = onSettingClick,
+                modifier = Modifier.padding(end = 8.dp)
+            ) {
+                Icon(
+                    painter = painterResource(TaskifyIcon.setting),
+                    contentDescription = "setting",
+                    modifier = Modifier.fillMaxHeight()
+                )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun ContentPreview() {
+    TaskifyTheme {
+        Content(
+            username = "Kite1412",
+            onPlanForTodayClick = {},
+            onSettingClick = {},
+            modifier = Modifier.padding(32.dp)
+        )
     }
 }
 
 @Composable
-internal fun GreetingHeader(
+private fun GreetingHeader(
     username: String,
     modifier: Modifier = Modifier
 ) {
@@ -104,14 +167,20 @@ private fun GreetingHeaderPreview() {
 }
 
 @Composable
-internal fun PlanForToday(
+private fun PlanForToday(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+    val cornerRadius = 10.dp
+    val density = LocalDensity.current
+
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
+            .drawRoundedShadow(cornerRadius = with(density) {
+                CornerRadius(x = cornerRadius.toPx(), y = cornerRadius.toPx())
+            })
+            .clip(RoundedCornerShape(cornerRadius))
             .background(
                 brush = Brush.linearGradient(
                     colors = lightOrangeGradient
