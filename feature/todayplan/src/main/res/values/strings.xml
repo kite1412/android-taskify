@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="todayplan_greeting">Hello</string>
+    <string name="todayplan_question">What\'s your plan today?</string>
+    <string name="todayplan_plan_for_today">Plan for today</string>
+    <string name="todayplan_today_progress">Today Progress</string>
+    <string name="todayplan_completed">completed</string>
+    <string name="todayplan_tasks_left">tasks left</string>
+    <string name="todayplan_weekly">Weekly</string>
+    <string name="todayplan_monthly">Monthly</string>
+    <string name="todayplan_schedule">Schedule</string>
+</resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="todayplan_greeting">Halo</string>
+    <string name="todayplan_question">Apa rencana kamu hari ini?</string>
+    <string name="todayplan_plan_for_today">Jadwal hari ini</string>
+    <string name="todayplan_today_progress">Progres hari ini</string>
+    <string name="todayplan_completed">selesai</string>
+    <string name="todayplan_tasks_left">tugas tersisa</string>
+    <string name="todayplan_weekly">Mingguan</string>
+    <string name="todayplan_monthly">Bulanan</string>
+    <string name="todayplan_schedule">Jadwal</string>
+</resources>
