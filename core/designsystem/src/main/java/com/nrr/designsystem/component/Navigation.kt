@@ -43,7 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowWidthSizeClass
-import com.nrr.designsystem.R
+import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.CharcoalClay
 import com.nrr.designsystem.theme.TaskifyTheme
 import kotlin.math.abs
@@ -58,19 +58,19 @@ enum class Destination(
     var width: Dp = 40.dp
 ) {
     HOME(
-        id = R.drawable.home,
+        id = TaskifyIcon.home,
         label = "Home"
     ),
     TASKS(
-        id = R.drawable.note,
+        id = TaskifyIcon.note,
         label = "Tasks"
     ),
     ANALYTICS(
-        id = R.drawable.chart,
+        id = TaskifyIcon.chart,
         label = "Analytics"
     ),
     PROFILE(
-        id = R.drawable.profile,
+        id = TaskifyIcon.profile,
         label = "Profile"
     );
 
