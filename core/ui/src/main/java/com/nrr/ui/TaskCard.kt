@@ -30,13 +30,8 @@ import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.Swipeable
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
-import com.nrr.model.ActiveStatus
 import com.nrr.model.Task
-import com.nrr.model.TaskPeriod
-import com.nrr.model.TaskPriority
-import com.nrr.model.TaskType
 import com.nrr.model.toTimeString
-import kotlinx.datetime.Clock
 
 @Composable
 fun TaskCard(
@@ -113,21 +108,7 @@ fun TaskCard(
 private fun TaskCardPreview() {
     val task = @Composable { s: Boolean ->
         TaskCard(
-            task = Task(
-                id = 1,
-                title = "Learn Android",
-                description = "Learn Android Development",
-                createdAt = Clock.System.now(),
-                updateAt = Clock.System.now(),
-                taskType = TaskType.LEARNING,
-                activeStatus = ActiveStatus(
-                    startDate = Clock.System.now(),
-                    dueDate = Clock.System.now(),
-                    priority = TaskPriority.HIGH,
-                    period = TaskPeriod.DAY,
-                    isDefault = true
-                )
-            ),
+            task = Task.mock,
             actions = listOf(
                 Action(
                     action = "Delete",

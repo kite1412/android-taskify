@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,11 +38,15 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.designsystem.component.AdaptiveText
+import com.nrr.designsystem.component.CircularTaskProgressIndicator
 import com.nrr.designsystem.icon.TaskifyIcon
+import com.nrr.designsystem.theme.CharcoalClay
 import com.nrr.designsystem.theme.PastelGreen
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.theme.lightOrangeGradient
 import com.nrr.designsystem.util.drawRoundedShadow
+import com.nrr.model.Task
+import com.nrr.model.TaskPeriod
 import com.nrr.todayplan.util.TodayPlanDictionary
 
 @Composable
@@ -56,6 +61,7 @@ internal fun TodayPlanScreen(
 
     Content(
         username = username,
+        todayTasks = todayPlan,
         onPlanForTodayClick = onPlanForTodayClick,
         onSettingClick = onSettingClick,
         modifier = modifier
@@ -65,6 +71,7 @@ internal fun TodayPlanScreen(
 @Composable
 private fun Content(
     username: String,
+    todayTasks: List<Task>,
     onPlanForTodayClick: () -> Unit,
     onSettingClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -94,19 +101,7 @@ private fun Content(
                 )
             }
         }
-    }
-}
-
-@Preview
-@Composable
-private fun ContentPreview() {
-    TaskifyTheme {
-        Content(
-            username = "Kite1412",
-            onPlanForTodayClick = {},
-            onSettingClick = {},
-            modifier = Modifier.padding(32.dp)
-        )
+        TodayProgress(todayTasks)
     }
 }
 
@@ -155,17 +150,6 @@ private fun GreetingHeader(
     }
 }
 
-@Preview
-@Composable
-private fun GreetingHeaderPreview() {
-    TaskifyTheme {
-        GreetingHeader(
-            username = "Kite1412",
-            modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp)
-        )
-    }
-}
-
 @Composable
 private fun PlanForToday(
     modifier: Modifier = Modifier,
@@ -203,10 +187,101 @@ private fun PlanForToday(
     }
 }
 
+@Composable
+private fun TodayProgress(
+    todayTasks: List<Task>,
+    modifier: Modifier = Modifier
+) {
+    val density = LocalDensity.current
+    val cornerRadius = 20.dp
+    val completed = todayTasks.filter {
+        it.activeStatus?.period == TaskPeriod.DAY && it.activeStatus?.isCompleted == true
+    }
+    val textColor = Color.White
+    val progress = completed.size / todayTasks.size.toFloat()
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .drawRoundedShadow(
+                cornerRadius = with(density) {
+                    CornerRadius(x = cornerRadius.toPx(), y = cornerRadius.toPx())
+                },
+                alpha = 0.4f
+            )
+            .clip(RoundedCornerShape(cornerRadius))
+            .background(CharcoalClay)
+            .padding(
+                horizontal = 24.dp,
+                vertical = 48.dp
+            )
+            .height(IntrinsicSize.Max),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        if (todayTasks.isEmpty()) Text(
+            text = stringResource(TodayPlanDictionary.noTasksToday),
+            fontWeight = FontWeight.Bold,
+            fontStyle = FontStyle.Italic,
+            color = textColor
+        )
+        if (todayTasks.isNotEmpty()) Column(
+            modifier = Modifier.fillMaxHeight(),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(
+                    text = stringResource(TodayPlanDictionary.todayProgress),
+                    fontWeight = FontWeight.Bold,
+                    color = textColor,
+                    fontSize = 16.sp
+                )
+                Text(
+                    text = "${(progress * 100).toInt()}% ${stringResource(TodayPlanDictionary.completed)}",
+                    fontWeight = FontWeight.SemiBold,
+                    color = textColor,
+                    fontSize = 12.sp
+                )
+            }
+            Text(
+                text = "${todayTasks.size - completed.size} ${stringResource(TodayPlanDictionary.tasksLeft)}",
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .padding(horizontal = 8.dp),
+                fontWeight = FontWeight.Bold,
+                color = Color.Red,
+                fontSize = 12.sp
+            )
+        }
+        if (todayTasks.isNotEmpty()) CircularTaskProgressIndicator(
+            progress = { progress },
+            modifier = Modifier.size(100.dp)
+        ) {
+            Text(
+                text = "${completed.size}/${todayTasks.size}",
+                color = textColor,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
 @Preview
 @Composable
-private fun PlanForTodayPreview() {
+private fun ContentPreview() {
     TaskifyTheme {
-        PlanForToday {}
+        Content(
+            username = "Kite1412",
+            todayTasks = (1..12).map {
+                Task.mock.copy(
+                    activeStatus = Task.mock.activeStatus?.copy(
+                        isCompleted = it > 5
+                    )
+                )
+            },
+            onPlanForTodayClick = {},
+            onSettingClick = {},
+            modifier = Modifier.padding(32.dp)
+        )
     }
 }

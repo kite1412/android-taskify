@@ -9,4 +9,5 @@
     <string name="todayplan_weekly">Mingguan</string>
     <string name="todayplan_monthly">Bulanan</string>
     <string name="todayplan_schedule">Jadwal</string>
+    <string name="todayplan_today_tasks_empty">Tidak ada tugas hari ini</string>
 </resources>

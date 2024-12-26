@@ -14,7 +14,7 @@ fun Modifier.drawRoundedShadow(
     drawRoundRect(
         color = color,
         cornerRadius = cornerRadius,
-        topLeft = Offset(x = -5f, y = 6f),
+        topLeft = Offset(x = -7f, y = 8f),
         size = this.size,
         alpha = alpha
     )
