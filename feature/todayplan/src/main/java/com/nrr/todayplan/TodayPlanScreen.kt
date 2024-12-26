@@ -51,7 +51,6 @@ import com.nrr.todayplan.util.TodayPlanDictionary
 
 @Composable
 internal fun TodayPlanScreen(
-    onPlanForTodayClick: () -> Unit,
     onSettingClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TodayPlanViewModel = hiltViewModel()
@@ -62,7 +61,7 @@ internal fun TodayPlanScreen(
     Content(
         username = username,
         todayTasks = todayPlan,
-        onPlanForTodayClick = onPlanForTodayClick,
+        onPlanForTodayClick = { /* TODO */ },
         onSettingClick = onSettingClick,
         modifier = modifier
     )
@@ -255,7 +254,8 @@ private fun TodayProgress(
         }
         if (todayTasks.isNotEmpty()) CircularTaskProgressIndicator(
             progress = { progress },
-            modifier = Modifier.size(100.dp)
+            modifier = Modifier.size(100.dp),
+            strokeWidth = 6.dp
         ) {
             Text(
                 text = "${completed.size}/${todayTasks.size}",
