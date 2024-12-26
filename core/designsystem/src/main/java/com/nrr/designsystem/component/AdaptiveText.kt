@@ -21,6 +21,7 @@ fun AdaptiveText(
     modifier: Modifier = Modifier,
     maxLines: Int = Int.MAX_VALUE,
     color: Color = Color.Unspecified,
+    lineHeight: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = null
 ) {
@@ -33,6 +34,7 @@ fun AdaptiveText(
         color = color,
         fontStyle = fontStyle,
         fontWeight = fontWeight,
+        lineHeight = lineHeight,
         onTextLayout = {
             if (it.hasVisualOverflow) fontSize--
         }

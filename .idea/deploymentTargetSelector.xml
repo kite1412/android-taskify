@@ -17,6 +17,9 @@
       <SelectionState runConfigName="readAndWrite_usernameShouldNotMatch()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="GreetingHeaderPreview">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>
