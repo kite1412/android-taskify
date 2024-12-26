@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "5ba49db7450654a402054643dbf3f926",
+    "identityHash": "ff1ccc25f63e969625c2206af3b6276a",
     "entities": [
       {
         "tableName": "tasks",
@@ -56,7 +56,7 @@
       },
       {
         "tableName": "active_tasks",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `task_id` INTEGER NOT NULL, `task_priority` INTEGER NOT NULL, `task_period` INTEGER NOT NULL, `reminder_set` INTEGER NOT NULL, `start_date` INTEGER NOT NULL, `due_date` INTEGER, `is_default` INTEGER NOT NULL, FOREIGN KEY(`task_id`) REFERENCES `tasks`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `task_id` INTEGER NOT NULL, `task_priority` INTEGER NOT NULL, `task_period` INTEGER NOT NULL, `reminder_set` INTEGER NOT NULL, `start_date` INTEGER NOT NULL, `due_date` INTEGER, `is_default` INTEGER NOT NULL, `is_completed` INTEGER NOT NULL, FOREIGN KEY(`task_id`) REFERENCES `tasks`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -105,6 +105,12 @@
             "columnName": "is_default",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "isCompleted",
+            "columnName": "is_completed",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -132,7 +138,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5ba49db7450654a402054643dbf3f926')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ff1ccc25f63e969625c2206af3b6276a')"
     ]
   }
 }
