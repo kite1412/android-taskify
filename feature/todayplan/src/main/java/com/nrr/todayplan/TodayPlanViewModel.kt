@@ -16,7 +16,21 @@ class TodayPlanViewModel @Inject constructor(
     getTasksByPeriodUseCase: GetTasksByPeriodUseCase,
     userDataRepository: UserDataRepository
 ) : ViewModel() {
-    val todayPlan = getTasksByPeriodUseCase(TaskPeriod.DAY)
+    val todayTasks = getTasksByPeriodUseCase(TaskPeriod.DAY)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
+
+    val weeklyTasks = getTasksByPeriodUseCase(TaskPeriod.WEEK)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
+
+    val monthlyTasks = getTasksByPeriodUseCase(TaskPeriod.MONTH)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),

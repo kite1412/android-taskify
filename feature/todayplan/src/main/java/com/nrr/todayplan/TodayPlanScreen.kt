@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +35,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -64,12 +66,16 @@ internal fun TodayPlanScreen(
     modifier: Modifier = Modifier,
     viewModel: TodayPlanViewModel = hiltViewModel()
 ) {
-    val todayPlan by viewModel.todayPlan.collectAsStateWithLifecycle()
+    val todayPlan by viewModel.todayTasks.collectAsStateWithLifecycle()
+    val weeklyTasks by viewModel.weeklyTasks.collectAsStateWithLifecycle()
+    val monthlyTasks by viewModel.monthlyTasks.collectAsStateWithLifecycle()
     val username by viewModel.username.collectAsStateWithLifecycle()
 
     Content(
         username = username,
         todayTasks = todayPlan,
+        weeklyTasks = weeklyTasks,
+        monthlyTasks = monthlyTasks,
         onPlanForTodayClick = { /* TODO */ },
         onSettingClick = onSettingClick,
         modifier = modifier
@@ -80,13 +86,15 @@ internal fun TodayPlanScreen(
 private fun Content(
     username: String,
     todayTasks: List<Task>,
+    weeklyTasks: List<Task>,
+    monthlyTasks: List<Task>,
     onPlanForTodayClick: () -> Unit,
     onSettingClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(32.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp),
         contentPadding = PaddingValues(bottom = 16.dp)
     ) {
         item { GreetingHeader(username) }
@@ -113,7 +121,12 @@ private fun Content(
             }
         }
         item { TodayProgress(todayTasks) }
-        item { Periods() }
+        item {
+            Periods(
+                weeklyTasks = weeklyTasks,
+                monthlyTasks = monthlyTasks
+            )
+        }
     }
 }
 
@@ -289,18 +302,24 @@ private fun TodayProgress(
 }
 
 @Composable
-private fun Periods(modifier: Modifier = Modifier) {
+private fun Periods(
+    weeklyTasks: List<Task>,
+    monthlyTasks: List<Task>,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         PeriodCard(
             period = stringResource(TodayPlanDictionary.weekly),
+            tasks = weeklyTasks,
             modifier = Modifier.weight(0.5f),
             imageColorFilter = ColorFilter.lighting(lightBlueGradient[0], Color.DarkGray)
         )
         PeriodCard(
             period = stringResource(TodayPlanDictionary.monthly),
+            tasks = monthlyTasks,
             modifier = Modifier.weight(0.5f),
             gradientBackgroundColors = lightRedGradient,
             imageColorFilter = ColorFilter.lighting(lightRedGradient[0], Color(200, 35, 0))
@@ -311,12 +330,14 @@ private fun Periods(modifier: Modifier = Modifier) {
 @Composable
 private fun PeriodCard(
     period: String,
+    tasks: List<Task>,
     modifier: Modifier = Modifier,
     gradientBackgroundColors: List<Color> = lightBlueGradient,
     imageColorFilter: ColorFilter? = null
 ) {
     val cornerRadius = 10.dp
     val density = LocalDensity.current
+    val completed = tasks.filter { it.activeStatus?.isCompleted == true }
 
     Box(
         modifier = modifier
@@ -350,6 +371,29 @@ private fun PeriodCard(
                 .size(56.dp),
             colorFilter = imageColorFilter
         )
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 8.dp)
+                .offset(y = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = if (tasks.isNotEmpty()) "${completed.size}/${tasks.size}" else "No tasks",
+                color = Color.Black,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                fontStyle = if (tasks.isEmpty()) FontStyle.Italic else FontStyle.Normal
+            )
+            if (tasks.isNotEmpty()) CircularProgressIndicator(
+                progress = { completed.size / tasks.size.toFloat() },
+                modifier = Modifier.size(10.dp),
+                color = Color.Black,
+                strokeCap = StrokeCap.Round,
+                strokeWidth = 2.dp
+            )
+        }
     }
 }
 
@@ -362,17 +406,20 @@ private fun boxShadowColor() = if (isSystemInDarkTheme()) Color.White else Color
 @Preview
 @Composable
 private fun ContentPreview() {
+    val tasks = (1..12).map {
+        Task.mock.copy(
+            activeStatus = Task.mock.activeStatus?.copy(
+                isCompleted = it > 5
+            )
+        )
+    }
     TaskifyTheme {
         Surface {
             Content(
                 username = "Kite1412",
-                todayTasks = (1..12).map {
-                    Task.mock.copy(
-                        activeStatus = Task.mock.activeStatus?.copy(
-                            isCompleted = it > 5
-                        )
-                    )
-                },
+                todayTasks = tasks,
+                weeklyTasks = tasks,
+                monthlyTasks = tasks,
                 onPlanForTodayClick = {},
                 onSettingClick = {},
                 modifier = Modifier.padding(32.dp)
