@@ -19,7 +19,7 @@ interface ActiveTaskDao {
 
     @Query("""
         SELECT * FROM tasks
-        LEFT JOIN active_tasks AS at ON tasks.id = at.task_id
+        JOIN active_tasks AS at ON tasks.id = at.task_id
         WHERE at.task_period = :period
     """)
     fun getAllByPeriod(period: TaskPeriod): Flow<List<TaskWithStatus>>

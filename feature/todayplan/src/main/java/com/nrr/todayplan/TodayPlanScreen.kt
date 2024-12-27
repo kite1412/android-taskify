@@ -3,10 +3,12 @@ package com.nrr.todayplan
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,10 +16,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -75,32 +80,35 @@ private fun Content(
     onSettingClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    LazyColumn(
         modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(32.dp)
+        verticalArrangement = Arrangement.spacedBy(32.dp),
+        contentPadding = PaddingValues(bottom = 16.dp)
     ) {
-        GreetingHeader(username)
-        Row(
-            modifier = Modifier.height(IntrinsicSize.Max),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            PlanForToday(
-                modifier = Modifier.weight(0.9f),
-                onClick = onPlanForTodayClick
-            )
-            IconButton(
-                onClick = onSettingClick,
-                modifier = Modifier.padding(end = 8.dp)
+        item { GreetingHeader(username) }
+        item {
+            Row(
+                modifier = Modifier.height(IntrinsicSize.Max),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    painter = painterResource(TaskifyIcon.setting),
-                    contentDescription = "setting",
-                    modifier = Modifier.fillMaxHeight()
+                PlanForToday(
+                    modifier = Modifier.weight(0.9f),
+                    onClick = onPlanForTodayClick
                 )
+                IconButton(
+                    onClick = onSettingClick,
+                    modifier = Modifier.padding(end = 8.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(TaskifyIcon.setting),
+                        contentDescription = "setting",
+                        modifier = Modifier.fillMaxHeight()
+                    )
+                }
             }
         }
-        TodayProgress(todayTasks)
+        item { TodayProgress(todayTasks) }
     }
 }
 
@@ -160,9 +168,13 @@ private fun PlanForToday(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .drawRoundedShadow(cornerRadius = with(density) {
-                CornerRadius(x = cornerRadius.toPx(), y = cornerRadius.toPx())
-            })
+            .drawRoundedShadow(
+                cornerRadius = with(density) {
+                    CornerRadius(x = cornerRadius.toPx(), y = cornerRadius.toPx())
+                },
+                color = boxShadowColor(),
+                alpha = boxShadowOpacity()
+            )
             .clip(RoundedCornerShape(cornerRadius))
             .background(
                 brush = Brush.linearGradient(
@@ -181,7 +193,8 @@ private fun PlanForToday(
         )
         Text(
             text = stringResource(TodayPlanDictionary.planForToday),
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
         )
     }
 }
@@ -206,10 +219,14 @@ private fun TodayProgress(
                 cornerRadius = with(density) {
                     CornerRadius(x = cornerRadius.toPx(), y = cornerRadius.toPx())
                 },
-                alpha = 0.4f
+                color = boxShadowColor(),
+                alpha = boxShadowOpacity()
             )
             .clip(RoundedCornerShape(cornerRadius))
-            .background(CharcoalClay)
+            .background(
+                if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onBackground
+                    else CharcoalClay
+            )
             .padding(
                 horizontal = 24.dp,
                 vertical = 48.dp
@@ -266,22 +283,30 @@ private fun TodayProgress(
     }
 }
 
+@Composable
+private fun boxShadowOpacity() = if (isSystemInDarkTheme()) 0.5f else 0.25f
+
+@Composable
+private fun boxShadowColor() = if (isSystemInDarkTheme()) Color.White else Color.Black
+
 @Preview
 @Composable
 private fun ContentPreview() {
     TaskifyTheme {
-        Content(
-            username = "Kite1412",
-            todayTasks = (1..12).map {
-                Task.mock.copy(
-                    activeStatus = Task.mock.activeStatus?.copy(
-                        isCompleted = it > 5
+        Surface {
+            Content(
+                username = "Kite1412",
+                todayTasks = (1..12).map {
+                    Task.mock.copy(
+                        activeStatus = Task.mock.activeStatus?.copy(
+                            isCompleted = it > 5
+                        )
                     )
-                )
-            },
-            onPlanForTodayClick = {},
-            onSettingClick = {},
-            modifier = Modifier.padding(32.dp)
-        )
+                },
+                onPlanForTodayClick = {},
+                onSettingClick = {},
+                modifier = Modifier.padding(32.dp)
+            )
+        }
     }
 }
