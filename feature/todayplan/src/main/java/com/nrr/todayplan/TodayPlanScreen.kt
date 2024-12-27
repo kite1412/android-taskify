@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -48,7 +50,9 @@ import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.CharcoalClay
 import com.nrr.designsystem.theme.PastelGreen
 import com.nrr.designsystem.theme.TaskifyTheme
+import com.nrr.designsystem.theme.lightBlueGradient
 import com.nrr.designsystem.theme.lightOrangeGradient
+import com.nrr.designsystem.theme.lightRedGradient
 import com.nrr.designsystem.util.drawRoundedShadow
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
@@ -109,6 +113,7 @@ private fun Content(
             }
         }
         item { TodayProgress(todayTasks) }
+        item { Periods() }
     }
 }
 
@@ -220,12 +225,12 @@ private fun TodayProgress(
                     CornerRadius(x = cornerRadius.toPx(), y = cornerRadius.toPx())
                 },
                 color = boxShadowColor(),
-                alpha = boxShadowOpacity()
+                alpha = if (isSystemInDarkTheme()) 0.4f else 0.25f
             )
             .clip(RoundedCornerShape(cornerRadius))
             .background(
                 if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onBackground
-                    else CharcoalClay
+                else CharcoalClay
             )
             .padding(
                 horizontal = 24.dp,
@@ -280,6 +285,71 @@ private fun TodayProgress(
                 fontWeight = FontWeight.Bold
             )
         }
+    }
+}
+
+@Composable
+private fun Periods(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        PeriodCard(
+            period = stringResource(TodayPlanDictionary.weekly),
+            modifier = Modifier.weight(0.5f),
+            imageColorFilter = ColorFilter.lighting(lightBlueGradient[0], Color.DarkGray)
+        )
+        PeriodCard(
+            period = stringResource(TodayPlanDictionary.monthly),
+            modifier = Modifier.weight(0.5f),
+            gradientBackgroundColors = lightRedGradient,
+            imageColorFilter = ColorFilter.lighting(lightRedGradient[0], Color(200, 35, 0))
+        )
+    }
+}
+
+@Composable
+private fun PeriodCard(
+    period: String,
+    modifier: Modifier = Modifier,
+    gradientBackgroundColors: List<Color> = lightBlueGradient,
+    imageColorFilter: ColorFilter? = null
+) {
+    val cornerRadius = 10.dp
+    val density = LocalDensity.current
+
+    Box(
+        modifier = modifier
+            .drawRoundedShadow(
+                cornerRadius = with(density) {
+                    CornerRadius(x = cornerRadius.toPx(), y = cornerRadius.toPx())
+                },
+                color = boxShadowColor(),
+                alpha = boxShadowOpacity()
+            )
+            .background(
+                brush = Brush.linearGradient(gradientBackgroundColors),
+                shape = RoundedCornerShape(cornerRadius)
+            )
+    ) {
+        Text(
+            text = period,
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = 16.dp),
+            fontWeight = FontWeight.Bold,
+            color = Color.Black,
+            fontSize = 18.sp
+        )
+        Image(
+            painter = painterResource(TaskifyIcon.calendar3d),
+            contentDescription = "calendar illustration",
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .offset(y = (-16).dp)
+                .size(56.dp),
+            colorFilter = imageColorFilter
+        )
     }
 }
 
