@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.CircularTaskProgressIndicator
 import com.nrr.designsystem.icon.TaskifyIcon
@@ -59,6 +60,7 @@ import com.nrr.designsystem.util.drawRoundedShadow
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.todayplan.util.TodayPlanDictionary
+import com.nrr.ui.TaskCards
 
 @Composable
 internal fun TodayPlanScreen(
@@ -127,6 +129,7 @@ private fun Content(
                 monthlyTasks = monthlyTasks
             )
         }
+        item { Schedule(todayTasks) }
     }
 }
 
@@ -395,6 +398,32 @@ private fun PeriodCard(
             )
         }
     }
+}
+
+@Composable
+private fun Schedule(
+    todayTasks: List<Task>,
+    modifier: Modifier = Modifier
+) {
+   if (todayTasks.isNotEmpty()) Column(
+       modifier = modifier,
+       verticalArrangement = Arrangement.spacedBy(16.dp)
+   ) {
+       Text(
+           text = stringResource(TodayPlanDictionary.schedule),
+           fontWeight = FontWeight.Bold,
+           fontSize = 20.sp
+       )
+       TaskCards(
+           tasks = todayTasks,
+           actions = {
+               // TODO add actions
+               Action.mocks
+           },
+           verticalArrangement = Arrangement.spacedBy(8.dp),
+           showStartTime = true
+       )
+   }
 }
 
 @Composable

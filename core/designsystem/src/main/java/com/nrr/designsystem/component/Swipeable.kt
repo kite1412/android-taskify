@@ -175,7 +175,7 @@ data class Action(
     val color: Color,
     val onClick: () -> Unit
 ) {
-    internal companion object {
+    companion object {
         val mocks = listOf(
             Action(
                 action = "Home",
@@ -193,12 +193,6 @@ data class Action(
                 action = "Home",
                 iconId = R.drawable.home,
                 color = Color.Red,
-                onClick = {}
-            ),
-            Action(
-                action = "Note",
-                iconId = R.drawable.note,
-                color = Color.Black,
                 onClick = {}
             )
         )
