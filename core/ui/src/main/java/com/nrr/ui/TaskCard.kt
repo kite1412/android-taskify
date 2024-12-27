@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -116,7 +117,8 @@ fun TaskCards(
     modifier: Modifier = Modifier,
     showStartTime: Boolean = false,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
-    horizontalAlignment: Alignment.Horizontal = Alignment.Start
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    spacer: @Composable (ColumnScope.(index: Int) -> Unit)? = null
 ) {
     val states = remember {
         tasks.indices.map { SwipeableState() }
@@ -143,12 +145,15 @@ fun TaskCards(
                     prevOpened = index
                 }
             }
-            TaskCard(
-                task = task,
-                actions = actions(index),
-                swipeableState = s,
-                showStartTime = showStartTime
-            )
+            Column {
+                TaskCard(
+                    task = task,
+                    actions = actions(index),
+                    swipeableState = s,
+                    showStartTime = showStartTime
+                )
+                spacer?.invoke(this, index)
+            }
         }
     }
 }

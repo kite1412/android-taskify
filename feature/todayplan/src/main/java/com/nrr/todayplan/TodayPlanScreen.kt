@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,7 +32,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -420,9 +423,32 @@ private fun Schedule(
                // TODO add actions
                Action.mocks
            },
-           verticalArrangement = Arrangement.spacedBy(8.dp),
            showStartTime = true
-       )
+       ) {
+           val darkMode = isSystemInDarkTheme()
+           if (it != todayTasks.lastIndex) BoxWithConstraints(
+               modifier = Modifier.height(30.dp).fillMaxWidth()
+           ) {
+               Box(
+                   Modifier
+                       .align(Alignment.Center)
+                       .fillMaxHeight()
+                       .padding(end = maxWidth / 2f)
+                       .drawBehind {
+                           val lineHeight = 13.dp.toPx()
+                           val space = 4.dp.toPx()
+                           repeat(2) { i ->
+                               drawLine(
+                                   color = if (darkMode) Color.White else Color.Black,
+                                   start = Offset(x = 0f, y = lineHeight * i + (space * i)),
+                                   end = Offset(x = 0f, y = lineHeight * (i + 1) + (space * i)),
+                                   strokeWidth = 2.dp.toPx()
+                               )
+                           }
+                       }
+               )
+           }
+       }
    }
 }
 
