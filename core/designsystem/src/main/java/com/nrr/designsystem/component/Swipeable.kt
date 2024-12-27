@@ -122,32 +122,7 @@ fun Swipeable(
 private fun SwipeablePreview() {
     TaskifyTheme {
         Swipeable(
-            actions = listOf(
-                Action(
-                    action = "Home",
-                    iconId = R.drawable.home,
-                    color = Color.Red,
-                    onClick = {}
-                ),
-                Action(
-                    action = "Note",
-                    iconId = R.drawable.note,
-                    color = Color.Black,
-                    onClick = {}
-                ),
-                Action(
-                    action = "Home",
-                    iconId = R.drawable.home,
-                    color = Color.Red,
-                    onClick = {}
-                ),
-                Action(
-                    action = "Note",
-                    iconId = R.drawable.note,
-                    color = Color.Black,
-                    onClick = {}
-                )
-            ),
+            actions = Action.mocks,
             modifier = Modifier.padding(16.dp)
         ) {
             Box(
@@ -199,7 +174,36 @@ data class Action(
     val iconSize: Int = 40,
     val color: Color,
     val onClick: () -> Unit
-)
+) {
+    internal companion object {
+        val mocks = listOf(
+            Action(
+                action = "Home",
+                iconId = R.drawable.home,
+                color = Color.Red,
+                onClick = {}
+            ),
+            Action(
+                action = "Note",
+                iconId = R.drawable.note,
+                color = Color.Black,
+                onClick = {}
+            ),
+            Action(
+                action = "Home",
+                iconId = R.drawable.home,
+                color = Color.Red,
+                onClick = {}
+            ),
+            Action(
+                action = "Note",
+                iconId = R.drawable.note,
+                color = Color.Black,
+                onClick = {}
+            )
+        )
+    }
+}
 
 class SwipeableState {
     var maxOffset: Dp = 0.dp

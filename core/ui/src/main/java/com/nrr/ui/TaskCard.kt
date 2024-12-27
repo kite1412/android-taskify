@@ -13,9 +13,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +30,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.Swipeable
+import com.nrr.designsystem.component.SwipeableState
+import com.nrr.designsystem.component.rememberSwipeableState
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.Task
@@ -38,6 +42,7 @@ fun TaskCard(
     task: Task,
     actions: List<Action>,
     modifier: Modifier = Modifier,
+    swipeableState: SwipeableState = rememberSwipeableState(),
     showStartTime: Boolean = false
 ) {
     val swipeableClip = 10.dp
@@ -62,6 +67,7 @@ fun TaskCard(
                         if (showTime) textWidth.toDp() + 8.dp else 0.dp
                     }
                 ),
+            state = swipeableState,
             actionButtonsBorderShape = RoundedCornerShape(swipeableClip)
         ) { m ->
             Row(
@@ -103,6 +109,50 @@ fun TaskCard(
     }
 }
 
+@Composable
+fun TaskCards(
+    tasks: List<Task>,
+    actions: (index: Int) -> List<Action>,
+    modifier: Modifier = Modifier,
+    showStartTime: Boolean = false,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start
+) {
+    val states = remember {
+        tasks.indices.map { SwipeableState() }
+    }
+    var prevOpened by rememberSaveable {
+        mutableIntStateOf(-1)
+    }
+    var opened by rememberSaveable {
+        mutableIntStateOf(-1)
+    }
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = verticalArrangement,
+        horizontalAlignment = horizontalAlignment
+    ) {
+        tasks.forEachIndexed { index, task ->
+            val s = states[index]
+            LaunchedEffect(s.isOpen) {
+                if (s.isOpen && prevOpened == -1) prevOpened = index
+                if (s.isOpen) opened = index
+                if (prevOpened != opened) {
+                    states[prevOpened].reset()
+                    prevOpened = index
+                }
+            }
+            TaskCard(
+                task = task,
+                actions = actions(index),
+                swipeableState = s,
+                showStartTime = showStartTime
+            )
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun TaskCardPreview() {
@@ -126,5 +176,26 @@ private fun TaskCardPreview() {
                 task(it == 1)
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun TaskCardsPreview() {
+    TaskifyTheme {
+        TaskCards(
+            tasks = List(5) { Task.mock },
+            actions = {
+                listOf(
+                    Action(
+                        action = "Delete",
+                        iconId = TaskifyIcon.home,
+                        onClick = {},
+                        color = Color.Red
+                    )
+                )
+            },
+            showStartTime = true
+        )
     }
 }
