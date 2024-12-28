@@ -117,7 +117,7 @@ fun TaskCard(
 @Composable
 fun TaskCards(
     tasks: List<Task>,
-    action: (Task) -> List<Action>,
+    actions: (Task) -> List<Action>,
     modifier: Modifier = Modifier,
     showStartTime: Boolean = false,
     onClick: ((Task) -> Unit)? = null,
@@ -154,7 +154,7 @@ fun TaskCards(
             Column {
                 TaskCard(
                     task = task,
-                    actions = action(task),
+                    actions = actions(task),
                     swipeableState = s,
                     showStartTime = showStartTime,
                     onClick = { onClick?.invoke(task) },
@@ -198,7 +198,7 @@ private fun TaskCardsPreview() {
     TaskifyTheme {
         TaskCards(
             tasks = List(5) { Task.mock },
-            action = {
+            actions = {
                 listOf(
                     Action(
                         action = "Delete",

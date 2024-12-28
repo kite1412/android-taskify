@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nrr.data.repository.UserDataRepository
 import com.nrr.domain.GetTasksByPeriodUseCase
+import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -43,4 +44,12 @@ class TodayPlanViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = ""
         )
+
+    fun deleteTask(task: Task) {
+
+    }
+
+    fun completeTask(task: Task) {
+
+    }
 }

@@ -54,7 +54,9 @@ import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.CircularTaskProgressIndicator
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.CharcoalClay
+import com.nrr.designsystem.theme.Green
 import com.nrr.designsystem.theme.PastelGreen
+import com.nrr.designsystem.theme.Red
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.theme.lightBlueGradient
 import com.nrr.designsystem.theme.lightOrangeGradient
@@ -83,6 +85,8 @@ internal fun TodayPlanScreen(
         monthlyTasks = monthlyTasks,
         onPlanForTodayClick = { /* TODO */ },
         onSettingClick = onSettingClick,
+        onDeleteTask = viewModel::deleteTask,
+        onCompleteTask = viewModel::completeTask,
         modifier = modifier
     )
 }
@@ -95,6 +99,8 @@ private fun Content(
     monthlyTasks: List<Task>,
     onPlanForTodayClick: () -> Unit,
     onSettingClick: () -> Unit,
+    onDeleteTask: (Task) -> Unit,
+    onCompleteTask: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -135,8 +141,10 @@ private fun Content(
         item {
             Schedule(
                 todayTasks = todayTasks,
-                action = { Action.mocks },
-                onClick = {}
+                onClick = {},
+                onDelete = onDeleteTask,
+                onComplete = onCompleteTask,
+                onSettingClick = onSettingClick,
             )
         }
     }
@@ -409,11 +417,32 @@ private fun PeriodCard(
     }
 }
 
+private fun actions(
+    task: Task,
+    onDelete: (Task) -> Unit,
+    onComplete: (Task) -> Unit
+) = listOf(
+    Action(
+        action = "Delete",
+        iconId = TaskifyIcon.home,
+        onClick = { onDelete(task) },
+        color = Red
+    ),
+    Action(
+        action = "Complete",
+        iconId = TaskifyIcon.check,
+        onClick = { onComplete(task) },
+        color = Green
+    )
+)
+
 @Composable
 private fun Schedule(
     todayTasks: List<Task>,
-    action: (Task) -> List<Action>,
     onClick: (Task) -> Unit,
+    onDelete: (Task) -> Unit,
+    onComplete: (Task) -> Unit,
+    onSettingClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
    if (todayTasks.isNotEmpty()) Column(
@@ -427,7 +456,13 @@ private fun Schedule(
        )
        TaskCards(
            tasks = todayTasks,
-           action = action,
+           actions = {
+               actions(
+                   task = it,
+                   onDelete = onDelete,
+                   onComplete = onComplete
+               )
+           },
            showStartTime = true,
            onClick = onClick
        ) {
@@ -483,6 +518,8 @@ private fun ContentPreview() {
                 monthlyTasks = tasks,
                 onPlanForTodayClick = {},
                 onSettingClick = {},
+                onDeleteTask = {},
+                onCompleteTask = {},
                 modifier = Modifier.padding(32.dp)
             )
         }
