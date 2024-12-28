@@ -106,6 +106,7 @@ fun Swipeable(
                             modifier = Modifier
                                 .width(actionWidth)
                                 .fillMaxHeight()
+                                .clickable(onClick = action.onClick)
                         )
                     }
                 }

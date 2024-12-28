@@ -1,6 +1,7 @@
 package com.nrr.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,7 +45,9 @@ fun TaskCard(
     actions: List<Action>,
     modifier: Modifier = Modifier,
     swipeableState: SwipeableState = rememberSwipeableState(),
-    showStartTime: Boolean = false
+    showStartTime: Boolean = false,
+    onClick: ((Task) -> Unit)? = null,
+    clickEnabled: Boolean = onClick != null
 ) {
     val swipeableClip = 10.dp
     val density = LocalDensity.current
@@ -74,6 +77,7 @@ fun TaskCard(
             Row(
                 modifier = m
                     .fillMaxWidth()
+                    .clickable(enabled = clickEnabled) { onClick?.invoke(task) }
                     .clip(RoundedCornerShape(swipeableClip))
                     .background(task.color())
                     .padding(8.dp),
@@ -113,9 +117,11 @@ fun TaskCard(
 @Composable
 fun TaskCards(
     tasks: List<Task>,
-    actions: (index: Int) -> List<Action>,
+    action: (Task) -> List<Action>,
     modifier: Modifier = Modifier,
     showStartTime: Boolean = false,
+    onClick: ((Task) -> Unit)? = null,
+    clickEnabled: (Int) -> Boolean = { onClick != null },
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     spacer: @Composable (ColumnScope.(index: Int) -> Unit)? = null
@@ -148,9 +154,11 @@ fun TaskCards(
             Column {
                 TaskCard(
                     task = task,
-                    actions = actions(index),
+                    actions = action(task),
                     swipeableState = s,
-                    showStartTime = showStartTime
+                    showStartTime = showStartTime,
+                    onClick = { onClick?.invoke(task) },
+                    clickEnabled = clickEnabled(index)
                 )
                 spacer?.invoke(this, index)
             }
@@ -190,7 +198,7 @@ private fun TaskCardsPreview() {
     TaskifyTheme {
         TaskCards(
             tasks = List(5) { Task.mock },
-            actions = {
+            action = {
                 listOf(
                     Action(
                         action = "Delete",

@@ -132,7 +132,13 @@ private fun Content(
                 monthlyTasks = monthlyTasks
             )
         }
-        item { Schedule(todayTasks) }
+        item {
+            Schedule(
+                todayTasks = todayTasks,
+                action = { Action.mocks },
+                onClick = {}
+            )
+        }
     }
 }
 
@@ -406,6 +412,8 @@ private fun PeriodCard(
 @Composable
 private fun Schedule(
     todayTasks: List<Task>,
+    action: (Task) -> List<Action>,
+    onClick: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
    if (todayTasks.isNotEmpty()) Column(
@@ -419,11 +427,9 @@ private fun Schedule(
        )
        TaskCards(
            tasks = todayTasks,
-           actions = {
-               // TODO add actions
-               Action.mocks
-           },
-           showStartTime = true
+           action = action,
+           showStartTime = true,
+           onClick = onClick
        ) {
            val darkMode = isSystemInDarkTheme()
            if (it != todayTasks.lastIndex) BoxWithConstraints(
