@@ -15,4 +15,6 @@ object TaskifyIcon {
     val pray = R.drawable.pray
     val star = R.drawable.star
     val calendar3d = R.drawable.calendar_3d
+    val trashBin = R.drawable.trash_bin
+    val check = R.drawable.check
 }
