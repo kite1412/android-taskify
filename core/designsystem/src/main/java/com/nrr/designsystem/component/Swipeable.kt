@@ -1,11 +1,12 @@
 package com.nrr.designsystem.component
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,12 +35,15 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
+import androidx.compose.ui.unit.sp
 import com.nrr.designsystem.R
 import com.nrr.designsystem.theme.TaskifyTheme
+import kotlinx.coroutines.delay
 
 @Composable
 fun Swipeable(
@@ -106,7 +111,6 @@ fun Swipeable(
                             modifier = Modifier
                                 .width(actionWidth)
                                 .fillMaxHeight()
-                                .clickable(onClick = action.onClick)
                         )
                     }
                 }
@@ -137,29 +141,49 @@ private fun SwipeablePreview() {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SwipeableAction(
     action: Action,
     modifier: Modifier = Modifier
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    Box(
+    var showLabel by remember { mutableStateOf(false) }
+    LaunchedEffect(showLabel) {
+        if (showLabel) {
+            delay(1500)
+            showLabel = false
+        }
+    }
+    AnimatedContent(
+        targetState = showLabel,
+        label = "action $action",
         modifier = modifier
             .background(color = action.color)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
+            .combinedClickable(
+                onLongClick = {
+                    if (!showLabel) showLabel = true
+                },
+                onLongClickLabel = action.action,
                 onClick = action.onClick
             )
     ) {
-        Icon(
-            painter = painterResource(action.iconId),
-            contentDescription = action.action,
-            modifier = Modifier
-                .size(action.iconSize.dp)
-                .align(Alignment.Center),
-            tint = Color.White
-        )
+        Box {
+            if (!it) Icon(
+                painter = painterResource(action.iconId),
+                contentDescription = action.action,
+                modifier = Modifier
+                    .size(action.iconSize.dp)
+                    .align(Alignment.Center),
+                tint = Color.White
+            ) else Text(
+                text = action.action,
+                modifier = Modifier.align(Alignment.Center),
+                color = Color.White,
+                fontSize = 10.sp,
+                maxLines = 2,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
 
