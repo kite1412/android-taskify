@@ -16,7 +16,10 @@ fun TaskifyNavHost(modifier: Modifier = Modifier) {
         modifier = modifier
     ) {
         todayPlanScreen(
-            onSettingClick = { /* TODO navigate to settings screen */ }
+            onSettingClick = { /* TODO navigate to settings screen */ },
+            onPlanForTodayClick = { /* TODO navigate to plan for today screen */ },
+            onWeeklyClick = { /* TODO navigate to weekly screen */ },
+            onMonthlyClick = { /* TODO navigate to monthly screen */ }
         )
     }
 }

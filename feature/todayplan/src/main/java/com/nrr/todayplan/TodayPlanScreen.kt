@@ -70,6 +70,9 @@ import com.nrr.ui.TaskCards
 @Composable
 internal fun TodayPlanScreen(
     onSettingClick: () -> Unit,
+    onPlanForTodayClick: (TaskPeriod) -> Unit,
+    onWeeklyClick: (TaskPeriod) -> Unit,
+    onMonthlyClick: (TaskPeriod) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TodayPlanViewModel = hiltViewModel()
 ) {
@@ -83,10 +86,12 @@ internal fun TodayPlanScreen(
         todayTasks = todayPlan,
         weeklyTasks = weeklyTasks,
         monthlyTasks = monthlyTasks,
-        onPlanForTodayClick = { /* TODO */ },
+        onPlanForTodayClick = onPlanForTodayClick,
         onSettingClick = onSettingClick,
         onRemoveTask = viewModel::deleteTask,
         onCompleteTask = viewModel::completeTask,
+        onWeeklyClick = onWeeklyClick,
+        onMonthlyClick = onMonthlyClick,
         modifier = modifier
     )
 }
@@ -97,10 +102,12 @@ private fun Content(
     todayTasks: List<Task>,
     weeklyTasks: List<Task>,
     monthlyTasks: List<Task>,
-    onPlanForTodayClick: () -> Unit,
+    onPlanForTodayClick: (TaskPeriod) -> Unit,
     onSettingClick: () -> Unit,
     onRemoveTask: (Task) -> Unit,
     onCompleteTask: (Task) -> Unit,
+    onWeeklyClick: (TaskPeriod) -> Unit,
+    onMonthlyClick: (TaskPeriod) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -135,7 +142,9 @@ private fun Content(
         item {
             Periods(
                 weeklyTasks = weeklyTasks,
-                monthlyTasks = monthlyTasks
+                monthlyTasks = monthlyTasks,
+                onWeeklyClick = onWeeklyClick,
+                onMonthlyClick = onMonthlyClick
             )
         }
         item {
@@ -198,7 +207,7 @@ private fun GreetingHeader(
 @Composable
 private fun PlanForToday(
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: (TaskPeriod) -> Unit
 ) {
     val cornerRadius = 10.dp
     val density = LocalDensity.current
@@ -219,7 +228,7 @@ private fun PlanForToday(
                     colors = lightOrangeGradient
                 )
             )
-            .clickable(onClick = onClick)
+            .clickable { onClick(TaskPeriod.DAY) }
             .padding(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -325,6 +334,8 @@ private fun TodayProgress(
 private fun Periods(
     weeklyTasks: List<Task>,
     monthlyTasks: List<Task>,
+    onWeeklyClick: (TaskPeriod) -> Unit,
+    onMonthlyClick: (TaskPeriod) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -334,13 +345,17 @@ private fun Periods(
         PeriodCard(
             period = stringResource(TodayPlanDictionary.weekly),
             tasks = weeklyTasks,
-            modifier = Modifier.weight(0.5f),
+            modifier = Modifier
+                .weight(0.5f)
+                .clickable { onWeeklyClick(TaskPeriod.WEEK) },
             imageColorFilter = ColorFilter.lighting(lightBlueGradient[0], Color.DarkGray)
         )
         PeriodCard(
             period = stringResource(TodayPlanDictionary.monthly),
             tasks = monthlyTasks,
-            modifier = Modifier.weight(0.5f),
+            modifier = Modifier
+                .weight(0.5f)
+                .clickable { onMonthlyClick(TaskPeriod.MONTH) },
             gradientBackgroundColors = lightRedGradient,
             imageColorFilter = ColorFilter.lighting(lightRedGradient[0], Color(200, 35, 0))
         )
@@ -465,6 +480,7 @@ private fun Schedule(
                    onComplete = onComplete
                )
            },
+           modifier = Modifier.padding(start = 8.dp),
            showStartTime = true,
            onClick = onClick,
            showCard = { it.activeStatus?.isSet == true }
@@ -524,6 +540,8 @@ private fun ContentPreview() {
                 onSettingClick = {},
                 onRemoveTask = {},
                 onCompleteTask = {},
+                onWeeklyClick = {},
+                onMonthlyClick = {},
                 modifier = Modifier.padding(32.dp)
             )
         }

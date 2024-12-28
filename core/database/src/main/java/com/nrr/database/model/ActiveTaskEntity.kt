@@ -55,6 +55,7 @@ fun ActiveTaskEntity.asExternalModel() = ActiveStatus(
 )
 
 fun ActiveStatus.asEntity(taskId: Long) = ActiveTaskEntity(
+    id = id,
     taskId = taskId,
     taskPriority = priority,
     taskPeriod = period,

@@ -16,4 +16,6 @@ interface TaskRepository {
     fun getAllActiveTasksByPeriod(period: TaskPeriod): Flow<List<Task>>
 
     suspend fun deleteActiveTask(task: Task): Int
+
+    suspend fun setActiveTaskAsCompleted(task: Task): Long
 }

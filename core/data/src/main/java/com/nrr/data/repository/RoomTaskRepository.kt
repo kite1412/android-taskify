@@ -40,4 +40,9 @@ internal class RoomTaskRepository @Inject constructor(
         task.activeStatus?.let {
             activeTaskDao.deleteActiveTask(it.asEntity(task.id))
         } ?: 0
+
+    override suspend fun setActiveTaskAsCompleted(task: Task): Long =
+        task.activeStatus?.let {
+            activeTaskDao.insertActiveTask(it.copy(isCompleted = true).asEntity(task.id))
+        } ?: 0
 }

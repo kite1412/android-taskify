@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nrr.data.repository.UserDataRepository
 import com.nrr.domain.GetTasksByPeriodUseCase
+import com.nrr.domain.MarkTaskCompletedUseCase
 import com.nrr.domain.RemoveActiveTaskUseCase
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
@@ -18,13 +19,10 @@ import javax.inject.Inject
 class TodayPlanViewModel @Inject constructor(
     getTasksByPeriodUseCase: GetTasksByPeriodUseCase,
     userDataRepository: UserDataRepository,
-    private val removeActiveTaskUseCase: RemoveActiveTaskUseCase
+    private val removeActiveTaskUseCase: RemoveActiveTaskUseCase,
+    private val markTaskCompletedUseCase: MarkTaskCompletedUseCase
 ) : ViewModel() {
     val todayTasks = getTasksByPeriodUseCase(TaskPeriod.DAY)
-        .map {
-            it.filter { t -> t.activeStatus != null }
-                .sortedBy { t -> t.activeStatus!!.dueDate }
-        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
@@ -59,7 +57,10 @@ class TodayPlanViewModel @Inject constructor(
         }
     }
 
+    // TODO add confirmation
     fun completeTask(task: Task) {
-
+        viewModelScope.launch {
+            markTaskCompletedUseCase(task)
+        }
     }
 }

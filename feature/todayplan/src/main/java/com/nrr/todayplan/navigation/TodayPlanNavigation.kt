@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import com.nrr.model.TaskPeriod
 import com.nrr.todayplan.TodayPlanScreen
 import kotlinx.serialization.Serializable
 
@@ -15,11 +16,17 @@ fun NavController.navigateToTodayPlan(navOptions: NavOptions) = navigate(
 )
 
 fun NavGraphBuilder.todayPlanScreen(
-    onSettingClick: () -> Unit
+    onSettingClick: () -> Unit,
+    onPlanForTodayClick: (TaskPeriod) -> Unit,
+    onWeeklyClick: (TaskPeriod) -> Unit,
+    onMonthlyClick: (TaskPeriod) -> Unit
 ) {
     composable<TodayPlanRoute> {
         TodayPlanScreen(
-            onSettingClick = onSettingClick
+            onSettingClick = onSettingClick,
+            onPlanForTodayClick = onPlanForTodayClick,
+            onWeeklyClick = onWeeklyClick,
+            onMonthlyClick = onMonthlyClick
         )
     }
 }
