@@ -50,14 +50,12 @@ class TodayPlanViewModel @Inject constructor(
             initialValue = ""
         )
 
-    // TODO add confirmation
     fun deleteTask(task: Task) {
         viewModelScope.launch {
             removeActiveTaskUseCase(task)
         }
     }
 
-    // TODO add confirmation
     fun completeTask(task: Task) {
         viewModelScope.launch {
             markTaskCompletedUseCase(task)

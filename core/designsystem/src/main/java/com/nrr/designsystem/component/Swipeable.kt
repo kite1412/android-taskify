@@ -54,6 +54,7 @@ fun Swipeable(
     minActionWidth: Dp = 50.dp,
     actionWidthFactor: Float = actions.size * 0.2f,
     actionButtonsBorderShape: Shape = RectangleShape,
+    actionNeedConfirmation: Boolean = false,
     content: @Composable (Modifier) -> Unit
 ) {
     val density = LocalDensity.current
@@ -111,7 +112,8 @@ fun Swipeable(
                             action = action,
                             modifier = Modifier
                                 .width(actionWidth)
-                                .fillMaxHeight()
+                                .fillMaxHeight(),
+                            needConfirmation = actionNeedConfirmation
                         )
                     }
                 }
@@ -146,26 +148,41 @@ private fun SwipeablePreview() {
 @Composable
 private fun SwipeableAction(
     action: Action,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    needConfirmation: Boolean = false
 ) {
     var showLabel by remember { mutableStateOf(false) }
-    LaunchedEffect(showLabel) {
+    var onConfirmation by remember { mutableStateOf(false) }
+    val onClickWrapper = {
+        if (!showLabel) {
+            if (needConfirmation) {
+                if (onConfirmation) action.onClick()
+                else {
+                    onConfirmation = true
+                }
+            } else action.onClick()
+        }
+    }
+    LaunchedEffect(showLabel, onConfirmation) {
         if (showLabel) {
-            delay(1500)
+            delay(2000)
             showLabel = false
+        } else if (onConfirmation) {
+            delay(3000)
+            onConfirmation = false
         }
     }
     AnimatedContent(
-        targetState = showLabel,
+        targetState = showLabel || onConfirmation,
         label = "action $action",
         modifier = modifier
             .background(color = action.color)
             .combinedClickable(
                 onLongClick = {
-                    if (!showLabel) showLabel = true
+                    if (!showLabel && !onConfirmation) showLabel = true
                 },
                 onLongClickLabel = action.action,
-                onClick = action.onClick
+                onClick = onClickWrapper
             )
     ) {
         Box {
