@@ -122,6 +122,7 @@ fun TaskCards(
     showStartTime: Boolean = false,
     onClick: ((Task) -> Unit)? = null,
     clickEnabled: (Int) -> Boolean = { onClick != null },
+    showCard: (Task) -> Boolean = { true },
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     spacer: @Composable (ColumnScope.(index: Int) -> Unit)? = null
@@ -142,25 +143,27 @@ fun TaskCards(
         horizontalAlignment = horizontalAlignment
     ) {
         tasks.forEachIndexed { index, task ->
-            val s = states[index]
-            LaunchedEffect(s.isOpen) {
-                if (s.isOpen && prevOpened == -1) prevOpened = index
-                if (s.isOpen) opened = index
-                if (prevOpened != opened) {
-                    states[prevOpened].reset()
-                    prevOpened = index
+            if (showCard(task)) {
+                val s = states[index]
+                LaunchedEffect(s.isOpen) {
+                    if (s.isOpen && prevOpened == -1) prevOpened = index
+                    if (s.isOpen) opened = index
+                    if (prevOpened != opened) {
+                        states[prevOpened].reset()
+                        prevOpened = index
+                    }
                 }
-            }
-            Column {
-                TaskCard(
-                    task = task,
-                    actions = actions(task),
-                    swipeableState = s,
-                    showStartTime = showStartTime,
-                    onClick = { onClick?.invoke(task) },
-                    clickEnabled = clickEnabled(index)
-                )
-                spacer?.invoke(this, index)
+                Column {
+                    TaskCard(
+                        task = task,
+                        actions = actions(task),
+                        swipeableState = s,
+                        showStartTime = showStartTime,
+                        onClick = { onClick?.invoke(task) },
+                        clickEnabled = clickEnabled(index)
+                    )
+                    spacer?.invoke(this, index)
+                }
             }
         }
     }

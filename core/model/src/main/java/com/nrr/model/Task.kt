@@ -26,6 +26,7 @@ data class Task(
                 dueDate = Clock.System.now(),
                 priority = TaskPriority.HIGH,
                 period = TaskPeriod.DAY,
+                isSet = true,
                 isDefault = true,
                 isCompleted = true
             )

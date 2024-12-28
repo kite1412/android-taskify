@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
@@ -23,7 +24,8 @@ fun AdaptiveText(
     color: Color = Color.Unspecified,
     lineHeight: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,
-    fontWeight: FontWeight? = null
+    fontWeight: FontWeight? = null,
+    textAlign: TextAlign? = null
 ) {
     var fontSize by remember { mutableFloatStateOf(initialFontSize.value) }
     Text(
@@ -35,6 +37,7 @@ fun AdaptiveText(
         fontStyle = fontStyle,
         fontWeight = fontWeight,
         lineHeight = lineHeight,
+        textAlign = textAlign,
         onTextLayout = {
             if (it.hasVisualOverflow) fontSize--
         }

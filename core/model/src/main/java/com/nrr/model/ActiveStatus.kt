@@ -8,6 +8,7 @@ data class ActiveStatus(
     val dueDate: Instant?,
     val priority: TaskPriority,
     val period: TaskPeriod,
+    val isSet: Boolean,
     val isDefault: Boolean,
     val isCompleted: Boolean
 )

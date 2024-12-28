@@ -36,6 +36,7 @@ import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -175,13 +176,15 @@ private fun SwipeableAction(
                     .size(action.iconSize.dp)
                     .align(Alignment.Center),
                 tint = Color.White
-            ) else Text(
+            ) else AdaptiveText(
                 text = action.action,
                 modifier = Modifier.align(Alignment.Center),
                 color = Color.White,
-                fontSize = 10.sp,
+                initialFontSize = 10.sp,
                 maxLines = 2,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                lineHeight = 10.sp
             )
         }
     }

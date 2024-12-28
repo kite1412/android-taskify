@@ -85,7 +85,7 @@ internal fun TodayPlanScreen(
         monthlyTasks = monthlyTasks,
         onPlanForTodayClick = { /* TODO */ },
         onSettingClick = onSettingClick,
-        onDeleteTask = viewModel::deleteTask,
+        onRemoveTask = viewModel::deleteTask,
         onCompleteTask = viewModel::completeTask,
         modifier = modifier
     )
@@ -99,7 +99,7 @@ private fun Content(
     monthlyTasks: List<Task>,
     onPlanForTodayClick: () -> Unit,
     onSettingClick: () -> Unit,
-    onDeleteTask: (Task) -> Unit,
+    onRemoveTask: (Task) -> Unit,
     onCompleteTask: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -142,7 +142,7 @@ private fun Content(
             Schedule(
                 todayTasks = todayTasks,
                 onClick = {},
-                onDelete = onDeleteTask,
+                onRemove = onRemoveTask,
                 onComplete = onCompleteTask,
                 onSettingClick = onSettingClick,
             )
@@ -417,22 +417,24 @@ private fun PeriodCard(
     }
 }
 
-private fun actions(
+private fun scheduleActions(
     task: Task,
-    onDelete: (Task) -> Unit,
+    onRemove: (Task) -> Unit,
     onComplete: (Task) -> Unit
 ) = listOf(
     Action(
-        action = "Delete",
-        iconId = TaskifyIcon.home,
-        onClick = { onDelete(task) },
-        color = Red
+        action = "Remove from schedule",
+        iconId = TaskifyIcon.trashBin,
+        onClick = { onRemove(task) },
+        color = Red,
+        iconSize = 24
     ),
     Action(
-        action = "Complete",
+        action = "Mark as completed",
         iconId = TaskifyIcon.check,
         onClick = { onComplete(task) },
-        color = Green
+        color = Green,
+        iconSize = 24
     )
 )
 
@@ -440,7 +442,7 @@ private fun actions(
 private fun Schedule(
     todayTasks: List<Task>,
     onClick: (Task) -> Unit,
-    onDelete: (Task) -> Unit,
+    onRemove: (Task) -> Unit,
     onComplete: (Task) -> Unit,
     onSettingClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -457,14 +459,15 @@ private fun Schedule(
        TaskCards(
            tasks = todayTasks,
            actions = {
-               actions(
+               scheduleActions(
                    task = it,
-                   onDelete = onDelete,
+                   onRemove = onRemove,
                    onComplete = onComplete
                )
            },
            showStartTime = true,
-           onClick = onClick
+           onClick = onClick,
+           showCard = { it.activeStatus?.isSet == true }
        ) {
            val darkMode = isSystemInDarkTheme()
            if (it != todayTasks.lastIndex) BoxWithConstraints(
@@ -505,7 +508,8 @@ private fun ContentPreview() {
     val tasks = (1..12).map {
         Task.mock.copy(
             activeStatus = Task.mock.activeStatus?.copy(
-                isCompleted = it > 5
+                isCompleted = it > 5,
+                isSet = it > 7
             )
         )
     }
@@ -518,7 +522,7 @@ private fun ContentPreview() {
                 monthlyTasks = tasks,
                 onPlanForTodayClick = {},
                 onSettingClick = {},
-                onDeleteTask = {},
+                onRemoveTask = {},
                 onCompleteTask = {},
                 modifier = Modifier.padding(32.dp)
             )

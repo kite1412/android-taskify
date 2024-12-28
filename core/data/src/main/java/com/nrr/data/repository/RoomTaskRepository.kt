@@ -7,6 +7,7 @@ import com.nrr.database.model.asEntity
 import com.nrr.database.model.asExternalModel
 import com.nrr.model.ActiveStatus
 import com.nrr.model.Task
+import com.nrr.model.TaskPeriod
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -27,6 +28,11 @@ internal class RoomTaskRepository @Inject constructor(
 
     override fun getAllTasks(): Flow<List<Task>> =
         taskDao.getAllTasks().map {
+            it.map(TaskWithStatus::asExternalModel)
+        }
+
+    override fun getAllActiveTasksByPeriod(period: TaskPeriod): Flow<List<Task>> =
+        activeTaskDao.getAllByPeriod(period).map {
             it.map(TaskWithStatus::asExternalModel)
         }
 
