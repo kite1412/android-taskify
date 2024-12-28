@@ -97,7 +97,7 @@ fun Swipeable(
                         .width(with(density) { constraints.maxWidth.toDp() })
                         .height(with(density) { constraints.maxHeight.toDp() })
                         .clip(actionButtonsBorderShape)
-                        .background(actions.last().color),
+                        .background(actions.first().color),
                     horizontalArrangement = Arrangement.End
                 ) {
                     actions.forEach { action ->

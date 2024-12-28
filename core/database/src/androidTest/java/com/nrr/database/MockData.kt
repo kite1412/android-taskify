@@ -23,6 +23,7 @@ internal object MockData {
         reminderSet = false,
         startDate = Clock.System.now(),
         dueDate = Clock.System.now(),
-        isDefault = false
+        isDefault = false,
+        isCompleted = false
     )
 }

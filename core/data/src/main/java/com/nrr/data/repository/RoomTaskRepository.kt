@@ -29,4 +29,9 @@ internal class RoomTaskRepository @Inject constructor(
         taskDao.getAllTasks().map {
             it.map(TaskWithStatus::asExternalModel)
         }
+
+    override suspend fun deleteActiveTask(task: Task): Int =
+        task.activeStatus?.let {
+            activeTaskDao.deleteActiveTask(it.asEntity(task.id))
+        } ?: 0
 }

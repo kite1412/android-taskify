@@ -21,6 +21,7 @@ data class Task(
             updateAt = Clock.System.now(),
             taskType = TaskType.LEARNING,
             activeStatus = ActiveStatus(
+                id = 1,
                 startDate = Clock.System.now(),
                 dueDate = Clock.System.now(),
                 priority = TaskPriority.HIGH,

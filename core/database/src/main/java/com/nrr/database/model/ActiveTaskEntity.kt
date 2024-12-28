@@ -42,6 +42,7 @@ data class ActiveTaskEntity(
 )
 
 fun ActiveTaskEntity.asExternalModel() = ActiveStatus(
+    id = id,
     startDate = startDate,
     dueDate = dueDate,
     priority = taskPriority,
