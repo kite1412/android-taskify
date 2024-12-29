@@ -13,4 +13,5 @@ object TodayPlanDictionary {
     val monthly = R.string.todayplan_monthly
     val schedule = R.string.todayplan_schedule
     val noTasksToday = R.string.todayplan_today_tasks_empty
+    val setTodayTasks = R.string.todayplan_set_today_tasks
 }

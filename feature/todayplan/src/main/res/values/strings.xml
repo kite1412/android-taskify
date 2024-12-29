@@ -10,4 +10,5 @@
     <string name="todayplan_monthly">Monthly</string>
     <string name="todayplan_schedule">Schedule</string>
     <string name="todayplan_today_tasks_empty">No tasks today</string>
+    <string name="todayplan_set_today_tasks">Set tasks to do today</string>
 </resources>

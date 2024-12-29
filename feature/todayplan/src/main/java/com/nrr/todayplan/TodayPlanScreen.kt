@@ -44,6 +44,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -75,6 +76,7 @@ internal fun TodayPlanScreen(
     onPlanForTodayClick: (TaskPeriod) -> Unit,
     onWeeklyClick: (TaskPeriod) -> Unit,
     onMonthlyClick: (TaskPeriod) -> Unit,
+    onSetTodayTasksClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TodayPlanViewModel = hiltViewModel()
 ) {
@@ -94,6 +96,7 @@ internal fun TodayPlanScreen(
         onCompleteTask = viewModel::completeTask,
         onWeeklyClick = onWeeklyClick,
         onMonthlyClick = onMonthlyClick,
+        onSetTodayTasksClick = onSetTodayTasksClick,
         modifier = modifier
     )
 }
@@ -110,6 +113,7 @@ private fun Content(
     onCompleteTask: (Task) -> Unit,
     onWeeklyClick: (TaskPeriod) -> Unit,
     onMonthlyClick: (TaskPeriod) -> Unit,
+    onSetTodayTasksClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -140,7 +144,12 @@ private fun Content(
                 }
             }
         }
-        item { TodayProgress(todayTasks) }
+        item {
+            TodayProgress(
+                todayTasks = todayTasks,
+                onSetTodayTasksClick = onSetTodayTasksClick
+            )
+        }
         item {
             Periods(
                 weeklyTasks = weeklyTasks,
@@ -251,6 +260,7 @@ private fun PlanForToday(
 @Composable
 private fun TodayProgress(
     todayTasks: List<Task>,
+    onSetTodayTasksClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
@@ -283,12 +293,21 @@ private fun TodayProgress(
             .height(IntrinsicSize.Max),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        if (todayTasks.isEmpty()) Text(
-            text = stringResource(TodayPlanDictionary.noTasksToday),
-            fontWeight = FontWeight.Bold,
-            fontStyle = FontStyle.Italic,
-            color = textColor
-        )
+        if (todayTasks.isEmpty()) Column {
+            Text(
+                text = stringResource(TodayPlanDictionary.noTasksToday),
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Italic,
+                color = textColor
+            )
+            Text(
+                text = stringResource(TodayPlanDictionary.setTodayTasks),
+                modifier = Modifier.clickable(onClick = onSetTodayTasksClick),
+                textDecoration = TextDecoration.Underline,
+                color = MaterialTheme.colorScheme.tertiary,
+                fontSize = MaterialTheme.typography.bodyMedium.fontSize
+            )
+        }
         if (todayTasks.isNotEmpty()) Column(
             modifier = Modifier.fillMaxHeight(),
             verticalArrangement = Arrangement.SpaceBetween
@@ -396,15 +415,6 @@ private fun PeriodCard(
                 shape = RoundedCornerShape(cornerRadius)
             )
     ) {
-        Text(
-            text = period,
-            modifier = Modifier
-                .align(Alignment.CenterStart)
-                .padding(start = 16.dp),
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            fontSize = 18.sp
-        )
         Image(
             painter = painterResource(TaskifyIcon.calendar3d),
             contentDescription = "calendar illustration",
@@ -414,7 +424,7 @@ private fun PeriodCard(
                 .size(56.dp),
             colorFilter = imageColorFilter
         )
-        Row(
+        if (tasks.isNotEmpty()) Row(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(end = 8.dp)
@@ -423,13 +433,13 @@ private fun PeriodCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = if (tasks.isNotEmpty()) "${completed.size}/${tasks.size}" else "No tasks",
+                text = "${completed.size}/${tasks.size}",
                 color = Color.Black,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 fontStyle = if (tasks.isEmpty()) FontStyle.Italic else FontStyle.Normal
             )
-            if (tasks.isNotEmpty()) CircularProgressIndicator(
+            CircularProgressIndicator(
                 progress = { completed.size / tasks.size.toFloat() },
                 modifier = Modifier.size(10.dp),
                 color = Color.Black,
@@ -437,6 +447,15 @@ private fun PeriodCard(
                 strokeWidth = 2.dp
             )
         }
+        Text(
+            text = period,
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = 16.dp),
+            fontWeight = FontWeight.Bold,
+            color = Color.Black,
+            fontSize = 18.sp
+        )
     }
 }
 
@@ -545,6 +564,7 @@ private fun ContentPreview(
                 onCompleteTask = {},
                 onWeeklyClick = {},
                 onMonthlyClick = {},
+                onSetTodayTasksClick = {},
                 modifier = Modifier.padding(32.dp)
             )
         }

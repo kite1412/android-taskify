@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.Swipeable
 import com.nrr.designsystem.component.SwipeableState
@@ -104,11 +105,14 @@ fun TaskCard(
                         text = task.title,
                         fontWeight = FontWeight.Bold
                     )
-                    task.description?.let {
-                        Text(
-                            text = it,
-                            fontSize = MaterialTheme.typography.bodySmall.fontSize
-                        )
+                    task.description?.let { t ->
+                        with (MaterialTheme.typography.bodySmall.fontSize.value) {
+                            Text(
+                                text = t,
+                                fontSize = this.sp,
+                                lineHeight = (this + 2f).sp
+                            )
+                        }
                     }
                 }
             }
