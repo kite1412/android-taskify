@@ -1,6 +1,7 @@
 package com.nrr.database.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -15,12 +16,15 @@ interface ActiveTaskDao {
     fun getAllActiveTasks(): Flow<List<ActiveTaskEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertActiveTask(activeTask: ActiveTaskEntity)
+    suspend fun insertActiveTask(activeTask: ActiveTaskEntity): Long
 
     @Query("""
         SELECT * FROM tasks
-        LEFT JOIN active_tasks AS at ON tasks.id = at.task_id
+        JOIN active_tasks AS at ON tasks.id = at.task_id
         WHERE at.task_period = :period
     """)
     fun getAllByPeriod(period: TaskPeriod): Flow<List<TaskWithStatus>>
+
+    @Delete
+    suspend fun deleteActiveTask(activeTask: ActiveTaskEntity): Int
 }

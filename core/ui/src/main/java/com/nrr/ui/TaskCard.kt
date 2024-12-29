@@ -1,9 +1,11 @@
 package com.nrr.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,9 +15,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,25 +29,27 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.Swipeable
+import com.nrr.designsystem.component.SwipeableState
+import com.nrr.designsystem.component.rememberSwipeableState
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
-import com.nrr.model.ActiveStatus
 import com.nrr.model.Task
-import com.nrr.model.TaskPeriod
-import com.nrr.model.TaskPriority
-import com.nrr.model.TaskType
 import com.nrr.model.toTimeString
-import kotlinx.datetime.Clock
 
 @Composable
 fun TaskCard(
     task: Task,
     actions: List<Action>,
     modifier: Modifier = Modifier,
-    showStartTime: Boolean = false
+    swipeableState: SwipeableState = rememberSwipeableState(),
+    showStartTime: Boolean = false,
+    onClick: ((Task) -> Unit)? = null,
+    clickEnabled: Boolean = onClick != null
 ) {
     val swipeableClip = 10.dp
     val density = LocalDensity.current
@@ -67,11 +73,14 @@ fun TaskCard(
                         if (showTime) textWidth.toDp() + 8.dp else 0.dp
                     }
                 ),
-            actionButtonsBorderShape = RoundedCornerShape(swipeableClip)
+            state = swipeableState,
+            actionButtonsBorderShape = RoundedCornerShape(swipeableClip),
+            actionNeedConfirmation = true
         ) { m ->
             Row(
                 modifier = m
                     .fillMaxWidth()
+                    .clickable(enabled = clickEnabled) { onClick?.invoke(task) }
                     .clip(RoundedCornerShape(swipeableClip))
                     .background(task.color())
                     .padding(8.dp),
@@ -96,12 +105,70 @@ fun TaskCard(
                         text = task.title,
                         fontWeight = FontWeight.Bold
                     )
-                    task.description?.let {
-                        Text(
-                            text = it,
-                            fontSize = MaterialTheme.typography.bodySmall.fontSize
-                        )
+                    task.description?.let { t ->
+                        with (MaterialTheme.typography.bodySmall.fontSize.value) {
+                            Text(
+                                text = t,
+                                fontSize = this.sp,
+                                lineHeight = (this + 2f).sp
+                            )
+                        }
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TaskCards(
+    tasks: List<Task>,
+    actions: (Task) -> List<Action>,
+    modifier: Modifier = Modifier,
+    showStartTime: Boolean = false,
+    onClick: ((Task) -> Unit)? = null,
+    clickEnabled: (Int) -> Boolean = { onClick != null },
+    showCard: (Task) -> Boolean = { true },
+    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    spacer: @Composable (ColumnScope.(index: Int) -> Unit)? = null
+) {
+    val states = remember {
+        tasks.indices.map { SwipeableState() }
+    }
+    var prevOpened by rememberSaveable {
+        mutableIntStateOf(-1)
+    }
+    var opened by rememberSaveable {
+        mutableIntStateOf(-1)
+    }
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = verticalArrangement,
+        horizontalAlignment = horizontalAlignment
+    ) {
+        tasks.forEachIndexed { index, task ->
+            if (showCard(task)) {
+                val s = states[index]
+                LaunchedEffect(s.isOpen) {
+                    if (s.isOpen && prevOpened == -1) prevOpened = index
+                    if (s.isOpen) opened = index
+                    if (prevOpened != opened) {
+                        states[prevOpened].reset()
+                        prevOpened = index
+                    }
+                }
+                Column {
+                    TaskCard(
+                        task = task,
+                        actions = actions(task),
+                        swipeableState = s,
+                        showStartTime = showStartTime,
+                        onClick = { onClick?.invoke(task) },
+                        clickEnabled = clickEnabled(index)
+                    )
+                    spacer?.invoke(this, index)
                 }
             }
         }
@@ -110,24 +177,13 @@ fun TaskCard(
 
 @Preview
 @Composable
-private fun TaskCardPreview() {
+private fun TaskCardPreview(
+    @PreviewParameter(TaskPreviewParameter::class)
+    tasks: List<Task>
+) {
     val task = @Composable { s: Boolean ->
         TaskCard(
-            task = Task(
-                id = 1,
-                title = "Learn Android",
-                description = "Learn Android Development",
-                createdAt = Clock.System.now(),
-                updateAt = Clock.System.now(),
-                taskType = TaskType.LEARNING,
-                activeStatus = ActiveStatus(
-                    startDate = Clock.System.now(),
-                    dueDate = Clock.System.now(),
-                    priority = TaskPriority.HIGH,
-                    period = TaskPeriod.DAY,
-                    isDefault = true
-                )
-            ),
+            task = tasks[0],
             actions = listOf(
                 Action(
                     action = "Delete",
@@ -145,5 +201,29 @@ private fun TaskCardPreview() {
                 task(it == 1)
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun TaskCardsPreview(
+    @PreviewParameter(TaskPreviewParameter::class)
+    tasks: List<Task>
+) {
+    TaskifyTheme {
+        TaskCards(
+            tasks = tasks,
+            actions = {
+                listOf(
+                    Action(
+                        action = "Delete",
+                        iconId = TaskifyIcon.home,
+                        onClick = {},
+                        color = Color.Red
+                    )
+                )
+            },
+            showStartTime = true
+        )
     }
 }

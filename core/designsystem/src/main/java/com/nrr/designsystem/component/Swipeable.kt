@@ -1,11 +1,12 @@
 package com.nrr.designsystem.component
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,12 +35,16 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
+import androidx.compose.ui.unit.sp
 import com.nrr.designsystem.R
 import com.nrr.designsystem.theme.TaskifyTheme
+import kotlinx.coroutines.delay
 
 @Composable
 fun Swipeable(
@@ -48,6 +54,7 @@ fun Swipeable(
     minActionWidth: Dp = 50.dp,
     actionWidthFactor: Float = actions.size * 0.2f,
     actionButtonsBorderShape: Shape = RectangleShape,
+    actionNeedConfirmation: Boolean = false,
     content: @Composable (Modifier) -> Unit
 ) {
     val density = LocalDensity.current
@@ -97,7 +104,7 @@ fun Swipeable(
                         .width(with(density) { constraints.maxWidth.toDp() })
                         .height(with(density) { constraints.maxHeight.toDp() })
                         .clip(actionButtonsBorderShape)
-                        .background(actions.last().color),
+                        .background(actions.first().color),
                     horizontalArrangement = Arrangement.End
                 ) {
                     actions.forEach { action ->
@@ -105,7 +112,8 @@ fun Swipeable(
                             action = action,
                             modifier = Modifier
                                 .width(actionWidth)
-                                .fillMaxHeight()
+                                .fillMaxHeight(),
+                            needConfirmation = actionNeedConfirmation
                         )
                     }
                 }
@@ -122,32 +130,7 @@ fun Swipeable(
 private fun SwipeablePreview() {
     TaskifyTheme {
         Swipeable(
-            actions = listOf(
-                Action(
-                    action = "Home",
-                    iconId = R.drawable.home,
-                    color = Color.Red,
-                    onClick = {}
-                ),
-                Action(
-                    action = "Note",
-                    iconId = R.drawable.note,
-                    color = Color.Black,
-                    onClick = {}
-                ),
-                Action(
-                    action = "Home",
-                    iconId = R.drawable.home,
-                    color = Color.Red,
-                    onClick = {}
-                ),
-                Action(
-                    action = "Note",
-                    iconId = R.drawable.note,
-                    color = Color.Black,
-                    onClick = {}
-                )
-            ),
+            actions = Action.mocks,
             modifier = Modifier.padding(16.dp)
         ) {
             Box(
@@ -161,29 +144,66 @@ private fun SwipeablePreview() {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SwipeableAction(
     action: Action,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    needConfirmation: Boolean = false
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    Box(
+    var showLabel by remember { mutableStateOf(false) }
+    var onConfirmation by remember { mutableStateOf(false) }
+    val onClickWrapper = {
+        if (!showLabel) {
+            if (needConfirmation) {
+                if (onConfirmation) action.onClick()
+                else {
+                    onConfirmation = true
+                }
+            } else action.onClick()
+        }
+    }
+    LaunchedEffect(showLabel, onConfirmation) {
+        if (showLabel) {
+            delay(2000)
+            showLabel = false
+        } else if (onConfirmation) {
+            delay(3000)
+            onConfirmation = false
+        }
+    }
+    AnimatedContent(
+        targetState = showLabel || onConfirmation,
+        label = "action $action",
         modifier = modifier
             .background(color = action.color)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = action.onClick
+            .combinedClickable(
+                onLongClick = {
+                    if (!showLabel && !onConfirmation) showLabel = true
+                },
+                onLongClickLabel = action.action,
+                onClick = onClickWrapper
             )
     ) {
-        Icon(
-            painter = painterResource(action.iconId),
-            contentDescription = action.action,
-            modifier = Modifier
-                .size(action.iconSize.dp)
-                .align(Alignment.Center),
-            tint = Color.White
-        )
+        Box {
+            if (!it) Icon(
+                painter = painterResource(action.iconId),
+                contentDescription = action.action,
+                modifier = Modifier
+                    .size(action.iconSize.dp)
+                    .align(Alignment.Center),
+                tint = Color.White
+            ) else AdaptiveText(
+                text = action.action,
+                modifier = Modifier.align(Alignment.Center),
+                color = Color.White,
+                initialFontSize = 10.sp,
+                maxLines = 2,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                lineHeight = 10.sp
+            )
+        }
     }
 }
 
@@ -199,7 +219,30 @@ data class Action(
     val iconSize: Int = 40,
     val color: Color,
     val onClick: () -> Unit
-)
+) {
+    companion object {
+        val mocks = listOf(
+            Action(
+                action = "Home",
+                iconId = R.drawable.home,
+                color = Color.Red,
+                onClick = {}
+            ),
+            Action(
+                action = "Note",
+                iconId = R.drawable.note,
+                color = Color.Black,
+                onClick = {}
+            ),
+            Action(
+                action = "Home",
+                iconId = R.drawable.home,
+                color = Color.Red,
+                onClick = {}
+            )
+        )
+    }
+}
 
 class SwipeableState {
     var maxOffset: Dp = 0.dp
