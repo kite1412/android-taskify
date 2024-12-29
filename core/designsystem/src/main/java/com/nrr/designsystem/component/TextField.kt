@@ -47,7 +47,8 @@ fun TextField(
     singleLine: Boolean = true,
     readOnly: Boolean = false,
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    placeholder: @Composable (() -> Unit)? = null
 ) {
     TF(
         value = value,
@@ -63,7 +64,8 @@ fun TextField(
         readOnly = readOnly,
         trailingIcon = trailingIcon,
         enabled = enabled,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
+        placeholder = placeholder
     )
 }
 

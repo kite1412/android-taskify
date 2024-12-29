@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="registration_change_later">You can change this later</string>
+    <string name="registration_username_question">What would you like to be called?</string>
+    <string name="registration_language_question">Language setting</string>
+    <string name="registration_theme_question">Theme preference</string>
+</resources>
