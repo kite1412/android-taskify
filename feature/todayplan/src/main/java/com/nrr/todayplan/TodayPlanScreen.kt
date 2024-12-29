@@ -45,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -66,6 +67,7 @@ import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.todayplan.util.TodayPlanDictionary
 import com.nrr.ui.TaskCards
+import com.nrr.ui.TaskPreviewParameter
 
 @Composable
 internal fun TodayPlanScreen(
@@ -347,7 +349,10 @@ private fun Periods(
             tasks = weeklyTasks,
             modifier = Modifier
                 .weight(0.5f)
-                .clickable { onWeeklyClick(TaskPeriod.WEEK) },
+                .clickable(
+                    indication = null,
+                    interactionSource = null
+                ) { onWeeklyClick(TaskPeriod.WEEK) },
             imageColorFilter = ColorFilter.lighting(lightBlueGradient[0], Color.DarkGray)
         )
         PeriodCard(
@@ -355,7 +360,10 @@ private fun Periods(
             tasks = monthlyTasks,
             modifier = Modifier
                 .weight(0.5f)
-                .clickable { onMonthlyClick(TaskPeriod.MONTH) },
+                .clickable(
+                    indication = null,
+                    interactionSource = null
+                ) { onMonthlyClick(TaskPeriod.MONTH) },
             gradientBackgroundColors = lightRedGradient,
             imageColorFilter = ColorFilter.lighting(lightRedGradient[0], Color(200, 35, 0))
         )
@@ -520,22 +528,17 @@ private fun boxShadowColor() = if (isSystemInDarkTheme()) Color.White else Color
 
 @Preview
 @Composable
-private fun ContentPreview() {
-    val tasks = (1..12).map {
-        Task.mock.copy(
-            activeStatus = Task.mock.activeStatus?.copy(
-                isCompleted = it > 5,
-                isSet = it > 7
-            )
-        )
-    }
+private fun ContentPreview(
+    @PreviewParameter(TaskPreviewParameter::class)
+    values: List<Task>
+) {
     TaskifyTheme {
         Surface {
             Content(
                 username = "Kite1412",
-                todayTasks = tasks,
-                weeklyTasks = tasks,
-                monthlyTasks = tasks,
+                todayTasks = values,
+                weeklyTasks = values,
+                monthlyTasks = values,
                 onPlanForTodayClick = {},
                 onSettingClick = {},
                 onRemoveTask = {},

@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.Swipeable
@@ -172,10 +173,13 @@ fun TaskCards(
 
 @Preview
 @Composable
-private fun TaskCardPreview() {
+private fun TaskCardPreview(
+    @PreviewParameter(TaskPreviewParameter::class)
+    tasks: List<Task>
+) {
     val task = @Composable { s: Boolean ->
         TaskCard(
-            task = Task.mock,
+            task = tasks[0],
             actions = listOf(
                 Action(
                     action = "Delete",
@@ -198,10 +202,13 @@ private fun TaskCardPreview() {
 
 @Preview
 @Composable
-private fun TaskCardsPreview() {
+private fun TaskCardsPreview(
+    @PreviewParameter(TaskPreviewParameter::class)
+    tasks: List<Task>
+) {
     TaskifyTheme {
         TaskCards(
-            tasks = List(5) { Task.mock },
+            tasks = tasks,
             actions = {
                 listOf(
                     Action(
