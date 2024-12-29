@@ -16,9 +16,6 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="ContentDarkPreview">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="UnconstrainedColumnPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
