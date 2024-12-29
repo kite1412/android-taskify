@@ -16,13 +16,13 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="UnconstrainedColumnPreview">
+      <SelectionState runConfigName="TextFieldPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="TaskCardsPreview">
+      <SelectionState runConfigName="SelectableTextFieldPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="insertThenDelete()">
+      <SelectionState runConfigName="TextFieldWithOptionsPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
