@@ -2,6 +2,8 @@ package com.nrr.datastore.di
 
 import android.util.Log
 import androidx.datastore.core.DataStore
+import com.nrr.datastore.LanguageConfigProto
+import com.nrr.datastore.ThemeConfigProto
 import com.nrr.datastore.UserPreferences
 import com.nrr.datastore.copy
 import com.nrr.model.LanguageConfig
@@ -33,6 +35,38 @@ class TaskifyPreferencesDataSource @Inject constructor(
             }
         } catch (e: Exception) {
             Log.e(tag, "Error updating username", e)
+        }
+    }
+
+    suspend fun setLanguageConfig(newLanguageConfig: LanguageConfig) {
+        try {
+            userPreferences.updateData {
+                it.copy {
+                    languageConfig = when (newLanguageConfig) {
+                        LanguageConfig.SYSTEM_DEFAULT -> LanguageConfigProto.LANGUAGE_CONFIG_PROTO_SYSTEM_DEFAULT
+                        LanguageConfig.ENGLISH -> LanguageConfigProto.LANGUAGE_CONFIG_PROTO_ENGLISH
+                        LanguageConfig.INDONESIAN -> LanguageConfigProto.LANGUAGE_CONFIG_PROTO_INDONESIAN
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "Error updating language config", e)
+        }
+    }
+
+    suspend fun setThemeConfig(newThemeConfig: ThemeConfig) {
+        try {
+            userPreferences.updateData {
+                it.copy {
+                    themeConfig = when (newThemeConfig) {
+                        ThemeConfig.SYSTEM_DEFAULT -> ThemeConfigProto.THEME_CONFIG_PROTO_SYSTEM_DEFAULT
+                        ThemeConfig.LIGHT -> ThemeConfigProto.THEME_CONFIG_PROTO_LIGHT
+                        ThemeConfig.DARK -> ThemeConfigProto.THEME_CONFIG_PROTO_DARK
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "Error updating theme config", e)
         }
     }
 }
