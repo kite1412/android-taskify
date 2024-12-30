@@ -103,6 +103,8 @@ object TextFieldDefaults {
     )
 }
 
+// might cause issues if calling composable doesn't handle post config changes
+// since selected value saved locally here with rememberSaveable
 @Composable
 fun TextFieldWithOptions(
     options: List<String>,

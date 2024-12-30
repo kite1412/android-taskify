@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -45,6 +46,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.AppLogo
 import com.nrr.designsystem.component.TextField
+import com.nrr.designsystem.component.TextFieldDefaults
 import com.nrr.designsystem.component.TextFieldWithOptions
 import com.nrr.designsystem.component.TextFieldWithOptionsDefaults
 import com.nrr.designsystem.icon.TaskifyIcon
@@ -74,6 +76,7 @@ fun RegistrationScreen(
     )
 }
 
+// TODO make responsive
 @Composable
 private fun Content(
     fieldData: List<FieldData>,
@@ -144,7 +147,7 @@ private fun Field(
     }
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(if (data.mandatory) 0.dp else 8.dp)
+        verticalArrangement = Arrangement.spacedBy(if (data.options.size == 1) 0.dp else 8.dp)
     ) {
         AdaptiveText(
             text = stringResource(data.stringId),
@@ -172,24 +175,30 @@ private fun Field(
                     color = Color.Black.copy(alpha = 0.7f),
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize
                 )
-            }
-        ) else TextFieldWithOptions(
-            options = data.options,
-            onValueChange = data.onValueChange,
-            modifier = Modifier.fillMaxWidth(),
-            colors = TextFieldWithOptionsDefaults.colors(
-                optionsBackground = CharcoalClay,
-                optionsColor = Color.White,
-                selectedOptionColor = Color.White,
-                optionsSpacerColor = Color.White,
-                selectedColor = Color.Black
+            },
+            colors = TextFieldDefaults.colors(
+                unfocusedTextColor = Color.Black,
+                focusedTextColor = Color.Black
             )
-        )
-        if (!data.mandatory) Text(
-            text = stringResource(RegistrationDictionary.changeLater),
-            fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-            color = Color.Black.copy(alpha = 0.7f)
-        )
+        ) else Column {
+            Text(
+                text = stringResource(RegistrationDictionary.changeLater),
+                fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                color = Color.Black.copy(alpha = 0.7f)
+            )
+            TextFieldWithOptions(
+                options = data.options,
+                onValueChange = data.onValueChange,
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldWithOptionsDefaults.colors(
+                    optionsBackground = CharcoalClay,
+                    optionsColor = Color.White,
+                    selectedOptionColor = Color.White,
+                    optionsSpacerColor = Color.White,
+                    selectedColor = Color.Black
+                )
+            )
+        }
     }
 }
 
@@ -263,9 +272,10 @@ private fun FieldActions(
 private fun ContentPreview() {
     val state = rememberPagerState { 3 }
     val scope = rememberCoroutineScope()
+    var username by remember { mutableStateOf("") }
     TaskifyTheme {
         Content(
-            fieldData = FieldData.fieldData({}, {}, {}),
+            fieldData = FieldData.fieldData(username, { username = it }, {}, {}),
             onAction = {
                 scope.launch {
                     when (it) {

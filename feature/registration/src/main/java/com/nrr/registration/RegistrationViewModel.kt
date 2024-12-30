@@ -27,6 +27,7 @@ class RegistrationViewModel @Inject constructor(
     private var themeConfig by mutableStateOf(ThemeConfig.SYSTEM_DEFAULT)
 
     internal val fieldData = FieldData.fieldData(
+        username = username,
         onUsernameChange = { username = it },
         onLanguageChange = { languageConfig = LanguageConfig.fromString(it) },
         onThemeChange = { themeConfig = ThemeConfig.fromString(it) }
