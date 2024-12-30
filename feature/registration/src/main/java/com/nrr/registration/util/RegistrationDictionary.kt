@@ -7,4 +7,7 @@ object RegistrationDictionary {
     val usernameQuestion = R.string.registration_username_question
     val languageQuestion = R.string.registration_language_question
     val themeQuestion = R.string.registration_theme_question
+    val previous = R.string.registration_previous
+    val next = R.string.registration_next
+    val complete = R.string.registration_complete
 }

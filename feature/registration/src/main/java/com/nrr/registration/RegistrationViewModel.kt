@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.nrr.data.repository.UserDataRepository
 import com.nrr.model.LanguageConfig
 import com.nrr.model.ThemeConfig
+import com.nrr.registration.model.FieldAction
 import com.nrr.registration.model.FieldData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -27,6 +28,10 @@ class RegistrationViewModel @Inject constructor(
         onLanguageChange = { languageConfig = LanguageConfig.fromString(it) },
         onThemeChange = { themeConfig = ThemeConfig.fromString(it) }
     )
+
+    internal fun onAction(action: FieldAction) {
+
+    }
 
     fun register() {
 

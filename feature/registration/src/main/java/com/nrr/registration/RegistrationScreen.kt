@@ -1,29 +1,41 @@
 package com.nrr.registration
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,9 +46,12 @@ import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.AppLogo
 import com.nrr.designsystem.component.TextField
 import com.nrr.designsystem.component.TextFieldWithOptions
+import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
+import com.nrr.registration.model.FieldAction
 import com.nrr.registration.model.FieldData
 import com.nrr.registration.util.RegistrationDictionary
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
@@ -44,8 +59,13 @@ fun RegistrationScreen(
     modifier: Modifier = Modifier,
     viewModel: RegistrationViewModel = hiltViewModel()
 ) {
+    val pagerState = rememberPagerState { viewModel.fieldData.size }
+    LaunchedEffect(pagerState.currentPage) {
+
+    }
     Content(
         fieldData = viewModel.fieldData,
+        onAction = viewModel::onAction,
         modifier = modifier
     )
 }
@@ -53,34 +73,48 @@ fun RegistrationScreen(
 @Composable
 private fun Content(
     fieldData: List<FieldData>,
-    modifier: Modifier = Modifier
+    onAction: (FieldAction) -> Unit,
+    modifier: Modifier = Modifier,
+    pagerState: PagerState = rememberPagerState { fieldData.size }
 ) {
+    val horizontalPadding = 32
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(
                 top = 64.dp,
-                start = 32.dp,
                 bottom = 32.dp,
-                end = 32.dp
             ),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         AppLogo(
             modifier = Modifier
+                .padding(start = horizontalPadding.dp)
                 .size(80.dp)
                 .clip(CircleShape)
                 .background(Color.White)
                 .padding(12.dp)
         )
         HorizontalPager(
-            state = rememberPagerState { 3 }
+            state = pagerState,
+            contentPadding = PaddingValues(horizontal = horizontalPadding.dp),
+            pageSpacing = (horizontalPadding * 2).dp,
+            userScrollEnabled = false
         ) {
             Field(
                 data = fieldData[it],
                 modifier = Modifier.fillMaxWidth()
             )
         }
+        FieldActions(
+            fieldCount = fieldData.size,
+            currentFieldIndex = pagerState.currentPage,
+            onClick = onAction,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = horizontalPadding.dp)
+        )
     }
 }
 
@@ -139,12 +173,87 @@ private fun Field(
     }
 }
 
+@Composable
+private fun FieldActions(
+    fieldCount: Int,
+    currentFieldIndex: Int,
+    onClick: (FieldAction) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val actionSize = MaterialTheme.typography.bodyMedium.fontSize.value.toInt()
+    val actionColor = MaterialTheme.colorScheme.primary
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        TextButton(
+            onClick = { onClick(FieldAction.Previous) },
+            enabled = currentFieldIndex != 0
+        ) {
+            AnimatedVisibility(visible = currentFieldIndex != 0) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(TaskifyIcon.arrowRight),
+                        contentDescription = "previous",
+                        modifier = Modifier
+                            .rotate(180f)
+                            .size(actionSize.dp),
+                        tint = actionColor
+                    )
+                    Text(
+                        text = stringResource(RegistrationDictionary.previous),
+                        fontSize = actionSize.sp,
+                        color = actionColor
+                    )
+                }
+            }
+        }
+        AnimatedContent(
+            targetState = currentFieldIndex != fieldCount - 1,
+            label = "next button"
+        ) {
+            TextButton(
+                onClick = {
+                    if (it) onClick(FieldAction.Next) else onClick(FieldAction.Complete)
+                }
+            ) {
+                Text(
+                    text = stringResource(
+                        id = if (it) RegistrationDictionary.next else RegistrationDictionary.complete
+                    ),
+                    fontSize = actionSize.sp,
+                    color = if (it) actionColor else MaterialTheme.colorScheme.tertiary
+                )
+                if (it) Icon(
+                    painter = painterResource(TaskifyIcon.arrowRight),
+                    contentDescription = "next",
+                    modifier = Modifier.size(actionSize.dp),
+                    tint = actionColor
+                )
+            }
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun ContentPreview() {
+    val state = rememberPagerState { 3 }
+    val scope = rememberCoroutineScope()
     TaskifyTheme {
         Content(
-            fieldData = FieldData.fieldData({}, {}, {})
+            fieldData = FieldData.fieldData({}, {}, {}),
+            onAction = {
+                scope.launch {
+                    when (it) {
+                        FieldAction.Next -> state.animateScrollToPage(state.currentPage + 1)
+                        FieldAction.Previous -> state.animateScrollToPage(state.currentPage - 1)
+                        FieldAction.Complete -> {}
+                    }
+                }
+            },
+            pagerState = state
         )
     }
 }
