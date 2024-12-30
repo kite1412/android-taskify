@@ -12,10 +12,12 @@ dependencies {
     implementation(projects.core.data)
 
     implementation(projects.feature.todayplan)
+    implementation(projects.feature.registration)
 
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
-
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.core.splashscreen)
+    
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

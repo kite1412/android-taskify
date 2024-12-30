@@ -1,6 +1,5 @@
 package com.nrr.registration
 
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,8 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.nrr.data.repository.UserDataRepository
 import com.nrr.model.LanguageConfig
 import com.nrr.model.ThemeConfig
-import com.nrr.registration.model.FieldAction
-import com.nrr.registration.model.FieldData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,27 +23,19 @@ class RegistrationViewModel @Inject constructor(
 
     private var themeConfig by mutableStateOf(ThemeConfig.SYSTEM_DEFAULT)
 
-    internal val fieldData = FieldData.fieldData(
-        username = username,
-        onUsernameChange = { username = it },
-        onLanguageChange = { languageConfig = LanguageConfig.fromString(it) },
-        onThemeChange = { themeConfig = ThemeConfig.fromString(it) }
-    )
-
-    internal fun onAction(
-        action: FieldAction,
-        pagerState: PagerState
-    ) = viewModelScope.launch {
-        with (pagerState) {
-            when (action) {
-                FieldAction.Next -> { animateScrollToPage(currentPage + 1) }
-                FieldAction.Previous -> { animateScrollToPage(currentPage - 1) }
-                FieldAction.Complete -> register()
-            }
-        }
+    fun setUserName(username: String) {
+        this.username = username
     }
 
-    private fun register() = viewModelScope.launch {
+    fun setLanguageConfig(languageConfig: String) {
+        this.languageConfig = LanguageConfig.fromString(languageConfig)
+    }
+
+    fun setThemeConfig(themeConfig: String) {
+        this.themeConfig = ThemeConfig.fromString(themeConfig)
+    }
+
+    internal fun register() = viewModelScope.launch {
         userDataRepository.setUsername(username)
         userDataRepository.setLanguageConfig(languageConfig)
         userDataRepository.setThemeConfig(themeConfig)

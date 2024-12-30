@@ -7,10 +7,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -64,14 +68,28 @@ fun RegistrationScreen(
     modifier: Modifier = Modifier,
     viewModel: RegistrationViewModel = hiltViewModel()
 ) {
-    val pagerState = rememberPagerState { viewModel.fieldData.size }
+    val fieldData = FieldData.fieldData(
+        username = viewModel.username,
+        onUsernameChange = viewModel::setUserName,
+        onLanguageChange = viewModel::setLanguageConfig,
+        onThemeChange = viewModel::setThemeConfig
+    )
+    val pagerState = rememberPagerState { fieldData.size }
+    val scope = rememberCoroutineScope()
 
     Content(
-        fieldData = viewModel.fieldData,
+        fieldData = fieldData,
         onAction = {
-            viewModel.onAction(it, pagerState)
+            scope.launch {
+                when (it) {
+                    FieldAction.Next -> pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                    FieldAction.Previous -> pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                    FieldAction.Complete -> viewModel.register()
+                }
+            }
         },
         modifier = modifier,
+        pagerState = pagerState,
         enableNext = viewModel.username.isNotEmpty()
     )
 }
@@ -86,6 +104,8 @@ private fun Content(
     enableNext: Boolean = true
 ) {
     val horizontalPadding = 32
+    val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
 
     Column(
         modifier = modifier
@@ -98,8 +118,8 @@ private fun Content(
                 )
             )
             .padding(
-                top = 64.dp,
-                bottom = 32.dp,
+                top = statusBarHeight + 64.dp,
+                bottom = navBarHeight + 16.dp
             ),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -163,7 +183,8 @@ private fun Field(
             onSizeChange = {
                 initialFontSize = it.value.roundToInt()
             },
-            lineHeight = (initialFontSize + 8).sp
+            lineHeight = (initialFontSize + 8).sp,
+            color = Color.Black
         )
         if (data.options.size == 1) TextField(
             value = data.options[0],
