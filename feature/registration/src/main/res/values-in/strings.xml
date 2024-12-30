@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="registration_change_later">Kamu dapat mengubahnya nanti</string>
+    <string name="registration_username_question">Siapa nama kamu?</string>
+    <string name="registration_language_question">Pilih bahasa</string>
+    <string name="registration_theme_question">Pilih tema</string>
+    <string name="registration_previous">Kembali</string>
+    <string name="registration_next">Selanjutnya</string>
+    <string name="registration_complete">Selesai</string>
+</resources>
