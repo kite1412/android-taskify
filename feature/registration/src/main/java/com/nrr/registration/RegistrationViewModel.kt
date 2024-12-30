@@ -24,7 +24,7 @@ class RegistrationViewModel @Inject constructor(
     private var themeConfig by mutableStateOf(ThemeConfig.SYSTEM_DEFAULT)
 
     fun setUserName(username: String) {
-        this.username = username
+        if (username.length <= 20) this.username = username
     }
 
     fun setLanguageConfig(languageConfig: String) {

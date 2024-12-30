@@ -37,6 +37,7 @@ class TaskifyViewModel @Inject constructor(
         }
         .onEach {
             if (it) {
+                titleIndex = 0
                 slidingTextJob?.cancel()
                 startSlidingText()
             }

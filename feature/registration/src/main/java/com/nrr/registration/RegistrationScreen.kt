@@ -136,10 +136,17 @@ private fun Content(
             contentPadding = PaddingValues(horizontal = horizontalPadding.dp),
             pageSpacing = (horizontalPadding * 2).dp,
             userScrollEnabled = false
-        ) {
+        ) { page ->
             Field(
-                data = fieldData[it],
-                modifier = Modifier.fillMaxWidth()
+                data = fieldData[page],
+                modifier = Modifier.fillMaxWidth(),
+                trailingIcon = {
+                    Text(
+                        text = "${it.length}/20",
+                        fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                        color = Color.Black
+                    )
+                }
             )
         }
         FieldActions(
@@ -157,7 +164,9 @@ private fun Content(
 @Composable
 private fun Field(
     data: FieldData,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    // Only for regular TextField
+    trailingIcon: @Composable ((String) -> Unit)? = null
 ) {
     var initialFontSize by remember { mutableIntStateOf(24) }
     val shadowOffset by remember {
@@ -200,7 +209,10 @@ private fun Field(
             colors = TextFieldDefaults.colors(
                 unfocusedTextColor = Color.Black,
                 focusedTextColor = Color.Black
-            )
+            ),
+            trailingIcon = if (trailingIcon != null) {
+                { trailingIcon.invoke(data.options[0]) }
+            } else null
         ) else Column {
             Text(
                 text = stringResource(RegistrationDictionary.changeLater),
