@@ -16,3 +16,8 @@ val lightRedGradient = listOf(
     Color(0xFFF57970),
     Color(0xFFE79791),
 )
+
+val softBeigeGradient = listOf(
+    SpinachWhite,
+    CilantroCream
+)

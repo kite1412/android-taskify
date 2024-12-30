@@ -21,7 +21,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -33,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.res.painterResource
@@ -46,8 +46,11 @@ import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.AppLogo
 import com.nrr.designsystem.component.TextField
 import com.nrr.designsystem.component.TextFieldWithOptions
+import com.nrr.designsystem.component.TextFieldWithOptionsDefaults
 import com.nrr.designsystem.icon.TaskifyIcon
+import com.nrr.designsystem.theme.CharcoalClay
 import com.nrr.designsystem.theme.TaskifyTheme
+import com.nrr.designsystem.theme.softBeigeGradient
 import com.nrr.registration.model.FieldAction
 import com.nrr.registration.model.FieldData
 import com.nrr.registration.util.RegistrationDictionary
@@ -60,13 +63,14 @@ fun RegistrationScreen(
     viewModel: RegistrationViewModel = hiltViewModel()
 ) {
     val pagerState = rememberPagerState { viewModel.fieldData.size }
-    LaunchedEffect(pagerState.currentPage) {
 
-    }
     Content(
         fieldData = viewModel.fieldData,
-        onAction = viewModel::onAction,
-        modifier = modifier
+        onAction = {
+            viewModel.onAction(it, pagerState)
+        },
+        modifier = modifier,
+        enableNext = viewModel.username.isNotEmpty()
     )
 }
 
@@ -75,13 +79,21 @@ private fun Content(
     fieldData: List<FieldData>,
     onAction: (FieldAction) -> Unit,
     modifier: Modifier = Modifier,
-    pagerState: PagerState = rememberPagerState { fieldData.size }
+    pagerState: PagerState = rememberPagerState { fieldData.size },
+    enableNext: Boolean = true
 ) {
     val horizontalPadding = 32
 
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(
+                brush = Brush.linearGradient(
+                    colors = softBeigeGradient,
+                    start = Offset(x = 50f, y = 0f),
+                    end = Offset(x = 50f, y = Float.POSITIVE_INFINITY)
+                )
+            )
             .padding(
                 top = 64.dp,
                 bottom = 32.dp,
@@ -113,7 +125,8 @@ private fun Content(
             onClick = onAction,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = horizontalPadding.dp)
+                .padding(horizontal = horizontalPadding.dp),
+            enableNext = enableNext
         )
     }
 }
@@ -163,7 +176,14 @@ private fun Field(
         ) else TextFieldWithOptions(
             options = data.options,
             onValueChange = data.onValueChange,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldWithOptionsDefaults.colors(
+                optionsBackground = CharcoalClay,
+                optionsColor = Color.White,
+                selectedOptionColor = Color.White,
+                optionsSpacerColor = Color.White,
+                selectedColor = Color.Black
+            )
         )
         if (!data.mandatory) Text(
             text = stringResource(RegistrationDictionary.changeLater),
@@ -178,7 +198,8 @@ private fun FieldActions(
     fieldCount: Int,
     currentFieldIndex: Int,
     onClick: (FieldAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enableNext: Boolean = true
 ) {
     val actionSize = MaterialTheme.typography.bodyMedium.fontSize.value.toInt()
     val actionColor = MaterialTheme.colorScheme.primary
@@ -216,7 +237,8 @@ private fun FieldActions(
             TextButton(
                 onClick = {
                     if (it) onClick(FieldAction.Next) else onClick(FieldAction.Complete)
-                }
+                },
+                enabled = enableNext
             ) {
                 Text(
                     text = stringResource(

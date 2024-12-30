@@ -19,7 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,18 +48,14 @@ fun TextField(
     readOnly: Boolean = false,
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    placeholder: @Composable (() -> Unit)? = null
+    placeholder: @Composable (() -> Unit)? = null,
+    colors: TextFieldColors = TextFieldDefaults.colors()
 ) {
     TF(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier,
-        colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = Color.Transparent,
-            focusedContainerColor = Color.Transparent,
-            unfocusedIndicatorColor = MaterialTheme.colorScheme.primary,
-            focusedIndicatorColor = MaterialTheme.colorScheme.primary
-        ),
+        colors = colors,
         singleLine = singleLine,
         readOnly = readOnly,
         trailingIcon = trailingIcon,
@@ -69,11 +65,50 @@ fun TextField(
     )
 }
 
+object TextFieldDefaults {
+    private val whiteOrBlack: Color
+        @Composable get() = if (isSystemInDarkTheme()) Color.White else Color.Black
+
+    private val focusedIndicatorColor: Color
+        @Composable get() = MaterialTheme.colorScheme.primary
+
+    private val unfocusedIndicatorColor: Color
+        @Composable get() = MaterialTheme.colorScheme.primary
+
+    private val unfocusedContainerColor: Color = Color.Transparent
+
+    private val focusedContainerColor: Color = Color.Transparent
+
+    private val unfocusedTextColor: Color
+        @Composable get() = whiteOrBlack
+
+    private val focusedTextColor: Color
+        @Composable get() = whiteOrBlack
+
+    @Composable
+    fun colors(
+        unfocusedContainerColor: Color = this.unfocusedContainerColor,
+        focusedContainerColor: Color = this.focusedContainerColor,
+        unfocusedIndicatorColor: Color = this.unfocusedIndicatorColor,
+        focusedIndicatorColor: Color = this.focusedIndicatorColor,
+        unfocusedTextColor: Color = this.unfocusedTextColor,
+        focusedTextColor: Color = this.focusedTextColor
+    ): TextFieldColors = androidx.compose.material3.TextFieldDefaults.colors(
+        unfocusedContainerColor = unfocusedContainerColor,
+        focusedContainerColor = focusedContainerColor,
+        unfocusedIndicatorColor = unfocusedIndicatorColor,
+        focusedIndicatorColor = focusedIndicatorColor,
+        unfocusedTextColor = unfocusedTextColor,
+        focusedTextColor = focusedTextColor
+    )
+}
+
 @Composable
 fun TextFieldWithOptions(
     options: List<String>,
     onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    colors: TextFieldWithOptionsColors = TextFieldWithOptionsDefaults.colors()
 ) {
     if (options.isNotEmpty()) {
         var selected by rememberSaveable { mutableStateOf(options[0]) }
@@ -115,16 +150,22 @@ fun TextFieldWithOptions(
                                 }
                             }
                         }
-                    }
+                    },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedTextColor = colors.selectedColor,
+                        focusedTextColor = colors.selectedColor
+                    )
                 )
             }
             AnimatedVisibility(visible = showOptions) {
                 Options(
                     options = options,
+                    selected = selected,
                     onClick = {
                         selected = it
                         showOptions = false
-                    }
+                    },
+                    colors = colors
                 )
             }
         }
@@ -134,36 +175,87 @@ fun TextFieldWithOptions(
 @Composable
 private fun Options(
     options: List<String>,
+    selected: String,
     onClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    colors: TextFieldWithOptionsColors = TextFieldWithOptionsDefaults.colors()
 ) {
-    val whiteOrBlack = if (isSystemInDarkTheme()) Color.White else Color.Black
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(MaterialTheme.colorScheme.onBackground)
-            .padding(16.dp)
+            .background(colors.optionsBackground)
     ) {
         options.forEachIndexed { i, t ->
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .background(if (selected == t) colors.selectedOptionBackground else Color.Transparent)
                     .clickable { onClick(t) }
             ) {
                 Text(
                     text = t,
-                    modifier = Modifier.padding(8.dp),
-                    color = whiteOrBlack
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    color = if (selected == t) colors.selectedOptionColor else colors.optionsColor
                 )
                 if (i != options.lastIndex) Spacer(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(1.dp)
-                        .background(whiteOrBlack)
+                        .background(colors.optionsSpacerColor)
                 )
             }
         }
     }
+}
+
+data class TextFieldWithOptionsColors(
+    val optionsBackground: Color,
+    val optionsSpacerColor: Color,
+    val optionsColor: Color,
+    val selectedOptionBackground: Color,
+    val selectedOptionColor: Color,
+    val selectedColor: Color
+)
+
+object TextFieldWithOptionsDefaults {
+    private val whiteOrBlack: Color
+        @Composable get() = if (isSystemInDarkTheme()) Color.White else Color.Black
+
+    private val optionsBackground: Color
+        @Composable get() = MaterialTheme.colorScheme.onBackground
+
+    private val optionsSpacerColor: Color
+        @Composable get() = whiteOrBlack
+
+    private val optionsColor: Color
+        @Composable get() = whiteOrBlack
+
+    private val selectedOptionColor: Color = Color.White
+
+    private val selectedOptionBackground: Color
+        @Composable get() = MaterialTheme.colorScheme.primary
+
+    private val selectedColor: Color
+        @Composable get() = whiteOrBlack
+
+    @Composable
+    fun colors(
+        optionsBackground: Color = this.optionsBackground,
+        optionsSpacerColor: Color = this.optionsSpacerColor,
+        optionsColor: Color = this.optionsColor,
+        selectedOptionColor: Color = this.selectedOptionColor,
+        selectedOptionBackground: Color = this.selectedOptionBackground,
+        selectedColor: Color = this.selectedColor
+    ): TextFieldWithOptionsColors = TextFieldWithOptionsColors(
+        optionsBackground = optionsBackground,
+        optionsSpacerColor = optionsSpacerColor,
+        optionsColor = optionsColor,
+        selectedOptionColor = selectedOptionColor,
+        selectedOptionBackground = selectedOptionBackground,
+        selectedColor = selectedColor
+    )
 }
 
 @Preview
