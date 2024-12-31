@@ -54,7 +54,8 @@ fun Swipeable(
     minActionWidth: Dp = 50.dp,
     actionWidthFactor: Float = actions.size * 0.2f,
     actionButtonsBorderShape: Shape = RectangleShape,
-    actionNeedConfirmation: Boolean = false,
+    actionConfirmation: Boolean = false,
+    swipeEnabled: Boolean = true,
     content: @Composable (Modifier) -> Unit
 ) {
     val density = LocalDensity.current
@@ -82,7 +83,7 @@ fun Swipeable(
                             detectHorizontalDragGestures(
                                 onDragEnd = state::onSwipeEnd
                             ) { _, dragAmount ->
-                                with(density) {
+                                if (swipeEnabled) with(density) {
                                     state.onSwipe(dragAmount.toDp())
                                 }
                             }
@@ -113,7 +114,7 @@ fun Swipeable(
                             modifier = Modifier
                                 .width(actionWidth)
                                 .fillMaxHeight(),
-                            needConfirmation = actionNeedConfirmation
+                            needConfirmation = actionConfirmation
                         )
                     }
                 }
@@ -121,25 +122,6 @@ fun Swipeable(
                 it.measure(constraints).placeRelative(0, 0)
             }
             swipeableContent.forEach { it.placeRelative(0, 0) }
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun SwipeablePreview() {
-    TaskifyTheme {
-        Swipeable(
-            actions = Action.mocks,
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Box(
-                modifier = it
-                    .height(50.dp)
-                    .background(Color.Yellow.copy(alpha = 0.5f))
-            ) {
-                Text("Content", modifier = Modifier.background(Color.Green))
-            }
         }
     }
 }
@@ -211,6 +193,26 @@ private fun SwipeableAction(
 @Composable
 fun rememberSwipeableState() = remember {
     SwipeableState()
+}
+
+@Preview
+@Composable
+private fun SwipeablePreview() {
+    TaskifyTheme {
+        Swipeable(
+            actions = Action.mocks,
+            modifier = Modifier.padding(16.dp),
+            swipeEnabled = false
+        ) {
+            Box(
+                modifier = it
+                    .height(50.dp)
+                    .background(Color.Yellow.copy(alpha = 0.5f))
+            ) {
+                Text("Content", modifier = Modifier.background(Color.Green))
+            }
+        }
+    }
 }
 
 data class Action(

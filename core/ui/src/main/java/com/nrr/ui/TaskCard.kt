@@ -75,7 +75,7 @@ fun TaskCard(
                 ),
             state = swipeableState,
             actionButtonsBorderShape = RoundedCornerShape(swipeableClip),
-            actionNeedConfirmation = true
+            actionConfirmation = true
         ) { m ->
             Row(
                 modifier = m

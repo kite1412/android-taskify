@@ -7,4 +7,5 @@ android {
 }
 
 dependencies {
+    implementation(projects.taskify.core.domain)
 }
