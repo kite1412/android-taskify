@@ -6,16 +6,21 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -25,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
@@ -58,6 +64,7 @@ private fun Content(
     editMode: Boolean,
     onClear: () -> Unit,
     onSearch: () -> Unit,
+    onAddClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -65,13 +72,24 @@ private fun Content(
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         Header()
-        Row {
+        Row(
+            modifier = Modifier.height(IntrinsicSize.Max),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             SearchBar(
                 value = searchValue,
                 onValueChange = onSearchValueChange,
                 editMode = editMode,
                 onClear = onClear,
-                onSearch = onSearch
+                onSearch = onSearch,
+                modifier = Modifier
+                    .weight(0.9f)
+                    .fillMaxHeight()
+            )
+            AddTask(
+                editMode = editMode,
+                onClick = onAddClick,
+                modifier = Modifier.fillMaxHeight()
             )
         }
     }
@@ -95,6 +113,7 @@ private fun SearchBar(
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
+    val fontSize = MaterialTheme.typography.bodyMedium.fontSize
 
     Row(
         modifier = modifier
@@ -106,10 +125,10 @@ private fun SearchBar(
                 shape = RoundedCornerShape(100.dp)
             )
             .padding(
-                horizontal = 32.dp,
-                vertical = 12.dp
+                start = 32.dp,
+                end = 16.dp
             ),
-        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically
     ) {
         BasicTextField(
             value = value,
@@ -118,11 +137,15 @@ private fun SearchBar(
                 .fillMaxWidth()
                 .weight(0.9f),
             singleLine = true,
-            textStyle = LocalTextStyle.current.copy(color = Color.Black),
+            textStyle = LocalTextStyle.current.copy(
+                color = Color.Black,
+                fontSize = fontSize
+            ),
             decorationBox = {
                 if (value.isEmpty()) Text(
                     text = stringResource(TaskManagementDictionary.searchTask),
-                    color = Color.Black
+                    color = Color.Black,
+                    fontSize = fontSize
                 )
                 it()
             },
@@ -156,6 +179,30 @@ private fun SearchBar(
     }
 }
 
+@Composable
+private fun AddTask(
+    editMode: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) = IconButton(
+    onClick = {
+        if (!editMode) onClick()
+    },
+    modifier = modifier.size(48.dp),
+    colors = IconButtonDefaults.iconButtonColors(
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = Color.White
+    )
+) {
+    Icon(
+        painter = painterResource(TaskifyIcon.add),
+        contentDescription = "add",
+        tint = Color.White,
+        modifier = Modifier
+            .size(30.dp)
+    )
+}
+
 @Preview
 @Composable
 private fun ContentPreview() {
@@ -165,9 +212,10 @@ private fun ContentPreview() {
             Content(
                 searchValue = value,
                 onSearchValueChange = { t -> value = t },
-                editMode = true,
+                editMode = false,
                 onClear = { value = "" },
                 onSearch = { value = "searching" },
+                onAddClick = { value = "add" },
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(it)
