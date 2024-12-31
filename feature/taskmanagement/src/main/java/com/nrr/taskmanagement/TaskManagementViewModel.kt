@@ -37,11 +37,11 @@ class TaskManagementViewModel @Inject constructor(
     var editMode by mutableStateOf(false)
         private set
 
-    fun setSearchValue(value: String) {
+    fun updateSearchValue(value: String) {
         searchValue = value
     }
 
-    fun setEditMode(value: Boolean) {
+    fun updateEditMode(value: Boolean) {
         editMode = value
     }
 

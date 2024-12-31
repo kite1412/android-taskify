@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -18,11 +19,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,6 +47,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.nrr.designsystem.component.RoundRectButton
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.util.TaskifyDefault
@@ -57,11 +61,21 @@ internal fun TaskManagementScreen(
 ) {
     Content(
         searchValue = viewModel.searchValue,
-        onSearchValueChange = viewModel::setSearchValue,
+        onSearchValueChange = viewModel::updateSearchValue,
         editMode = viewModel.editMode,
         onClear = viewModel::clearSearchValue,
         onSearch = viewModel::searchTask,
-        onAddClick = onAddClick
+        onAddClick = onAddClick,
+        sortLabel = TODO(),
+        filterLabel = TODO(),
+        sortExpanded = TODO(),
+        filterExpanded = TODO(),
+        onSortExpand = TODO(),
+        onFilterExpand = TODO(),
+        onSortDismiss = TODO(),
+        onFilterDismiss = TODO(),
+        onSortOptionClick = TODO(),
+        onFilterOptionClick = TODO()
     )
 }
 
@@ -73,6 +87,16 @@ private fun Content(
     onClear: () -> Unit,
     onSearch: () -> Unit,
     onAddClick: () -> Unit,
+    sortLabel: String,
+    filterLabel: String,
+    sortExpanded: Boolean,
+    filterExpanded: Boolean,
+    onSortExpand: () -> Unit,
+    onFilterExpand: () -> Unit,
+    onSortDismiss: () -> Unit,
+    onFilterDismiss: () -> Unit,
+    onSortOptionClick: (Customize.Sort) -> Unit,
+    onFilterOptionClick: (Customize.Filter) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -100,6 +124,18 @@ private fun Content(
                 modifier = Modifier.fillMaxHeight()
             )
         }
+        Customizes(
+            sortLabel = sortLabel,
+            filterLabel = filterLabel,
+            sortExpanded = sortExpanded,
+            filterExpanded = filterExpanded,
+            onSortExpand = onSortExpand,
+            onFilterExpand = onFilterExpand,
+            onSortDismiss = onSortDismiss,
+            onFilterDismiss = onFilterDismiss,
+            onSortOptionClick = onSortOptionClick,
+            onFilterOptionClick = onFilterOptionClick
+        )
     }
 }
 
@@ -193,15 +229,11 @@ private fun AddTask(
     editMode: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
-) = IconButton(
+) = FilledIconButton(
     onClick = {
         if (!editMode) onClick()
     },
-    modifier = modifier.size(48.dp),
-    colors = IconButtonDefaults.iconButtonColors(
-        containerColor = MaterialTheme.colorScheme.primary,
-        contentColor = Color.White
-    )
+    modifier = modifier.size(48.dp)
 ) {
     Icon(
         painter = painterResource(TaskifyIcon.add),
@@ -212,12 +244,97 @@ private fun AddTask(
     )
 }
 
+@Composable
+private fun Customizes(
+    sortLabel: String,
+    filterLabel: String,
+    sortExpanded: Boolean,
+    filterExpanded: Boolean,
+    onSortExpand: () -> Unit,
+    onFilterExpand: () -> Unit,
+    onSortDismiss: () -> Unit,
+    onFilterDismiss: () -> Unit,
+    onSortOptionClick: (Customize.Sort) -> Unit,
+    onFilterOptionClick: (Customize.Filter) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Customize(
+            label = sortLabel,
+            expanded = sortExpanded,
+            onExpand = onSortExpand,
+            onDismiss = onSortDismiss,
+            options = Customize.Sort.entries,
+            onOptionClick = { onSortOptionClick(it as Customize.Sort) },
+        )
+        Customize(
+            label = filterLabel,
+            expanded = filterExpanded,
+            onExpand = onFilterExpand,
+            onDismiss = onFilterDismiss,
+            options = Customize.Filter.entries,
+            onOptionClick = { onFilterOptionClick(it as Customize.Filter) },
+        )
+    }
+}
+
+@Composable
+private fun Customize(
+    label: String,
+    expanded: Boolean,
+    onExpand: () -> Unit,
+    onDismiss: () -> Unit,
+    options: List<Customize>,
+    onOptionClick: (Customize) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box {
+        RoundRectButton(
+            onClick = {
+                if (expanded) onDismiss() else onExpand()
+            },
+            action = label,
+            iconId = TaskifyIcon.chevronDown,
+            shape = RoundedCornerShape(100)
+        )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = onDismiss,
+            modifier = Modifier.background(MaterialTheme.colorScheme.primary)
+        ) {
+            options.forEach {
+                DropdownMenuItem(
+                    text = {
+                        Text(it.name)
+                    },
+                    onClick = {
+                        onDismiss()
+                        onOptionClick(it)
+                    },
+                    colors = MenuDefaults.itemColors(
+                        textColor = if (label == it.name) MaterialTheme.colorScheme.tertiary
+                            else Color.White
+                    )
+                )
+            }
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun ContentPreview() {
     var value by remember { mutableStateOf("") }
+    var sortExpanded by remember { mutableStateOf(false) }
+    var filterExpanded by remember { mutableStateOf(false) }
+    var sort by remember { mutableStateOf(Customize.Sort.entries[0]) }
+    var filter by remember { mutableStateOf(Customize.Filter.entries[0]) }
+
     TaskifyTheme {
-        Scaffold {
+        Scaffold { innerPadding ->
             Content(
                 searchValue = value,
                 onSearchValueChange = { t -> value = t },
@@ -225,9 +342,19 @@ private fun ContentPreview() {
                 onClear = { value = "" },
                 onSearch = { value = "searching" },
                 onAddClick = { value = "add" },
+                sortLabel = sort.name,
+                filterLabel = filter.name,
+                sortExpanded = sortExpanded,
+                filterExpanded = filterExpanded,
+                onSortExpand = { sortExpanded = true },
+                onFilterExpand = { filterExpanded = true },
+                onSortDismiss = { sortExpanded = false },
+                onFilterDismiss = { filterExpanded = false },
+                onSortOptionClick = { sort = it },
+                onFilterOptionClick = { filter = it },
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(it)
+                    .padding(innerPadding)
             )
         }
     }
