@@ -19,7 +19,7 @@ fun Task.color() = when (taskType) {
     TaskType.SPECIAL -> Gold
 }
 
-fun Task.iconId() = when(taskType) {
+fun Task.iconId() = when (taskType) {
     TaskType.PERSONAL -> TaskifyIcon.profile
     TaskType.WORK -> TaskifyIcon.workCase
     TaskType.LEARNING -> TaskifyIcon.book

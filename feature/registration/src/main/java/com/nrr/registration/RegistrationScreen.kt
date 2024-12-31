@@ -19,6 +19,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -174,6 +175,7 @@ private fun Field(
             initialFontSize / 5
         }
     }
+
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(if (data.options.size == 1) 0.dp else 8.dp)
@@ -280,20 +282,22 @@ private fun FieldActions(
                 onClick = {
                     if (it) onClick(FieldAction.Next) else onClick(FieldAction.Complete)
                 },
-                enabled = enableNext
+                enabled = enableNext,
+                colors = ButtonDefaults.textButtonColors(
+                    disabledContentColor = Color.Gray,
+                    contentColor = if (it) actionColor else MaterialTheme.colorScheme.tertiary
+                )
             ) {
                 Text(
                     text = stringResource(
                         id = if (it) RegistrationDictionary.next else RegistrationDictionary.complete
                     ),
                     fontSize = actionSize.sp,
-                    color = if (it) actionColor else MaterialTheme.colorScheme.tertiary
                 )
                 if (it) Icon(
                     painter = painterResource(TaskifyIcon.arrowRight),
                     contentDescription = "next",
                     modifier = Modifier.size(actionSize.dp),
-                    tint = actionColor
                 )
             }
         }

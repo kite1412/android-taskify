@@ -29,6 +29,12 @@ class TaskifyViewModel @Inject constructor(
     var currentDestination by mutableStateOf(Destination.HOME)
         private set
 
+    var showSplash by mutableStateOf(true)
+        private set
+
+    var showContent by mutableStateOf(false)
+        private set
+
     private var slidingTextJob: Job? = null
 
     val registered = userDataRepository.userData
@@ -48,6 +54,8 @@ class TaskifyViewModel @Inject constructor(
             initialValue = null
         )
 
+    val contentEnterDelay = 300
+
     val topBarTitles = TaskifyTopAppBarDefaults.defaultTitles
 
     private fun startSlidingText() {
@@ -62,5 +70,11 @@ class TaskifyViewModel @Inject constructor(
 
     fun onDestinationChange(destination: Destination) {
         currentDestination = destination
+    }
+
+    fun dismissSplash(delay: Long) = viewModelScope.launch {
+        showSplash = false
+        delay(delay - contentEnterDelay)
+        showContent = true
     }
 }

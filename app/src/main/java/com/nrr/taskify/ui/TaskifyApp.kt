@@ -31,10 +31,10 @@ internal fun TaskifyApp(
 
     Scaffold(modifier = modifier) { innerPadding ->
         AnimatedVisibility(
-            visible = registered == true,
+            visible = registered == true && viewModel.showContent,
             label = "main content",
             enter = slideInVertically(
-                animationSpec = tween(durationMillis = 300)
+                animationSpec = tween(durationMillis = viewModel.contentEnterDelay)
             ) { it },
             exit = slideOutVertically { it },
             modifier = Modifier.padding(innerPadding)
@@ -48,8 +48,12 @@ internal fun TaskifyApp(
                 TaskifyNavHost()
             }
         }
+        if (registered == false && viewModel.showContent) RegistrationScreen()
+        SplashScreen(
+            onCompleted = viewModel::dismissSplash,
+            showSplash = viewModel.showSplash
+        )
     }
-    if (registered == false) RegistrationScreen()
 }
 
 @Composable
