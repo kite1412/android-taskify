@@ -19,4 +19,6 @@ object TaskifyIcon {
     val check = R.drawable.check
     val chevronDown = R.drawable.chevron_down
     val arrowRight = R.drawable.arrow_right
+    val add = R.drawable.add
+    val search = R.drawable.search
 }
