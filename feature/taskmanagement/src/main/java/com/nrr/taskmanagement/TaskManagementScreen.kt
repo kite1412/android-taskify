@@ -51,10 +51,18 @@ import com.nrr.taskmanagement.util.TaskManagementDictionary
 
 @Composable
 internal fun TaskManagementScreen(
+    onAddClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TaskManagementViewModel = hiltViewModel()
 ) {
-
+    Content(
+        searchValue = viewModel.searchValue,
+        onSearchValueChange = viewModel::setSearchValue,
+        editMode = viewModel.editMode,
+        onClear = viewModel::clearSearchValue,
+        onSearch = viewModel::searchTask,
+        onAddClick = onAddClick
+    )
 }
 
 @Composable
@@ -157,7 +165,8 @@ private fun SearchBar(
                     focusManager.clearFocus()
                     onSearch()
                 }
-            )
+            ),
+            enabled = !editMode
         )
         AnimatedContent(
             targetState = value.isEmpty(),

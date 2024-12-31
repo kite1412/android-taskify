@@ -18,4 +18,6 @@ interface TaskRepository {
     suspend fun deleteActiveTask(task: Task): Int
 
     suspend fun setActiveTaskAsCompleted(task: Task): Long
+
+    fun getByTitle(title: String): Flow<List<Task>>
 }

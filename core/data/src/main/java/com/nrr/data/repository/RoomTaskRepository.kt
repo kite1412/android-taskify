@@ -45,4 +45,9 @@ internal class RoomTaskRepository @Inject constructor(
         task.activeStatus?.let {
             activeTaskDao.insertActiveTask(it.copy(isCompleted = true).asEntity(task.id))
         } ?: 0
+
+    override fun getByTitle(title: String): Flow<List<Task>> =
+        taskDao.getByTitle(title).map {
+            it.map(TaskWithStatus::asExternalModel)
+        }
 }

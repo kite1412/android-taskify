@@ -17,4 +17,11 @@ interface TaskDao {
     @Transaction
     @Query("SELECT * FROM tasks")
     fun getAllTasks(): Flow<List<TaskWithStatus>>
+
+    @Query("""
+        SELECT * FROM tasks 
+        WHERE title LIKE '%' || :title || '%'
+        OR description LIKE '%' || :title || '%'
+    """)
+    fun getByTitle(title: String): Flow<List<TaskWithStatus>>
 }
