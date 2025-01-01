@@ -76,6 +76,7 @@ internal fun TaskManagementScreen(
         tasks = tasks,
         tasksActions = { listOf() },
         onTaskClick = {},
+        onTaskLongClick = {},
         searchValue = viewModel.searchValue,
         onSearchValueChange = viewModel::updateSearchValue,
         editMode = viewModel.editMode,
@@ -94,6 +95,7 @@ private fun Content(
     tasks: List<Task>?,
     tasksActions: (Task) -> List<Action>,
     onTaskClick: (Task) -> Unit,
+    onTaskLongClick: (Task) -> Unit,
     searchValue: String,
     onSearchValueChange: (String) -> Unit,
     editMode: Boolean,
@@ -142,6 +144,7 @@ private fun Content(
             actions = tasksActions,
             editMode = editMode,
             onClick = onTaskClick,
+            onLongClick = onTaskLongClick,
             modifier = Modifier.verticalScroll(rememberScrollState())
         )
     }
@@ -323,6 +326,7 @@ private fun Tasks(
     actions: (Task) -> List<Action>,
     editMode: Boolean,
     onClick: (Task) -> Unit,
+    onLongClick: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (tasks != null) {
@@ -331,7 +335,9 @@ private fun Tasks(
             actions = actions,
             modifier = modifier,
             onClick = onClick,
+            onLongClick = onLongClick,
             clickEnabled = { !editMode },
+            swipeEnabled = !editMode,
             verticalArrangement = Arrangement.spacedBy(8.dp),
             leadingIcon = {
                 tasks[it].activeStatus?.let { status ->
@@ -353,7 +359,8 @@ private fun Tasks(
                         maxLines = 1
                     )
                 }
-            }
+            },
+            resetSwipes = editMode
         ) else {}
     } else {}
 }
@@ -367,6 +374,7 @@ private fun ContentPreview(
     var value by remember { mutableStateOf("") }
     val sort = remember { SortState() }
     val filter = remember { FilterState() }
+    var editMode by remember { mutableStateOf(false) }
 
     TaskifyTheme {
         Scaffold { innerPadding ->
@@ -374,15 +382,16 @@ private fun ContentPreview(
                 tasks = tasks,
                 tasksActions = { Action.mocks },
                 onTaskClick = {},
+                onTaskLongClick = { editMode = true },
                 searchValue = value,
                 onSearchValueChange = { t -> value = t },
-                editMode = false,
+                editMode = editMode,
                 onClear = { value = "" },
                 onSearch = { value = "searching" },
                 onAddClick = { value = "add" },
                 sortState = sort,
                 filterState = filter,
-                onSortSelect = { },
+                onSortSelect = { editMode = false },
                 onFilterSelect = { },
                 modifier = Modifier
                     .fillMaxSize()

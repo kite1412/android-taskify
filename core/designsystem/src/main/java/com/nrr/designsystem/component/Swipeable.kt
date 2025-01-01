@@ -79,7 +79,7 @@ fun Swipeable(
                 content(
                     if (actions.isNotEmpty()) Modifier
                         .offset(x = animatedOffset)
-                        .pointerInput(Unit) {
+                        .pointerInput(swipeEnabled) {
                             detectHorizontalDragGestures(
                                 onDragEnd = state::onSwipeEnd
                             ) { _, dragAmount ->

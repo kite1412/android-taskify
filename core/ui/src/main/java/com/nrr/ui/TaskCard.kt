@@ -1,7 +1,8 @@
 package com.nrr.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,7 @@ import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.Task
 import com.nrr.model.toTimeString
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TaskCard(
     task: Task,
@@ -50,7 +52,9 @@ fun TaskCard(
     swipeableState: SwipeableState = rememberSwipeableState(),
     showStartTime: Boolean = false,
     onClick: ((Task) -> Unit)? = null,
-    clickEnabled: Boolean = onClick != null
+    onLongClick: ((Task) -> Unit)? = null,
+    clickEnabled: Boolean = onClick != null,
+    swipeEnabled: Boolean = true
 ) {
     val swipeableClip = 10.dp
     val showTime = showStartTime && task.activeStatus != null
@@ -73,12 +77,17 @@ fun TaskCard(
             modifier = Modifier.weight(0.9f),
             state = swipeableState,
             actionButtonsBorderShape = RoundedCornerShape(swipeableClip),
-            actionConfirmation = true
+            actionConfirmation = true,
+            swipeEnabled = swipeEnabled
         ) { m ->
             Row(
                 modifier = m
                     .fillMaxWidth()
-                    .clickable(enabled = clickEnabled) { onClick?.invoke(task) }
+                    .combinedClickable(
+                        onLongClick = { onLongClick?.invoke(task) },
+                        onClick = { onClick?.invoke(task) },
+                        enabled = clickEnabled
+                    )
                     .clip(RoundedCornerShape(swipeableClip))
                     .background(task.color())
                     .padding(8.dp),
@@ -125,14 +134,17 @@ fun TaskCards(
     modifier: Modifier = Modifier,
     showStartTime: Boolean = false,
     onClick: ((Task) -> Unit)? = null,
+    onLongClick: ((Task) -> Unit)? = null,
     clickEnabled: (Int) -> Boolean = { onClick != null },
     showCard: (Task) -> Boolean = { true },
+    swipeEnabled: Boolean = true,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     spacer: @Composable (ColumnScope.(index: Int) -> Unit)? = null,
     leadingIcon: @Composable (RowScope.(index: Int) -> Unit)? = null,
+    resetSwipes: Any? = null
 ) {
-    val states = remember {
+    val states = remember(resetSwipes) {
         tasks.indices.map { SwipeableState() }
     }
     var prevOpened by rememberSaveable {
@@ -167,7 +179,9 @@ fun TaskCards(
                             swipeableState = s,
                             showStartTime = showStartTime,
                             onClick = { onClick?.invoke(task) },
-                            clickEnabled = clickEnabled(index)
+                            onLongClick = { onLongClick?.invoke(task) },
+                            clickEnabled = clickEnabled(index),
+                            swipeEnabled = swipeEnabled
                         )
                         spacer?.invoke(this, index)
                     }
