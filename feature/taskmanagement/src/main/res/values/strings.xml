@@ -2,4 +2,8 @@
 <resources>
     <string name="taskmanagement_your_tasks">Your Tasks</string>
     <string name="taskmanagement_search_task">Search task</string>
+    <string name="taskmanagement_today">Today</string>
+    <string name="taskmanagement_weekly">Weekly</string>
+    <string name="taskmanagement_monthly">Monthly</string>
+    <string name="taskmanagement_daily">Daily</string>
 </resources>

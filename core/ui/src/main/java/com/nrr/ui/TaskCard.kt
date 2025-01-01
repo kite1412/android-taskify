@@ -160,7 +160,7 @@ fun TaskCards(
                 }
                 Row {
                     leadingIcon?.invoke(this, index)
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         TaskCard(
                             task = task,
                             actions = actions(task),

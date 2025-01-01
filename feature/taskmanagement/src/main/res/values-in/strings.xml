@@ -2,4 +2,8 @@
 <resources>
     <string name="taskmanagement_your_tasks">Tugas Kamu</string>
     <string name="taskmanagement_search_task">Cari tugas</string>
+    <string name="taskmanagement_today">Hari ini</string>
+    <string name="taskmanagement_weekly">Mingguan</string>
+    <string name="taskmanagement_monthly">Bulanan</string>
+    <string name="taskmanagement_daily">Harian</string>
 </resources>
