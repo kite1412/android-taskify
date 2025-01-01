@@ -1,5 +1,6 @@
 package com.nrr.taskmanagement
 
+import CustomizeState
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -81,16 +82,10 @@ internal fun TaskManagementScreen(
         onClear = viewModel::clearSearchValue,
         onSearch = viewModel::searchTask,
         onAddClick = onAddClick,
-        selectedSort = TODO(),
-        selectedFilter = TODO(),
-        sortExpanded = TODO(),
-        filterExpanded = TODO(),
-        onSortExpand = TODO(),
-        onFilterExpand = TODO(),
-        onSortDismiss = TODO(),
-        onFilterDismiss = TODO(),
-        onSortOptionClick = TODO(),
-        onFilterOptionClick = TODO()
+        sortState = TODO(),
+        filterState = TODO(),
+        onSortSelect = {},
+        onFilterSelect = {}
     )
 }
 
@@ -105,16 +100,10 @@ private fun Content(
     onClear: () -> Unit,
     onSearch: () -> Unit,
     onAddClick: () -> Unit,
-    selectedSort: Customize.Sort,
-    selectedFilter: Customize.Filter,
-    sortExpanded: Boolean,
-    filterExpanded: Boolean,
-    onSortExpand: () -> Unit,
-    onFilterExpand: () -> Unit,
-    onSortDismiss: () -> Unit,
-    onFilterDismiss: () -> Unit,
-    onSortOptionClick: (Customize.Sort) -> Unit,
-    onFilterOptionClick: (Customize.Filter) -> Unit,
+    sortState: CustomizeState<Customize.Sort>,
+    filterState: CustomizeState<Customize.Filter>,
+    onSortSelect: (Customize.Sort) -> Unit,
+    onFilterSelect: (Customize.Filter) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -143,16 +132,10 @@ private fun Content(
             )
         }
         Customizes(
-            selectedSort = selectedSort,
-            selectedFilter = selectedFilter,
-            sortExpanded = sortExpanded,
-            filterExpanded = filterExpanded,
-            onSortExpand = onSortExpand,
-            onFilterExpand = onFilterExpand,
-            onSortDismiss = onSortDismiss,
-            onFilterDismiss = onFilterDismiss,
-            onSortOptionClick = onSortOptionClick,
-            onFilterOptionClick = onFilterOptionClick
+            sortState = sortState,
+            filterState = filterState,
+            onSortSelect = onSortSelect,
+            onFilterSelect = onFilterSelect
         )
         Tasks(
             tasks = tasks,
@@ -271,16 +254,10 @@ private fun AddTask(
 
 @Composable
 private fun Customizes(
-    selectedSort: Customize.Sort,
-    selectedFilter: Customize.Filter,
-    sortExpanded: Boolean,
-    filterExpanded: Boolean,
-    onSortExpand: () -> Unit,
-    onFilterExpand: () -> Unit,
-    onSortDismiss: () -> Unit,
-    onFilterDismiss: () -> Unit,
-    onSortOptionClick: (Customize.Sort) -> Unit,
-    onFilterOptionClick: (Customize.Filter) -> Unit,
+    sortState: CustomizeState<Customize.Sort>,
+    filterState: CustomizeState<Customize.Filter>,
+    onSortSelect: (Customize.Sort) -> Unit,
+    onFilterSelect: (Customize.Filter) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -288,62 +265,53 @@ private fun Customizes(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Customize(
-            selected = selectedSort,
-            expanded = sortExpanded,
-            onExpand = onSortExpand,
-            onDismiss = onSortDismiss,
-            options = Customize.Sort.entries,
-            onOptionClick = { onSortOptionClick(it as Customize.Sort) },
+            customizeState = sortState,
+            onSelect = onSortSelect
         )
         Customize(
-            selected = selectedFilter,
-            expanded = filterExpanded,
-            onExpand = onFilterExpand,
-            onDismiss = onFilterDismiss,
-            options = Customize.Filter.entries,
-            onOptionClick = { onFilterOptionClick(it as Customize.Filter) },
+            customizeState = filterState,
+            onSelect = onFilterSelect
         )
     }
 }
 
 @Composable
-private fun Customize(
-    selected: Customize,
-    expanded: Boolean,
-    onExpand: () -> Unit,
-    onDismiss: () -> Unit,
-    options: List<Customize>,
-    onOptionClick: (Customize) -> Unit,
+private fun <T : Customize> Customize(
+    customizeState: CustomizeState<T>,
+    onSelect: (T) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier = modifier) {
-        RoundRectButton(
-            onClick = {
-                if (expanded) onDismiss() else onExpand()
-            },
-            action = selected.name,
-            iconId = TaskifyIcon.chevronDown,
-            shape = RoundedCornerShape(100)
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = onDismiss,
-            modifier = Modifier.background(MaterialTheme.colorScheme.primary)
-        ) {
-            options.forEach {
-                DropdownMenuItem(
-                    text = {
-                        Text(it.name)
-                    },
-                    onClick = {
-                        onDismiss()
-                        onOptionClick(it)
-                    },
-                    colors = MenuDefaults.itemColors(
-                        textColor = if (selected == it) MaterialTheme.colorScheme.tertiary
+    with(customizeState) {
+        Box(modifier = modifier) {
+            RoundRectButton(
+                onClick = {
+                    if (expanded) dismissDropdown() else expandDropdown()
+                },
+                action = selected.name,
+                iconId = TaskifyIcon.chevronDown,
+                shape = RoundedCornerShape(100)
+            )
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { dismissDropdown() },
+                modifier = Modifier.background(MaterialTheme.colorScheme.primary)
+            ) {
+                options.forEach {
+                    DropdownMenuItem(
+                        text = {
+                            Text(it.name)
+                        },
+                        onClick = {
+                            dismissDropdown()
+                            select(it)
+                            onSelect(it)
+                        },
+                        colors = MenuDefaults.itemColors(
+                            textColor = if (selected == it) MaterialTheme.colorScheme.tertiary
                             else Color.White
+                        )
                     )
-                )
+                }
             }
         }
     }
@@ -364,7 +332,7 @@ private fun Tasks(
             modifier = modifier,
             onClick = onClick,
             clickEnabled = { !editMode },
-            verticalArrangement = Arrangement.spacedBy(50.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             leadingIcon = {
                 tasks[it].activeStatus?.let { status ->
                     AdaptiveText(
@@ -397,10 +365,8 @@ private fun ContentPreview(
     tasks: List<Task>
 ) {
     var value by remember { mutableStateOf("") }
-    var sortExpanded by remember { mutableStateOf(false) }
-    var filterExpanded by remember { mutableStateOf(false) }
-    var sort by remember { mutableStateOf(Customize.Sort.entries[0]) }
-    var filter by remember { mutableStateOf(Customize.Filter.entries[0]) }
+    val sort = remember { SortState() }
+    val filter = remember { FilterState() }
 
     TaskifyTheme {
         Scaffold { innerPadding ->
@@ -414,16 +380,10 @@ private fun ContentPreview(
                 onClear = { value = "" },
                 onSearch = { value = "searching" },
                 onAddClick = { value = "add" },
-                selectedSort = sort,
-                selectedFilter = filter,
-                sortExpanded = sortExpanded,
-                filterExpanded = filterExpanded,
-                onSortExpand = { sortExpanded = true },
-                onFilterExpand = { filterExpanded = true },
-                onSortDismiss = { sortExpanded = false },
-                onFilterDismiss = { filterExpanded = false },
-                onSortOptionClick = { sort = it },
-                onFilterOptionClick = { filter = it },
+                sortState = sort,
+                filterState = filter,
+                onSortSelect = { },
+                onFilterSelect = { },
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
