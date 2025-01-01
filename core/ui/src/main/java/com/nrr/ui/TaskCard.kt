@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -54,7 +55,8 @@ fun TaskCard(
     onClick: ((Task) -> Unit)? = null,
     onLongClick: ((Task) -> Unit)? = null,
     clickEnabled: Boolean = onClick != null,
-    swipeEnabled: Boolean = true
+    swipeEnabled: Boolean = true,
+    additionalContent: (@Composable BoxScope.() -> Unit)? = null
 ) {
     val swipeableClip = 10.dp
     val showTime = showStartTime && task.activeStatus != null
@@ -80,48 +82,51 @@ fun TaskCard(
             actionConfirmation = true,
             swipeEnabled = swipeEnabled
         ) { m ->
-            Row(
-                modifier = m
-                    .fillMaxWidth()
-                    .combinedClickable(
-                        onLongClick = { onLongClick?.invoke(task) },
-                        onClick = { onClick?.invoke(task) },
-                        enabled = clickEnabled
-                    )
-                    .clip(RoundedCornerShape(swipeableClip))
-                    .background(task.color())
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Box(
+            Box(modifier = m) {
+                Row(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(100.dp))
-                        .background(Color.White)
-                        .padding(12.dp)
+                        .fillMaxWidth()
+                        .combinedClickable(
+                            onLongClick = { onLongClick?.invoke(task) },
+                            onClick = { onClick?.invoke(task) },
+                            enabled = clickEnabled
+                        )
+                        .clip(RoundedCornerShape(swipeableClip))
+                        .background(task.color())
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        painter = painterResource(task.iconId()),
-                        contentDescription = task.taskType.name,
-                        modifier = Modifier.size(24.dp),
-                        tint = Color.Black
-                    )
-                }
-                Column {
-                    Text(
-                        text = task.title,
-                        fontWeight = FontWeight.Bold
-                    )
-                    task.description?.let { t ->
-                        with (MaterialTheme.typography.bodySmall.fontSize.value) {
-                            Text(
-                                text = t,
-                                fontSize = this.sp,
-                                lineHeight = (this + 2f).sp
-                            )
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(100.dp))
+                            .background(Color.White)
+                            .padding(12.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(task.iconId()),
+                            contentDescription = task.taskType.name,
+                            modifier = Modifier.size(24.dp),
+                            tint = Color.Black
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = task.title,
+                            fontWeight = FontWeight.Bold
+                        )
+                        task.description?.let { t ->
+                            with (MaterialTheme.typography.bodySmall.fontSize.value) {
+                                Text(
+                                    text = t,
+                                    fontSize = this.sp,
+                                    lineHeight = (this + 2f).sp
+                                )
+                            }
                         }
                     }
                 }
+                additionalContent?.invoke(this)
             }
         }
     }
@@ -142,6 +147,7 @@ fun TaskCards(
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     spacer: @Composable (ColumnScope.(index: Int) -> Unit)? = null,
     leadingIcon: @Composable (RowScope.(index: Int) -> Unit)? = null,
+    additionalContent: @Composable (BoxScope.(Task) -> Unit)? = null,
     resetSwipes: Any? = null
 ) {
     val states = remember(resetSwipes) {
@@ -181,7 +187,10 @@ fun TaskCards(
                             onClick = { onClick?.invoke(task) },
                             onLongClick = { onLongClick?.invoke(task) },
                             clickEnabled = clickEnabled(index),
-                            swipeEnabled = swipeEnabled
+                            swipeEnabled = swipeEnabled,
+                            additionalContent = additionalContent?.let {
+                                { it.invoke(this, task) }
+                            }
                         )
                         spacer?.invoke(this, index)
                     }

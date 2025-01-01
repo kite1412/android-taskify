@@ -33,9 +33,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,6 +56,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.AdaptiveText
+import com.nrr.designsystem.component.Checkbox
 import com.nrr.designsystem.component.RoundRectButton
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
@@ -72,11 +75,14 @@ internal fun TaskManagementScreen(
 ) {
     val tasks by viewModel.tasks.collectAsStateWithLifecycle()
 
+    // TODO implement functionalities
     Content(
         tasks = tasks,
         tasksActions = { listOf() },
         onTaskClick = {},
         onTaskLongClick = {},
+        checked = { true },
+        onCheckedChange = { _, _ ->},
         searchValue = viewModel.searchValue,
         onSearchValueChange = viewModel::updateSearchValue,
         editMode = viewModel.editMode,
@@ -96,6 +102,8 @@ private fun Content(
     tasksActions: (Task) -> List<Action>,
     onTaskClick: (Task) -> Unit,
     onTaskLongClick: (Task) -> Unit,
+    checked: (Task) -> Boolean,
+    onCheckedChange: (Task, Boolean) -> Unit,
     searchValue: String,
     onSearchValueChange: (String) -> Unit,
     editMode: Boolean,
@@ -145,6 +153,8 @@ private fun Content(
             editMode = editMode,
             onClick = onTaskClick,
             onLongClick = onTaskLongClick,
+            checked = checked,
+            onCheckedChange = onCheckedChange,
             modifier = Modifier.verticalScroll(rememberScrollState())
         )
     }
@@ -327,6 +337,8 @@ private fun Tasks(
     editMode: Boolean,
     onClick: (Task) -> Unit,
     onLongClick: (Task) -> Unit,
+    checked: (Task) -> Boolean,
+    onCheckedChange: (Task, Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (tasks != null) {
@@ -360,6 +372,17 @@ private fun Tasks(
                     )
                 }
             },
+            additionalContent = if (editMode) {
+                { t ->
+                    Checkbox(
+                        checked = checked(t),
+                        onCheckedChange = { onCheckedChange(t, it) },
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 8.dp)
+                    )
+                }
+            } else null,
             resetSwipes = editMode
         ) else {}
     } else {}
@@ -375,11 +398,21 @@ private fun ContentPreview(
     val sort = remember { SortState() }
     val filter = remember { FilterState() }
     var editMode by remember { mutableStateOf(false) }
+    val tasks1 = remember {
+        tasks.mapIndexed { i, t ->
+            if (i > 2) t.copy(
+                activeStatus = null
+            ) else t
+        }.toMutableStateList()
+    }
+    val checkedTasks = remember {
+        mutableStateListOf<Task>()
+    }
 
     TaskifyTheme {
         Scaffold { innerPadding ->
             Content(
-                tasks = tasks,
+                tasks = tasks1,
                 tasksActions = { Action.mocks },
                 onTaskClick = {},
                 onTaskLongClick = { editMode = true },
@@ -391,8 +424,16 @@ private fun ContentPreview(
                 onAddClick = { value = "add" },
                 sortState = sort,
                 filterState = filter,
-                onSortSelect = { editMode = false },
+                onSortSelect = {
+                    editMode = false
+                    tasks1.removeIf { it in checkedTasks }
+                },
                 onFilterSelect = { },
+                checked = { checkedTasks.contains(it) },
+                onCheckedChange = { task, checked ->
+                    if (checked) checkedTasks.add(task)
+                    else checkedTasks.remove(task)
+                },
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
