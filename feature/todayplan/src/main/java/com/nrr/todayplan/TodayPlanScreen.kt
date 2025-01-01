@@ -469,18 +469,20 @@ private fun PeriodCard(
 
 private fun scheduleActions(
     task: Task,
+    removeMessage: String,
+    completeMessage: String,
     onRemove: (Task) -> Unit,
     onComplete: (Task) -> Unit
 ) = listOf(
     Action(
-        action = "Remove from schedule",
+        action = removeMessage,
         iconId = TaskifyIcon.trashBin,
         onClick = { onRemove(task) },
         color = Red,
         iconSize = 24
     ),
     Action(
-        action = "Mark as completed",
+        action = completeMessage,
         iconId = TaskifyIcon.check,
         onClick = { onComplete(task) },
         color = Green,
@@ -501,6 +503,9 @@ private fun Schedule(
        modifier = modifier,
        verticalArrangement = Arrangement.spacedBy(16.dp)
    ) {
+       val removeMessage = stringResource(TodayPlanDictionary.removeFromSchedule)
+       val completeMessage = stringResource(TodayPlanDictionary.markAsCompleted)
+
        Text(
            text = stringResource(TodayPlanDictionary.schedule),
            fontWeight = FontWeight.Bold,
@@ -511,6 +516,8 @@ private fun Schedule(
            actions = {
                scheduleActions(
                    task = it,
+                   removeMessage = removeMessage,
+                   completeMessage = completeMessage,
                    onRemove = onRemove,
                    onComplete = onComplete
                )
@@ -518,32 +525,33 @@ private fun Schedule(
            modifier = Modifier.padding(start = 8.dp),
            showStartTime = true,
            onClick = onClick,
-           showCard = { it.activeStatus?.isSet == true }
-       ) {
-           val darkMode = isSystemInDarkTheme()
-           if (it != todayTasks.lastIndex) BoxWithConstraints(
-               modifier = Modifier.height(30.dp).fillMaxWidth()
-           ) {
-               Box(
-                   Modifier
-                       .align(Alignment.Center)
-                       .fillMaxHeight()
-                       .padding(end = maxWidth / 2f)
-                       .drawBehind {
-                           val lineHeight = 13.dp.toPx()
-                           val space = 4.dp.toPx()
-                           repeat(2) { i ->
-                               drawLine(
-                                   color = if (darkMode) Color.White else Color.Black,
-                                   start = Offset(x = 0f, y = lineHeight * i + (space * i)),
-                                   end = Offset(x = 0f, y = lineHeight * (i + 1) + (space * i)),
-                                   strokeWidth = 2.dp.toPx()
-                               )
+           showCard = { it.activeStatus?.isSet == true },
+           spacer = {
+               val darkMode = isSystemInDarkTheme()
+               if (it != todayTasks.lastIndex) BoxWithConstraints(
+                   modifier = Modifier.height(30.dp).fillMaxWidth()
+               ) {
+                   Box(
+                       Modifier
+                           .align(Alignment.Center)
+                           .fillMaxHeight()
+                           .padding(end = maxWidth / 2f)
+                           .drawBehind {
+                               val lineHeight = 13.dp.toPx()
+                               val space = 4.dp.toPx()
+                               repeat(2) { i ->
+                                   drawLine(
+                                       color = if (darkMode) Color.White else Color.Black,
+                                       start = Offset(x = 0f, y = lineHeight * i + (space * i)),
+                                       end = Offset(x = 0f, y = lineHeight * (i + 1) + (space * i)),
+                                       strokeWidth = 2.dp.toPx()
+                                   )
+                               }
                            }
-                       }
-               )
+                   )
+               }
            }
-       }
+       )
    }
 }
 
