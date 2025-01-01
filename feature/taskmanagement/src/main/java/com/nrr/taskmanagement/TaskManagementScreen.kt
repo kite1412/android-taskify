@@ -59,6 +59,7 @@ import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.Checkbox
 import com.nrr.designsystem.component.RoundRectButton
 import com.nrr.designsystem.icon.TaskifyIcon
+import com.nrr.designsystem.theme.Blue
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.Task
@@ -75,7 +76,6 @@ internal fun TaskManagementScreen(
 ) {
     val tasks by viewModel.tasks.collectAsStateWithLifecycle()
 
-    // TODO implement functionalities
     Content(
         tasks = tasks,
         tasksActions = { listOf() },
@@ -92,7 +92,9 @@ internal fun TaskManagementScreen(
         sortState = TODO(),
         filterState = TODO(),
         onSortSelect = {},
-        onFilterSelect = {}
+        onFilterSelect = {},
+        onTaskRemoveFromPlan = {},
+        onTaskDelete = {}
     )
 }
 
@@ -114,6 +116,8 @@ private fun Content(
     filterState: CustomizeState<Customize.Filter>,
     onSortSelect: (Customize.Sort) -> Unit,
     onFilterSelect: (Customize.Filter) -> Unit,
+    onTaskRemoveFromPlan: (Task) -> Unit,
+    onTaskDelete: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -149,12 +153,13 @@ private fun Content(
         )
         Tasks(
             tasks = tasks,
-            actions = tasksActions,
             editMode = editMode,
             onClick = onTaskClick,
             onLongClick = onTaskLongClick,
             checked = checked,
             onCheckedChange = onCheckedChange,
+            onRemoveFromPlan = onTaskRemoveFromPlan,
+            onDelete = onTaskDelete,
             modifier = Modifier.verticalScroll(rememberScrollState())
         )
     }
@@ -330,61 +335,102 @@ private fun <T : Customize> Customize(
     }
 }
 
+private fun taskActions(
+    task: Task,
+    removeMessage: String,
+    deleteMessage: String,
+    onRemove: (Task) -> Unit,
+    onDelete: (Task) -> Unit
+) = mutableListOf(
+    Action(
+        action = deleteMessage,
+        iconId = TaskifyIcon.trashBin,
+        color = Color.Red,
+        onClick = { onDelete(task) }
+    )
+).apply {
+    task.activeStatus?.let {
+        add(
+            index = 0,
+            element = Action(
+                action = removeMessage,
+                iconId = TaskifyIcon.cancel,
+                color = Blue,
+                onClick = { onRemove(task) }
+            )
+        )
+    }
+}.toList()
+
 @Composable
 private fun Tasks(
     tasks: List<Task>?,
-    actions: (Task) -> List<Action>,
     editMode: Boolean,
     onClick: (Task) -> Unit,
     onLongClick: (Task) -> Unit,
     checked: (Task) -> Boolean,
     onCheckedChange: (Task, Boolean) -> Unit,
+    onRemoveFromPlan: (Task) -> Unit,
+    onDelete: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (tasks != null) {
-        if (tasks.isNotEmpty()) TaskCards(
-            tasks = tasks,
-            actions = actions,
-            modifier = modifier,
-            onClick = onClick,
-            onLongClick = onLongClick,
-            clickEnabled = { !editMode },
-            swipeEnabled = !editMode,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            leadingIcon = {
-                tasks[it].activeStatus?.let { status ->
-                    AdaptiveText(
-                        text = stringResource(
-                            id = when (status.period) {
-                                TaskPeriod.DAY -> {
-                                    if (status.isDefault) TaskManagementDictionary.daily
-                                    else TaskManagementDictionary.today
+        if (tasks.isNotEmpty()) {
+            val removeMessage = stringResource(TaskManagementDictionary.removeFromPlan)
+            val deleteMessage = stringResource(TaskManagementDictionary.delete)
+
+            TaskCards(
+                tasks = tasks,
+                actions = {
+                    taskActions(
+                        task = it,
+                        removeMessage = removeMessage,
+                        deleteMessage = deleteMessage,
+                        onRemove = onRemoveFromPlan,
+                        onDelete = onDelete
+                    )
+                },
+                modifier = modifier,
+                onClick = onClick,
+                onLongClick = onLongClick,
+                clickEnabled = { !editMode },
+                swipeEnabled = !editMode,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                leadingIcon = {
+                    tasks[it].activeStatus?.let { status ->
+                        AdaptiveText(
+                            text = stringResource(
+                                id = when (status.period) {
+                                    TaskPeriod.DAY -> {
+                                        if (status.isDefault) TaskManagementDictionary.daily
+                                        else TaskManagementDictionary.today
+                                    }
+                                    TaskPeriod.WEEK -> TaskManagementDictionary.weekly
+                                    TaskPeriod.MONTH -> TaskManagementDictionary.monthly
                                 }
-                                TaskPeriod.WEEK -> TaskManagementDictionary.weekly
-                                TaskPeriod.MONTH -> TaskManagementDictionary.monthly
-                            }
-                        ),
-                        initialFontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .weight(0.15f),
-                        maxLines = 1
-                    )
-                }
-            },
-            additionalContent = if (editMode) {
-                { t ->
-                    Checkbox(
-                        checked = checked(t),
-                        onCheckedChange = { onCheckedChange(t, it) },
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(end = 8.dp)
-                    )
-                }
-            } else null,
-            resetSwipes = editMode
-        ) else {}
+                            ),
+                            initialFontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .weight(0.15f),
+                            maxLines = 1
+                        )
+                    }
+                },
+                additionalContent = if (editMode) {
+                    { t ->
+                        Checkbox(
+                            checked = checked(t),
+                            onCheckedChange = { onCheckedChange(t, it) },
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .padding(end = 8.dp)
+                        )
+                    }
+                } else null,
+                resetSwipes = editMode
+            )
+        } else {}
     } else {}
 }
 
@@ -434,6 +480,8 @@ private fun ContentPreview(
                     if (checked) checkedTasks.add(task)
                     else checkedTasks.remove(task)
                 },
+                onTaskRemoveFromPlan = { tasks1.remove(it) },
+                onTaskDelete = { tasks1.remove(it) },
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)

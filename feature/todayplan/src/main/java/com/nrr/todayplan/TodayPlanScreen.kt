@@ -478,15 +478,13 @@ private fun scheduleActions(
         action = removeMessage,
         iconId = TaskifyIcon.trashBin,
         onClick = { onRemove(task) },
-        color = Red,
-        iconSize = 24
+        color = Red
     ),
     Action(
         action = completeMessage,
         iconId = TaskifyIcon.check,
         onClick = { onComplete(task) },
-        color = Green,
-        iconSize = 24
+        color = Green
     )
 )
 

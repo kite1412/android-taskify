@@ -6,4 +6,6 @@
     <string name="taskmanagement_weekly">Mingguan</string>
     <string name="taskmanagement_monthly">Bulanan</string>
     <string name="taskmanagement_daily">Harian</string>
+    <string name="taskmanagement_remove_from_plan">Singkirkan dari jadwal</string>
+    <string name="taskmanagement_delete_task">Hapus</string>
 </resources>

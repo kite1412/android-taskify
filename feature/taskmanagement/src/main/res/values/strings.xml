@@ -6,4 +6,6 @@
     <string name="taskmanagement_weekly">Weekly</string>
     <string name="taskmanagement_monthly">Monthly</string>
     <string name="taskmanagement_daily">Daily</string>
+    <string name="taskmanagement_remove_from_plan">Remove from plan</string>
+    <string name="taskmanagement_delete_task">Delete</string>
 </resources>

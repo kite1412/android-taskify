@@ -21,4 +21,5 @@ object TaskifyIcon {
     val arrowRight = R.drawable.arrow_right
     val add = R.drawable.add
     val search = R.drawable.search
+    val cancel = R.drawable.cancel
 }

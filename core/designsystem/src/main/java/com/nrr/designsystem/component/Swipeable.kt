@@ -56,7 +56,8 @@ fun Swipeable(
     actionButtonsBorderShape: Shape = RectangleShape,
     actionConfirmation: Boolean = false,
     swipeEnabled: Boolean = true,
-    content: @Composable (Modifier) -> Unit
+    keys: Array<Any?>? = null,
+    content: @Composable (Modifier) -> Unit,
 ) {
     val density = LocalDensity.current
     val animatedOffset by animateDpAsState(
@@ -79,7 +80,7 @@ fun Swipeable(
                 content(
                     if (actions.isNotEmpty()) Modifier
                         .offset(x = animatedOffset)
-                        .pointerInput(swipeEnabled) {
+                        .pointerInput(swipeEnabled, *keys ?: emptyArray()) {
                             detectHorizontalDragGestures(
                                 onDragEnd = state::onSwipeEnd
                             ) { _, dragAmount ->
@@ -114,7 +115,8 @@ fun Swipeable(
                             modifier = Modifier
                                 .width(actionWidth)
                                 .fillMaxHeight(),
-                            needConfirmation = actionConfirmation
+                            needConfirmation = actionConfirmation,
+                            confirmationKeys = arrayOf(state.isOpen)
                         )
                     }
                 }
@@ -131,10 +133,11 @@ fun Swipeable(
 private fun SwipeableAction(
     action: Action,
     modifier: Modifier = Modifier,
-    needConfirmation: Boolean = false
+    needConfirmation: Boolean = false,
+    confirmationKeys: Array<Any?>? = null
 ) {
     var showLabel by remember { mutableStateOf(false) }
-    var onConfirmation by remember { mutableStateOf(false) }
+    var onConfirmation by remember(confirmationKeys) { mutableStateOf(false) }
     val onClickWrapper = {
         if (!showLabel) {
             if (needConfirmation) {
@@ -218,7 +221,7 @@ private fun SwipeablePreview() {
 data class Action(
     val action: String,
     val iconId: Int,
-    val iconSize: Int = 40,
+    val iconSize: Int = 24,
     val color: Color,
     val onClick: () -> Unit
 ) {

@@ -9,4 +9,6 @@ object TaskManagementDictionary {
     val daily = R.string.taskmanagement_daily
     val weekly = R.string.taskmanagement_weekly
     val monthly = R.string.taskmanagement_monthly
+    val removeFromPlan = R.string.taskmanagement_remove_from_plan
+    val delete = R.string.taskmanagement_delete_task
 }

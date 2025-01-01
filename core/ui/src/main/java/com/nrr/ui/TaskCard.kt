@@ -22,7 +22,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,6 +55,7 @@ fun TaskCard(
     onLongClick: ((Task) -> Unit)? = null,
     clickEnabled: Boolean = onClick != null,
     swipeEnabled: Boolean = true,
+    swipeableKeys: Array<Any?>? = null,
     additionalContent: (@Composable BoxScope.() -> Unit)? = null
 ) {
     val swipeableClip = 10.dp
@@ -80,7 +80,8 @@ fun TaskCard(
             state = swipeableState,
             actionButtonsBorderShape = RoundedCornerShape(swipeableClip),
             actionConfirmation = true,
-            swipeEnabled = swipeEnabled
+            swipeEnabled = swipeEnabled,
+            keys = swipeableKeys
         ) { m ->
             Box(modifier = m) {
                 Row(
@@ -150,13 +151,13 @@ fun TaskCards(
     additionalContent: @Composable (BoxScope.(Task) -> Unit)? = null,
     resetSwipes: Any? = null
 ) {
-    val states = remember(resetSwipes) {
+    val states = remember(resetSwipes, tasks.size) {
         tasks.indices.map { SwipeableState() }
     }
-    var prevOpened by rememberSaveable {
+    var prevOpened by remember(resetSwipes, tasks.size) {
         mutableIntStateOf(-1)
     }
-    var opened by rememberSaveable {
+    var opened by remember(resetSwipes, tasks.size) {
         mutableIntStateOf(-1)
     }
 
@@ -190,7 +191,8 @@ fun TaskCards(
                             swipeEnabled = swipeEnabled,
                             additionalContent = additionalContent?.let {
                                 { it.invoke(this, task) }
-                            }
+                            },
+                            swipeableKeys = arrayOf(tasks.size)
                         )
                         spacer?.invoke(this, index)
                     }
