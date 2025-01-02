@@ -24,4 +24,10 @@ interface TaskDao {
         OR description LIKE '%' || :title || '%'
     """)
     fun getByTitle(title: String): Flow<List<TaskWithStatus>>
+
+    @Query("""
+        DELETE FROM tasks
+        WHERE id IN (:ids)
+    """)
+    suspend fun deleteTasks(ids: List<Long>): Int
 }

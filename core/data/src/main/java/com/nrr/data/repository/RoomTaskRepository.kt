@@ -57,4 +57,7 @@ internal class RoomTaskRepository @Inject constructor(
         taskDao.getByTitle(title).map {
             it.map(TaskWithStatus::asExternalModel)
         }
+
+    override suspend fun deleteTasks(tasks: List<Task>): Int =
+        taskDao.deleteTasks(tasks.map { it.id })
 }

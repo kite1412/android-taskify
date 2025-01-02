@@ -6,7 +6,7 @@ import org.junit.Test
 
 internal class TaskDaoTest : DBSetup() {
     @Test
-    fun insert_then_get_all_task() = runTest {
+    fun insertThenGetAllTask() = runTest {
         val id = taskDao.insertTasks(listOf(MockData.taskEntity))
         assert(id[0] == 1L)
         assert(taskDao.getAllTasks().first().size == 1)
