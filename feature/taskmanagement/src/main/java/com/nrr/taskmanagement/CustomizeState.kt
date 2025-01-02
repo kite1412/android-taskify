@@ -1,8 +1,7 @@
-
+package com.nrr.taskmanagement
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.nrr.taskmanagement.Customize
 
 internal open class CustomizeState<T : Customize>(
     selected: T,

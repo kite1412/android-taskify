@@ -9,4 +9,6 @@
     <string name="taskmanagement_remove_from_plan">Remove from plan</string>
     <string name="taskmanagement_delete_task">Delete</string>
     <string name="taskmanagement_empty_tasks">No Tasks Listed</string>
+    <string name="taskmanagement_select_all">Select all</string>
+    <string name="taskmanagement_cancel">Cancel</string>
 </resources>

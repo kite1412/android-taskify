@@ -1,7 +1,7 @@
 package com.nrr.taskmanagement
 
-import CustomizeState
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -37,6 +37,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +58,8 @@ import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.Checkbox
 import com.nrr.designsystem.component.RoundRectButton
+import com.nrr.designsystem.component.TaskifyButtonDefaults
+import com.nrr.designsystem.component.TaskifyCheckboxDefaults
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.Blue
 import com.nrr.designsystem.theme.TaskifyTheme
@@ -71,6 +74,7 @@ import com.nrr.ui.TaskPreviewParameter
 @Composable
 internal fun TaskManagementScreen(
     onAddClick: () -> Unit,
+    onTaskClick: (Task) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TaskManagementViewModel = hiltViewModel()
 ) {
@@ -78,10 +82,10 @@ internal fun TaskManagementScreen(
 
     Content(
         tasks = tasks,
-        onTaskClick = {},
+        onTaskClick = onTaskClick,
         onTaskLongClick = {},
         checked = { true },
-        onCheckedChange = { _, _ ->},
+        onCheckedChange = { _, _ -> },
         searchValue = viewModel.searchValue,
         onSearchValueChange = viewModel::updateSearchValue,
         editMode = viewModel.editMode,
@@ -92,8 +96,15 @@ internal fun TaskManagementScreen(
         filterState = TODO(),
         onSortSelect = {},
         onFilterSelect = {},
-        onTaskRemoveFromPlan = {},
-        onTaskDelete = {}
+        onRemoveTaskFromPlan = {},
+        onDeleteTask = {},
+        selectAll = TODO(),
+        removeAllEnabled = TODO(),
+        deleteAllEnable = TODO(),
+        onCancelEditMode = TODO(),
+        onSelectAll = TODO(),
+        onRemoveAllFromPlan = TODO(),
+        onDeleteAllTasks = TODO()
     )
 }
 
@@ -114,8 +125,15 @@ private fun Content(
     filterState: CustomizeState<Customize.Filter>,
     onSortSelect: (Customize.Sort) -> Unit,
     onFilterSelect: (Customize.Filter) -> Unit,
-    onTaskRemoveFromPlan: (Task) -> Unit,
-    onTaskDelete: (Task) -> Unit,
+    onRemoveTaskFromPlan: (Task) -> Unit,
+    onDeleteTask: (Task) -> Unit,
+    selectAll: Boolean,
+    removeAllEnabled: Boolean,
+    deleteAllEnable: Boolean,
+    onSelectAll: (Boolean) -> Unit,
+    onCancelEditMode: () -> Unit,
+    onRemoveAllFromPlan: () -> Unit,
+    onDeleteAllTasks: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -144,12 +162,25 @@ private fun Content(
                     modifier = Modifier.fillMaxHeight()
                 )
             }
-            Customizes(
-                sortState = sortState,
-                filterState = filterState,
-                onSortSelect = onSortSelect,
-                onFilterSelect = onFilterSelect
-            )
+            AnimatedContent(
+                targetState = editMode,
+                label = "toolbar"
+            ) {
+                if (it) EditToolbar(
+                    selectAll = selectAll,
+                    onSelectAll = onSelectAll,
+                    onRemove = onRemoveAllFromPlan,
+                    onDelete = onDeleteAllTasks,
+                    onCancel = onCancelEditMode,
+                    removeEnabled = removeAllEnabled,
+                    deleteEnabled = deleteAllEnable
+                ) else Customizes(
+                    sortState = sortState,
+                    filterState = filterState,
+                    onSortSelect = onSortSelect,
+                    onFilterSelect = onFilterSelect
+                )
+            }
             Tasks(
                 tasks = tasks,
                 editMode = editMode,
@@ -157,8 +188,8 @@ private fun Content(
                 onLongClick = onTaskLongClick,
                 checked = checked,
                 onCheckedChange = onCheckedChange,
-                onRemoveFromPlan = onTaskRemoveFromPlan,
-                onDelete = onTaskDelete,
+                onRemoveFromPlan = onRemoveTaskFromPlan,
+                onDelete = onDeleteTask,
                 modifier = Modifier.verticalScroll(rememberScrollState())
             )
         }
@@ -399,9 +430,13 @@ private fun Tasks(
                     )
                 },
                 modifier = modifier,
-                onClick = onClick,
-                onLongClick = onLongClick,
-                clickEnabled = { !editMode },
+                onClick = {
+                    if (editMode) onCheckedChange(it, !checked(it))
+                    else onClick(it)
+                },
+                onLongClick = {
+                    if (!editMode) onLongClick(it)
+                },
                 swipeEnabled = !editMode,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 leadingIcon = {
@@ -441,6 +476,84 @@ private fun Tasks(
         }
 }
 
+@Composable
+private fun EditToolbar(
+    selectAll: Boolean,
+    removeEnabled: Boolean,
+    deleteEnabled: Boolean,
+    onCancel: () -> Unit,
+    onRemove: () -> Unit,
+    onDelete: () -> Unit,
+    onSelectAll: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.End
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AnimatedVisibility(
+                visible = removeEnabled
+            ) {
+                RoundRectButton(
+                    onClick = onRemove,
+                    action = stringResource(TaskManagementDictionary.removeFromPlan),
+                    iconId = TaskifyIcon.emptyNote,
+                    colors = TaskifyButtonDefaults.colors(
+                        containerColor = Color.White,
+                        contentColor = Color.Red
+                    ),
+                    shape = RoundedCornerShape(100),
+                )
+            }
+            RoundRectButton(
+                onClick = onDelete,
+                action = stringResource(TaskManagementDictionary.delete),
+                iconId = TaskifyIcon.trashBin,
+                colors = TaskifyButtonDefaults.colors(
+                    containerColor = Color.Red,
+                    contentColor = Color.White,
+                    disabledContainerColor = Color.Red.copy(alpha = 0.5f),
+                    disabledContentColor = Color.White.copy(alpha = 0.5f)
+                ),
+                shape = RoundedCornerShape(100),
+                enabled = deleteEnabled
+            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(TaskManagementDictionary.selectAll),
+                    fontSize = 10.sp
+                )
+                Checkbox(
+                    checked = selectAll,
+                    onCheckedChange = onSelectAll,
+                    colors = TaskifyCheckboxDefaults.colors(
+                        checkmarkColor = MaterialTheme.colorScheme.primary,
+                        uncheckedColor = MaterialTheme.colorScheme.primary,
+                        checkedColor = Color.White
+                    )
+                )
+            }
+        }
+        RoundRectButton(
+            onClick = onCancel,
+            action = stringResource(TaskManagementDictionary.cancel),
+            iconId = TaskifyIcon.cancel,
+            shape = RoundedCornerShape(100),
+            colors = TaskifyButtonDefaults.colors(
+                containerColor = Color.White,
+                contentColor = Color.Red
+            )
+        )
+    }
+}
+
 @Preview
 @Composable
 private fun ContentPreview(
@@ -452,16 +565,16 @@ private fun ContentPreview(
     val filter = remember { FilterState() }
     var editMode by remember { mutableStateOf(false) }
     val tasks1 = remember {
-//        tasks.mapIndexed { i, t ->
-//            if (i > 2) t.copy(
-//                activeStatus = null
-//            ) else t
-//        }.toMutableStateList()
-        mutableListOf<Task>()
+        tasks.mapIndexed { i, t ->
+            if (i > 2) t.copy(
+                activeStatus = null
+            ) else t
+        }.toMutableStateList()
     }
     val checkedTasks = remember {
         mutableStateListOf<Task>()
     }
+    var selectAll by remember { mutableStateOf(false) }
 
     TaskifyTheme {
         Scaffold { innerPadding ->
@@ -487,8 +600,19 @@ private fun ContentPreview(
                     if (checked) checkedTasks.add(task)
                     else checkedTasks.remove(task)
                 },
-                onTaskRemoveFromPlan = { tasks1.remove(it) },
-                onTaskDelete = { tasks1.remove(it) },
+                onRemoveTaskFromPlan = { tasks1.remove(it) },
+                onDeleteTask = { tasks1.remove(it) },
+                selectAll = selectAll,
+                onSelectAll = {
+                    selectAll = it
+                    if (it) checkedTasks.addAll(tasks1)
+                    else checkedTasks.clear()
+                },
+                onRemoveAllFromPlan = { tasks1.removeIf { it in checkedTasks } },
+                onDeleteAllTasks = { tasks1.removeIf { it in checkedTasks } },
+                removeAllEnabled = checkedTasks.isNotEmpty(),
+                deleteAllEnable = checkedTasks.isNotEmpty(),
+                onCancelEditMode = { editMode = false },
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)

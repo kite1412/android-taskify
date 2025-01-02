@@ -51,9 +51,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.AppLogo
 import com.nrr.designsystem.component.TextField
-import com.nrr.designsystem.component.TextFieldDefaults
+import com.nrr.designsystem.component.TaskifyTextFieldDefaults
 import com.nrr.designsystem.component.TextFieldWithOptions
-import com.nrr.designsystem.component.TextFieldWithOptionsDefaults
+import com.nrr.designsystem.component.TaskifyTextFieldWithOptionsDefaults
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.CharcoalClay
 import com.nrr.designsystem.theme.TaskifyTheme
@@ -208,7 +208,7 @@ private fun Field(
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize
                 )
             },
-            colors = TextFieldDefaults.colors(
+            colors = TaskifyTextFieldDefaults.colors(
                 unfocusedTextColor = Color.Black,
                 focusedTextColor = Color.Black
             ),
@@ -225,7 +225,7 @@ private fun Field(
                 options = data.options,
                 onValueChange = data.onValueChange,
                 modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldWithOptionsDefaults.colors(
+                colors = TaskifyTextFieldWithOptionsDefaults.colors(
                     optionsBackground = CharcoalClay,
                     optionsColor = Color.White,
                     selectedOptionColor = Color.White,

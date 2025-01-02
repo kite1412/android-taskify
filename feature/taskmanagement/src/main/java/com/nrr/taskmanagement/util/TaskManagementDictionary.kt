@@ -12,4 +12,6 @@ object TaskManagementDictionary {
     val removeFromPlan = R.string.taskmanagement_remove_from_plan
     val delete = R.string.taskmanagement_delete_task
     val emptyTasks = R.string.taskmanagement_empty_tasks
+    val selectAll = R.string.taskmanagement_select_all
+    val cancel = R.string.taskmanagement_cancel
 }
