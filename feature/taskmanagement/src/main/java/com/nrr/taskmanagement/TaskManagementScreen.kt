@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,7 +42,6 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -79,32 +79,35 @@ internal fun TaskManagementScreen(
     viewModel: TaskManagementViewModel = hiltViewModel()
 ) {
     val tasks by viewModel.tasks.collectAsStateWithLifecycle()
+    val searchTasks by viewModel.searchTasks.collectAsStateWithLifecycle()
+    val filteredTasks by viewModel.filteredTasks.collectAsStateWithLifecycle()
+    val editedTasks = viewModel.editedTasks
 
     Content(
-        tasks = tasks,
+        tasks = filteredTasks ?: searchTasks ?: tasks,
         onTaskClick = onTaskClick,
-        onTaskLongClick = {},
-        checked = { true },
-        onCheckedChange = { _, _ -> },
+        onTaskLongClick = { viewModel.updateEditedTasks(it, true) },
+        checked = editedTasks::contains,
+        onCheckedChange = viewModel::updateEditedTasks,
         searchValue = viewModel.searchValue,
         onSearchValueChange = viewModel::updateSearchValue,
         editMode = viewModel.editMode,
-        onClear = viewModel::clearSearchValue,
+        onClear = viewModel::clearSearch,
         onSearch = viewModel::searchTask,
         onAddClick = onAddClick,
-        sortState = TODO(),
-        filterState = TODO(),
-        onSortSelect = {},
-        onFilterSelect = {},
-        onRemoveTaskFromPlan = {},
-        onDeleteTask = {},
-        selectAll = TODO(),
-        removeAllEnabled = TODO(),
-        deleteAllEnable = TODO(),
-        onCancelEditMode = TODO(),
-        onSelectAll = TODO(),
-        onRemoveAllFromPlan = TODO(),
-        onDeleteAllTasks = TODO()
+        sortState = viewModel.sortState,
+        filterState = viewModel.filterState,
+        onSortSelect = viewModel::onSort,
+        onFilterSelect = viewModel::onFilter,
+        onRemoveTaskFromPlan = viewModel::removeActiveTask,
+        onDeleteTask = viewModel::deleteTask,
+        selectAll = viewModel.selectAll,
+        removeAllEnabled = editedTasks.any { it.activeStatus != null },
+        deleteAllEnable = editedTasks.isNotEmpty(),
+        onCancelEditMode = viewModel::cancelEditMode,
+        onSelectAll = viewModel::updateSelectAll,
+        onRemoveAllFromPlan = viewModel::removeAllFromPlan,
+        onDeleteAllTasks = viewModel::deleteAllTasks
     )
 }
 
@@ -273,15 +276,20 @@ private fun SearchBar(
             targetState = value.isEmpty(),
             label = "search bar icon"
         ) {
+            val interactionSource = remember { MutableInteractionSource() }
+
             Icon(
-                painter = painterResource(if (it) TaskifyIcon.search else TaskifyIcon.add),
+                painter = painterResource(if (it) TaskifyIcon.search else TaskifyIcon.cancel),
                 contentDescription = if (it) "search" else "clear",
                 tint = Color.Black,
                 modifier = Modifier
                     .height(30.dp)
-                    .rotate(if (it) 0f else 45f)
                     .then(
-                        if (!it) Modifier.clickable(onClick = onClear)
+                        if (!it) Modifier.clickable(
+                            indication = null,
+                            interactionSource = interactionSource,
+                            onClick = onClear
+                        )
                         else Modifier
                     )
             )
@@ -566,7 +574,7 @@ private fun ContentPreview(
     var editMode by remember { mutableStateOf(false) }
     val tasks1 = remember {
         tasks.mapIndexed { i, t ->
-            if (i > 2) t.copy(
+            if (i < 3) t.copy(
                 activeStatus = null
             ) else t
         }.toMutableStateList()
@@ -591,10 +599,14 @@ private fun ContentPreview(
                 sortState = sort,
                 filterState = filter,
                 onSortSelect = {
-                    editMode = false
-                    tasks1.removeIf { it in checkedTasks }
+                    tasks1.clear()
+                    tasks1.addAll(tasks.sort(it))
                 },
-                onFilterSelect = { },
+                onFilterSelect = {
+                    val t = tasks1.toList()
+                    tasks1.clear()
+                    tasks1.addAll(t.filter(it))
+                },
                 checked = { checkedTasks.contains(it) },
                 onCheckedChange = { task, checked ->
                     if (checked) checkedTasks.add(task)
