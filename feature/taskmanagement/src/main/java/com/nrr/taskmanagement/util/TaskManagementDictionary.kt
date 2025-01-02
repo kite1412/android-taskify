@@ -11,4 +11,5 @@ object TaskManagementDictionary {
     val monthly = R.string.taskmanagement_monthly
     val removeFromPlan = R.string.taskmanagement_remove_from_plan
     val delete = R.string.taskmanagement_delete_task
+    val emptyTasks = R.string.taskmanagement_empty_tasks
 }

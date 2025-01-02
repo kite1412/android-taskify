@@ -37,7 +37,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,6 +64,7 @@ import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.taskmanagement.util.TaskManagementDictionary
+import com.nrr.ui.EmptyTasks
 import com.nrr.ui.TaskCards
 import com.nrr.ui.TaskPreviewParameter
 
@@ -78,7 +78,6 @@ internal fun TaskManagementScreen(
 
     Content(
         tasks = tasks,
-        tasksActions = { listOf() },
         onTaskClick = {},
         onTaskLongClick = {},
         checked = { true },
@@ -101,7 +100,6 @@ internal fun TaskManagementScreen(
 @Composable
 private fun Content(
     tasks: List<Task>?,
-    tasksActions: (Task) -> List<Action>,
     onTaskClick: (Task) -> Unit,
     onTaskLongClick: (Task) -> Unit,
     checked: (Task) -> Boolean,
@@ -120,48 +118,58 @@ private fun Content(
     onTaskDelete: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-        Header()
-        Row(
-            modifier = Modifier.height(IntrinsicSize.Max),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            SearchBar(
-                value = searchValue,
-                onValueChange = onSearchValueChange,
-                editMode = editMode,
-                onClear = onClear,
-                onSearch = onSearch,
-                modifier = Modifier
-                    .weight(0.9f)
-                    .fillMaxHeight()
+            Header()
+            Row(
+                modifier = Modifier.height(IntrinsicSize.Max),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                SearchBar(
+                    value = searchValue,
+                    onValueChange = onSearchValueChange,
+                    editMode = editMode,
+                    onClear = onClear,
+                    onSearch = onSearch,
+                    modifier = Modifier
+                        .weight(0.9f)
+                        .fillMaxHeight()
+                )
+                AddTask(
+                    editMode = editMode,
+                    onClick = onAddClick,
+                    modifier = Modifier.fillMaxHeight()
+                )
+            }
+            Customizes(
+                sortState = sortState,
+                filterState = filterState,
+                onSortSelect = onSortSelect,
+                onFilterSelect = onFilterSelect
             )
-            AddTask(
+            Tasks(
+                tasks = tasks,
                 editMode = editMode,
-                onClick = onAddClick,
-                modifier = Modifier.fillMaxHeight()
+                onClick = onTaskClick,
+                onLongClick = onTaskLongClick,
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                onRemoveFromPlan = onTaskRemoveFromPlan,
+                onDelete = onTaskDelete,
+                modifier = Modifier.verticalScroll(rememberScrollState())
             )
         }
-        Customizes(
-            sortState = sortState,
-            filterState = filterState,
-            onSortSelect = onSortSelect,
-            onFilterSelect = onFilterSelect
-        )
-        Tasks(
-            tasks = tasks,
-            editMode = editMode,
-            onClick = onTaskClick,
-            onLongClick = onTaskLongClick,
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            onRemoveFromPlan = onTaskRemoveFromPlan,
-            onDelete = onTaskDelete,
-            modifier = Modifier.verticalScroll(rememberScrollState())
-        )
+        when {
+            // TODO change
+            tasks == null -> Unit
+            tasks.isEmpty() -> EmptyTasks(
+                message = stringResource(TaskManagementDictionary.emptyTasks),
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
     }
 }
 
@@ -374,7 +382,7 @@ private fun Tasks(
     onDelete: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (tasks != null) {
+    if (tasks != null)
         if (tasks.isNotEmpty()) {
             val removeMessage = stringResource(TaskManagementDictionary.removeFromPlan)
             val deleteMessage = stringResource(TaskManagementDictionary.delete)
@@ -430,8 +438,7 @@ private fun Tasks(
                 } else null,
                 resetSwipes = editMode
             )
-        } else {}
-    } else {}
+        }
 }
 
 @Preview
@@ -445,11 +452,12 @@ private fun ContentPreview(
     val filter = remember { FilterState() }
     var editMode by remember { mutableStateOf(false) }
     val tasks1 = remember {
-        tasks.mapIndexed { i, t ->
-            if (i > 2) t.copy(
-                activeStatus = null
-            ) else t
-        }.toMutableStateList()
+//        tasks.mapIndexed { i, t ->
+//            if (i > 2) t.copy(
+//                activeStatus = null
+//            ) else t
+//        }.toMutableStateList()
+        mutableListOf<Task>()
     }
     val checkedTasks = remember {
         mutableStateListOf<Task>()
@@ -459,7 +467,6 @@ private fun ContentPreview(
         Scaffold { innerPadding ->
             Content(
                 tasks = tasks1,
-                tasksActions = { Action.mocks },
                 onTaskClick = {},
                 onTaskLongClick = { editMode = true },
                 searchValue = value,
