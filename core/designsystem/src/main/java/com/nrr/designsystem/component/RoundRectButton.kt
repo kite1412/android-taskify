@@ -2,6 +2,7 @@ package com.nrr.designsystem.component
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,13 +24,11 @@ fun RoundRectButton(
     iconId: Int? = null,
     shape: Shape = RoundedCornerShape(8.dp),
     fontSize: Int = MaterialTheme.typography.bodyMedium.fontSize.value.toInt(),
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    colors: ButtonColors = TaskifyButtonDefaults.colors()
 ) = TextButton(
     onClick = onClick,
-    colors = ButtonDefaults.textButtonColors(
-        containerColor = MaterialTheme.colorScheme.primary,
-        contentColor = Color.White
-    ),
+    colors = colors,
     shape = shape,
     enabled = enabled
 ) {
@@ -45,4 +44,19 @@ fun RoundRectButton(
                 .size((fontSize * 1.5).dp)
         )
     }
+}
+
+object TaskifyButtonDefaults {
+    @Composable
+    fun colors(
+        containerColor: Color = MaterialTheme.colorScheme.primary,
+        contentColor: Color = Color.White,
+        disabledContainerColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+        disabledContentColor: Color = Color.White.copy(alpha = 0.7f)
+    ) = ButtonDefaults.textButtonColors(
+        containerColor = containerColor,
+        contentColor = contentColor,
+        disabledContentColor = disabledContentColor,
+        disabledContainerColor = disabledContainerColor
+    )
 }
