@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.nrr.designsystem.component.Destination
 import com.nrr.designsystem.component.NavigationScaffold
 import com.nrr.designsystem.component.SlidingTextData
@@ -30,7 +32,9 @@ import com.nrr.ui.LocalSnackbarHostState
 @Composable
 internal fun TaskifyApp(
     modifier: Modifier = Modifier,
-    viewModel: TaskifyViewModel = hiltViewModel()
+    viewModel: TaskifyViewModel = hiltViewModel(),
+    navController: NavHostController = rememberNavController(),
+    appState: TaskifyAppState = rememberTaskifyAppState(navController)
 ) {
     val registered by viewModel.registered.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -57,10 +61,10 @@ internal fun TaskifyApp(
                 TaskifyScaffold(
                     topBarTitles = viewModel.topBarTitles,
                     topBarTitleIndex = viewModel.titleIndex,
-                    currentDestination = viewModel.currentDestination,
-                    onDestinationChange = viewModel::onDestinationChange
+                    currentDestination = appState.currentTopLevelDestination?.destination ?: Destination.HOME,
+                    onDestinationChange = appState::navigateToTopLevelDestination
                 ) {
-                    TaskifyNavHost()
+                    TaskifyNavHost(navController)
                 }
             }
             if (registered == false && viewModel.showContent) RegistrationScreen()
@@ -84,7 +88,7 @@ internal fun TaskifyScaffold(
     NavigationScaffold(
         onClick = onDestinationChange,
         modifier = modifier,
-        initialDestination = currentDestination
+        currentDestination = currentDestination
     ) {
         Box(
             modifier = Modifier
