@@ -31,8 +31,12 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -68,6 +72,7 @@ import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.taskmanagement.util.TaskManagementDictionary
 import com.nrr.ui.EmptyTasks
+import com.nrr.ui.LocalSnackbarHostState
 import com.nrr.ui.TaskCards
 import com.nrr.ui.TaskPreviewParameter
 
@@ -82,6 +87,21 @@ internal fun TaskManagementScreen(
     val searchTasks by viewModel.searchTasks.collectAsStateWithLifecycle()
     val filteredTasks by viewModel.filteredTasks.collectAsStateWithLifecycle()
     val editedTasks = viewModel.editedTasks
+    val snackbarState = LocalSnackbarHostState.current
+    val snackbarMessage = viewModel.snackbarEvent
+    val removeMessage = stringResource(TaskManagementDictionary.removeMessage)
+    val deleteMessage = stringResource(TaskManagementDictionary.deleteMessage)
+    val removeTasksMessage = stringResource(TaskManagementDictionary.removeTasksMessage)
+    val deleteTasksMessage = stringResource(TaskManagementDictionary.deleteTasksMessage)
+
+    LaunchedEffect(snackbarMessage) {
+        if (snackbarMessage.isNotEmpty()) snackbarState.showSnackbar(
+            message = snackbarMessage,
+            withDismissAction = true
+        ).also {
+            if (it == SnackbarResult.Dismissed) viewModel.updateSnackbarEvent("")
+        }
+    }
 
     Content(
         tasks = filteredTasks ?: searchTasks ?: tasks,
@@ -106,8 +126,17 @@ internal fun TaskManagementScreen(
         deleteAllEnable = editedTasks.isNotEmpty(),
         onCancelEditMode = viewModel::cancelEditMode,
         onSelectAll = viewModel::updateSelectAll,
-        onRemoveAllFromPlan = viewModel::removeAllFromPlan,
-        onDeleteAllTasks = viewModel::deleteAllTasks
+        onRemoveAllFromPlan = {
+            viewModel.removeAllFromPlan {
+                "$it ${if (it == 1) removeMessage else removeTasksMessage}"
+            }
+        },
+        onDeleteAllTasks = {
+            viewModel.deleteAllTasks {
+                "$it ${if (it == 1) deleteMessage else deleteTasksMessage}"
+            }
+        },
+        showSnackbar = viewModel::updateSnackbarEvent
     )
 }
 
@@ -137,6 +166,7 @@ private fun Content(
     onCancelEditMode: () -> Unit,
     onRemoveAllFromPlan: () -> Unit,
     onDeleteAllTasks: () -> Unit,
+    showSnackbar: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -193,6 +223,7 @@ private fun Content(
                 onCheckedChange = onCheckedChange,
                 onRemoveFromPlan = onRemoveTaskFromPlan,
                 onDelete = onDeleteTask,
+                showSnackbar = showSnackbar,
                 modifier = Modifier.verticalScroll(rememberScrollState())
             )
         }
@@ -419,12 +450,15 @@ private fun Tasks(
     onCheckedChange: (Task, Boolean) -> Unit,
     onRemoveFromPlan: (Task) -> Unit,
     onDelete: (Task) -> Unit,
+    showSnackbar: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (tasks != null)
         if (tasks.isNotEmpty()) {
             val removeMessage = stringResource(TaskManagementDictionary.removeFromPlan)
             val deleteMessage = stringResource(TaskManagementDictionary.delete)
+            val afterRemoveMessage = stringResource(TaskManagementDictionary.removeMessage)
+            val afterDeleteMessage = stringResource(TaskManagementDictionary.deleteMessage)
 
             TaskCards(
                 tasks = tasks,
@@ -433,8 +467,14 @@ private fun Tasks(
                         task = it,
                         removeMessage = removeMessage,
                         deleteMessage = deleteMessage,
-                        onRemove = onRemoveFromPlan,
-                        onDelete = onDelete
+                        onRemove = { t ->
+                            onRemoveFromPlan(t)
+                            showSnackbar(afterRemoveMessage)
+                        },
+                        onDelete = { t ->
+                            onDelete(t)
+                            showSnackbar(afterDeleteMessage)
+                        }
                     )
                 },
                 modifier = modifier,
@@ -583,9 +623,26 @@ private fun ContentPreview(
         mutableStateListOf<Task>()
     }
     var selectAll by remember { mutableStateOf(false) }
+    var snackbarMessage by remember { mutableStateOf("") }
+    val snackbarState = remember { SnackbarHostState() }
+
+    LaunchedEffect(snackbarMessage) {
+        if (snackbarMessage.isNotEmpty()) snackbarState.showSnackbar(
+            message = snackbarMessage,
+            withDismissAction = true
+        ).also {
+            if (it == SnackbarResult.Dismissed) snackbarMessage = ""
+        }
+    }
 
     TaskifyTheme {
-        Scaffold { innerPadding ->
+        Scaffold(
+            snackbarHost = {
+                SnackbarHost(
+                    hostState = snackbarState
+                )
+            }
+        ) { innerPadding ->
             Content(
                 tasks = tasks1,
                 onTaskClick = {},
@@ -625,6 +682,7 @@ private fun ContentPreview(
                 removeAllEnabled = checkedTasks.isNotEmpty(),
                 deleteAllEnable = checkedTasks.isNotEmpty(),
                 onCancelEditMode = { editMode = false },
+                showSnackbar = { snackbarMessage = it },
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)

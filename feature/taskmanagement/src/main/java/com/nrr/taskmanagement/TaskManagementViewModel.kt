@@ -52,6 +52,9 @@ class TaskManagementViewModel @Inject constructor(
     var selectAll by mutableStateOf(false)
         private set
 
+    var snackbarEvent by mutableStateOf("")
+        private set
+
     internal val sortState by mutableStateOf(SortState())
 
     internal val filterState by mutableStateOf(FilterState())
@@ -60,12 +63,16 @@ class TaskManagementViewModel @Inject constructor(
         searchValue = value
     }
 
-    fun updateEditMode(value: Boolean) {
+    private fun updateEditMode(value: Boolean) {
         editMode = value
     }
 
     fun updateSelectAll(value: Boolean) {
         selectAll = value
+    }
+
+    fun updateSnackbarEvent(message: String) {
+        snackbarEvent = message
     }
 
     fun clearSearch() {
@@ -79,7 +86,7 @@ class TaskManagementViewModel @Inject constructor(
     }
 
     fun updateEditedTasks(task: Task, checked: Boolean) {
-        if (!editMode) editMode = true
+        if (!editMode) updateEditMode(true)
         if (checked) editedTasks.add(task) else editedTasks.remove(task)
     }
 
@@ -101,16 +108,18 @@ class TaskManagementViewModel @Inject constructor(
         updateSelectAll(false)
     }
 
-    fun removeAllFromPlan() {
+    fun removeAllFromPlan(message: (Int) -> String) {
         viewModelScope.launch {
             removeActiveTasksUseCase(editedTasks)
+            updateSnackbarEvent(message(editedTasks.size))
             cancelEditMode()
         }
     }
 
-    fun deleteAllTasks() {
+    fun deleteAllTasks(message: (Int) -> String) {
         viewModelScope.launch {
             deleteTasksUseCase(editedTasks)
+            updateSnackbarEvent(message(editedTasks.size))
             cancelEditMode()
         }
     }

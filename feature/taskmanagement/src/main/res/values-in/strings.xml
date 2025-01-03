@@ -11,4 +11,8 @@
     <string name="taskmanagement_empty_tasks">Tidak Ada Tugas</string>
     <string name="taskmanagement_select_all">Pilih semua</string>
     <string name="taskmanagement_cancel">Batal</string>
+    <string name="taskmanagement_remove_selected_message">tugas dihapus dari jadwal</string>
+    <string name="taskmanagement_remove_message">Tugas dihapus dari jadwal</string>
+    <string name="taskmanagement_delete_message">Tugas dihapus</string>
+    <string name="taskmanagement_delete_selected_message">tugas dihaous</string>
 </resources>
