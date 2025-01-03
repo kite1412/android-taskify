@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.nrr.taskmanagement.navigation.taskManagementScreen
 import com.nrr.todayplan.navigation.TodayPlanRoute
 import com.nrr.todayplan.navigation.todayPlanScreen
 
@@ -21,6 +22,9 @@ fun TaskifyNavHost(modifier: Modifier = Modifier) {
             onWeeklyClick = { /* TODO navigate to weekly screen */ },
             onMonthlyClick = { /* TODO navigate to monthly screen */ },
             onSetTodayTasksClick = { /* TODO navigate to set today tasks screen */ }
+        )
+        taskManagementScreen(
+            onTaskClick = { /* TODO navigate to task detail screen */ }
         )
     }
 }

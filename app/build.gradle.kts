@@ -13,6 +13,7 @@ dependencies {
 
     implementation(projects.feature.todayplan)
     implementation(projects.feature.registration)
+    implementation(projects.feature.taskmanagement)
 
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.hilt.navigation.compose)
