@@ -8,8 +8,8 @@ android {
 }
 
 dependencies {
-    implementation(projects.core.designsystem)
     implementation(projects.core.data)
+    implementation(projects.core.ui)
 
     implementation(projects.feature.todayplan)
     implementation(projects.feature.registration)

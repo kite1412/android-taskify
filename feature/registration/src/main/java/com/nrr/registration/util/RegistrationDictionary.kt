@@ -10,4 +10,5 @@ object RegistrationDictionary {
     val previous = R.string.registration_previous
     val next = R.string.registration_next
     val complete = R.string.registration_complete
+    val greeting = R.string.registration_greeting
 }

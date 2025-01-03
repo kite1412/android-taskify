@@ -23,6 +23,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -50,10 +51,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.AppLogo
-import com.nrr.designsystem.component.TextField
 import com.nrr.designsystem.component.TaskifyTextFieldDefaults
-import com.nrr.designsystem.component.TextFieldWithOptions
 import com.nrr.designsystem.component.TaskifyTextFieldWithOptionsDefaults
+import com.nrr.designsystem.component.TextField
+import com.nrr.designsystem.component.TextFieldWithOptions
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.CharcoalClay
 import com.nrr.designsystem.theme.TaskifyTheme
@@ -61,6 +62,7 @@ import com.nrr.designsystem.theme.softBeigeGradient
 import com.nrr.registration.model.FieldAction
 import com.nrr.registration.model.FieldData
 import com.nrr.registration.util.RegistrationDictionary
+import com.nrr.ui.LocalSnackbarHostState
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -77,6 +79,8 @@ fun RegistrationScreen(
     )
     val pagerState = rememberPagerState { fieldData.size }
     val scope = rememberCoroutineScope()
+    val snackbarState = LocalSnackbarHostState.current
+    val greeting = stringResource(RegistrationDictionary.greeting)
 
     Content(
         fieldData = fieldData,
@@ -85,7 +89,11 @@ fun RegistrationScreen(
                 when (it) {
                     FieldAction.Next -> pagerState.animateScrollToPage(pagerState.currentPage + 1)
                     FieldAction.Previous -> pagerState.animateScrollToPage(pagerState.currentPage - 1)
-                    FieldAction.Complete -> viewModel.register()
+                    FieldAction.Complete -> {
+                        snackbarState.showSnackbar("$greeting ${viewModel.username}!").also {
+                            if (it == SnackbarResult.Dismissed) viewModel.register()
+                        }
+                    }
                 }
             }
         },

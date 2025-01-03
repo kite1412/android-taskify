@@ -74,7 +74,7 @@ object TaskifyTextFieldDefaults {
     fun colors(
         unfocusedContainerColor: Color = Color.Transparent,
         focusedContainerColor: Color = Color.Transparent,
-        unfocusedIndicatorColor: Color = Color.Transparent,
+        unfocusedIndicatorColor: Color = MaterialTheme.colorScheme.primary,
         focusedIndicatorColor: Color = MaterialTheme.colorScheme.primary,
         unfocusedTextColor: Color = whiteOrBlack,
         focusedTextColor: Color = whiteOrBlack
