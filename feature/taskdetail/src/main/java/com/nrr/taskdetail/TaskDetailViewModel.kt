@@ -24,10 +24,10 @@ class TaskDetailViewModel @Inject constructor(
     var task by mutableStateOf<Task?>(null)
         private set
 
-    var editedTask by mutableStateOf<Task?>(null)
+    var editMode by mutableStateOf(false)
         private set
 
-    var editMode by mutableStateOf(false)
+    internal var editedTask by mutableStateOf(TaskEdit())
         private set
 
     init {
@@ -36,7 +36,7 @@ class TaskDetailViewModel @Inject constructor(
                 taskRepository.getByIds(listOf(it)).collect { l ->
                     l[0].also { t ->
                         task = t
-                        editedTask = t
+                        editedTask = t.toTaskEdit()
                     }
                 }
             }

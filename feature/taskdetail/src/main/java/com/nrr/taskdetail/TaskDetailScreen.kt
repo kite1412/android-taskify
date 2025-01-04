@@ -36,6 +36,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.nrr.designsystem.component.TextField
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.Task
@@ -51,10 +52,12 @@ internal fun TaskDetailScreen(
 
     Content(
         task = task,
-        taskId = viewModel.taskId,
+        createMode = viewModel.taskId == null,
+        editedTask = viewModel.editedTask,
         editMode = viewModel.editMode,
         onBackClick = {},
         onEditClick = {},
+        onTitleChange = {},
         modifier = modifier
     )
 }
@@ -62,22 +65,39 @@ internal fun TaskDetailScreen(
 @Composable
 private fun Content(
     task: Task?,
-    taskId: Long?,
+    createMode: Boolean,
+    editedTask: TaskEdit,
     editMode: Boolean,
     onBackClick: (editMode: Boolean) -> Unit,
     onEditClick: () -> Unit,
+    onTitleChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         Header(
-            createMode = taskId == null,
+            createMode = createMode,
             editMode = editMode,
             onBackClick = onBackClick,
             onEditClick = onEditClick
         )
+        AnimatedContent(
+            targetState = editMode,
+            label = "main content",
+            modifier = Modifier.fillMaxSize(),
+            transitionSpec = {
+                slideInVertically { -it } + fadeIn() togetherWith
+                        slideOutVertically { -it } + fadeOut()
+            }
+        ) {
+            if (it || createMode) EditPage(
+                task = editedTask,
+                onTitleChange = onTitleChange
+            )
+        }
     }
 }
 
@@ -152,6 +172,42 @@ private fun Header(
     }
 }
 
+@Composable
+private fun EditPage(
+    task: TaskEdit,
+    onTitleChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxSize()) {
+        TitleEdit(
+            value = task.title,
+            onValueChange = onTitleChange
+        )
+    }
+}
+
+@Composable
+private fun TitleEdit(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = stringResource(TaskDetailDictionary.title),
+            fontWeight = FontWeight.Bold
+        )
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = {
+                Text(stringResource(TaskDetailDictionary.editTitle))
+            }
+        )
+    }
+}
+
 @Preview
 @Composable
 private fun ContentPreview(
@@ -160,14 +216,17 @@ private fun ContentPreview(
 ) {
     val task = tasks[0]
     var editMode by remember { mutableStateOf(false) }
+    var editedTask by remember { mutableStateOf(TaskEdit()) }
 
     TaskifyTheme {
         Content(
             task = task,
-            taskId = 1,
+            createMode = true,
+            editedTask = editedTask,
             editMode = editMode,
             onBackClick = { if (it) editMode = false },
             onEditClick = { editMode = true },
+            onTitleChange = { editedTask = editedTask.copy(title = it) }
         )
     }
 }

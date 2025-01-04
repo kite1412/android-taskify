@@ -3,4 +3,6 @@
     <string name="taskdetail_create_new">Create New Task</string>
     <string name="taskdetail_detail">Task Detail</string>
     <string name="taskdetail_edit_task">Edit Task</string>
+    <string name="taskdetail_title">Title</string>
+    <string name="taskdetail_edit_title">Task title</string>
 </resources>
