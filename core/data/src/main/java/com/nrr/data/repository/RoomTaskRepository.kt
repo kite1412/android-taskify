@@ -16,14 +16,17 @@ internal class RoomTaskRepository @Inject constructor(
     private val taskDao: TaskDao,
     private val activeTaskDao: ActiveTaskDao
 ) : TaskRepository {
-    override suspend fun saveTask(
-        task: Task,
-        activeStatus: ActiveStatus?
-    ) {
-        taskDao.insertTask(task.asEntity()).also {
-            if (activeStatus != null)
-                activeTaskDao.insertActiveTask(activeStatus.asEntity(it))
-        }
+    override suspend fun saveTasks(
+        tasks: List<Task>,
+        activeStatus: List<ActiveStatus?>
+    ): List<Long> {
+        val ids = taskDao.insertTasks(tasks.map(Task::asEntity))
+        activeTaskDao.insertActiveTasks(
+            tasks
+                .filter { it.activeStatus != null }
+                .map { it.activeStatus!!.asEntity(it.id) }
+        )
+        return ids
     }
 
     override fun getAllTasks(): Flow<List<Task>> =
@@ -36,13 +39,25 @@ internal class RoomTaskRepository @Inject constructor(
             it.map(TaskWithStatus::asExternalModel)
         }
 
-    override suspend fun deleteActiveTask(task: Task): Int =
-        task.activeStatus?.let {
-            activeTaskDao.deleteActiveTask(it.asEntity(task.id))
-        } ?: 0
+    override suspend fun deleteActiveTasks(task: List<Task>): Int =
+        activeTaskDao.deleteActiveTasks(
+            task
+                .filter { it.activeStatus != null }
+                .map { it.activeStatus!!.asEntity(it.id).id }
+        )
 
     override suspend fun setActiveTaskAsCompleted(task: Task): Long =
         task.activeStatus?.let {
-            activeTaskDao.insertActiveTask(it.copy(isCompleted = true).asEntity(task.id))
+            activeTaskDao.insertActiveTasks(
+                listOf(it.copy(isCompleted = true).asEntity(task.id))
+            ).firstOrNull() ?: 0
         } ?: 0
+
+    override fun getByTitle(title: String): Flow<List<Task>> =
+        taskDao.getByTitle(title).map {
+            it.map(TaskWithStatus::asExternalModel)
+        }
+
+    override suspend fun deleteTasks(tasks: List<Task>): Int =
+        taskDao.deleteTasks(tasks.map { it.id })
 }

@@ -54,8 +54,10 @@ fun Swipeable(
     minActionWidth: Dp = 50.dp,
     actionWidthFactor: Float = actions.size * 0.2f,
     actionButtonsBorderShape: Shape = RectangleShape,
-    actionNeedConfirmation: Boolean = false,
-    content: @Composable (Modifier) -> Unit
+    actionConfirmation: Boolean = false,
+    swipeEnabled: Boolean = true,
+    keys: Array<Any?>? = null,
+    content: @Composable (Modifier) -> Unit,
 ) {
     val density = LocalDensity.current
     val animatedOffset by animateDpAsState(
@@ -78,11 +80,11 @@ fun Swipeable(
                 content(
                     if (actions.isNotEmpty()) Modifier
                         .offset(x = animatedOffset)
-                        .pointerInput(Unit) {
+                        .pointerInput(swipeEnabled, *keys ?: emptyArray()) {
                             detectHorizontalDragGestures(
                                 onDragEnd = state::onSwipeEnd
                             ) { _, dragAmount ->
-                                with(density) {
+                                if (swipeEnabled) with(density) {
                                     state.onSwipe(dragAmount.toDp())
                                 }
                             }
@@ -113,7 +115,8 @@ fun Swipeable(
                             modifier = Modifier
                                 .width(actionWidth)
                                 .fillMaxHeight(),
-                            needConfirmation = actionNeedConfirmation
+                            needConfirmation = actionConfirmation,
+                            confirmationKeys = arrayOf(state.isOpen)
                         )
                     }
                 }
@@ -125,34 +128,16 @@ fun Swipeable(
     }
 }
 
-@Preview
-@Composable
-private fun SwipeablePreview() {
-    TaskifyTheme {
-        Swipeable(
-            actions = Action.mocks,
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Box(
-                modifier = it
-                    .height(50.dp)
-                    .background(Color.Yellow.copy(alpha = 0.5f))
-            ) {
-                Text("Content", modifier = Modifier.background(Color.Green))
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SwipeableAction(
     action: Action,
     modifier: Modifier = Modifier,
-    needConfirmation: Boolean = false
+    needConfirmation: Boolean = false,
+    confirmationKeys: Array<Any?>? = null
 ) {
     var showLabel by remember { mutableStateOf(false) }
-    var onConfirmation by remember { mutableStateOf(false) }
+    var onConfirmation by remember(confirmationKeys) { mutableStateOf(false) }
     val onClickWrapper = {
         if (!showLabel) {
             if (needConfirmation) {
@@ -213,10 +198,30 @@ fun rememberSwipeableState() = remember {
     SwipeableState()
 }
 
+@Preview
+@Composable
+private fun SwipeablePreview() {
+    TaskifyTheme {
+        Swipeable(
+            actions = Action.mocks,
+            modifier = Modifier.padding(16.dp),
+            swipeEnabled = false
+        ) {
+            Box(
+                modifier = it
+                    .height(50.dp)
+                    .background(Color.Yellow.copy(alpha = 0.5f))
+            ) {
+                Text("Content", modifier = Modifier.background(Color.Green))
+            }
+        }
+    }
+}
+
 data class Action(
     val action: String,
     val iconId: Int,
-    val iconSize: Int = 40,
+    val iconSize: Int = 24,
     val color: Color,
     val onClick: () -> Unit
 ) {

@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.taskify.android.application.compose)
     alias(libs.plugins.taskify.hilt)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -8,15 +9,18 @@ android {
 }
 
 dependencies {
-    implementation(projects.core.designsystem)
     implementation(projects.core.data)
+    implementation(projects.core.ui)
 
     implementation(projects.feature.todayplan)
     implementation(projects.feature.registration)
+    implementation(projects.feature.taskmanagement)
 
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.core.splashscreen)
+    // TODO remove later
+    implementation(libs.kotlinx.serialization.json)
     
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

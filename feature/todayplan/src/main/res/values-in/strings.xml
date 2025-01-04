@@ -11,4 +11,6 @@
     <string name="todayplan_schedule">Jadwal</string>
     <string name="todayplan_today_tasks_empty">Tidak ada tugas hari ini</string>
     <string name="todayplan_set_today_tasks">Atur tugas hari ini</string>
+    <string name="todayplan_remove_from_schedule">Hapus dari jadwal</string>
+    <string name="todayplan_mark_as_completed">Selesai</string>
 </resources>

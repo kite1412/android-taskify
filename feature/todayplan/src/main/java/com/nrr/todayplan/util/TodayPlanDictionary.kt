@@ -14,4 +14,6 @@ object TodayPlanDictionary {
     val schedule = R.string.todayplan_schedule
     val noTasksToday = R.string.todayplan_today_tasks_empty
     val setTodayTasks = R.string.todayplan_set_today_tasks
+    val removeFromSchedule = R.string.todayplan_remove_from_schedule
+    val markAsCompleted = R.string.todayplan_mark_as_completed
 }

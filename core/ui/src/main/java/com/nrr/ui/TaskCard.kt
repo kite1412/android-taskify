@@ -1,12 +1,15 @@
 package com.nrr.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,13 +22,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,6 +34,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nrr.designsystem.component.Action
+import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.Swipeable
 import com.nrr.designsystem.component.SwipeableState
 import com.nrr.designsystem.component.rememberSwipeableState
@@ -41,6 +43,7 @@ import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.Task
 import com.nrr.model.toTimeString
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TaskCard(
     task: Task,
@@ -49,72 +52,82 @@ fun TaskCard(
     swipeableState: SwipeableState = rememberSwipeableState(),
     showStartTime: Boolean = false,
     onClick: ((Task) -> Unit)? = null,
-    clickEnabled: Boolean = onClick != null
+    onLongClick: ((Task) -> Unit)? = null,
+    clickEnabled: Boolean = onClick != null,
+    swipeEnabled: Boolean = true,
+    swipeableKeys: Array<Any?>? = null,
+    additionalContent: (@Composable BoxScope.() -> Unit)? = null
 ) {
     val swipeableClip = 10.dp
-    val density = LocalDensity.current
-    var textWidth by remember { mutableIntStateOf(0) }
     val showTime = showStartTime && task.activeStatus != null
 
-    Box(
-        modifier = modifier.fillMaxWidth()
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        if (showTime) Text(
+        if (showTime) AdaptiveText(
             text = task.activeStatus!!.startDate.toTimeString(),
-            modifier = Modifier.align(Alignment.CenterStart),
+            initialFontSize = MaterialTheme.typography.bodyMedium.fontSize,
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .weight(0.1f),
             fontWeight = FontWeight.Bold,
-            onTextLayout = { textWidth = it.size.width }
+            maxLines = 1
         )
         Swipeable(
             actions = actions,
-            modifier = Modifier
-                .padding(
-                    start = with(density) {
-                        if (showTime) textWidth.toDp() + 8.dp else 0.dp
-                    }
-                ),
+            modifier = Modifier.weight(0.9f),
             state = swipeableState,
             actionButtonsBorderShape = RoundedCornerShape(swipeableClip),
-            actionNeedConfirmation = true
+            actionConfirmation = true,
+            swipeEnabled = swipeEnabled,
+            keys = swipeableKeys
         ) { m ->
-            Row(
-                modifier = m
-                    .fillMaxWidth()
-                    .clickable(enabled = clickEnabled) { onClick?.invoke(task) }
-                    .clip(RoundedCornerShape(swipeableClip))
-                    .background(task.color())
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Box(
+            Box(modifier = m) {
+                Row(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(100.dp))
-                        .background(Color.White)
-                        .padding(12.dp)
+                        .fillMaxWidth()
+                        .combinedClickable(
+                            onLongClick = { onLongClick?.invoke(task) },
+                            onClick = { onClick?.invoke(task) },
+                            enabled = clickEnabled
+                        )
+                        .clip(RoundedCornerShape(swipeableClip))
+                        .background(task.color())
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        painter = painterResource(task.iconId()),
-                        contentDescription = task.taskType.name,
-                        modifier = Modifier.size(24.dp),
-                        tint = Color.Black
-                    )
-                }
-                Column {
-                    Text(
-                        text = task.title,
-                        fontWeight = FontWeight.Bold
-                    )
-                    task.description?.let { t ->
-                        with (MaterialTheme.typography.bodySmall.fontSize.value) {
-                            Text(
-                                text = t,
-                                fontSize = this.sp,
-                                lineHeight = (this + 2f).sp
-                            )
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(100.dp))
+                            .background(Color.White)
+                            .padding(12.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(task.iconId()),
+                            contentDescription = task.taskType.name,
+                            modifier = Modifier.size(24.dp),
+                            tint = Color.Black
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = task.title,
+                            fontWeight = FontWeight.Bold
+                        )
+                        task.description?.let { t ->
+                            with (MaterialTheme.typography.bodySmall.fontSize.value) {
+                                Text(
+                                    text = t,
+                                    fontSize = this.sp,
+                                    lineHeight = (this + 2f).sp
+                                )
+                            }
                         }
                     }
                 }
+                additionalContent?.invoke(this)
             }
         }
     }
@@ -127,19 +140,24 @@ fun TaskCards(
     modifier: Modifier = Modifier,
     showStartTime: Boolean = false,
     onClick: ((Task) -> Unit)? = null,
+    onLongClick: ((Task) -> Unit)? = null,
     clickEnabled: (Int) -> Boolean = { onClick != null },
     showCard: (Task) -> Boolean = { true },
+    swipeEnabled: Boolean = true,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    spacer: @Composable (ColumnScope.(index: Int) -> Unit)? = null
+    spacer: @Composable (ColumnScope.(index: Int) -> Unit)? = null,
+    leadingIcon: @Composable (RowScope.(index: Int) -> Unit)? = null,
+    additionalContent: @Composable (BoxScope.(Task) -> Unit)? = null,
+    resetSwipes: Any? = null
 ) {
-    val states = remember {
+    val states = remember(resetSwipes, tasks.size) {
         tasks.indices.map { SwipeableState() }
     }
-    var prevOpened by rememberSaveable {
+    var prevOpened by remember(resetSwipes, tasks.size) {
         mutableIntStateOf(-1)
     }
-    var opened by rememberSaveable {
+    var opened by remember(resetSwipes, tasks.size) {
         mutableIntStateOf(-1)
     }
 
@@ -159,16 +177,25 @@ fun TaskCards(
                         prevOpened = index
                     }
                 }
-                Column {
-                    TaskCard(
-                        task = task,
-                        actions = actions(task),
-                        swipeableState = s,
-                        showStartTime = showStartTime,
-                        onClick = { onClick?.invoke(task) },
-                        clickEnabled = clickEnabled(index)
-                    )
-                    spacer?.invoke(this, index)
+                Row {
+                    leadingIcon?.invoke(this, index)
+                    Column(modifier = Modifier.weight(1f)) {
+                        TaskCard(
+                            task = task,
+                            actions = actions(task),
+                            swipeableState = s,
+                            showStartTime = showStartTime,
+                            onClick = { onClick?.invoke(task) },
+                            onLongClick = { onLongClick?.invoke(task) },
+                            clickEnabled = clickEnabled(index),
+                            swipeEnabled = swipeEnabled,
+                            additionalContent = additionalContent?.let {
+                                { it.invoke(this, task) }
+                            },
+                            swipeableKeys = arrayOf(tasks.size)
+                        )
+                        spacer?.invoke(this, index)
+                    }
                 }
             }
         }

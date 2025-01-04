@@ -24,6 +24,7 @@ internal object MockData {
         startDate = Clock.System.now(),
         dueDate = Clock.System.now(),
         isDefault = false,
-        isCompleted = false
+        isCompleted = false,
+        isSet = true
     )
 }

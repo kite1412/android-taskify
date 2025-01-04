@@ -6,7 +6,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 
-fun Modifier.drawRoundedShadow(
+fun Modifier.drawRoundRectShadow(
     color: Color = Color.Black,
     cornerRadius: CornerRadius = CornerRadius(10f),
     alpha: Float = 0.25f

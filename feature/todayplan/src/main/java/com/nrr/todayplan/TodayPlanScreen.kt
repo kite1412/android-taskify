@@ -29,6 +29,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,7 +66,8 @@ import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.theme.lightBlueGradient
 import com.nrr.designsystem.theme.lightOrangeGradient
 import com.nrr.designsystem.theme.lightRedGradient
-import com.nrr.designsystem.util.drawRoundedShadow
+import com.nrr.designsystem.util.TaskifyDefault
+import com.nrr.designsystem.util.drawRoundRectShadow
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.todayplan.util.TodayPlanDictionary
@@ -116,6 +120,10 @@ private fun Content(
     onSetTodayTasksClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val contentWithRoundRectShadowPadding = with(LocalDensity.current) {
+        7f.toDp()
+    }
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -124,7 +132,9 @@ private fun Content(
         item { GreetingHeader(username) }
         item {
             Row(
-                modifier = Modifier.height(IntrinsicSize.Max),
+                modifier = Modifier
+                    .height(IntrinsicSize.Max)
+                    .padding(start = contentWithRoundRectShadowPadding),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -147,7 +157,8 @@ private fun Content(
         item {
             TodayProgress(
                 todayTasks = todayTasks,
-                onSetTodayTasksClick = onSetTodayTasksClick
+                onSetTodayTasksClick = onSetTodayTasksClick,
+                modifier = Modifier.padding(start = contentWithRoundRectShadowPadding)
             )
         }
         item {
@@ -155,7 +166,8 @@ private fun Content(
                 weeklyTasks = weeklyTasks,
                 monthlyTasks = monthlyTasks,
                 onWeeklyClick = onWeeklyClick,
-                onMonthlyClick = onMonthlyClick
+                onMonthlyClick = onMonthlyClick,
+                modifier = Modifier.padding(start = contentWithRoundRectShadowPadding)
             )
         }
         item {
@@ -180,6 +192,9 @@ private fun GreetingHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         val initialNameSize = 32
+        var greetingFontSize by remember {
+            mutableStateOf(TaskifyDefault.HEADER_FONT_SIZE.sp)
+        }
 
         Column(
             modifier = Modifier.weight(0.6f),
@@ -192,10 +207,11 @@ private fun GreetingHeader(
             )
             AdaptiveText(
                 text = stringResource(TodayPlanDictionary.question),
-                initialFontSize = 24.sp,
+                initialFontSize = greetingFontSize,
                 fontWeight = FontWeight.Bold,
                 maxLines = 2,
-                lineHeight = (initialNameSize + 2).sp
+                lineHeight = (greetingFontSize.value + 4).sp,
+                onSizeChange = { greetingFontSize = it }
             )
         }
         if (username.isNotEmpty()) Box(
@@ -226,7 +242,7 @@ private fun PlanForToday(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .drawRoundedShadow(
+            .drawRoundRectShadow(
                 cornerRadius = with(density) {
                     CornerRadius(x = cornerRadius.toPx(), y = cornerRadius.toPx())
                 },
@@ -274,7 +290,7 @@ private fun TodayProgress(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .drawRoundedShadow(
+            .drawRoundRectShadow(
                 cornerRadius = with(density) {
                     CornerRadius(x = cornerRadius.toPx(), y = cornerRadius.toPx())
                 },
@@ -403,7 +419,7 @@ private fun PeriodCard(
 
     Box(
         modifier = modifier
-            .drawRoundedShadow(
+            .drawRoundRectShadow(
                 cornerRadius = with(density) {
                     CornerRadius(x = cornerRadius.toPx(), y = cornerRadius.toPx())
                 },
@@ -461,22 +477,22 @@ private fun PeriodCard(
 
 private fun scheduleActions(
     task: Task,
+    removeMessage: String,
+    completeMessage: String,
     onRemove: (Task) -> Unit,
     onComplete: (Task) -> Unit
 ) = listOf(
     Action(
-        action = "Remove from schedule",
+        action = removeMessage,
         iconId = TaskifyIcon.trashBin,
         onClick = { onRemove(task) },
-        color = Red,
-        iconSize = 24
+        color = Red
     ),
     Action(
-        action = "Mark as completed",
+        action = completeMessage,
         iconId = TaskifyIcon.check,
         onClick = { onComplete(task) },
-        color = Green,
-        iconSize = 24
+        color = Green
     )
 )
 
@@ -493,6 +509,9 @@ private fun Schedule(
        modifier = modifier,
        verticalArrangement = Arrangement.spacedBy(16.dp)
    ) {
+       val removeMessage = stringResource(TodayPlanDictionary.removeFromSchedule)
+       val completeMessage = stringResource(TodayPlanDictionary.markAsCompleted)
+
        Text(
            text = stringResource(TodayPlanDictionary.schedule),
            fontWeight = FontWeight.Bold,
@@ -503,6 +522,8 @@ private fun Schedule(
            actions = {
                scheduleActions(
                    task = it,
+                   removeMessage = removeMessage,
+                   completeMessage = completeMessage,
                    onRemove = onRemove,
                    onComplete = onComplete
                )
@@ -510,32 +531,33 @@ private fun Schedule(
            modifier = Modifier.padding(start = 8.dp),
            showStartTime = true,
            onClick = onClick,
-           showCard = { it.activeStatus?.isSet == true }
-       ) {
-           val darkMode = isSystemInDarkTheme()
-           if (it != todayTasks.lastIndex) BoxWithConstraints(
-               modifier = Modifier.height(30.dp).fillMaxWidth()
-           ) {
-               Box(
-                   Modifier
-                       .align(Alignment.Center)
-                       .fillMaxHeight()
-                       .padding(end = maxWidth / 2f)
-                       .drawBehind {
-                           val lineHeight = 13.dp.toPx()
-                           val space = 4.dp.toPx()
-                           repeat(2) { i ->
-                               drawLine(
-                                   color = if (darkMode) Color.White else Color.Black,
-                                   start = Offset(x = 0f, y = lineHeight * i + (space * i)),
-                                   end = Offset(x = 0f, y = lineHeight * (i + 1) + (space * i)),
-                                   strokeWidth = 2.dp.toPx()
-                               )
+           showCard = { it.activeStatus?.isSet == true },
+           spacer = {
+               val darkMode = isSystemInDarkTheme()
+               if (it != todayTasks.lastIndex) BoxWithConstraints(
+                   modifier = Modifier.height(30.dp).fillMaxWidth()
+               ) {
+                   Box(
+                       Modifier
+                           .align(Alignment.Center)
+                           .fillMaxHeight()
+                           .padding(end = maxWidth / 2f)
+                           .drawBehind {
+                               val lineHeight = 13.dp.toPx()
+                               val space = 4.dp.toPx()
+                               repeat(2) { i ->
+                                   drawLine(
+                                       color = if (darkMode) Color.White else Color.Black,
+                                       start = Offset(x = 0f, y = lineHeight * i + (space * i)),
+                                       end = Offset(x = 0f, y = lineHeight * (i + 1) + (space * i)),
+                                       strokeWidth = 2.dp.toPx()
+                                   )
+                               }
                            }
-                       }
-               )
+                   )
+               }
            }
-       }
+       )
    }
 }
 

@@ -29,8 +29,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -88,7 +90,6 @@ enum class Destination(
             entries.forEachIndexed { i, d ->
                 NavigationItem(
                     data = d,
-                    indexInList = i,
                     prevSelectedIndex = prevSelectedIndex,
                     selected = i == selectedIndex,
                     onClick = onClick,
@@ -101,9 +102,7 @@ enum class Destination(
     }
 }
 
-/**
- * Adjust navigation item's styles based on app theme
- */
+// Adjust navigation item's styles based on app theme
 @SuppressLint("ComposableNaming")
 @Composable
 private fun adjustNavigationData() {
@@ -245,7 +244,6 @@ private fun NavigationDrawerPreview() {
 @Composable
 private fun NavigationItem(
     data: Destination,
-    indexInList: Int,
     prevSelectedIndex: Int,
     selected: Boolean,
     modifier: Modifier = Modifier,
@@ -258,7 +256,7 @@ private fun NavigationItem(
         label = "icon color"
     )
     val contentTransform = indicatorAnimationLogic(
-        indexInList = indexInList,
+        indexInList = data.ordinal,
         prevSelectedIndex = prevSelectedIndex,
         horizontal = horizontalAnimation
     )
@@ -330,16 +328,34 @@ private fun indicatorAnimationLogic(
 fun NavigationScaffold(
     onClick: (Destination) -> Unit,
     modifier: Modifier = Modifier,
-    initialDestination: Destination = Destination.HOME,
+    currentDestination: Destination = Destination.HOME,
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo(),
     content: @Composable () -> Unit
 ) {
-    var selectedIndex by rememberSaveable { mutableIntStateOf(initialDestination.ordinal) }
-    var prevSelectedIndex by rememberSaveable { mutableIntStateOf(initialDestination.ordinal) }
+    var selectedIndex by rememberSaveable {
+        mutableIntStateOf(currentDestination.ordinal)
+    }
+    var prevSelectedIndex by rememberSaveable {
+        mutableIntStateOf(currentDestination.ordinal)
+    }
+    var changeByClick by rememberSaveable {
+        mutableStateOf(false)
+    }
     val onClickWrapper = { data: Destination ->
         prevSelectedIndex = selectedIndex
         selectedIndex = data.ordinal
+        changeByClick = true
         onClick(data)
+    }
+
+    DisposableEffect(currentDestination) {
+        if (currentDestination.ordinal != selectedIndex && !changeByClick) {
+            prevSelectedIndex = selectedIndex
+            selectedIndex = currentDestination.ordinal
+        }
+        onDispose {
+            changeByClick = false
+        }
     }
     adjustNavigationData()
     Box(modifier = modifier.fillMaxSize()) {

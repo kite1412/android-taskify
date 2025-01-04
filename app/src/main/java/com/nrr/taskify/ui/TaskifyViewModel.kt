@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nrr.data.repository.UserDataRepository
-import com.nrr.designsystem.component.Destination
 import com.nrr.designsystem.component.TaskifyTopAppBarDefaults
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -24,9 +23,6 @@ class TaskifyViewModel @Inject constructor(
     userDataRepository: UserDataRepository
 ) : ViewModel() {
     var titleIndex by mutableIntStateOf(0)
-        private set
-
-    var currentDestination by mutableStateOf(Destination.HOME)
         private set
 
     var showSplash by mutableStateOf(true)
@@ -66,10 +62,6 @@ class TaskifyViewModel @Inject constructor(
                 else titleIndex = 0
             }
         }
-    }
-
-    fun onDestinationChange(destination: Destination) {
-        currentDestination = destination
     }
 
     fun dismissSplash(delay: Long) = viewModelScope.launch {

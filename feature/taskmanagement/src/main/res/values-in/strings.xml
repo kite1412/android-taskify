@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="taskmanagement_your_tasks">Tugas Kamu</string>
+    <string name="taskmanagement_search_task">Cari tugas</string>
+    <string name="taskmanagement_today">Hari ini</string>
+    <string name="taskmanagement_weekly">Mingguan</string>
+    <string name="taskmanagement_monthly">Bulanan</string>
+    <string name="taskmanagement_daily">Harian</string>
+    <string name="taskmanagement_remove_from_plan">Singkirkan dari jadwal</string>
+    <string name="taskmanagement_delete_task">Hapus</string>
+    <string name="taskmanagement_empty_tasks">Tidak Ada Tugas</string>
+    <string name="taskmanagement_select_all">Pilih semua</string>
+    <string name="taskmanagement_cancel">Batal</string>
+    <string name="taskmanagement_remove_selected_message">tugas dihapus dari jadwal</string>
+    <string name="taskmanagement_remove_message">Tugas dihapus dari jadwal</string>
+    <string name="taskmanagement_delete_message">Tugas dihapus</string>
+    <string name="taskmanagement_delete_selected_message">tugas dihaous</string>
+</resources>

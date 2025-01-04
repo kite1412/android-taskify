@@ -8,12 +8,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.nrr.designsystem.component.Destination
 import com.nrr.designsystem.component.NavigationScaffold
 import com.nrr.designsystem.component.SlidingTextData
@@ -21,38 +27,52 @@ import com.nrr.designsystem.component.TaskifyTopAppBarDefaults
 import com.nrr.designsystem.component.TopAppBar
 import com.nrr.registration.RegistrationScreen
 import com.nrr.taskify.navigation.TaskifyNavHost
+import com.nrr.ui.LocalSnackbarHostState
 
 @Composable
 internal fun TaskifyApp(
     modifier: Modifier = Modifier,
-    viewModel: TaskifyViewModel = hiltViewModel()
+    viewModel: TaskifyViewModel = hiltViewModel(),
+    navController: NavHostController = rememberNavController(),
+    appState: TaskifyAppState = rememberTaskifyAppState(navController)
 ) {
     val registered by viewModel.registered.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    Scaffold(modifier = modifier) { innerPadding ->
-        AnimatedVisibility(
-            visible = registered == true && viewModel.showContent,
-            label = "main content",
-            enter = slideInVertically(
-                animationSpec = tween(durationMillis = viewModel.contentEnterDelay)
-            ) { it },
-            exit = slideOutVertically { it },
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            TaskifyScaffold(
-                topBarTitles = viewModel.topBarTitles,
-                topBarTitleIndex = viewModel.titleIndex,
-                currentDestination = viewModel.currentDestination,
-                onDestinationChange = viewModel::onDestinationChange
-            ) {
-                TaskifyNavHost()
+    CompositionLocalProvider(value = LocalSnackbarHostState provides snackbarHostState) {
+        Scaffold(
+            modifier = modifier,
+            snackbarHost = {
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    snackbar = { TaskifySnackbar(it) }
+                )
             }
+        ) { innerPadding ->
+            AnimatedVisibility(
+                visible = registered == true && viewModel.showContent,
+                label = "main content",
+                enter = slideInVertically(
+                    animationSpec = tween(durationMillis = viewModel.contentEnterDelay)
+                ) { it },
+                exit = slideOutVertically { it },
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                TaskifyScaffold(
+                    topBarTitles = viewModel.topBarTitles,
+                    topBarTitleIndex = viewModel.titleIndex,
+                    currentDestination = appState.currentTopLevelDestination?.destination ?: Destination.HOME,
+                    onDestinationChange = appState::navigateToTopLevelDestination
+                ) {
+                    TaskifyNavHost(navController)
+                }
+            }
+            if (registered == false && viewModel.showContent) RegistrationScreen()
+            SplashScreen(
+                onCompleted = viewModel::dismissSplash,
+                showSplash = viewModel.showSplash
+            )
         }
-        if (registered == false && viewModel.showContent) RegistrationScreen()
-        SplashScreen(
-            onCompleted = viewModel::dismissSplash,
-            showSplash = viewModel.showSplash
-        )
     }
 }
 
@@ -68,7 +88,7 @@ internal fun TaskifyScaffold(
     NavigationScaffold(
         onClick = onDestinationChange,
         modifier = modifier,
-        initialDestination = currentDestination
+        currentDestination = currentDestination
     ) {
         Box(
             modifier = Modifier

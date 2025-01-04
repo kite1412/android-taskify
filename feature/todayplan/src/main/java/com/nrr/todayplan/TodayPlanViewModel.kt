@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.nrr.data.repository.UserDataRepository
 import com.nrr.domain.GetTasksByPeriodUseCase
 import com.nrr.domain.MarkTaskCompletedUseCase
-import com.nrr.domain.RemoveActiveTaskUseCase
+import com.nrr.domain.RemoveActiveTasksUseCase
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +19,7 @@ import javax.inject.Inject
 class TodayPlanViewModel @Inject constructor(
     getTasksByPeriodUseCase: GetTasksByPeriodUseCase,
     userDataRepository: UserDataRepository,
-    private val removeActiveTaskUseCase: RemoveActiveTaskUseCase,
+    private val removeActiveTaskUseCase: RemoveActiveTasksUseCase,
     private val markTaskCompletedUseCase: MarkTaskCompletedUseCase
 ) : ViewModel() {
     val todayTasks = getTasksByPeriodUseCase(TaskPeriod.DAY)
@@ -52,7 +52,7 @@ class TodayPlanViewModel @Inject constructor(
 
     fun deleteTask(task: Task) {
         viewModelScope.launch {
-            removeActiveTaskUseCase(task)
+            removeActiveTaskUseCase(listOf(task))
         }
     }
 

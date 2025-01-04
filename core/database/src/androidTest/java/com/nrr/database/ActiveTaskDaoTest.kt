@@ -9,8 +9,8 @@ import org.junit.Test
 internal class ActiveTaskDaoTest : DBSetup() {
     @Test
     fun insertThenGetAllActiveTasks() = runTest {
-        taskDao.insertTask(MockData.taskEntity)
-        activeTaskDao.insertActiveTask(MockData.activeTaskEntity)
+        taskDao.insertTasks(listOf(MockData.taskEntity))
+        activeTaskDao.insertActiveTasks(listOf(MockData.activeTaskEntity))
         val res = activeTaskDao.getAllByPeriod(TaskPeriod.DAY).first()
         res.forEach {
             Log.i(tag, it.toString())
@@ -20,12 +20,14 @@ internal class ActiveTaskDaoTest : DBSetup() {
 
     @Test
     fun insertThenDelete() = runTest {
-        val id = taskDao.insertTask(MockData.taskEntity)
+        val id = taskDao.insertTasks(listOf(MockData.taskEntity))
         Log.i(tag, "inserted $id")
-        val aId = activeTaskDao.insertActiveTask(MockData.activeTaskEntity)
-        Log.i(tag, "active inserted: $aId")
+        val ids = activeTaskDao.insertActiveTasks(listOf(MockData.activeTaskEntity))
+        Log.i(tag, "active inserted: ${ids[0]}")
         assert(
-            activeTaskDao.deleteActiveTask(MockData.activeTaskEntity.copy(id = aId)) == 1
+            activeTaskDao.deleteActiveTasks(
+                listOf(MockData.activeTaskEntity.copy(id = ids[0]).taskId)
+            ) == 1
         )
     }
 }
