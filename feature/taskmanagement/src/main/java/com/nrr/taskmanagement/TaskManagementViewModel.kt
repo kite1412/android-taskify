@@ -80,9 +80,12 @@ class TaskManagementViewModel @Inject constructor(
         _searchTasks.value = null
     }
 
-    fun searchTask() = viewModelScope.launch {
-        _searchTasks.value =
-            getTasksByTitleUseCase(searchValue).firstOrNull() ?: emptyList()
+    fun searchTask() {
+        viewModelScope.launch {
+            _searchTasks.update {
+                getTasksByTitleUseCase(searchValue).firstOrNull() ?: emptyList()
+            }
+        }
     }
 
     fun updateEditedTasks(task: Task, checked: Boolean) {

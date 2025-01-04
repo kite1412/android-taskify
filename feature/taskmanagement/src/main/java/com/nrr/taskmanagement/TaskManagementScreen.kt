@@ -9,6 +9,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -102,7 +104,6 @@ internal fun TaskManagementScreen(
             if (it == SnackbarResult.Dismissed) viewModel.updateSnackbarEvent("")
         }
     }
-
     Content(
         tasks = filteredTasks ?: searchTasks ?: tasks,
         onTaskClick = onTaskClick,
@@ -140,6 +141,7 @@ internal fun TaskManagementScreen(
     )
 }
 
+
 @Composable
 private fun Content(
     tasks: List<Task>?,
@@ -172,7 +174,7 @@ private fun Content(
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Header()
             Row(
@@ -224,7 +226,9 @@ private fun Content(
                 onRemoveFromPlan = onRemoveTaskFromPlan,
                 onDelete = onDeleteTask,
                 showSnackbar = showSnackbar,
-                modifier = Modifier.verticalScroll(rememberScrollState())
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .verticalScroll(rememberScrollState())
             )
         }
         when {
@@ -297,8 +301,8 @@ private fun SearchBar(
             ),
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    focusManager.clearFocus()
                     onSearch()
+                    focusManager.clearFocus()
                 }
             ),
             enabled = !editMode
@@ -503,6 +507,7 @@ private fun Tasks(
                             initialFontSize = MaterialTheme.typography.bodyLarge.fontSize,
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
+                                .padding(end = 2.dp)
                                 .weight(0.15f),
                             maxLines = 1
                         )
@@ -524,6 +529,7 @@ private fun Tasks(
         }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun EditToolbar(
     selectAll: Boolean,
@@ -540,9 +546,12 @@ private fun EditToolbar(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.End
     ) {
-        Row(
+        FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalArrangement = Arrangement.spacedBy(
+                space = 4.dp,
+                alignment = Alignment.CenterVertically
+            )
         ) {
             AnimatedVisibility(
                 visible = removeEnabled
@@ -595,8 +604,8 @@ private fun EditToolbar(
             iconId = TaskifyIcon.cancel,
             shape = RoundedCornerShape(100),
             colors = TaskifyButtonDefaults.colors(
-                containerColor = Color.White,
-                contentColor = Color.Red
+                containerColor = Color.Transparent,
+                contentColor = Color.Red.copy(alpha = 0.8f)
             )
         )
     }

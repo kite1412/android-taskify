@@ -120,6 +120,10 @@ private fun Content(
     onSetTodayTasksClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val contentWithRoundRectShadowPadding = with(LocalDensity.current) {
+        7f.toDp()
+    }
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -128,7 +132,9 @@ private fun Content(
         item { GreetingHeader(username) }
         item {
             Row(
-                modifier = Modifier.height(IntrinsicSize.Max),
+                modifier = Modifier
+                    .height(IntrinsicSize.Max)
+                    .padding(start = contentWithRoundRectShadowPadding),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -151,7 +157,8 @@ private fun Content(
         item {
             TodayProgress(
                 todayTasks = todayTasks,
-                onSetTodayTasksClick = onSetTodayTasksClick
+                onSetTodayTasksClick = onSetTodayTasksClick,
+                modifier = Modifier.padding(start = contentWithRoundRectShadowPadding)
             )
         }
         item {
@@ -159,7 +166,8 @@ private fun Content(
                 weeklyTasks = weeklyTasks,
                 monthlyTasks = monthlyTasks,
                 onWeeklyClick = onWeeklyClick,
-                onMonthlyClick = onMonthlyClick
+                onMonthlyClick = onMonthlyClick,
+                modifier = Modifier.padding(start = contentWithRoundRectShadowPadding)
             )
         }
         item {
