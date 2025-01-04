@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="taskdetail_create_new">Buat Tugas Baru</string>
+    <string name="taskdetail_detail">Detail Tugas</string>
+    <string name="taskdetail_edit_task">Edit Tugas</string>
+</resources>

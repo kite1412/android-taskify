@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="taskdetail_create_new">Create New Task</string>
+    <string name="taskdetail_detail">Task Detail</string>
+    <string name="taskdetail_edit_task">Edit Task</string>
+</resources>
