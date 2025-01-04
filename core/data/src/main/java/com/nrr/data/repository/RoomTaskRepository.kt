@@ -16,6 +16,26 @@ internal class RoomTaskRepository @Inject constructor(
     private val taskDao: TaskDao,
     private val activeTaskDao: ActiveTaskDao
 ) : TaskRepository {
+    override fun getAllTasks(): Flow<List<Task>> =
+        taskDao.getAllTasks().map {
+            it.map(TaskWithStatus::asExternalModel)
+        }
+
+    override fun getAllActiveTasksByPeriod(period: TaskPeriod): Flow<List<Task>> =
+        activeTaskDao.getAllByPeriod(period).map {
+            it.map(TaskWithStatus::asExternalModel)
+        }
+
+    override fun getByTitle(title: String): Flow<List<Task>> =
+        taskDao.getByTitle(title).map {
+            it.map(TaskWithStatus::asExternalModel)
+        }
+
+    override fun getByIds(ids: List<Long>): Flow<List<Task>> =
+        taskDao.getAllByIds(ids).map {
+            it.map(TaskWithStatus::asExternalModel)
+        }
+
     override suspend fun saveTasks(
         tasks: List<Task>,
         activeStatus: List<ActiveStatus?>
@@ -28,16 +48,6 @@ internal class RoomTaskRepository @Inject constructor(
         )
         return ids
     }
-
-    override fun getAllTasks(): Flow<List<Task>> =
-        taskDao.getAllTasks().map {
-            it.map(TaskWithStatus::asExternalModel)
-        }
-
-    override fun getAllActiveTasksByPeriod(period: TaskPeriod): Flow<List<Task>> =
-        activeTaskDao.getAllByPeriod(period).map {
-            it.map(TaskWithStatus::asExternalModel)
-        }
 
     override suspend fun deleteActiveTasks(task: List<Task>): Int =
         activeTaskDao.deleteActiveTasks(
@@ -52,11 +62,6 @@ internal class RoomTaskRepository @Inject constructor(
                 listOf(it.copy(isCompleted = true).asEntity(task.id))
             ).firstOrNull() ?: 0
         } ?: 0
-
-    override fun getByTitle(title: String): Flow<List<Task>> =
-        taskDao.getByTitle(title).map {
-            it.map(TaskWithStatus::asExternalModel)
-        }
 
     override suspend fun deleteTasks(tasks: List<Task>): Int =
         taskDao.deleteTasks(tasks.map { it.id })
