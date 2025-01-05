@@ -8,4 +8,10 @@
     <string name="taskdetail_description">Description</string>
     <string name="taskdetail_edit_description">Task description</string>
     <string name="taskdetail_task_type">Task Type</string>
+    <string name="taskdetail_personal_examples">breakfast, grocery shopping, pay bill</string>
+    <string name="taskdetail_work_examples">attend meeting, documents review, send report</string>
+    <string name="taskdetail_learning_examples">read books, practice coding, read article</string>
+    <string name="taskdetail_health_examples">work out, jogging, daily strecth</string>
+    <string name="taskdetail_reflection_examples">praying, self assessment, achievements review</string>
+    <string name="taskdetail_special_examples">party, travelling, vacation</string>
 </resources>

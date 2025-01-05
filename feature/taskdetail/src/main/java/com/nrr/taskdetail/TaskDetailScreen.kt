@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -41,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -60,6 +62,7 @@ import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.Task
 import com.nrr.model.TaskType
 import com.nrr.taskdetail.util.TaskDetailDictionary
+import com.nrr.taskdetail.util.examplesId
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.color
 import com.nrr.ui.iconId
@@ -330,6 +333,7 @@ private fun TaskTypeEdit(
             Column {
                 val dropdownShape = RoundedCornerShape(8.dp)
                 val iconSize = 16
+                val config = LocalConfiguration.current
 
                 Icon(
                     painter = painterResource(TaskifyIcon.info),
@@ -353,6 +357,9 @@ private fun TaskTypeEdit(
                     Column(
                         modifier = Modifier
                             .clip(dropdownShape)
+                            .widthIn(
+                                max = (config.screenWidthDp / 2).dp
+                            )
                             .border(
                                 width = 1.dp,
                                 color = MaterialTheme.colorScheme.primary,
@@ -362,8 +369,12 @@ private fun TaskTypeEdit(
                                 color = MaterialTheme.colorScheme.background,
                                 shape = dropdownShape
                             )
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-
+                        TaskType.entries.forEach {
+                            TaskTypeExamples(it)
+                        }
                     }
                 }
             }
@@ -429,6 +440,29 @@ private fun TaskTypeBar(
             text = name,
             color = animatedContentColor,
             fontSize = MaterialTheme.typography.bodyMedium.fontSize
+        )
+    }
+}
+
+@Composable
+private fun TaskTypeExamples(
+    taskType: TaskType,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+    ) {
+        Text(
+            text = taskType.toStringLocalized(),
+            fontWeight = FontWeight.Bold,
+            fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+            lineHeight = MaterialTheme.typography.bodyMedium.fontSize,
+            color = taskType.color()
+        )
+        Text(
+            text = stringResource(taskType.examplesId()),
+            fontSize = MaterialTheme.typography.bodySmall.fontSize,
+            lineHeight = MaterialTheme.typography.bodySmall.fontSize
         )
     }
 }

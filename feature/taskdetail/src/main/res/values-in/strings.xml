@@ -8,4 +8,10 @@
     <string name="taskdetail_description">Deskripsi</string>
     <string name="taskdetail_edit_description">Deskripsi tugas</string>
     <string name="taskdetail_task_type">Tipe Tugas</string>
+    <string name="taskdetail_personal_examples">sarapan, belanja, bayar tagihan</string>
+    <string name="taskdetail_work_examples">meeting, review dokumen, laporan</string>
+    <string name="taskdetail_learning_examples">baca buku, belajar ngoding, baca artikel</string>
+    <string name="taskdetail_health_examples">olahraga, jogging, strecthing</string>
+    <string name="taskdetail_reflection_examples">beribadah, refleksi diri, review pencapaian</string>
+    <string name="taskdetail_special_examples">pesta, travelling, liburan</string>
 </resources>
