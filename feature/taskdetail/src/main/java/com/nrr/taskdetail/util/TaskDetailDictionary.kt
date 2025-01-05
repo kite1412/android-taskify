@@ -17,4 +17,6 @@ object TaskDetailDictionary {
     val workExamples = R.string.taskdetail_work_examples
     val reflectionExamples = R.string.taskdetail_reflection_examples
     val specialExamples = R.string.taskdetail_special_examples
+    val complete = R.string.taskdetail_complete
+    val createTask = R.string.taskdetail_create_task
 }

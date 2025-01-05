@@ -14,4 +14,6 @@
     <string name="taskdetail_health_examples">olahraga, jogging, strecthing</string>
     <string name="taskdetail_reflection_examples">beribadah, refleksi diri, review pencapaian</string>
     <string name="taskdetail_special_examples">pesta, travelling, liburan</string>
+    <string name="taskdetail_complete">Selesai</string>
+    <string name="taskdetail_create_task">Buat Tugas</string>
 </resources>

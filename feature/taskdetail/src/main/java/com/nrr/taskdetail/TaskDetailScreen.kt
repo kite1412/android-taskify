@@ -13,6 +13,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -27,12 +28,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -85,6 +88,7 @@ internal fun TaskDetailScreen(
         onTitleChange = {},
         onDescriptionChange = {},
         onTypeChange = {},
+        onEditComplete = {},
         modifier = modifier
     )
 }
@@ -100,6 +104,7 @@ private fun Content(
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     onTypeChange: (TaskType) -> Unit,
+    onEditComplete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -123,10 +128,13 @@ private fun Content(
             }
         ) {
             if (it || createMode) EditPage(
-                task = editedTask,
+                task = task,
+                taskEdit = editedTask,
+                createMode = createMode,
                 onTitleChange = onTitleChange,
                 onDescriptionChange = onDescriptionChange,
-                onTypeChange = onTypeChange
+                onTypeChange = onTypeChange,
+                onComplete = onEditComplete
             )
         }
     }
@@ -205,27 +213,38 @@ private fun Header(
 
 @Composable
 private fun EditPage(
-    task: TaskEdit,
+    task: Task?,
+    taskEdit: TaskEdit,
+    createMode: Boolean,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     onTypeChange: (TaskType) -> Unit,
+    onComplete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(32.dp)
-    ) {
-        TitleEdit(
-            value = task.title,
-            onValueChange = onTitleChange
-        )
-        DescriptionEdit(
-            value = task.description,
-            onValueChange = onDescriptionChange
-        )
-        TaskTypeEdit(
-            type = task.taskType,
-            onTypeChange = onTypeChange
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(32.dp)
+        ) {
+            TitleEdit(
+                value = taskEdit.title,
+                onValueChange = onTitleChange
+            )
+            DescriptionEdit(
+                value = taskEdit.description,
+                onValueChange = onDescriptionChange
+            )
+            TaskTypeEdit(
+                type = taskEdit.taskType,
+                onTypeChange = onTypeChange
+            )
+        }
+        CompleteEditButton(
+            task = task,
+            taskEdit = taskEdit,
+            createMode = createMode,
+            onComplete = onComplete,
+            modifier = Modifier.align(Alignment.BottomEnd)
         )
     }
 }
@@ -270,6 +289,7 @@ private fun DescriptionEdit(
 ) {
     val descTextStyle = MaterialTheme.typography.bodyLarge
     val descMaxLines = 8
+    val focusManager = LocalFocusManager.current
 
     Column(
         modifier = modifier,
@@ -304,7 +324,15 @@ private fun DescriptionEdit(
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize
                 )
                 it()
-            }
+            },
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    focusManager.clearFocus()
+                }
+            )
         )
     }
 }
@@ -467,6 +495,36 @@ private fun TaskTypeExamples(
     }
 }
 
+@Composable
+private fun CompleteEditButton(
+    task: Task?,
+    taskEdit: TaskEdit,
+    createMode: Boolean,
+    onComplete: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TextButton(
+        onClick = onComplete,
+        modifier = modifier,
+        colors = ButtonDefaults.textButtonColors(
+            contentColor = MaterialTheme.colorScheme.tertiary,
+            disabledContentColor = Color.Gray
+        ),
+        enabled = (task?.title != taskEdit.title
+                || task.description != taskEdit.description
+                || task.taskType != taskEdit.taskType)
+                && (taskEdit.title.isNotEmpty()
+                && taskEdit.taskType != null)
+    ) {
+        Text(
+            text = stringResource(
+                id = if (createMode) TaskDetailDictionary.createTask
+                    else TaskDetailDictionary.complete
+            )
+        )
+    }
+}
+
 @Preview
 @Composable
 private fun ContentPreview(
@@ -480,14 +538,15 @@ private fun ContentPreview(
     TaskifyTheme {
         Content(
             task = task,
-            createMode = true,
+            createMode = false,
             editedTask = editedTask,
             editMode = editMode,
             onBackClick = { if (it) editMode = false },
             onEditClick = { editMode = true },
             onTitleChange = { editedTask = editedTask.copy(title = it) },
             onDescriptionChange = { editedTask = editedTask.copy(description = it) },
-            onTypeChange = { editedTask = editedTask.copy(taskType = it) }
+            onTypeChange = { editedTask = editedTask.copy(taskType = it) },
+            onEditComplete = { editMode = false }
         )
     }
 }

@@ -14,4 +14,6 @@
     <string name="taskdetail_health_examples">work out, jogging, daily strecth</string>
     <string name="taskdetail_reflection_examples">praying, self assessment, achievements review</string>
     <string name="taskdetail_special_examples">party, travelling, vacation</string>
+    <string name="taskdetail_complete">Complete</string>
+    <string name="taskdetail_create_task">Create Task</string>
 </resources>
