@@ -21,4 +21,5 @@ object TaskDetailDictionary {
     val createTask = R.string.taskdetail_create_task
     val createdOn = R.string.taskdetail_created_on
     val updatedOn = R.string.taskdetail_updated_on
+    val noDescription = R.string.taskdetail_no_description
 }

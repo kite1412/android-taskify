@@ -18,4 +18,5 @@
     <string name="taskdetail_create_task">Create Task</string>
     <string name="taskdetail_created_on">created on:</string>
     <string name="taskdetail_updated_on">updated on:</string>
+    <string name="taskdetail_no_description">No description...</string>
 </resources>

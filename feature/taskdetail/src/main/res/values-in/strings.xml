@@ -18,4 +18,5 @@
     <string name="taskdetail_create_task">Buat Tugas</string>
     <string name="taskdetail_created_on">dibuat pada:</string>
     <string name="taskdetail_updated_on">diperbarui pada:</string>
+    <string name="taskdetail_no_description">Tidak ada deskripsi...</string>
 </resources>

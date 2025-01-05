@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -52,6 +53,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
@@ -235,6 +237,9 @@ private fun DetailPage(
                 createdAt = it.createdAt,
                 updatedAt = it.updateAt
             )
+            Description(
+                description = it.description ?: ""
+            )
         }
     }
 }
@@ -377,6 +382,45 @@ private fun TitleEdit(
                 }
             )
         )
+    }
+}
+
+@Composable
+private fun Description(
+    description: String,
+    modifier: Modifier = Modifier
+) {
+    val descTextStyle = MaterialTheme.typography.bodyLarge
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = stringResource(TaskDetailDictionary.description),
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height((descTextStyle.lineHeight.value * 8).dp)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(12.dp)
+        ) {
+            Text(
+                text = description.takeIf { it.isNotEmpty() }
+                    ?: stringResource(TaskDetailDictionary.noDescription),
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                fontSize = descTextStyle.fontSize,
+                color = if (description.isNotEmpty()) Color.Unspecified else Color.Gray,
+                fontStyle = if (description.isNotEmpty()) FontStyle.Normal else FontStyle.Italic
+            )
+        }
     }
 }
 
