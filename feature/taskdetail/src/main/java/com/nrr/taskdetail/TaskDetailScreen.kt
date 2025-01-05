@@ -24,10 +24,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,17 +61,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.TextField
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.Task
 import com.nrr.model.TaskType
+import com.nrr.model.toTimeString
 import com.nrr.taskdetail.util.TaskDetailDictionary
 import com.nrr.taskdetail.util.examplesId
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.color
 import com.nrr.ui.iconId
 import com.nrr.ui.toStringLocalized
+import kotlinx.datetime.Instant
 
 @Composable
 internal fun TaskDetailScreen(
@@ -135,6 +140,9 @@ private fun Content(
                 onDescriptionChange = onDescriptionChange,
                 onTypeChange = onTypeChange,
                 onComplete = onEditComplete
+            ) else DetailPage(
+                task = task,
+                modifier = Modifier.verticalScroll(rememberScrollState())
             )
         }
     }
@@ -212,6 +220,26 @@ private fun Header(
 }
 
 @Composable
+private fun DetailPage(
+    task: Task?,
+    modifier: Modifier = Modifier
+) {
+    task?.let {
+        Column(
+            modifier = modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(32.dp)
+        ) {
+            Title(
+                title = it.title,
+                taskType = it.taskType,
+                createdAt = it.createdAt,
+                updatedAt = it.updateAt
+            )
+        }
+    }
+}
+
+@Composable
 private fun EditPage(
     task: Task?,
     taskEdit: TaskEdit,
@@ -224,6 +252,7 @@ private fun EditPage(
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         Column(
+            modifier = Modifier.verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
             TitleEdit(
@@ -245,6 +274,76 @@ private fun EditPage(
             createMode = createMode,
             onComplete = onComplete,
             modifier = Modifier.align(Alignment.BottomEnd)
+        )
+    }
+}
+
+@Composable
+private fun Title(
+    title: String,
+    taskType: TaskType,
+    createdAt: Instant,
+    updatedAt: Instant,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(0.8f)) {
+                Text(
+                    text = stringResource(TaskDetailDictionary.title),
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+                AdaptiveText(
+                    text = title,
+                    initialFontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2
+                )
+            }
+            Column(
+                modifier = Modifier.align(Alignment.CenterVertically),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Column {
+                    Text(
+                        text = stringResource(TaskDetailDictionary.createdOn),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                        lineHeight = MaterialTheme.typography.bodySmall.fontSize
+                    )
+                    Text(
+                        text = createdAt.toTimeString(),
+                        fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                        lineHeight = MaterialTheme.typography.bodyMedium.fontSize,
+                    )
+                }
+                Column {
+                    Text(
+                        text = stringResource(TaskDetailDictionary.updatedOn),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                        lineHeight = MaterialTheme.typography.bodySmall.fontSize
+                    )
+                    Text(
+                        text = updatedAt.toTimeString(),
+                        fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                        lineHeight = MaterialTheme.typography.bodyMedium.fontSize,
+                    )
+                }
+            }
+        }
+        TaskTypeBar(
+            taskType = taskType,
+            fillBackground = true
         )
     }
 }

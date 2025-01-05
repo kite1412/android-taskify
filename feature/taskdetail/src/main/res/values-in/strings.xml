@@ -16,4 +16,6 @@
     <string name="taskdetail_special_examples">pesta, travelling, liburan</string>
     <string name="taskdetail_complete">Selesai</string>
     <string name="taskdetail_create_task">Buat Tugas</string>
+    <string name="taskdetail_created_on">dibuat pada:</string>
+    <string name="taskdetail_updated_on">diperbarui pada:</string>
 </resources>
