@@ -7,4 +7,5 @@
     <string name="taskdetail_edit_title">Nama tugas</string>
     <string name="taskdetail_description">Deskripsi</string>
     <string name="taskdetail_edit_description">Deskripsi tugas</string>
+    <string name="taskdetail_task_type">Tipe Tugas</string>
 </resources>

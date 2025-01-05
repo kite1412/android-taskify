@@ -7,4 +7,5 @@
     <string name="taskdetail_edit_title">Task title</string>
     <string name="taskdetail_description">Description</string>
     <string name="taskdetail_edit_description">Task description</string>
+    <string name="taskdetail_task_type">Task Type</string>
 </resources>

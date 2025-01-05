@@ -10,4 +10,5 @@ object TaskDetailDictionary {
     val editTitle = R.string.taskdetail_edit_title
     val description = R.string.taskdetail_description
     val editDescription = R.string.taskdetail_edit_description
+    val taskType = R.string.taskdetail_task_type
 }

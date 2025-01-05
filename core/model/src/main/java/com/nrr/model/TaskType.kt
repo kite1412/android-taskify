@@ -6,5 +6,23 @@ enum class TaskType {
     LEARNING,
     HEALTH,
     REFLECTION,
-    SPECIAL
+    SPECIAL;
+
+    override fun toString(): String = when (this) {
+        PERSONAL -> "Personal"
+        WORK -> "Work"
+        LEARNING -> "Learning"
+        HEALTH -> "Health"
+        REFLECTION -> "Reflection"
+        SPECIAL -> "Special"
+    }
+
+    fun toStringIn() = when (this) {
+        PERSONAL -> "Pribadi"
+        WORK -> "Kerja"
+        LEARNING -> "Belajar"
+        HEALTH -> "Kesehatan"
+        REFLECTION -> "Refleksi"
+        SPECIAL -> "Spesial"
+    }
 }
