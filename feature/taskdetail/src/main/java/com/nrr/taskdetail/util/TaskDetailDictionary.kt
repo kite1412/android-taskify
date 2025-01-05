@@ -8,4 +8,6 @@ object TaskDetailDictionary {
     val editTask = R.string.taskdetail_edit_task
     val title = R.string.taskdetail_title
     val editTitle = R.string.taskdetail_edit_title
+    val description = R.string.taskdetail_description
+    val editDescription = R.string.taskdetail_edit_description
 }

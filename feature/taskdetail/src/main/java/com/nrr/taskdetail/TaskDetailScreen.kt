@@ -7,13 +7,20 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -28,9 +35,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -58,6 +67,7 @@ internal fun TaskDetailScreen(
         onBackClick = {},
         onEditClick = {},
         onTitleChange = {},
+        onDescriptionChange = {},
         modifier = modifier
     )
 }
@@ -71,6 +81,7 @@ private fun Content(
     onBackClick: (editMode: Boolean) -> Unit,
     onEditClick: () -> Unit,
     onTitleChange: (String) -> Unit,
+    onDescriptionChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -95,7 +106,8 @@ private fun Content(
         ) {
             if (it || createMode) EditPage(
                 task = editedTask,
-                onTitleChange = onTitleChange
+                onTitleChange = onTitleChange,
+                onDescriptionChange = onDescriptionChange
             )
         }
     }
@@ -176,12 +188,20 @@ private fun Header(
 private fun EditPage(
     task: TaskEdit,
     onTitleChange: (String) -> Unit,
+    onDescriptionChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(32.dp)
+    ) {
         TitleEdit(
             value = task.title,
             onValueChange = onTitleChange
+        )
+        DescriptionEdit(
+            value = task.description,
+            onValueChange = onDescriptionChange
         )
     }
 }
@@ -192,6 +212,8 @@ private fun TitleEdit(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val focusManager = LocalFocusManager.current
+
     Column(modifier = modifier) {
         Text(
             text = stringResource(TaskDetailDictionary.title),
@@ -203,6 +225,61 @@ private fun TitleEdit(
             modifier = Modifier.fillMaxWidth(),
             placeholder = {
                 Text(stringResource(TaskDetailDictionary.editTitle))
+            },
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    focusManager.clearFocus()
+                }
+            )
+        )
+    }
+}
+
+@Composable
+private fun DescriptionEdit(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val descTextStyle = MaterialTheme.typography.bodyLarge
+    val descMaxLines = 8
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = stringResource(TaskDetailDictionary.description),
+            fontWeight = FontWeight.Bold
+        )
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    width = 2.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(12.dp)
+                .defaultMinSize(
+                    minHeight = (descTextStyle.lineHeight.value.toInt() * descMaxLines).dp
+                ),
+            textStyle = descTextStyle.copy(
+                color = if (isSystemInDarkTheme()) Color.White else Color.Black
+            ),
+            maxLines = descMaxLines,
+            decorationBox = {
+                if (value.isEmpty()) Text(
+                    text = stringResource(TaskDetailDictionary.editDescription),
+                    color = Color.Gray,
+                    fontSize = MaterialTheme.typography.bodyMedium.fontSize
+                )
+                it()
             }
         )
     }
@@ -226,7 +303,8 @@ private fun ContentPreview(
             editMode = editMode,
             onBackClick = { if (it) editMode = false },
             onEditClick = { editMode = true },
-            onTitleChange = { editedTask = editedTask.copy(title = it) }
+            onTitleChange = { editedTask = editedTask.copy(title = it) },
+            onDescriptionChange = { editedTask = editedTask.copy(description = it) }
         )
     }
 }

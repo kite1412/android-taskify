@@ -8,7 +8,7 @@ import kotlinx.datetime.Clock
 internal data class TaskEdit(
     val id: Long? = null,
     val title: String = "",
-    val description: String? = null,
+    val description: String = "",
     val taskType: TaskType? = null,
     val activeStatus: ActiveStatus? = null
 )
@@ -16,7 +16,7 @@ internal data class TaskEdit(
 internal fun Task.toTaskEdit() = TaskEdit(
     id = id,
     title = title,
-    description = description,
+    description = description ?: "",
     taskType = taskType,
     activeStatus = activeStatus
 )

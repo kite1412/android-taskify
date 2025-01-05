@@ -5,4 +5,6 @@
     <string name="taskdetail_edit_task">Edit Tugas</string>
     <string name="taskdetail_title">Nama</string>
     <string name="taskdetail_edit_title">Nama tugas</string>
+    <string name="taskdetail_description">Deskripsi</string>
+    <string name="taskdetail_edit_description">Deskripsi tugas</string>
 </resources>
