@@ -48,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -80,21 +81,26 @@ import kotlinx.datetime.Instant
 
 @Composable
 internal fun TaskDetailScreen(
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TaskDetailViewModel = hiltViewModel()
 ) {
-    val task = viewModel.task
+    val createMode = viewModel.taskId == null
+    val editMode = viewModel.editMode
 
     Content(
-        task = task,
-        createMode = viewModel.taskId == null,
+        task = viewModel.task,
+        createMode = createMode,
         editedTask = viewModel.editedTask,
-        editMode = viewModel.editMode,
-        onBackClick = {},
+        editMode = editMode,
+        onBackClick = {
+            if (!editMode) onBackClick()
+            else viewModel.cancelEditMode()
+        },
         onEditClick = {},
-        onTitleChange = {},
-        onDescriptionChange = {},
-        onTypeChange = {},
+        onTitleChange = viewModel::updateTitle,
+        onDescriptionChange = viewModel::updateDescription,
+        onTypeChange = viewModel::updateType,
         onEditComplete = {},
         modifier = modifier
     )
@@ -106,7 +112,7 @@ private fun Content(
     createMode: Boolean,
     editedTask: TaskEdit,
     editMode: Boolean,
-    onBackClick: (editMode: Boolean) -> Unit,
+    onBackClick: () -> Unit,
     onEditClick: () -> Unit,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
@@ -154,7 +160,7 @@ private fun Content(
 private fun Header(
     createMode: Boolean,
     editMode: Boolean,
-    onBackClick: (editMode: Boolean) -> Unit,
+    onBackClick: () -> Unit,
     onEditClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -175,7 +181,7 @@ private fun Header(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = { onBackClick(editMode) },
+                    onClick = onBackClick,
                     colors = IconButtonDefaults.iconButtonColors(
                         contentColor = if (it) Color.Red else LocalContentColor.current
                     )
@@ -229,7 +235,7 @@ private fun DetailPage(
     task?.let {
         Column(
             modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(32.dp)
+            verticalArrangement = Arrangement.spacedBy(40.dp)
         ) {
             Title(
                 title = it.title,
@@ -475,7 +481,8 @@ private fun DescriptionEdit(
                 onDone = {
                     focusManager.clearFocus()
                 }
-            )
+            ),
+            cursorBrush = SolidColor(LocalContentColor.current)
         )
     }
 }
@@ -684,7 +691,7 @@ private fun ContentPreview(
             createMode = false,
             editedTask = editedTask,
             editMode = editMode,
-            onBackClick = { if (it) editMode = false },
+            onBackClick = { if (editMode) editMode = false },
             onEditClick = { editMode = true },
             onTitleChange = { editedTask = editedTask.copy(title = it) },
             onDescriptionChange = { editedTask = editedTask.copy(description = it) },

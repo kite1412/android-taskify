@@ -5,6 +5,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.nrr.taskdetail.navigation.navigateToTaskDetail
+import com.nrr.taskdetail.navigation.taskDetailScreen
 import com.nrr.taskmanagement.navigation.taskManagementScreen
 import com.nrr.todayplan.navigation.TodayPlanRoute
 import com.nrr.todayplan.navigation.todayPlanScreen
@@ -32,7 +34,10 @@ fun TaskifyNavHost(
             onSetTodayTasksClick = { /* TODO navigate to set today tasks screen */ }
         )
         taskManagementScreen(
-            onTaskClick = { /* TODO navigate to task detail screen */ }
+            onTaskClick = navController::navigateToTaskDetail
+        )
+        taskDetailScreen(
+            onBackClick = navController::popBackStack
         )
         composable<FakeAnalyticsRoute> {  }
         composable<FakeProfileRoute> {  }

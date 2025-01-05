@@ -9,13 +9,20 @@ import kotlinx.serialization.Serializable
 
 @Serializable data class TaskDetailRoute(val taskId: Long?)
 
-fun NavController.navigateToTaskDetail(taskId: Long?, navOptions: NavOptions) = navigate(
+fun NavController.navigateToTaskDetail(
+    taskId: Long?,
+    navOptions: NavOptions? = null
+) = navigate(
     route = TaskDetailRoute(taskId),
     navOptions = navOptions
 )
 
-fun NavGraphBuilder.taskDetailScreen() {
+fun NavGraphBuilder.taskDetailScreen(
+    onBackClick: () -> Unit
+) {
     composable<TaskDetailRoute> {
-        TaskDetailScreen()
+        TaskDetailScreen(
+            onBackClick = onBackClick
+        )
     }
 }
