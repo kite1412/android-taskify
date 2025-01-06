@@ -14,7 +14,7 @@
     <string name="taskdetail_health_examples">olahraga, jogging, strecthing</string>
     <string name="taskdetail_reflection_examples">beribadah, refleksi diri, review pencapaian</string>
     <string name="taskdetail_special_examples">pesta, travelling, liburan</string>
-    <string name="taskdetail_complete">Selesai</string>
+    <string name="taskdetail_save">Simpan</string>
     <string name="taskdetail_create_task">Buat Tugas</string>
     <string name="taskdetail_created_on">dibuat pada:</string>
     <string name="taskdetail_updated_on">diperbarui pada:</string>
@@ -24,4 +24,6 @@
     <string name="taskdetail_cancel_edit_message">Kamu yakin untuk membatalkan perubahan?</string>
     <string name="taskdetail_discard_changes">Batalkan Perubahan</string>
     <string name="taskdetail_delete">Hapus</string>
+    <string name="taskdetail_delete_task">Hapus Tugas</string>
+    <string name="taskdetail_delete_confirmation">Kamu yakin ingin mengahpus tugas ini?</string>
 </resources>

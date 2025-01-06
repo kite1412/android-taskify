@@ -14,7 +14,7 @@
     <string name="taskdetail_health_examples">work out, jogging, daily strecth</string>
     <string name="taskdetail_reflection_examples">praying, self assessment, achievements review</string>
     <string name="taskdetail_special_examples">party, travelling, vacation</string>
-    <string name="taskdetail_complete">Complete</string>
+    <string name="taskdetail_save">Save</string>
     <string name="taskdetail_create_task">Create Task</string>
     <string name="taskdetail_created_on">created on:</string>
     <string name="taskdetail_updated_on">updated on:</string>
@@ -24,4 +24,6 @@
     <string name="taskdetail_cancel_edit_message">Are you sure you want to discard changes?</string>
     <string name="taskdetail_discard_changes">Discard Changes</string>
     <string name="taskdetail_delete">Delete</string>
+    <string name="taskdetail_delete_task">Delete Task</string>
+    <string name="taskdetail_delete_confirmation">Are you sure you want to delete this task?</string>
 </resources>

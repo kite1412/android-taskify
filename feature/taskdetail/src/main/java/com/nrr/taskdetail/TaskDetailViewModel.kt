@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.nrr.data.repository.TaskRepository
+import com.nrr.domain.DeleteTasksUseCase
 import com.nrr.domain.SaveTasksUseCase
 import com.nrr.model.Task
 import com.nrr.model.TaskType
@@ -21,7 +22,8 @@ import javax.inject.Inject
 class TaskDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val taskRepository: TaskRepository,
-    private val saveTasksUseCase: SaveTasksUseCase
+    private val saveTasksUseCase: SaveTasksUseCase,
+    private val deleteTasksUseCase: DeleteTasksUseCase
 ) : ViewModel() {
     val taskId = savedStateHandle.toRoute<TaskDetailRoute>().taskId
 
@@ -41,9 +43,9 @@ class TaskDetailViewModel @Inject constructor(
         viewModelScope.launch {
             taskId?.let {
                 taskRepository.getByIds(listOf(it)).collect { l ->
-                    l[0].also { t ->
-                        task = t
-                        editedTask = t.toTaskEdit()
+                    if (l.isNotEmpty()) {
+                        task = l.first()
+                        editedTask = l.first().toTaskEdit()
                     }
                 }
             }
@@ -95,9 +97,19 @@ class TaskDetailViewModel @Inject constructor(
         updateEditMode(false)
     }
 
-    internal fun handleConfirmation(type: ConfirmationType) {
+    fun deleteConfirmation() {
+        confirmation = ConfirmationType.DELETE_TASK
+    }
+
+    private suspend fun deleteTask() {
+        deleteTasksUseCase(listOf(task!!))
+        confirmation = null
+    }
+
+    internal suspend fun handleConfirmation(type: ConfirmationType) {
         when (type) {
             ConfirmationType.CANCEL_EDIT -> cancelEditMode()
+            ConfirmationType.DELETE_TASK -> deleteTask()
         }
     }
 }

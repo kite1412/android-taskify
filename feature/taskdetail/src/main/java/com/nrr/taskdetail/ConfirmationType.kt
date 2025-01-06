@@ -19,5 +19,13 @@ internal enum class ConfirmationType(
         confirmationDesc = TaskDetailDictionary.cancelEditMessage,
         cancelColor = Color.White,
         confirmColor = Color.Red
-    )
+    ),
+    DELETE_TASK(
+        title = TaskDetailDictionary.deleteTask,
+        confirmText = TaskDetailDictionary.delete,
+        cancelText = TaskDetailDictionary.cancel,
+        confirmationDesc = TaskDetailDictionary.deleteConfirmation,
+        cancelColor = Color.White,
+        confirmColor = Color.Red
+    );
 }

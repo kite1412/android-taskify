@@ -91,12 +91,13 @@ internal fun TaskDetailScreen(
     modifier: Modifier = Modifier,
     viewModel: TaskDetailViewModel = hiltViewModel()
 ) {
+    val task = viewModel.task
     val createMode = viewModel.taskId == null
     val editMode = viewModel.editMode
     val scope = rememberCoroutineScope()
 
     Content(
-        task = viewModel.task,
+        task = task,
         createMode = createMode,
         editedTask = viewModel.editedTask,
         editMode = editMode,
@@ -116,9 +117,12 @@ internal fun TaskDetailScreen(
         },
         confirmation = viewModel.confirmation,
         onConfirm = {
-            viewModel.handleConfirmation(it)
+            scope.launch {
+                viewModel.handleConfirmation(it)
+                if (it == ConfirmationType.DELETE_TASK) onBackClick()
+            }
         },
-        onDelete = {},
+        onDelete = viewModel::deleteConfirmation,
         onDismissConfirmation = viewModel::dismissConfirmation,
         modifier = modifier
     )
@@ -178,7 +182,7 @@ private fun Content(
             }
         }
         AnimatedVisibility(
-            visible = !editMode,
+            visible = !editMode && !createMode,
             modifier = Modifier.align(Alignment.BottomEnd),
             enter = slideInVertically { it * 2 } + fadeIn(),
             exit = slideOutVertically { it * 2 } + fadeOut()
@@ -202,7 +206,9 @@ private fun Content(
             onConfirm = { onConfirm(confirmation) },
             colors = ConfirmationDialogDefaults.colors(
                 confirmButtonColor = confirmation.confirmColor,
-                cancelButtonColor = confirmation.cancelColor
+                cancelButtonColor = confirmation.cancelColor,
+                titleContentColor = if (confirmation == ConfirmationType.DELETE_TASK)
+                    Color.Red else if (isSystemInDarkTheme()) Color.White else Color.Black
             )
         )
     }
@@ -721,7 +727,7 @@ private fun CompleteEditButton(
         Text(
             text = stringResource(
                 id = if (createMode) TaskDetailDictionary.createTask
-                    else TaskDetailDictionary.complete
+                    else TaskDetailDictionary.save
             )
         )
     }
