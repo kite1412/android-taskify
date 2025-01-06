@@ -73,6 +73,7 @@ import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.Task
 import com.nrr.model.TaskType
+import com.nrr.model.toDateString
 import com.nrr.model.toTimeString
 import com.nrr.taskdetail.util.TaskDetailDictionary
 import com.nrr.taskdetail.util.examplesId
@@ -357,41 +358,43 @@ private fun Title(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
+        Column {
+            Text(
+                text = stringResource(TaskDetailDictionary.title),
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+            AdaptiveText(
+                text = title,
+                initialFontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2
+            )
+        }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column(modifier = Modifier.weight(0.8f)) {
-                Text(
-                    text = stringResource(TaskDetailDictionary.title),
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
-                )
-                AdaptiveText(
-                    text = title,
-                    initialFontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 2
-                )
-            }
             Column(
                 modifier = Modifier.align(Alignment.CenterVertically),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                val smallFontSize = MaterialTheme.typography.bodySmall.fontSize
+
                 Column {
                     Text(
                         text = stringResource(TaskDetailDictionary.createdOn),
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
-                        fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                        lineHeight = MaterialTheme.typography.bodySmall.fontSize
+                        fontSize = smallFontSize,
+                        lineHeight = smallFontSize
                     )
                     Text(
-                        text = createdAt.toTimeString(),
-                        fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                        lineHeight = MaterialTheme.typography.bodyMedium.fontSize,
+                        text = "${createdAt.toDateString()}\n${createdAt.toTimeString()}",
+                        fontSize = smallFontSize,
+                        lineHeight = smallFontSize,
                     )
                 }
                 Column {
@@ -399,21 +402,21 @@ private fun Title(
                         text = stringResource(TaskDetailDictionary.updatedOn),
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
-                        fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                        lineHeight = MaterialTheme.typography.bodySmall.fontSize
+                        fontSize = smallFontSize,
+                        lineHeight = smallFontSize
                     )
                     Text(
-                        text = updatedAt.toTimeString(),
-                        fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                        lineHeight = MaterialTheme.typography.bodyMedium.fontSize,
+                        text = "${updatedAt.toDateString()}\n${updatedAt.toTimeString()}",
+                        fontSize = smallFontSize,
+                        lineHeight = smallFontSize,
                     )
                 }
             }
+            TaskTypeBar(
+                taskType = taskType,
+                fillBackground = true
+            )
         }
-        TaskTypeBar(
-            taskType = taskType,
-            fillBackground = true
-        )
     }
 }
 
@@ -718,9 +721,7 @@ private fun CompleteEditButton(
             contentColor = MaterialTheme.colorScheme.tertiary,
             disabledContentColor = Color.Gray
         ),
-        enabled = (task?.title != taskEdit.title
-                || task.description != taskEdit.description
-                || task.taskType != taskEdit.taskType)
+        enabled = !taskEdit.equals(task)
                 && (taskEdit.title.isNotEmpty()
                 && taskEdit.taskType != null)
     ) {

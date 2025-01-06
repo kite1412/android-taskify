@@ -11,7 +11,22 @@ internal data class TaskEdit(
     val description: String = "",
     val taskType: TaskType? = null,
     val activeStatus: ActiveStatus? = null
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (other is Task) {
+            return title == other.title &&
+                    (description == other.description ||
+                            (description.isEmpty() && other.description == null)) &&
+                    taskType == other.taskType &&
+                    activeStatus == other.activeStatus
+        }
+        return this === other
+    }
+
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
+}
 
 internal fun Task.toTaskEdit() = TaskEdit(
     id = id,
@@ -22,7 +37,7 @@ internal fun Task.toTaskEdit() = TaskEdit(
 )
 
 internal fun TaskEdit.toTask() = Task(
-    id = id ?: -1,
+    id = id ?: 0,
     title = title,
     description = description,
     createdAt = Clock.System.now(),

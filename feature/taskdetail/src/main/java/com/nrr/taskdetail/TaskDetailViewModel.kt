@@ -1,5 +1,6 @@
 package com.nrr.taskdetail
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -74,10 +75,7 @@ class TaskDetailViewModel @Inject constructor(
 
     fun cancelEditMode() {
         if (confirmation == null) {
-            if (editedTask.title != task?.title
-                || editedTask.description != task?.description
-                || editedTask.taskType != task?.taskType
-            ) {
+            if (!editedTask.equals(task)) {
                 confirmation = ConfirmationType.CANCEL_EDIT
             } else updateEditMode(false)
         } else {
@@ -92,8 +90,7 @@ class TaskDetailViewModel @Inject constructor(
             description = editedTask.description.ifEmpty { null },
             createdAt = task?.createdAt ?: Clock.System.now()
         )
-        this.task = task
-        saveTasksUseCase(listOf(task))
+        Log.d("TaskDetailViewModel", saveTasksUseCase(listOf(task))[0].toString())
         updateEditMode(false)
     }
 
