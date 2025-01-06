@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nrr.data.repository.UserDataRepository
@@ -12,8 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,17 +33,17 @@ class TaskifyViewModel @Inject constructor(
 
     private var slidingTextJob: Job? = null
 
-    val registered = userDataRepository.userData
-        .map {
-            it.username.isNotEmpty()
-        }
-        .onEach {
-            if (it) {
-                titleIndex = 0
-                slidingTextJob?.cancel()
-                startSlidingText()
-            }
-        }
+    val registered = combine(
+        userDataRepository.userData,
+        snapshotFlow { showContent }
+    ) { userData, showContent ->
+        if (userData.username.isNotEmpty() && showContent) {
+            titleIndex = 0
+            slidingTextJob?.cancel()
+            startSlidingText()
+            true
+        } else false
+    }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),

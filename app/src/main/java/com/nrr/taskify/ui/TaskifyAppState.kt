@@ -26,6 +26,7 @@ class TaskifyAppState(
 ) {
     private var previousNavDes: NavDestination? = null
     var currentDes: Destination? = null
+        private set
 
     private val currentNavDestination: NavDestination?
         @Composable get() {
