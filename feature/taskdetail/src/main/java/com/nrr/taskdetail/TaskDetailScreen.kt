@@ -43,6 +43,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -77,6 +78,7 @@ import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.color
 import com.nrr.ui.iconId
 import com.nrr.ui.toStringLocalized
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
 @Composable
@@ -87,6 +89,7 @@ internal fun TaskDetailScreen(
 ) {
     val createMode = viewModel.taskId == null
     val editMode = viewModel.editMode
+    val scope = rememberCoroutineScope()
 
     Content(
         task = viewModel.task,
@@ -97,11 +100,16 @@ internal fun TaskDetailScreen(
             if (!editMode) onBackClick()
             else viewModel.cancelEditMode()
         },
-        onEditClick = {},
+        onEditClick = { viewModel.updateEditMode(true) },
         onTitleChange = viewModel::updateTitle,
         onDescriptionChange = viewModel::updateDescription,
         onTypeChange = viewModel::updateType,
-        onEditComplete = {},
+        onEditComplete = {
+            scope.launch {
+                viewModel.saveEdit()
+                if (createMode) onBackClick()
+            }
+        },
         modifier = modifier
     )
 }

@@ -22,7 +22,7 @@ internal fun Task.toTaskEdit() = TaskEdit(
 )
 
 internal fun TaskEdit.toTask() = Task(
-    id = id ?: 0,
+    id = id ?: -1,
     title = title,
     description = description,
     createdAt = Clock.System.now(),
