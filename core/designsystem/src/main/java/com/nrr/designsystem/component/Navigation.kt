@@ -314,6 +314,7 @@ fun NavigationScaffold(
     modifier: Modifier = Modifier,
     currentDestination: Destination = Destination.HOME,
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo(),
+    showNavBar: Boolean = true,
     content: @Composable () -> Unit
 ) {
     var selectedIndex by rememberSaveable {
@@ -345,7 +346,7 @@ fun NavigationScaffold(
         when (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass) {
             WindowWidthSizeClass.COMPACT -> {
                 content()
-                BottomNavigationBar(
+                if (showNavBar) BottomNavigationBar(
                     selectedIndex = selectedIndex,
                     prevSelectedIndex = prevSelectedIndex,
                     onClick = onClickWrapper,
@@ -355,19 +356,19 @@ fun NavigationScaffold(
                 )
             }
             WindowWidthSizeClass.MEDIUM -> Row(modifier = Modifier.fillMaxSize()) {
-                NavigationRail(
+                if (showNavBar) NavigationRail(
                     selectedIndex = selectedIndex,
                     prevSelectedIndex = prevSelectedIndex,
                     onClick = onClickWrapper
                 )
                 content()
             }
-            else -> NavigationDrawer(
+            else -> if (showNavBar) NavigationDrawer(
                 selectedIndex = selectedIndex,
                 prevSelectedIndex = prevSelectedIndex,
                 onClick = onClickWrapper,
                 content = content
-            )
+            ) else content()
         }
     }
 }

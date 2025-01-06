@@ -83,14 +83,18 @@ object TaskifyTextFieldDefaults {
         unfocusedIndicatorColor: Color = MaterialTheme.colorScheme.primary,
         focusedIndicatorColor: Color = MaterialTheme.colorScheme.primary,
         unfocusedTextColor: Color = whiteOrBlack,
-        focusedTextColor: Color = whiteOrBlack
+        focusedTextColor: Color = whiteOrBlack,
+        unfocusedPlaceholderColor: Color = Color.Gray,
+        focusedPlaceholderColor: Color = Color.Gray
     ): TextFieldColors = TextFieldDefaults.colors(
         unfocusedContainerColor = unfocusedContainerColor,
         focusedContainerColor = focusedContainerColor,
         unfocusedIndicatorColor = unfocusedIndicatorColor,
         focusedIndicatorColor = focusedIndicatorColor,
         unfocusedTextColor = unfocusedTextColor,
-        focusedTextColor = focusedTextColor
+        focusedTextColor = focusedTextColor,
+        unfocusedPlaceholderColor = unfocusedPlaceholderColor,
+        focusedPlaceholderColor = focusedPlaceholderColor
     )
 }
 

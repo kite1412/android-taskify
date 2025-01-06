@@ -25,7 +25,7 @@ class TaskifyAppState(
     private val navController: NavController
 ) {
     private var previousNavDes: NavDestination? = null
-    private var currentDes: Destination? = null
+    var currentDes: Destination? = null
 
     private val currentNavDestination: NavDestination?
         @Composable get() {
@@ -44,7 +44,9 @@ class TaskifyAppState(
             TopLevelDestination.entries.firstOrNull {
                 currentNavDestination?.hasRoute(it.route) == true
             }.also {
-                currentDes = it?.destination
+                it?.let { d->
+                    currentDes = d.destination
+                }
             }
 
     fun navigateToTopLevelDestination(des: Destination) {
