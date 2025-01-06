@@ -2,6 +2,8 @@ package com.nrr.taskify.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
@@ -61,8 +63,10 @@ internal fun TaskifyApp(
                 TaskifyScaffold(
                     topBarTitles = viewModel.topBarTitles,
                     topBarTitleIndex = viewModel.titleIndex,
-                    currentDestination = appState.currentTopLevelDestination?.destination ?: Destination.HOME,
-                    onDestinationChange = appState::navigateToTopLevelDestination
+                    currentDestination = appState.currentTopLevelDestination?.destination
+                        ?: appState.currentDes ?: Destination.HOME,
+                    onDestinationChange = appState::navigateToTopLevelDestination,
+                    showScaffoldComponents = appState.currentTopLevelDestination != null
                 ) {
                     TaskifyNavHost(navController)
                 }
@@ -83,11 +87,13 @@ internal fun TaskifyScaffold(
     currentDestination: Destination,
     onDestinationChange: (Destination) -> Unit,
     modifier: Modifier = Modifier,
+    showScaffoldComponents: Boolean = true,
     content: @Composable () -> Unit
 ) {
     NavigationScaffold(
         onClick = onDestinationChange,
         modifier = modifier,
+        showNavBar = showScaffoldComponents,
         currentDestination = currentDestination
     ) {
         Box(
@@ -97,15 +103,22 @@ internal fun TaskifyScaffold(
         ) {
             Box(
                 modifier = Modifier.padding(
-                    top = TaskifyTopAppBarDefaults.defaultTopBarHeight * 1.5f
+                    top = if (showScaffoldComponents)
+                        TaskifyTopAppBarDefaults.defaultTopBarHeight * 1.5f else 0.dp
                 )
             ) {
                 content()
             }
-            TopAppBar(
-                titleIndex = topBarTitleIndex,
-                titles = topBarTitles
-            )
+            AnimatedVisibility(
+                visible = showScaffoldComponents,
+                enter = slideInHorizontally { -it },
+                exit = slideOutVertically { -it } + fadeOut()
+            ) {
+                TopAppBar(
+                    titleIndex = topBarTitleIndex,
+                    titles = topBarTitles
+                )
+            }
         }
     }
 }

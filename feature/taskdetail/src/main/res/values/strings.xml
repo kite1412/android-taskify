@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="taskdetail_create_new">Create New Task</string>
+    <string name="taskdetail_detail">Task Detail</string>
+    <string name="taskdetail_edit_task">Edit Task</string>
+    <string name="taskdetail_title">Title</string>
+    <string name="taskdetail_edit_title">Task title</string>
+    <string name="taskdetail_description">Description</string>
+    <string name="taskdetail_edit_description">Task description</string>
+    <string name="taskdetail_task_type">Task Type</string>
+    <string name="taskdetail_personal_examples">breakfast, grocery shopping, pay bill</string>
+    <string name="taskdetail_work_examples">attend meeting, documents review, send report</string>
+    <string name="taskdetail_learning_examples">read books, practice coding, read article</string>
+    <string name="taskdetail_health_examples">work out, jogging, daily strecth</string>
+    <string name="taskdetail_reflection_examples">praying, self assessment, achievements review</string>
+    <string name="taskdetail_special_examples">party, travelling, vacation</string>
+    <string name="taskdetail_save">Save</string>
+    <string name="taskdetail_create_task">Create Task</string>
+    <string name="taskdetail_created_on">created on:</string>
+    <string name="taskdetail_updated_on">updated on:</string>
+    <string name="taskdetail_no_description">No description...</string>
+    <string name="taskdetail_cancel">Cancel</string>
+    <string name="taskdetail_discard">Discard</string>
+    <string name="taskdetail_cancel_edit_message">Are you sure you want to discard changes?</string>
+    <string name="taskdetail_discard_changes">Discard Changes</string>
+    <string name="taskdetail_delete">Delete</string>
+    <string name="taskdetail_delete_task">Delete Task</string>
+    <string name="taskdetail_delete_confirmation">Are you sure you want to delete this task?</string>
+</resources>

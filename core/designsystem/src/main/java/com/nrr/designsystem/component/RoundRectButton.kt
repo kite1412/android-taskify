@@ -30,7 +30,8 @@ fun RoundRectButton(
     onClick = onClick,
     colors = colors,
     shape = shape,
-    enabled = enabled
+    enabled = enabled,
+    modifier = modifier
 ) {
     Text(
         text = action,

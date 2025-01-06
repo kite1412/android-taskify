@@ -36,6 +36,7 @@
             <option value="$PROJECT_DIR$/core/ui" />
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/registration" />
+            <option value="$PROJECT_DIR$/feature/taskdetail" />
             <option value="$PROJECT_DIR$/feature/taskmanagement" />
             <option value="$PROJECT_DIR$/feature/todayplan" />
           </set>

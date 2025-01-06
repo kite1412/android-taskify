@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="taskdetail_create_new">Buat Tugas Baru</string>
+    <string name="taskdetail_detail">Detail Tugas</string>
+    <string name="taskdetail_edit_task">Edit Tugas</string>
+    <string name="taskdetail_title">Nama</string>
+    <string name="taskdetail_edit_title">Nama tugas</string>
+    <string name="taskdetail_description">Deskripsi</string>
+    <string name="taskdetail_edit_description">Deskripsi tugas</string>
+    <string name="taskdetail_task_type">Tipe Tugas</string>
+    <string name="taskdetail_personal_examples">sarapan, belanja, bayar tagihan</string>
+    <string name="taskdetail_work_examples">meeting, review dokumen, laporan</string>
+    <string name="taskdetail_learning_examples">baca buku, belajar ngoding, baca artikel</string>
+    <string name="taskdetail_health_examples">olahraga, jogging, strecthing</string>
+    <string name="taskdetail_reflection_examples">beribadah, refleksi diri, review pencapaian</string>
+    <string name="taskdetail_special_examples">pesta, travelling, liburan</string>
+    <string name="taskdetail_save">Simpan</string>
+    <string name="taskdetail_create_task">Buat Tugas</string>
+    <string name="taskdetail_created_on">dibuat pada:</string>
+    <string name="taskdetail_updated_on">diperbarui pada:</string>
+    <string name="taskdetail_no_description">Tidak ada deskripsi...</string>
+    <string name="taskdetail_cancel">Batal</string>
+    <string name="taskdetail_discard">Buang</string>
+    <string name="taskdetail_cancel_edit_message">Kamu yakin untuk membatalkan perubahan?</string>
+    <string name="taskdetail_discard_changes">Batalkan Perubahan</string>
+    <string name="taskdetail_delete">Hapus</string>
+    <string name="taskdetail_delete_task">Hapus Tugas</string>
+    <string name="taskdetail_delete_confirmation">Kamu yakin ingin mengahpus tugas ini?</string>
+</resources>

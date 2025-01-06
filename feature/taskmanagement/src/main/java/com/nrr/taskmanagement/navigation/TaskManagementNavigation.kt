@@ -4,7 +4,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import com.nrr.model.Task
 import com.nrr.taskmanagement.TaskManagementScreen
 import kotlinx.serialization.Serializable
 
@@ -16,12 +15,12 @@ fun NavController.navigateToTaskManagement(navOptions: NavOptions) = navigate(
 )
 
 fun NavGraphBuilder.taskManagementScreen(
-    onTaskClick: (Task?) -> Unit,
+    onTaskClick: (Long?) -> Unit,
 ) {
     composable<TaskManagementRoute> {
         TaskManagementScreen(
             onAddClick = { onTaskClick(null) },
-            onTaskClick = onTaskClick
+            onTaskClick = { onTaskClick(it.id) }
         )
     }
 }

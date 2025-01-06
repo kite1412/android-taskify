@@ -23,4 +23,7 @@ object TaskifyIcon {
     val search = R.drawable.search
     val cancel = R.drawable.cancel
     val emptyNote = R.drawable.empty_note
+    val info = R.drawable.info
+    val back = R.drawable.back
+    val pencil = R.drawable.pencil
 }

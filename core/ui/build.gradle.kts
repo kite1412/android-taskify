@@ -10,4 +10,5 @@ dependencies {
     api(projects.taskify.core.designsystem)
     api(projects.taskify.core.model)
     implementation(libs.cronet.embedded)
+    implementation(libs.androidx.core.ktx)
 }

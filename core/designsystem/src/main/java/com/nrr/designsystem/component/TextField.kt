@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -50,7 +52,9 @@ fun TextField(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     placeholder: @Composable (() -> Unit)? = null,
-    colors: TextFieldColors = TaskifyTextFieldDefaults.colors()
+    colors: TextFieldColors = TaskifyTextFieldDefaults.colors(),
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
     TF(
         value = value,
@@ -62,7 +66,9 @@ fun TextField(
         trailingIcon = trailingIcon,
         enabled = enabled,
         interactionSource = interactionSource,
-        placeholder = placeholder
+        placeholder = placeholder,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions
     )
 }
 
@@ -77,14 +83,18 @@ object TaskifyTextFieldDefaults {
         unfocusedIndicatorColor: Color = MaterialTheme.colorScheme.primary,
         focusedIndicatorColor: Color = MaterialTheme.colorScheme.primary,
         unfocusedTextColor: Color = whiteOrBlack,
-        focusedTextColor: Color = whiteOrBlack
+        focusedTextColor: Color = whiteOrBlack,
+        unfocusedPlaceholderColor: Color = Color.Gray,
+        focusedPlaceholderColor: Color = Color.Gray
     ): TextFieldColors = TextFieldDefaults.colors(
         unfocusedContainerColor = unfocusedContainerColor,
         focusedContainerColor = focusedContainerColor,
         unfocusedIndicatorColor = unfocusedIndicatorColor,
         focusedIndicatorColor = focusedIndicatorColor,
         unfocusedTextColor = unfocusedTextColor,
-        focusedTextColor = focusedTextColor
+        focusedTextColor = focusedTextColor,
+        unfocusedPlaceholderColor = unfocusedPlaceholderColor,
+        focusedPlaceholderColor = focusedPlaceholderColor
     )
 }
 

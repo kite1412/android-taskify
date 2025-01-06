@@ -53,9 +53,6 @@ import kotlin.math.abs
 enum class Destination(
     val id: Int,
     val label: String,
-    var color: Color = Color.Black,
-    var selectedColor: Color = Color.White,
-    var indicatorColor: Color = CharcoalClay,
     var height: Dp = 40.dp,
     var width: Dp = 40.dp
 ) {
@@ -102,21 +99,6 @@ enum class Destination(
     }
 }
 
-// Adjust navigation item's styles based on app theme
-@SuppressLint("ComposableNaming")
-@Composable
-private fun adjustNavigationData() {
-    val darkTheme = isSystemInDarkTheme()
-    val color = if (!darkTheme) Color.Black else Color.White
-    val selectedColor = if (!darkTheme) Color.White else CharcoalClay
-    val indicatorColor = if (!darkTheme) CharcoalClay else Color.White
-    Destination.entries.forEach {
-        it.color = color
-        it.selectedColor = selectedColor
-        it.indicatorColor = indicatorColor
-    }
-}
-
 @Composable
 private fun BottomNavigationBar(
     selectedIndex: Int,
@@ -145,7 +127,6 @@ private fun BottomNavigationBar(
 private fun BottomNavigationBarPreview() {
     var selectedIndex by remember { mutableIntStateOf(0) }
     var prevSelectedIndex by remember { mutableIntStateOf(0) }
-    adjustNavigationData()
     TaskifyTheme {
         BottomNavigationBar(
             selectedIndex = selectedIndex,
@@ -178,7 +159,6 @@ private fun NavigationRail(
 private fun NavigationRailPreview() {
     var selectedIndex by remember { mutableIntStateOf(0) }
     var prevSelectedIndex by remember { mutableIntStateOf(0) }
-    adjustNavigationData()
     TaskifyTheme {
         NavigationRail(
             selectedIndex = selectedIndex,
@@ -226,7 +206,6 @@ private fun NavigationDrawer(
 private fun NavigationDrawerPreview() {
     var selectedIndex by remember { mutableIntStateOf(0) }
     var prevSelectedIndex by remember { mutableIntStateOf(0) }
-    adjustNavigationData()
     TaskifyTheme {
         NavigationDrawer(
             onClick = {
@@ -251,8 +230,12 @@ private fun NavigationItem(
     showLabel: Boolean = false,
     onClick: (Destination) -> Unit
 ) {
+    val darkTheme = isSystemInDarkTheme()
+    val color = if (!darkTheme) Color.Black else Color.White
+    val selectedColor = if (!darkTheme) Color.White else CharcoalClay
+    val indicatorColor = if (!darkTheme) CharcoalClay else Color.White
     val animatedColor by animateColorAsState(
-        targetValue = if (selected) data.selectedColor else data.color,
+        targetValue = if (selected) selectedColor else color,
         label = "icon color"
     )
     val contentTransform = indicatorAnimationLogic(
@@ -262,6 +245,7 @@ private fun NavigationItem(
     )
     val itemOuterSpace = 16.dp
     val interactionSource = remember { MutableInteractionSource() }
+
     Box(
         modifier = modifier
             .size(
@@ -285,7 +269,7 @@ private fun NavigationItem(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(100.dp))
-                    .background(data.indicatorColor)
+                    .background(indicatorColor)
             )
         }
         Row(
@@ -304,7 +288,7 @@ private fun NavigationItem(
             )
             if (showLabel) Text(
                 text = data.label,
-                color = if (selected) data.selectedColor else data.color
+                color = if (selected) selectedColor else color
             )
         }
     }
@@ -330,6 +314,7 @@ fun NavigationScaffold(
     modifier: Modifier = Modifier,
     currentDestination: Destination = Destination.HOME,
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo(),
+    showNavBar: Boolean = true,
     content: @Composable () -> Unit
 ) {
     var selectedIndex by rememberSaveable {
@@ -357,12 +342,11 @@ fun NavigationScaffold(
             changeByClick = false
         }
     }
-    adjustNavigationData()
     Box(modifier = modifier.fillMaxSize()) {
         when (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass) {
             WindowWidthSizeClass.COMPACT -> {
                 content()
-                BottomNavigationBar(
+                if (showNavBar) BottomNavigationBar(
                     selectedIndex = selectedIndex,
                     prevSelectedIndex = prevSelectedIndex,
                     onClick = onClickWrapper,
@@ -372,19 +356,19 @@ fun NavigationScaffold(
                 )
             }
             WindowWidthSizeClass.MEDIUM -> Row(modifier = Modifier.fillMaxSize()) {
-                NavigationRail(
+                if (showNavBar) NavigationRail(
                     selectedIndex = selectedIndex,
                     prevSelectedIndex = prevSelectedIndex,
                     onClick = onClickWrapper
                 )
                 content()
             }
-            else -> NavigationDrawer(
+            else -> if (showNavBar) NavigationDrawer(
                 selectedIndex = selectedIndex,
                 prevSelectedIndex = prevSelectedIndex,
                 onClick = onClickWrapper,
                 content = content
-            )
+            ) else content()
         }
     }
 }

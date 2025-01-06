@@ -6,20 +6,22 @@ import com.nrr.model.TaskPeriod
 import kotlinx.coroutines.flow.Flow
 
 interface TaskRepository {
+    fun getAllTasks(): Flow<List<Task>>
+
+    fun getAllActiveTasksByPeriod(period: TaskPeriod): Flow<List<Task>>
+
+    fun getByTitle(title: String): Flow<List<Task>>
+
+    fun getByIds(ids: List<Long>): Flow<List<Task>>
+
     suspend fun saveTasks(
         tasks: List<Task>,
         activeStatus: List<ActiveStatus?> = emptyList()
     ): List<Long>
 
-    fun getAllTasks(): Flow<List<Task>>
-
-    fun getAllActiveTasksByPeriod(period: TaskPeriod): Flow<List<Task>>
-
     suspend fun deleteActiveTasks(task: List<Task>): Int
 
     suspend fun setActiveTaskAsCompleted(task: Task): Long
-
-    fun getByTitle(title: String): Flow<List<Task>>
 
     suspend fun deleteTasks(tasks: List<Task>): Int
 }
