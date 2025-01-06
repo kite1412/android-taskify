@@ -66,6 +66,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nrr.designsystem.component.AdaptiveText
+import com.nrr.designsystem.component.RoundRectButton
+import com.nrr.designsystem.component.TaskifyButtonDefaults
 import com.nrr.designsystem.component.TextField
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
@@ -74,6 +76,8 @@ import com.nrr.model.TaskType
 import com.nrr.model.toTimeString
 import com.nrr.taskdetail.util.TaskDetailDictionary
 import com.nrr.taskdetail.util.examplesId
+import com.nrr.ui.ConfirmationDialog
+import com.nrr.ui.ConfirmationDialogDefaults
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.color
 import com.nrr.ui.iconId
@@ -110,6 +114,12 @@ internal fun TaskDetailScreen(
                 if (createMode) onBackClick()
             }
         },
+        confirmation = viewModel.confirmation,
+        onConfirm = {
+            viewModel.handleConfirmation(it)
+        },
+        onDelete = {},
+        onDismissConfirmation = viewModel::dismissConfirmation,
         modifier = modifier
     )
 }
@@ -126,41 +136,75 @@ private fun Content(
     onDescriptionChange: (String) -> Unit,
     onTypeChange: (TaskType) -> Unit,
     onEditComplete: () -> Unit,
+    onDelete: () -> Unit,
+    confirmation: ConfirmationType?,
+    onConfirm: (ConfirmationType) -> Unit,
+    onDismissConfirmation: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-        Header(
-            createMode = createMode,
-            editMode = editMode,
-            onBackClick = onBackClick,
-            onEditClick = onEditClick
-        )
-        AnimatedContent(
-            targetState = editMode,
-            label = "main content",
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier.fillMaxSize(),
-            transitionSpec = {
-                slideInVertically { -it } + fadeIn() togetherWith
-                        slideOutVertically { -it } + fadeOut()
-            }
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            if (it || createMode) EditPage(
-                task = task,
-                taskEdit = editedTask,
+            Header(
                 createMode = createMode,
-                onTitleChange = onTitleChange,
-                onDescriptionChange = onDescriptionChange,
-                onTypeChange = onTypeChange,
-                onComplete = onEditComplete
-            ) else DetailPage(
-                task = task,
-                modifier = Modifier.verticalScroll(rememberScrollState())
+                editMode = editMode,
+                onBackClick = onBackClick,
+                onEditClick = onEditClick
+            )
+            AnimatedContent(
+                targetState = editMode,
+                label = "main content",
+                modifier = Modifier.fillMaxSize(),
+                transitionSpec = {
+                    slideInVertically { -it } + fadeIn() togetherWith
+                            slideOutVertically { -it } + fadeOut()
+                }
+            ) {
+                if (it || createMode) EditPage(
+                    task = task,
+                    taskEdit = editedTask,
+                    createMode = createMode,
+                    onTitleChange = onTitleChange,
+                    onDescriptionChange = onDescriptionChange,
+                    onTypeChange = onTypeChange,
+                    onComplete = onEditComplete
+                ) else DetailPage(
+                    task = task,
+                    modifier = Modifier.verticalScroll(rememberScrollState())
+                )
+            }
+        }
+        AnimatedVisibility(
+            visible = !editMode,
+            modifier = Modifier.align(Alignment.BottomEnd),
+            enter = slideInVertically { it * 2 } + fadeIn(),
+            exit = slideOutVertically { it * 2 } + fadeOut()
+        ) {
+            RoundRectButton(
+                onClick = onDelete,
+                action = stringResource(TaskDetailDictionary.delete),
+                iconId = TaskifyIcon.trashBin,
+                colors = TaskifyButtonDefaults.colors(
+                    containerColor = Color.Red,
+                    contentColor = Color.White
+                )
             )
         }
+        if (confirmation != null) ConfirmationDialog(
+            onDismiss = onDismissConfirmation,
+            title = stringResource(confirmation.title),
+            confirmText = stringResource(confirmation.confirmText),
+            cancelText = stringResource(confirmation.cancelText),
+            confirmationDesc = stringResource(confirmation.confirmationDesc),
+            onConfirm = { onConfirm(confirmation) },
+            colors = ConfirmationDialogDefaults.colors(
+                confirmButtonColor = confirmation.confirmColor,
+                cancelButtonColor = confirmation.cancelColor
+            )
+        )
     }
 }
 
@@ -704,7 +748,12 @@ private fun ContentPreview(
             onTitleChange = { editedTask = editedTask.copy(title = it) },
             onDescriptionChange = { editedTask = editedTask.copy(description = it) },
             onTypeChange = { editedTask = editedTask.copy(taskType = it) },
-            onEditComplete = { editMode = false }
+            onEditComplete = { editMode = false },
+            onDelete = {},
+            confirmation = null,
+            onConfirm = {},
+            onDismissConfirmation = {},
+            modifier = Modifier
         )
     }
 }

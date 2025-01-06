@@ -19,4 +19,9 @@
     <string name="taskdetail_created_on">dibuat pada:</string>
     <string name="taskdetail_updated_on">diperbarui pada:</string>
     <string name="taskdetail_no_description">Tidak ada deskripsi...</string>
+    <string name="taskdetail_cancel">Batal</string>
+    <string name="taskdetail_discard">Buang</string>
+    <string name="taskdetail_cancel_edit_message">Kamu yakin untuk membatalkan perubahan?</string>
+    <string name="taskdetail_discard_changes">Batalkan Perubahan</string>
+    <string name="taskdetail_delete">Hapus</string>
 </resources>

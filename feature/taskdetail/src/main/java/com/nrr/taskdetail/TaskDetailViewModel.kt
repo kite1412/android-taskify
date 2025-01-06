@@ -31,7 +31,7 @@ class TaskDetailViewModel @Inject constructor(
     var editMode by mutableStateOf(false)
         private set
 
-    var showWarning by mutableStateOf(false)
+    internal var confirmation by mutableStateOf<ConfirmationType?>(null)
         private set
 
     internal var editedTask by mutableStateOf(task?.toTaskEdit() ?: TaskEdit())
@@ -66,16 +66,20 @@ class TaskDetailViewModel @Inject constructor(
         editMode = value
     }
 
+    fun dismissConfirmation() {
+        confirmation = null
+    }
+
     fun cancelEditMode() {
-        if (!showWarning) {
+        if (confirmation == null) {
             if (editedTask.title != task?.title
                 || editedTask.description != task?.description
                 || editedTask.taskType != task?.taskType
             ) {
-                showWarning = true
+                confirmation = ConfirmationType.CANCEL_EDIT
             } else updateEditMode(false)
         } else {
-            showWarning = false
+            dismissConfirmation()
             editedTask = task?.toTaskEdit() ?: TaskEdit()
             updateEditMode(false)
         }
@@ -89,5 +93,11 @@ class TaskDetailViewModel @Inject constructor(
         this.task = task
         saveTasksUseCase(listOf(task))
         updateEditMode(false)
+    }
+
+    internal fun handleConfirmation(type: ConfirmationType) {
+        when (type) {
+            ConfirmationType.CANCEL_EDIT -> cancelEditMode()
+        }
     }
 }
