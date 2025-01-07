@@ -54,6 +54,9 @@ class TaskManagementViewModel @Inject constructor(
 
     internal val filterState by mutableStateOf(FilterState())
 
+    internal var confirmation by mutableStateOf<ConfirmationType?>(null)
+        private set
+
     init {
         viewModelScope.launch {
             taskRepository.getAllTasks().collect {
@@ -68,12 +71,36 @@ class TaskManagementViewModel @Inject constructor(
         }
     }
 
-    fun updateSearchValue(value: String) {
-        searchValue = value
-    }
-
     private fun updateEditMode(value: Boolean) {
         editMode = value
+    }
+
+    private fun removeAllFromPlan(message: (Int) -> String) {
+        if (confirmation == null) confirmation = ConfirmationType.REMOVE_ALL
+        else {
+            viewModelScope.launch {
+                removeActiveTasksUseCase(editedTasks)
+                updateSnackbarEvent(message(confirmation?.totalAffected ?: 0))
+                cancelEditMode()
+                dismissConfirmation()
+            }
+        }
+    }
+
+    private fun deleteAllTasks(message: (Int) -> String) {
+        if (confirmation == null) confirmation = ConfirmationType.DELETE_ALL
+        else {
+            viewModelScope.launch {
+                deleteTasksUseCase(editedTasks)
+                updateSnackbarEvent(message(confirmation?.totalAffected ?: 0))
+                cancelEditMode()
+                dismissConfirmation()
+            }
+        }
+    }
+
+    fun updateSearchValue(value: String) {
+        searchValue = value
     }
 
     fun updateSelectAll(value: Boolean) {
@@ -149,20 +176,20 @@ class TaskManagementViewModel @Inject constructor(
         updateSelectAll(false)
     }
 
-    fun removeAllFromPlan(message: (Int) -> String) {
-        viewModelScope.launch {
-            removeActiveTasksUseCase(editedTasks)
-            updateSnackbarEvent(message(editedTasks.size))
-            cancelEditMode()
-        }
+    fun removeAllConfirmation() {
+        confirmation = ConfirmationType.REMOVE_ALL
+        confirmation!!.updateTotalAffected(
+            value = editedTasks.filter { it.activeStatus != null }.size
+        )
     }
 
-    fun deleteAllTasks(message: (Int) -> String) {
-        viewModelScope.launch {
-            deleteTasksUseCase(editedTasks)
-            updateSnackbarEvent(message(editedTasks.size))
-            cancelEditMode()
-        }
+    fun deleteAllConfirmation() {
+        confirmation = ConfirmationType.DELETE_ALL
+        confirmation!!.updateTotalAffected(editedTasks.size)
+    }
+
+    fun dismissConfirmation() {
+        confirmation = null
     }
 
     internal fun onSort(type: Customize.Sort) {
@@ -186,6 +213,16 @@ class TaskManagementViewModel @Inject constructor(
                 sortType = sortState.selected,
                 filterType = type
             )
+        }
+    }
+
+    internal fun handleConfirmation(
+        type: ConfirmationType,
+        message: (Int) -> String
+    ) {
+        when (type) {
+            ConfirmationType.REMOVE_ALL -> removeAllFromPlan(message)
+            ConfirmationType.DELETE_ALL -> deleteAllTasks(message)
         }
     }
 }

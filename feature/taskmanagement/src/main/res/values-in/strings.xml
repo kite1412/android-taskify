@@ -14,5 +14,10 @@
     <string name="taskmanagement_remove_selected_message">tugas dihapus dari jadwal</string>
     <string name="taskmanagement_remove_message">Tugas dihapus dari jadwal</string>
     <string name="taskmanagement_delete_message">Tugas dihapus</string>
-    <string name="taskmanagement_delete_selected_message">tugas dihaous</string>
+    <string name="taskmanagement_delete_selected_message">tugas dihapus</string>
+    <string name="taskmanagement_remove_all">Singkirkan tugas dari jadwal</string>
+    <string name="taskmanagement_remove_all_confirmation">Kamu yakin ingin menyingkirkan %1$d tugas dari jadwal?</string>
+    <string name="taskmanagement_remove">Singkirkan</string>
+    <string name="taskmanagement_delete_all">Hapus tugas</string>
+    <string name="taskmanagement_delete_all_confirmation">Kamu yakin ingin menghapus %1$d tugas?</string>
 </resources>

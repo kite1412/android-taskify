@@ -77,7 +77,7 @@ object ConfirmationDialogDefaults {
         titleContentColor: Color = whiteOrBlack,
         textContentColor: Color = whiteOrBlack,
         confirmButtonColor: Color = MaterialTheme.colorScheme.primary,
-        cancelButtonColor: Color = MaterialTheme.colorScheme.onBackground
+        cancelButtonColor: Color = Color.White
     ) = ConfirmationDialogColors(
         containerColor = containerColor,
         iconContainerColor = iconContainerColor,

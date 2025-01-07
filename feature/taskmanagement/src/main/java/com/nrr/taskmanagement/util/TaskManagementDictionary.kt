@@ -18,4 +18,9 @@ object TaskManagementDictionary {
     val deleteMessage = R.string.taskmanagement_delete_message
     val removeTasksMessage = R.string.taskmanagement_remove_selected_message
     val deleteTasksMessage = R.string.taskmanagement_delete_selected_message
+    val remove = R.string.taskmanagement_remove
+    val removeAll = R.string.taskmanagement_remove_all
+    val removeAllConfirmation = R.string.taskmanagement_remove_all_confirmation
+    val deleteAll = R.string.taskmanagement_delete_all
+    val deleteAllConfirmation = R.string.taskmanagement_delete_all_confirmation
 }

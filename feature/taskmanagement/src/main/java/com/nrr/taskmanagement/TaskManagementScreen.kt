@@ -73,6 +73,8 @@ import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.taskmanagement.util.TaskManagementDictionary
+import com.nrr.ui.ConfirmationDialog
+import com.nrr.ui.ConfirmationDialogDefaults
 import com.nrr.ui.EmptyTasks
 import com.nrr.ui.LocalSnackbarHostState
 import com.nrr.ui.TaskCards
@@ -103,6 +105,18 @@ internal fun TaskManagementScreen(
             if (it == SnackbarResult.Dismissed) viewModel.updateSnackbarEvent("")
         }
     }
+//    {
+//        viewModel.removeAllFromPlan {
+//            "$it ${if (it == 1) removeMessage else removeTasksMessage}"
+//        }
+//    }
+
+//    {
+//        viewModel.deleteAllTasks {
+//            "$it ${if (it == 1) deleteMessage else deleteTasksMessage}"
+//        }
+//    }
+
     Content(
         tasks = searchTasks ?: tasks,
         onTaskClick = onTaskClick,
@@ -126,17 +140,25 @@ internal fun TaskManagementScreen(
         deleteAllEnable = editedTasks.isNotEmpty(),
         onCancelEditMode = viewModel::cancelEditMode,
         onSelectAll = viewModel::updateSelectAll,
-        onRemoveAllFromPlan = {
-            viewModel.removeAllFromPlan {
-                "$it ${if (it == 1) removeMessage else removeTasksMessage}"
-            }
+        onRemoveAllFromPlan = viewModel::removeAllConfirmation,
+        onDeleteAllTasks = viewModel::deleteAllConfirmation,
+        showSnackbar = viewModel::updateSnackbarEvent,
+        confirmation = viewModel.confirmation,
+        onConfirm = { type ->
+            viewModel.handleConfirmation(
+                type = type,
+                message = {
+                    when (type) {
+                        ConfirmationType.REMOVE_ALL -> if (it > 1) "$it " else "" +
+                                (if (it == 1) removeMessage else removeTasksMessage)
+                        ConfirmationType.DELETE_ALL -> if (it > 1) "$it " else "" +
+                                (if (it == 1) deleteMessage else deleteTasksMessage)
+                    }
+                }
+            )
         },
-        onDeleteAllTasks = {
-            viewModel.deleteAllTasks {
-                "$it ${if (it == 1) deleteMessage else deleteTasksMessage}"
-            }
-        },
-        showSnackbar = viewModel::updateSnackbarEvent
+        onDismissConfirmation = viewModel::dismissConfirmation,
+        modifier = modifier
     )
 }
 
@@ -168,6 +190,9 @@ private fun Content(
     onRemoveAllFromPlan: () -> Unit,
     onDeleteAllTasks: () -> Unit,
     showSnackbar: (String) -> Unit,
+    confirmation: ConfirmationType?,
+    onConfirm: (ConfirmationType) -> Unit,
+    onDismissConfirmation: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -242,6 +267,21 @@ private fun Content(
                 modifier = Modifier.align(Alignment.Center)
             )
         }
+        if (confirmation != null) ConfirmationDialog(
+            onDismiss = onDismissConfirmation,
+            title = stringResource(confirmation.title),
+            confirmText = stringResource(confirmation.confirmText),
+            cancelText = stringResource(confirmation.cancelText),
+            confirmationDesc = stringResource(
+                id = confirmation.confirmationDesc,
+                formatArgs = listOf(confirmation.totalAffected).toTypedArray()
+            ),
+            onConfirm = { onConfirm(confirmation) },
+            colors = ConfirmationDialogDefaults.colors(
+                titleContentColor = Color.Red,
+                confirmButtonColor = Color.Red
+            )
+        )
     }
 }
 
@@ -698,6 +738,9 @@ private fun ContentPreview(
                 deleteAllEnable = checkedTasks.isNotEmpty(),
                 onCancelEditMode = { editMode = false },
                 showSnackbar = { snackbarMessage = it },
+                confirmation = null,
+                onConfirm = {},
+                onDismissConfirmation = {},
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)

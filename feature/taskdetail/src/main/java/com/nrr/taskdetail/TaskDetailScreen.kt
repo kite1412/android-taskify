@@ -207,7 +207,6 @@ private fun Content(
             onConfirm = { onConfirm(confirmation) },
             colors = ConfirmationDialogDefaults.colors(
                 confirmButtonColor = confirmation.confirmColor,
-                cancelButtonColor = confirmation.cancelColor,
                 titleContentColor = if (confirmation == ConfirmationType.DELETE_TASK)
                     Color.Red else if (isSystemInDarkTheme()) Color.White else Color.Black
             )
