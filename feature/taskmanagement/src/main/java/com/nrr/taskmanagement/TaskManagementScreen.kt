@@ -2,6 +2,7 @@ package com.nrr.taskmanagement
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -105,17 +106,6 @@ internal fun TaskManagementScreen(
             if (it == SnackbarResult.Dismissed) viewModel.updateSnackbarEvent("")
         }
     }
-//    {
-//        viewModel.removeAllFromPlan {
-//            "$it ${if (it == 1) removeMessage else removeTasksMessage}"
-//        }
-//    }
-
-//    {
-//        viewModel.deleteAllTasks {
-//            "$it ${if (it == 1) deleteMessage else deleteTasksMessage}"
-//        }
-//    }
 
     Content(
         tasks = searchTasks ?: tasks,
@@ -126,6 +116,7 @@ internal fun TaskManagementScreen(
         searchValue = viewModel.searchValue,
         onSearchValueChange = viewModel::updateSearchValue,
         editMode = viewModel.editMode,
+        searchMode = searchTasks != null,
         onClear = viewModel::clearSearch,
         onSearch = viewModel::searchTask,
         onAddClick = onAddClick,
@@ -149,10 +140,14 @@ internal fun TaskManagementScreen(
                 type = type,
                 message = {
                     when (type) {
-                        ConfirmationType.REMOVE_ALL -> if (it > 1) "$it " else "" +
-                                (if (it == 1) removeMessage else removeTasksMessage)
-                        ConfirmationType.DELETE_ALL -> if (it > 1) "$it " else "" +
-                                (if (it == 1) deleteMessage else deleteTasksMessage)
+                        ConfirmationType.REMOVE_ALL -> {
+                            (if (it > 1) "$it " else "") +
+                                    if (it == 1) removeMessage else removeTasksMessage
+                        }
+                        ConfirmationType.DELETE_ALL -> {
+                            (if (it > 1) "$it " else "") +
+                                    if (it == 1) deleteMessage else deleteTasksMessage
+                        }
                     }
                 }
             )
@@ -173,6 +168,7 @@ private fun Content(
     searchValue: String,
     onSearchValueChange: (String) -> Unit,
     editMode: Boolean,
+    searchMode: Boolean,
     onClear: () -> Unit,
     onSearch: () -> Unit,
     onAddClick: () -> Unit,
@@ -216,6 +212,7 @@ private fun Content(
                             value = searchValue,
                             onValueChange = onSearchValueChange,
                             editMode = editMode,
+                            searchMode = searchMode,
                             onClear = onClear,
                             onSearch = onSearch,
                             modifier = Modifier
@@ -298,12 +295,17 @@ private fun SearchBar(
     value: String,
     onValueChange: (String) -> Unit,
     editMode: Boolean,
+    searchMode: Boolean,
     onClear: () -> Unit,
     onSearch: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
     val fontSize = MaterialTheme.typography.bodyMedium.fontSize
+    val clearColor by animateColorAsState(
+        targetValue = if (searchMode) Color.Red else Color.Black,
+        label = "search bar color"
+    )
 
     Row(
         modifier = modifier
@@ -359,7 +361,7 @@ private fun SearchBar(
             Icon(
                 painter = painterResource(if (it) TaskifyIcon.search else TaskifyIcon.cancel),
                 contentDescription = if (it) "search" else "clear",
-                tint = Color.Black,
+                tint = clearColor,
                 modifier = Modifier
                     .height(30.dp)
                     .then(
@@ -705,6 +707,7 @@ private fun ContentPreview(
                 searchValue = value,
                 onSearchValueChange = { t -> value = t },
                 editMode = editMode,
+                searchMode = false,
                 onClear = { value = "" },
                 onSearch = { value = "searching" },
                 onAddClick = { value = "add" },
