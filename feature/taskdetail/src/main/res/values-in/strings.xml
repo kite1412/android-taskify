@@ -25,5 +25,5 @@
     <string name="taskdetail_discard_changes">Batalkan Perubahan</string>
     <string name="taskdetail_delete">Hapus</string>
     <string name="taskdetail_delete_task">Hapus Tugas</string>
-    <string name="taskdetail_delete_confirmation">Kamu yakin ingin mengahpus tugas ini?</string>
+    <string name="taskdetail_delete_confirmation">Kamu yakin ingin menghapus tugas ini?</string>
 </resources>

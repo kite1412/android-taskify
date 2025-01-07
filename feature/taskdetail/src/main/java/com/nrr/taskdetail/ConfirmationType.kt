@@ -2,6 +2,7 @@ package com.nrr.taskdetail
 
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
+import com.nrr.designsystem.theme.Blue
 import com.nrr.taskdetail.util.TaskDetailDictionary
 
 internal enum class ConfirmationType(
@@ -9,7 +10,6 @@ internal enum class ConfirmationType(
     @StringRes val confirmText: Int,
     @StringRes val cancelText: Int,
     @StringRes val confirmationDesc: Int,
-    val cancelColor: Color,
     val confirmColor: Color
 ) {
     CANCEL_EDIT(
@@ -17,15 +17,13 @@ internal enum class ConfirmationType(
         confirmText = TaskDetailDictionary.discard,
         cancelText = TaskDetailDictionary.cancel,
         confirmationDesc = TaskDetailDictionary.cancelEditMessage,
-        cancelColor = Color.White,
-        confirmColor = Color.Red
+        confirmColor = Blue
     ),
     DELETE_TASK(
         title = TaskDetailDictionary.deleteTask,
         confirmText = TaskDetailDictionary.delete,
         cancelText = TaskDetailDictionary.cancel,
         confirmationDesc = TaskDetailDictionary.deleteConfirmation,
-        cancelColor = Color.White,
         confirmColor = Color.Red
     );
 }

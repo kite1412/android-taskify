@@ -15,4 +15,9 @@
     <string name="taskmanagement_remove_message">Task removed from plan</string>
     <string name="taskmanagement_delete_message">Task deleted</string>
     <string name="taskmanagement_delete_selected_message">tasks deleted</string>
+    <string name="taskmanagement_remove_all">Remove tasks from plan</string>
+    <string name="taskmanagement_remove_all_confirmation">Are you sure you want to remove %1$d tasks from plan?</string>
+    <string name="taskmanagement_remove">Remove</string>
+    <string name="taskmanagement_delete_all">Delete tasks</string>
+    <string name="taskmanagement_delete_all_confirmation">Are you sure you want to delete %1$d tasks?</string>
 </resources>

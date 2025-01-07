@@ -2,6 +2,7 @@ package com.nrr.taskmanagement
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -73,6 +74,8 @@ import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.taskmanagement.util.TaskManagementDictionary
+import com.nrr.ui.ConfirmationDialog
+import com.nrr.ui.ConfirmationDialogDefaults
 import com.nrr.ui.EmptyTasks
 import com.nrr.ui.LocalSnackbarHostState
 import com.nrr.ui.TaskCards
@@ -87,7 +90,6 @@ internal fun TaskManagementScreen(
 ) {
     val tasks by viewModel.tasks.collectAsStateWithLifecycle()
     val searchTasks by viewModel.searchTasks.collectAsStateWithLifecycle()
-    val filteredTasks by viewModel.filteredTasks.collectAsStateWithLifecycle()
     val editedTasks = viewModel.editedTasks
     val snackbarState = LocalSnackbarHostState.current
     val snackbarMessage = viewModel.snackbarEvent
@@ -104,8 +106,9 @@ internal fun TaskManagementScreen(
             if (it == SnackbarResult.Dismissed) viewModel.updateSnackbarEvent("")
         }
     }
+
     Content(
-        tasks = filteredTasks ?: searchTasks ?: tasks,
+        tasks = searchTasks ?: tasks,
         onTaskClick = onTaskClick,
         onTaskLongClick = { viewModel.updateEditedTasks(it, true) },
         checked = editedTasks::contains,
@@ -113,6 +116,7 @@ internal fun TaskManagementScreen(
         searchValue = viewModel.searchValue,
         onSearchValueChange = viewModel::updateSearchValue,
         editMode = viewModel.editMode,
+        searchMode = searchTasks != null,
         onClear = viewModel::clearSearch,
         onSearch = viewModel::searchTask,
         onAddClick = onAddClick,
@@ -127,17 +131,29 @@ internal fun TaskManagementScreen(
         deleteAllEnable = editedTasks.isNotEmpty(),
         onCancelEditMode = viewModel::cancelEditMode,
         onSelectAll = viewModel::updateSelectAll,
-        onRemoveAllFromPlan = {
-            viewModel.removeAllFromPlan {
-                "$it ${if (it == 1) removeMessage else removeTasksMessage}"
-            }
+        onRemoveAllFromPlan = viewModel::removeAllConfirmation,
+        onDeleteAllTasks = viewModel::deleteAllConfirmation,
+        showSnackbar = viewModel::updateSnackbarEvent,
+        confirmation = viewModel.confirmation,
+        onConfirm = { type ->
+            viewModel.handleConfirmation(
+                type = type,
+                message = {
+                    when (type) {
+                        ConfirmationType.REMOVE_ALL -> {
+                            (if (it > 1) "$it " else "") +
+                                    if (it == 1) removeMessage else removeTasksMessage
+                        }
+                        ConfirmationType.DELETE_ALL -> {
+                            (if (it > 1) "$it " else "") +
+                                    if (it == 1) deleteMessage else deleteTasksMessage
+                        }
+                    }
+                }
+            )
         },
-        onDeleteAllTasks = {
-            viewModel.deleteAllTasks {
-                "$it ${if (it == 1) deleteMessage else deleteTasksMessage}"
-            }
-        },
-        showSnackbar = viewModel::updateSnackbarEvent
+        onDismissConfirmation = viewModel::dismissConfirmation,
+        modifier = modifier
     )
 }
 
@@ -152,6 +168,7 @@ private fun Content(
     searchValue: String,
     onSearchValueChange: (String) -> Unit,
     editMode: Boolean,
+    searchMode: Boolean,
     onClear: () -> Unit,
     onSearch: () -> Unit,
     onAddClick: () -> Unit,
@@ -169,6 +186,9 @@ private fun Content(
     onRemoveAllFromPlan: () -> Unit,
     onDeleteAllTasks: () -> Unit,
     showSnackbar: (String) -> Unit,
+    confirmation: ConfirmationType?,
+    onConfirm: (ConfirmationType) -> Unit,
+    onDismissConfirmation: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -177,31 +197,41 @@ private fun Content(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Header()
-            Row(
-                modifier = Modifier.height(IntrinsicSize.Max),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                SearchBar(
-                    value = searchValue,
-                    onValueChange = onSearchValueChange,
-                    editMode = editMode,
-                    onClear = onClear,
-                    onSearch = onSearch,
-                    modifier = Modifier
-                        .weight(0.9f)
-                        .fillMaxHeight()
-                )
-                AddTask(
-                    editMode = editMode,
-                    onClick = onAddClick,
-                    modifier = Modifier.fillMaxHeight()
-                )
-            }
             AnimatedContent(
-                targetState = editMode,
-                label = "toolbar"
+                targetState = !editMode,
+                label = "search bar"
             ) {
-                if (it) EditToolbar(
+                if (it) Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.height(IntrinsicSize.Max),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        SearchBar(
+                            value = searchValue,
+                            onValueChange = onSearchValueChange,
+                            editMode = editMode,
+                            searchMode = searchMode,
+                            onClear = onClear,
+                            onSearch = onSearch,
+                            modifier = Modifier
+                                .weight(0.9f)
+                                .fillMaxHeight()
+                        )
+                        AddTask(
+                            editMode = editMode,
+                            onClick = onAddClick,
+                            modifier = Modifier.fillMaxHeight()
+                        )
+                    }
+                    Customizes(
+                        sortState = sortState,
+                        filterState = filterState,
+                        onSortSelect = onSortSelect,
+                        onFilterSelect = onFilterSelect
+                    )
+                } else EditToolbar(
                     selectAll = selectAll,
                     onSelectAll = onSelectAll,
                     onRemove = onRemoveAllFromPlan,
@@ -209,11 +239,6 @@ private fun Content(
                     onCancel = onCancelEditMode,
                     removeEnabled = removeAllEnabled,
                     deleteEnabled = deleteAllEnable
-                ) else Customizes(
-                    sortState = sortState,
-                    filterState = filterState,
-                    onSortSelect = onSortSelect,
-                    onFilterSelect = onFilterSelect
                 )
             }
             Tasks(
@@ -239,6 +264,21 @@ private fun Content(
                 modifier = Modifier.align(Alignment.Center)
             )
         }
+        if (confirmation != null) ConfirmationDialog(
+            onDismiss = onDismissConfirmation,
+            title = stringResource(confirmation.title),
+            confirmText = stringResource(confirmation.confirmText),
+            cancelText = stringResource(confirmation.cancelText),
+            confirmationDesc = stringResource(
+                id = confirmation.confirmationDesc,
+                formatArgs = listOf(confirmation.totalAffected).toTypedArray()
+            ),
+            onConfirm = { onConfirm(confirmation) },
+            colors = ConfirmationDialogDefaults.colors(
+                titleContentColor = Color.Red,
+                confirmButtonColor = Color.Red
+            )
+        )
     }
 }
 
@@ -255,12 +295,17 @@ private fun SearchBar(
     value: String,
     onValueChange: (String) -> Unit,
     editMode: Boolean,
+    searchMode: Boolean,
     onClear: () -> Unit,
     onSearch: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
     val fontSize = MaterialTheme.typography.bodyMedium.fontSize
+    val clearColor by animateColorAsState(
+        targetValue = if (searchMode) Color.Red else Color.Black,
+        label = "search bar color"
+    )
 
     Row(
         modifier = modifier
@@ -316,14 +361,17 @@ private fun SearchBar(
             Icon(
                 painter = painterResource(if (it) TaskifyIcon.search else TaskifyIcon.cancel),
                 contentDescription = if (it) "search" else "clear",
-                tint = Color.Black,
+                tint = clearColor,
                 modifier = Modifier
                     .height(30.dp)
                     .then(
                         if (!it) Modifier.clickable(
                             indication = null,
                             interactionSource = interactionSource,
-                            onClick = onClear
+                            onClick = {
+                                focusManager.clearFocus()
+                                onClear()
+                            }
                         )
                         else Modifier
                     )
@@ -659,6 +707,7 @@ private fun ContentPreview(
                 searchValue = value,
                 onSearchValueChange = { t -> value = t },
                 editMode = editMode,
+                searchMode = false,
                 onClear = { value = "" },
                 onSearch = { value = "searching" },
                 onAddClick = { value = "add" },
@@ -692,6 +741,9 @@ private fun ContentPreview(
                 deleteAllEnable = checkedTasks.isNotEmpty(),
                 onCancelEditMode = { editMode = false },
                 showSnackbar = { snackbarMessage = it },
+                confirmation = null,
+                onConfirm = {},
+                onDismissConfirmation = {},
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)

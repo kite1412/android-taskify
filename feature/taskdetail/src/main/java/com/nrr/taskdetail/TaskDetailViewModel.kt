@@ -100,7 +100,7 @@ class TaskDetailViewModel @Inject constructor(
 
     private suspend fun deleteTask() {
         deleteTasksUseCase(listOf(task!!))
-        confirmation = null
+        dismissConfirmation()
     }
 
     internal suspend fun handleConfirmation(type: ConfirmationType) {
