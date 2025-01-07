@@ -75,3 +75,8 @@ internal fun List<Task>.filter(type: Filter) = filter {
         Filter.Work -> TaskType.WORK
     }
 }
+
+internal fun List<Task>.sortAndFilter(
+    sortType: Sort,
+    filterType: Filter
+) = sort(sortType).filter(filterType)

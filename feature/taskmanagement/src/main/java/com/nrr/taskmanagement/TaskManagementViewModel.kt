@@ -32,6 +32,10 @@ class TaskManagementViewModel @Inject constructor(
     private val _searchTasks = MutableStateFlow<List<Task>?>(null)
     val searchTasks = _searchTasks.asStateFlow()
 
+    // unmodifiable tasks
+    private var allTasks = emptyList<Task>()
+    private var allSearchTasks = emptyList<Task>()
+
     val editedTasks = mutableStateListOf<Task>()
 
     var searchValue by mutableStateOf("")
@@ -53,7 +57,13 @@ class TaskManagementViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             taskRepository.getAllTasks().collect {
-                _tasks.value = it.sort(sortState.selected)
+                allTasks = it
+                _tasks.update {
+                    allTasks.sortAndFilter(
+                        sortType = sortState.selected,
+                        filterType = filterState.selected
+                    )
+                }
             }
         }
     }
@@ -69,7 +79,14 @@ class TaskManagementViewModel @Inject constructor(
     fun updateSelectAll(value: Boolean) {
         selectAll = value
         if (value) {
-
+            editedTasks.apply {
+                clear()
+                addAll(
+                    searchTasks.value
+                        ?: tasks.value
+                        ?: emptyList()
+                )
+            }
         } else editedTasks.clear()
     }
 
@@ -79,23 +96,39 @@ class TaskManagementViewModel @Inject constructor(
 
     fun clearSearch() {
         searchValue = ""
-        _searchTasks.value = null
+        _searchTasks.update { null }
         // to sync sort type from search
-        _tasks.update { it?.sort(sortState.selected) }
+        _tasks.update {
+            allTasks.sortAndFilter(
+                sortType = sortState.selected,
+                filterType = filterState.selected
+            )
+        }
     }
 
     fun searchTask() {
         viewModelScope.launch {
+            allSearchTasks = getTasksByTitleUseCase(searchValue)
+                .firstOrNull() ?: emptyList()
             _searchTasks.update {
-                getTasksByTitleUseCase(searchValue)
-                    .firstOrNull()?.sort(sortState.selected) ?: emptyList()
+                allSearchTasks.sortAndFilter(
+                    sortType = sortState.selected,
+                    filterType = filterState.selected
+                )
             }
         }
     }
 
     fun updateEditedTasks(task: Task, checked: Boolean) {
         if (!editMode) updateEditMode(true)
-        if (checked) editedTasks.add(task) else editedTasks.remove(task)
+        if (checked) {
+            editedTasks.add(task)
+            if (editedTasks.size == (searchTasks.value?.size ?: tasks.value?.size))
+                selectAll = true
+        } else {
+            editedTasks.remove(task)
+            selectAll = false
+        }
     }
 
     fun removeActiveTask(task: Task) {
@@ -140,10 +173,19 @@ class TaskManagementViewModel @Inject constructor(
     }
 
     internal fun onFilter(type: Customize.Filter) {
-//        _filteredTasks.update {
-//            if (_searchTasks.value != null) _searchTasks.value!!.filter(type)
-//            else if (actualTasks.value != null) actualTasks.value!!.filter(type)
-//            else _filteredTasks.value
-//        }
+        var tasks = allTasks
+        val state = _searchTasks
+            .takeIf {
+                (it.value != null).also { t ->
+                    if (t) tasks = allSearchTasks
+                }
+            } ?: _tasks
+
+        state.update {
+            tasks.sortAndFilter(
+                sortType = sortState.selected,
+                filterType = type
+            )
+        }
     }
 }
