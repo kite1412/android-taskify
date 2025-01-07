@@ -102,7 +102,7 @@ internal fun TaskManagementScreen(
         if (snackbarMessage.isNotEmpty()) snackbarState.showSnackbar(
             message = snackbarMessage,
             withDismissAction = true
-        ).also {
+        ) {
             if (it == SnackbarResult.Dismissed) viewModel.updateSnackbarEvent("")
         }
     }

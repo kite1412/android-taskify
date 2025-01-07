@@ -90,7 +90,7 @@ fun RegistrationScreen(
                     FieldAction.Next -> pagerState.animateScrollToPage(pagerState.currentPage + 1)
                     FieldAction.Previous -> pagerState.animateScrollToPage(pagerState.currentPage - 1)
                     FieldAction.Complete -> {
-                        snackbarState.showSnackbar("$greeting ${viewModel.username}!").also {
+                        snackbarState.showSnackbar("$greeting ${viewModel.username}!") {
                             if (it == SnackbarResult.Dismissed) viewModel.register()
                         }
                     }

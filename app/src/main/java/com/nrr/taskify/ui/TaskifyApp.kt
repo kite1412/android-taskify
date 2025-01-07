@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.nrr.designsystem.component.Destination
@@ -30,6 +31,7 @@ import com.nrr.designsystem.component.TopAppBar
 import com.nrr.registration.RegistrationScreen
 import com.nrr.taskify.navigation.TaskifyNavHost
 import com.nrr.ui.LocalSnackbarHostState
+import com.nrr.ui.SnackbarHostStateWrapper
 
 @Composable
 internal fun TaskifyApp(
@@ -39,14 +41,19 @@ internal fun TaskifyApp(
     appState: TaskifyAppState = rememberTaskifyAppState(navController)
 ) {
     val registered by viewModel.registered.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarHostStateWrapper = remember {
+        SnackbarHostStateWrapper(
+            snackbarHostState = SnackbarHostState(),
+            coroutineScope = viewModel.viewModelScope
+        )
+    }
 
-    CompositionLocalProvider(value = LocalSnackbarHostState provides snackbarHostState) {
+    CompositionLocalProvider(value = LocalSnackbarHostState provides snackbarHostStateWrapper) {
         Scaffold(
             modifier = modifier,
             snackbarHost = {
                 SnackbarHost(
-                    hostState = snackbarHostState,
+                    hostState = snackbarHostStateWrapper.snackbarHostState,
                     snackbar = { TaskifySnackbar(it) }
                 )
             }
