@@ -67,6 +67,17 @@ class TaskManagementViewModel @Inject constructor(
                         filterType = filterState.selected
                     )
                 }
+                if (searchTasks.value != null) {
+                    allSearchTasks = allSearchTasks.filter { t ->
+                        t in allTasks
+                    }
+                    _searchTasks.update {
+                        allSearchTasks.sortAndFilter(
+                            sortType = sortState.selected,
+                            filterType = filterState.selected
+                        )
+                    }
+                }
             }
         }
     }
