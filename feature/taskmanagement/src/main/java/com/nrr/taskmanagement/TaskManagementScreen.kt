@@ -176,31 +176,40 @@ private fun Content(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Header()
-            Row(
-                modifier = Modifier.height(IntrinsicSize.Max),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                SearchBar(
-                    value = searchValue,
-                    onValueChange = onSearchValueChange,
-                    editMode = editMode,
-                    onClear = onClear,
-                    onSearch = onSearch,
-                    modifier = Modifier
-                        .weight(0.9f)
-                        .fillMaxHeight()
-                )
-                AddTask(
-                    editMode = editMode,
-                    onClick = onAddClick,
-                    modifier = Modifier.fillMaxHeight()
-                )
-            }
             AnimatedContent(
-                targetState = editMode,
-                label = "toolbar"
+                targetState = !editMode,
+                label = "search bar"
             ) {
-                if (it) EditToolbar(
+                if (it) Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.height(IntrinsicSize.Max),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        SearchBar(
+                            value = searchValue,
+                            onValueChange = onSearchValueChange,
+                            editMode = editMode,
+                            onClear = onClear,
+                            onSearch = onSearch,
+                            modifier = Modifier
+                                .weight(0.9f)
+                                .fillMaxHeight()
+                        )
+                        AddTask(
+                            editMode = editMode,
+                            onClick = onAddClick,
+                            modifier = Modifier.fillMaxHeight()
+                        )
+                    }
+                    Customizes(
+                        sortState = sortState,
+                        filterState = filterState,
+                        onSortSelect = onSortSelect,
+                        onFilterSelect = onFilterSelect
+                    )
+                } else EditToolbar(
                     selectAll = selectAll,
                     onSelectAll = onSelectAll,
                     onRemove = onRemoveAllFromPlan,
@@ -208,11 +217,6 @@ private fun Content(
                     onCancel = onCancelEditMode,
                     removeEnabled = removeAllEnabled,
                     deleteEnabled = deleteAllEnable
-                ) else Customizes(
-                    sortState = sortState,
-                    filterState = filterState,
-                    onSortSelect = onSortSelect,
-                    onFilterSelect = onFilterSelect
                 )
             }
             Tasks(
