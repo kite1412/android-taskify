@@ -57,10 +57,10 @@ internal fun List<Task>.sort(type: Sort) = when (type) {
         this.sortedBy { it.activeStatus?.period?.ordinal ?: Int.MAX_VALUE }
     }
     is Newest -> {
-        this.sortedBy { it.createdAt }
+        this.sortedByDescending { it.createdAt }
     }
     is Oldest -> {
-        this.sortedByDescending { it.createdAt }
+        this.sortedBy { it.createdAt }
     }
 }
 
