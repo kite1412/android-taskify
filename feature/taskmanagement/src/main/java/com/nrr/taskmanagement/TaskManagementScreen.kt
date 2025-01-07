@@ -87,7 +87,6 @@ internal fun TaskManagementScreen(
 ) {
     val tasks by viewModel.tasks.collectAsStateWithLifecycle()
     val searchTasks by viewModel.searchTasks.collectAsStateWithLifecycle()
-    val filteredTasks by viewModel.filteredTasks.collectAsStateWithLifecycle()
     val editedTasks = viewModel.editedTasks
     val snackbarState = LocalSnackbarHostState.current
     val snackbarMessage = viewModel.snackbarEvent
@@ -105,7 +104,7 @@ internal fun TaskManagementScreen(
         }
     }
     Content(
-        tasks = filteredTasks ?: searchTasks ?: tasks,
+        tasks = searchTasks ?: tasks,
         onTaskClick = onTaskClick,
         onTaskLongClick = { viewModel.updateEditedTasks(it, true) },
         checked = editedTasks::contains,
@@ -323,7 +322,10 @@ private fun SearchBar(
                         if (!it) Modifier.clickable(
                             indication = null,
                             interactionSource = interactionSource,
-                            onClick = onClear
+                            onClick = {
+                                focusManager.clearFocus()
+                                onClear()
+                            }
                         )
                         else Modifier
                     )

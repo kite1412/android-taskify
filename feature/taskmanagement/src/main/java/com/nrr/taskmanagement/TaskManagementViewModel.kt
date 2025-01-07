@@ -13,33 +13,24 @@ import com.nrr.domain.RemoveActiveTasksUseCase
 import com.nrr.model.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class TaskManagementViewModel @Inject constructor(
-    taskRepository: TaskRepository,
+    private val taskRepository: TaskRepository,
     private val getTasksByTitleUseCase: GetTasksByTitleUseCase,
     private val removeActiveTasksUseCase: RemoveActiveTasksUseCase,
     private val deleteTasksUseCase: DeleteTasksUseCase
 ) : ViewModel() {
-    val tasks = taskRepository.getAllTasks()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = null
-        )
+    private val _tasks = MutableStateFlow<List<Task>?>(null)
+    val tasks = _tasks.asStateFlow()
 
     private val _searchTasks = MutableStateFlow<List<Task>?>(null)
     val searchTasks = _searchTasks.asStateFlow()
-
-    private val _filteredTasks = MutableStateFlow<List<Task>?>(null)
-    val filteredTasks = _filteredTasks.asStateFlow()
 
     val editedTasks = mutableStateListOf<Task>()
 
@@ -59,6 +50,14 @@ class TaskManagementViewModel @Inject constructor(
 
     internal val filterState by mutableStateOf(FilterState())
 
+    init {
+        viewModelScope.launch {
+            taskRepository.getAllTasks().collect {
+                _tasks.value = it.sort(sortState.selected)
+            }
+        }
+    }
+
     fun updateSearchValue(value: String) {
         searchValue = value
     }
@@ -69,6 +68,9 @@ class TaskManagementViewModel @Inject constructor(
 
     fun updateSelectAll(value: Boolean) {
         selectAll = value
+        if (value) {
+
+        } else editedTasks.clear()
     }
 
     fun updateSnackbarEvent(message: String) {
@@ -78,12 +80,15 @@ class TaskManagementViewModel @Inject constructor(
     fun clearSearch() {
         searchValue = ""
         _searchTasks.value = null
+        // to sync sort type from search
+        _tasks.update { it?.sort(sortState.selected) }
     }
 
     fun searchTask() {
         viewModelScope.launch {
             _searchTasks.update {
-                getTasksByTitleUseCase(searchValue).firstOrNull() ?: emptyList()
+                getTasksByTitleUseCase(searchValue)
+                    .firstOrNull()?.sort(sortState.selected) ?: emptyList()
             }
         }
     }
@@ -128,18 +133,17 @@ class TaskManagementViewModel @Inject constructor(
     }
 
     internal fun onSort(type: Customize.Sort) {
-        _filteredTasks.update {
-            if (_searchTasks.value != null) _searchTasks.value!!.sort(type)
-            else if (tasks.value != null) tasks.value!!.sort(type)
-            else _filteredTasks.value
+        val state = _searchTasks.takeIf { it.value != null } ?: _tasks
+        state.update {
+            state.value?.sort(type)
         }
     }
 
     internal fun onFilter(type: Customize.Filter) {
-        _filteredTasks.update {
-            if (_searchTasks.value != null) _searchTasks.value!!.filter(type)
-            else if (tasks.value != null) tasks.value!!.filter(type)
-            else _filteredTasks.value
-        }
+//        _filteredTasks.update {
+//            if (_searchTasks.value != null) _searchTasks.value!!.filter(type)
+//            else if (actualTasks.value != null) actualTasks.value!!.filter(type)
+//            else _filteredTasks.value
+//        }
     }
 }
