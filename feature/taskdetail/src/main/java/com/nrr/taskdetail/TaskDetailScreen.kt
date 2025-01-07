@@ -79,6 +79,7 @@ import com.nrr.taskdetail.util.TaskDetailDictionary
 import com.nrr.taskdetail.util.examplesId
 import com.nrr.ui.ConfirmationDialog
 import com.nrr.ui.ConfirmationDialogDefaults
+import com.nrr.ui.LocalSnackbarHostState
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.color
 import com.nrr.ui.iconId
@@ -96,6 +97,13 @@ internal fun TaskDetailScreen(
     val createMode = viewModel.taskId == null
     val editMode = viewModel.editMode
     val scope = rememberCoroutineScope()
+    val snackbarHostState = LocalSnackbarHostState.current
+    val taskDeleted = stringResource(
+        id = TaskDetailDictionary.taskDeleted, task?.title ?: ""
+    )
+    val taskCreated = stringResource(
+        id = TaskDetailDictionary.taskCreated, viewModel.editedTask.title
+    )
 
     Content(
         task = task,
@@ -113,14 +121,20 @@ internal fun TaskDetailScreen(
         onEditComplete = {
             scope.launch {
                 viewModel.saveEdit()
-                if (createMode) onBackClick()
+                if (createMode) {
+                    snackbarHostState.showSnackbar(taskCreated)
+                    onBackClick()
+                }
             }
         },
         confirmation = viewModel.confirmation,
         onConfirm = {
             scope.launch {
                 viewModel.handleConfirmation(it)
-                if (it == ConfirmationType.DELETE_TASK) onBackClick()
+                if (it == ConfirmationType.DELETE_TASK) {
+                    snackbarHostState.showSnackbar(taskDeleted)
+                    onBackClick()
+                }
             }
         },
         onDelete = viewModel::deleteConfirmation,
