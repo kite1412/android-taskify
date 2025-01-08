@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -21,16 +22,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.util.TaskifyDefault
+import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.toDateString
 import com.nrr.model.toTimeString
 import com.nrr.plandetail.util.PlanDetailDictionary
+import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.getCurrentLocale
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
@@ -46,8 +51,11 @@ internal fun PlanDetailScreen(
     viewModel: PlanDetailViewModel = hiltViewModel()
 ) {
     val period = viewModel.period
+    val tasks by viewModel.tasks.collectAsStateWithLifecycle()
+
     Content(
         period = period,
+        tasks = tasks,
         onBackClick = onBackClick,
         currentDate = viewModel.currentDate,
         modifier = modifier
@@ -57,6 +65,7 @@ internal fun PlanDetailScreen(
 @Composable
 private fun Content(
     period: TaskPeriod,
+    tasks: List<Task>,
     onBackClick: () -> Unit,
     currentDate: Instant,
     modifier: Modifier = Modifier
@@ -70,8 +79,11 @@ private fun Content(
                 period = period,
                 onBackClick = onBackClick
             )
-            RealTimeClock(currentDate)
+            if (tasks.isNotEmpty()) {
+                RealTimeClock(currentDate)
+            }
         }
+        if (tasks.isEmpty()) NoPlan()
     }
 }
 
@@ -136,9 +148,39 @@ private fun RealTimeClock(
     }
 }
 
+@Composable
+private fun NoPlan(modifier: Modifier = Modifier) {
+    val color = TaskifyDefault.emptyWarningContentColor
+
+    Column(
+        modifier = modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(
+            space = TaskifyDefault.EMPTY_WARNING_CONTENT_SPACE.dp,
+            alignment = Alignment.CenterVertically
+        )
+    ) {
+        Icon(
+            painter = painterResource(TaskifyIcon.calendarCross),
+            contentDescription = "no plan",
+            modifier = Modifier.size(TaskifyDefault.EMPTY_ICON_SIZE.dp),
+            tint = color
+        )
+        Text(
+            text = stringResource(PlanDetailDictionary.noPlan),
+            fontWeight = FontWeight.Bold,
+            fontSize = TaskifyDefault.EMPTY_LABEL_FONT_SIZE.sp,
+            color = color
+        )
+    }
+}
+
 @Preview
 @Composable
-private fun ContentPreview() {
+private fun ContentPreview(
+    @PreviewParameter(TaskPreviewParameter::class)
+    tasks: List<Task>
+) {
     var curDate by remember { mutableStateOf(Clock.System.now()) }
 
     LaunchedEffect(Unit) {
@@ -150,6 +192,7 @@ private fun ContentPreview() {
     TaskifyTheme {
         Content(
             period = TaskPeriod.DAY,
+            tasks = tasks,
             onBackClick = {},
             currentDate = curDate
         )
