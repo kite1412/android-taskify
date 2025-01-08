@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plandetail_today_plan">Rencana hari ini</string>
+    <string name="plandetail_week_plan">Rencana minggu ini</string>
+    <string name="plandetail_month_plan">Rencana bulan ini</string>
+</resources>

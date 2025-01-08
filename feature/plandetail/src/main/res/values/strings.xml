@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plandetail_today_plan">Today\'s plan</string>
+    <string name="plandetail_week_plan">This week\'s plan</string>
+    <string name="plandetail_month_plan">This month\'s plan</string>
+</resources>
