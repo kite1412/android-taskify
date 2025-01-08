@@ -4,9 +4,11 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
-fun Instant.toTimeString(): String =
+fun Instant.toTimeString(withSecond: Boolean = false): String =
     toLocalDateTime(TimeZone.currentSystemDefault()).run {
-        "${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}"
+        "${hour.toString().padStart(2, '0')}:" +
+                minute.toString().padStart(2, '0') +
+                if (withSecond) ":" + second.toString().padStart(2, '0') else ""
     }
 
 fun Instant.toDateString(): String =
