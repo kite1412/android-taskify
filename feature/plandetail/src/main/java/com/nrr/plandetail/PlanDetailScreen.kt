@@ -176,7 +176,7 @@ private fun weekIndicator(currentDate: Instant): String {
     val localDateTime = currentDate.toLocalDateTime(TimeZone.currentSystemDefault())
     val today = localDateTime.dayOfWeek.value
     val start = localDateTime.dayOfMonth - today
-    val end = localDateTime.dayOfMonth + today
+    val end = localDateTime.dayOfMonth + today - 1
     return "($start - " +
             "$end " +
             "${localDateTime.month.getDisplayName(TextStyle.FULL, getCurrentLocale())})"
@@ -210,11 +210,12 @@ fun StartIndicator(
             )
         }
     }
+    val smallFontSize = MaterialTheme.typography.bodySmall.fontSize
     val largeFontSize = MaterialTheme.typography.labelLarge.fontSize
 
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalAlignment = Alignment.End
     ) {
         when (period) {
             TaskPeriod.DAY -> {
@@ -228,7 +229,8 @@ fun StartIndicator(
                 Text(
                     text = weekIndicator(currentDate),
                     style = style,
-                    fontSize = MaterialTheme.typography.bodySmall.fontSize
+                    fontSize = smallFontSize,
+                    lineHeight = smallFontSize
                 )
                 Text(
                     text = stringResource(PlanDetailDictionary.startDay),
@@ -240,7 +242,8 @@ fun StartIndicator(
                 Text(
                     text = monthIndicator(currentDate),
                     style = style,
-                    fontSize = MaterialTheme.typography.bodySmall.fontSize
+                    fontSize = smallFontSize,
+                    lineHeight = smallFontSize
                 )
                 Text(
                     text = stringResource(PlanDetailDictionary.startDate),
@@ -375,7 +378,7 @@ private fun Tasks(
                         .padding(
                             start = 32.dp,
                             end = 16.dp,
-                            top = if (it != tasks.lastIndex) dashSpace else 0.dp
+                            top = dashSpace
                         )
                 )
             },
@@ -395,11 +398,12 @@ private fun <T> status(
 ): T {
     val startDate = activeStatus.startDate
     val due = activeStatus.dueDate
-    return if (startDate > currentDate) {
-        if (due != null && currentDate > due) late
-        else inProgress
-    } else if (!activeStatus.isCompleted) completed
-    else waiting
+    return when {
+        activeStatus.isCompleted -> completed
+        currentDate > startDate && due != null && due < currentDate -> late
+        currentDate > startDate -> inProgress
+        else -> waiting
+    }
 }
 
 @Composable
