@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -40,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -55,6 +57,8 @@ import com.nrr.model.ActiveStatus
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.toDateString
+import com.nrr.model.toDayOfWeekValue
+import com.nrr.model.toLocalDateTime
 import com.nrr.model.toTimeString
 import com.nrr.plandetail.util.PlanDetailDictionary
 import com.nrr.plandetail.util.dashHeight
@@ -64,12 +68,12 @@ import com.nrr.ui.TaskCards
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.color
 import com.nrr.ui.getCurrentLocale
+import com.nrr.ui.toDayLocalized
+import com.nrr.ui.toMonthLocalized
 import com.nrr.ui.toStringLocalized
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import java.time.format.TextStyle
 
 @Composable
@@ -112,26 +116,30 @@ private fun Content(
                 onBackClick = onBackClick
             )
             if (tasks?.isNotEmpty() == true) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    RealTimeClock(
-                        instant = currentDate,
-                        modifier = Modifier.weight(0.8f)
-                    )
-                    StartIndicator(
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        RealTimeClock(
+                            instant = currentDate,
+                            modifier = Modifier.weight(0.8f)
+                        )
+                        StartIndicator(
+                            period = period,
+                            modifier = Modifier.align(Alignment.Bottom)
+                        )
+                    }
+                    Tasks(
                         period = period,
-                        modifier = Modifier.align(Alignment.Bottom)
+                        tasks = tasks,
+                        onRemove = onRemove,
+                        onComplete = onComplete,
+                        modifier = Modifier.verticalScroll(rememberScrollState())
                     )
                 }
-                Tasks(
-                    period = period,
-                    tasks = tasks,
-                    onRemove = onRemove,
-                    onComplete = onComplete,
-                    modifier = Modifier.verticalScroll(rememberScrollState())
-                )
             }
         }
         if (tasks?.isEmpty() == true) NoPlan()
@@ -173,18 +181,18 @@ private fun Header(
 
 @Composable
 private fun weekIndicator(currentDate: Instant): String {
-    val localDateTime = currentDate.toLocalDateTime(TimeZone.currentSystemDefault())
+    val localDateTime = currentDate.toLocalDateTime()
     val today = localDateTime.dayOfWeek.value
     val start = localDateTime.dayOfMonth - today
     val end = localDateTime.dayOfMonth + today - 1
     return "($start - " +
             "$end " +
-            "${localDateTime.month.getDisplayName(TextStyle.FULL, getCurrentLocale())})"
+            localDateTime.toMonthLocalized()
 }
 
 @Composable
 private fun monthIndicator(currentDate: Instant) =
-    with(currentDate.toLocalDateTime(TimeZone.currentSystemDefault())) {
+    with(currentDate.toLocalDateTime()) {
         this.month.getDisplayName(TextStyle.FULL, getCurrentLocale()) +
                 " ${this.year}"
     }
@@ -261,7 +269,7 @@ private fun RealTimeClock(
     modifier: Modifier = Modifier
 ) {
     val locale = getCurrentLocale()
-    val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+    val localDateTime = instant.toLocalDateTime()
 
     Column(
         modifier = modifier,
@@ -316,7 +324,8 @@ private fun actions(
     completeMessage: String,
     onRemove: (Task) -> Unit,
     onComplete: (Task) -> Unit
-) = mutableListOf(
+) = if (task.activeStatus == null) emptyList()
+else mutableListOf(
     Action(
         action = removeMessage,
         iconId = TaskifyIcon.cancel,
@@ -324,7 +333,7 @@ private fun actions(
         onClick = { onRemove(task) }
     )
 ).apply {
-    if (!task.activeStatus!!.isCompleted) add(
+    if (task.activeStatus!!.isCompleted) add(
         index = 0,
         element = Action(
             action = completeMessage,
@@ -334,6 +343,37 @@ private fun actions(
         )
     )
 }.toList()
+
+private fun extractWeekHeaderBreakpoint(
+    tasks: List<Task>,
+): List<HeaderBreakpoint> {
+    if (tasks.isEmpty()) return emptyList()
+    val breakpoints = mutableListOf(
+        HeaderBreakpoint(
+            index = 0,
+            breakpoint = tasks[0].activeStatus!!.startDate
+                .toDayOfWeekValue()
+        )
+    )
+    var latest = 0
+    breakpoints.apply {
+        for (i in 1..tasks.lastIndex) {
+            val t = tasks[i]
+            if (t.activeStatus!!.startDate.toDayOfWeekValue()
+                != breakpoints[latest].breakpoint) {
+                add(
+                    HeaderBreakpoint(
+                        index = i,
+                        breakpoint = t.activeStatus!!.startDate
+                            .toDayOfWeekValue()
+                    )
+                )
+                latest++
+            }
+        }
+    }
+    return breakpoints
+}
 
 @Composable
 private fun Tasks(
@@ -346,6 +386,13 @@ private fun Tasks(
     tasks?.let {
         val removeMessage = stringResource(PlanDetailDictionary.remove)
         val completeMessage = stringResource(PlanDetailDictionary.complete)
+        val breakpoints = remember {
+            when (period) {
+                TaskPeriod.WEEK -> extractWeekHeaderBreakpoint(it)
+                else -> emptyList()
+            }
+        }
+        val endPadding = 16.dp
 
         TaskCards(
             tasks = tasks,
@@ -359,17 +406,42 @@ private fun Tasks(
                 )
             },
             modifier = modifier,
-            header = if (period == TaskPeriod.DAY) {
-                {
-                    Text(
-                        text = tasks[it].activeStatus?.startDate?.toTimeString() ?: "",
-                        modifier = Modifier.align(Alignment.BottomEnd),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+            header = when (period) {
+                TaskPeriod.DAY -> {
+                    {
+                        Text(
+                            text = tasks[it].activeStatus?.startDate?.toTimeString() ?: "",
+                            modifier = Modifier.align(Alignment.BottomEnd),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
-            } else null,
+                TaskPeriod.WEEK -> {
+                    { i ->
+                        breakpoints.firstOrNull { it.index == i }?.let {
+                            TaskHeader(
+                                header = tasks[i].activeStatus!!.startDate.toDayLocalized(),
+                                endPadding = endPadding,
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(
+                                        end = endPadding,
+                                        bottom = dashSpace
+                                    ),
+                                description = with(
+                                    tasks[i].activeStatus!!.startDate.toLocalDateTime()
+                                ) {
+                                    "($dayOfMonth ${toMonthLocalized()})"
+                                },
+                                dashedLine = it.index == 0
+                            )
+                        }
+                    }
+                }
+                else -> null
+            },
             spacer = {
                 TaskSpacer(
                     task = tasks[it],
@@ -377,7 +449,7 @@ private fun Tasks(
                     modifier = Modifier
                         .padding(
                             start = 8.dp,
-                            end = 16.dp,
+                            end = endPadding,
                             top = dashSpace
                         )
                 )
@@ -385,6 +457,43 @@ private fun Tasks(
             verticalArrangement = Arrangement.spacedBy(dashSpace),
             showStartTime = period != TaskPeriod.DAY
         )
+    }
+}
+
+@Composable
+private fun TaskHeader(
+    header: String,
+    endPadding: Dp,
+    modifier: Modifier = Modifier,
+    description: String? = null,
+    dashedLine: Boolean = true
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(dashSpace),
+        horizontalAlignment = Alignment.End
+    ) {
+        Column(
+            // ignore end padding
+            modifier = Modifier.offset(x = endPadding),
+            horizontalAlignment = Alignment.End
+        ) {
+            Text(
+                text = header,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = MaterialTheme.colorScheme.primary,
+                lineHeight = 18.sp
+            )
+            description?.let {
+                Text(
+                    text = it,
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+        if (dashedLine) VerticalDashedLine(2)
     }
 }
 
@@ -537,7 +646,7 @@ private fun ContentPreview(
     }
     TaskifyTheme {
         Content(
-            period = TaskPeriod.DAY,
+            period = TaskPeriod.WEEK,
             tasks = tasks,
             onBackClick = {},
             currentDate = curDate,
