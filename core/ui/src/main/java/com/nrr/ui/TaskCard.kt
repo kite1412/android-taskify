@@ -146,6 +146,7 @@ fun TaskCards(
     swipeEnabled: Boolean = true,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    header: @Composable (ColumnScope.(index: Int) -> Unit)? = null,
     spacer: @Composable (ColumnScope.(index: Int) -> Unit)? = null,
     leadingIcon: @Composable (RowScope.(index: Int) -> Unit)? = null,
     additionalContent: @Composable (BoxScope.(Task) -> Unit)? = null,
@@ -180,6 +181,7 @@ fun TaskCards(
                 Row {
                     leadingIcon?.invoke(this, index)
                     Column(modifier = Modifier.weight(1f)) {
+                        header?.invoke(this, index)
                         TaskCard(
                             task = task,
                             actions = actions(task),
