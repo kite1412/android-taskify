@@ -12,4 +12,7 @@
     <string name="plandetail_late">Late</string>
     <string name="plandetail_due">Due</string>
     <string name="plandetail_priority">Priority</string>
+    <string name="plandetail_start_time">Start Time</string>
+    <string name="plandetail_start_day">Start Day</string>
+    <string name="plandetail_start_date">Start Date</string>
 </resources>

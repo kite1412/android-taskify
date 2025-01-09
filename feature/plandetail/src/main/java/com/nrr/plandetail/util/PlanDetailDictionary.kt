@@ -15,4 +15,7 @@ object PlanDetailDictionary {
     val late = R.string.plandetail_late
     val due = R.string.plandetail_due
     val priority = R.string.plandetail_priority
+    val startTime = R.string.plandetail_start_time
+    val startDay = R.string.plandetail_start_day
+    val startDate = R.string.plandetail_start_date
 }

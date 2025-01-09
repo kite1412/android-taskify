@@ -12,4 +12,7 @@
     <string name="plandetail_late">Telat</string>
     <string name="plandetail_due">Tenggat</string>
     <string name="plandetail_priority">Prioritas</string>
+    <string name="plandetail_start_time">Waktu Mulai</string>
+    <string name="plandetail_start_day">Hari Mulai</string>
+    <string name="plandetail_start_date">Tanggal Mulai</string>
 </resources>

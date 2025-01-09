@@ -15,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +30,8 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -109,7 +112,19 @@ private fun Content(
                 onBackClick = onBackClick
             )
             if (tasks?.isNotEmpty() == true) {
-                RealTimeClock(currentDate)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    RealTimeClock(
+                        instant = currentDate,
+                        modifier = Modifier.weight(0.8f)
+                    )
+                    StartIndicator(
+                        period = period,
+                        modifier = Modifier.align(Alignment.Bottom)
+                    )
+                }
                 Tasks(
                     period = period,
                     tasks = tasks,
@@ -153,6 +168,87 @@ private fun Header(
             fontWeight = FontWeight.Bold,
             fontSize = TaskifyDefault.HEADER_FONT_SIZE.sp
         )
+    }
+}
+
+@Composable
+private fun weekIndicator(currentDate: Instant): String {
+    val localDateTime = currentDate.toLocalDateTime(TimeZone.currentSystemDefault())
+    val today = localDateTime.dayOfWeek.value
+    val start = localDateTime.dayOfMonth - today
+    val end = localDateTime.dayOfMonth + today
+    return "($start - " +
+            "$end " +
+            "${localDateTime.month.getDisplayName(TextStyle.FULL, getCurrentLocale())})"
+}
+
+@Composable
+private fun monthIndicator(currentDate: Instant) =
+    with(currentDate.toLocalDateTime(TimeZone.currentSystemDefault())) {
+        this.month.getDisplayName(TextStyle.FULL, getCurrentLocale()) +
+                " ${this.year}"
+    }
+
+@Composable
+fun StartIndicator(
+    period: TaskPeriod,
+    modifier: Modifier = Modifier
+) {
+    val currentDate = Clock.System.now()
+    val density = LocalDensity.current
+    val textStyle = LocalTextStyle.current
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val style = remember {
+        with(density) {
+            val offset = 1.dp.toPx()
+            textStyle.copy(
+                shadow = Shadow(
+                    color = primaryColor,
+                    offset = Offset(-offset, offset)
+                ),
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+    val largeFontSize = MaterialTheme.typography.labelLarge.fontSize
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        when (period) {
+            TaskPeriod.DAY -> {
+                Text(
+                    text = stringResource(PlanDetailDictionary.startTime),
+                    style = style,
+                    fontSize = largeFontSize
+                )
+            }
+            TaskPeriod.WEEK -> {
+                Text(
+                    text = weekIndicator(currentDate),
+                    style = style,
+                    fontSize = MaterialTheme.typography.bodySmall.fontSize
+                )
+                Text(
+                    text = stringResource(PlanDetailDictionary.startDay),
+                    style = style,
+                    fontSize = largeFontSize
+                )
+            }
+            TaskPeriod.MONTH -> {
+                Text(
+                    text = monthIndicator(currentDate),
+                    style = style,
+                    fontSize = MaterialTheme.typography.bodySmall.fontSize
+                )
+                Text(
+                    text = stringResource(PlanDetailDictionary.startDate),
+                    style = style,
+                    fontSize = largeFontSize
+                )
+            }
+        }
     }
 }
 
@@ -275,13 +371,16 @@ private fun Tasks(
                 TaskSpacer(
                     task = tasks[it],
                     dashedLine = it != tasks.lastIndex,
-                    modifier = Modifier.padding(
-                        start = 32.dp,
-                        end = 16.dp
-                    )
+                    modifier = Modifier
+                        .padding(
+                            start = 32.dp,
+                            end = 16.dp,
+                            top = if (it != tasks.lastIndex) dashSpace else 0.dp
+                        )
                 )
             },
-            verticalArrangement = Arrangement.spacedBy(dashSpace)
+            verticalArrangement = Arrangement.spacedBy(dashSpace),
+            showStartTime = period != TaskPeriod.DAY
         )
     }
 }
@@ -434,7 +533,7 @@ private fun ContentPreview(
     }
     TaskifyTheme {
         Content(
-            period = TaskPeriod.DAY,
+            period = TaskPeriod.WEEK,
             tasks = tasks,
             onBackClick = {},
             currentDate = curDate,

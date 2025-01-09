@@ -2,11 +2,12 @@ package com.nrr.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import com.nrr.designsystem.theme.Green
 import com.nrr.designsystem.theme.PastelOrange
 import com.nrr.model.TaskPriority
 
 fun TaskPriority.color() = when (this) {
-    TaskPriority.NORMAL -> Color.Green
+    TaskPriority.NORMAL -> Green
     TaskPriority.HIGH -> PastelOrange
     TaskPriority.CRITICAL -> Color.Red
 }
