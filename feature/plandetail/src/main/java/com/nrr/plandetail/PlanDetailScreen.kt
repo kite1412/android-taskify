@@ -363,7 +363,7 @@ private fun Tasks(
                 {
                     Text(
                         text = tasks[it].activeStatus?.startDate?.toTimeString() ?: "",
-                        modifier = Modifier.align(Alignment.End),
+                        modifier = Modifier.align(Alignment.BottomEnd),
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
                         color = MaterialTheme.colorScheme.primary
@@ -376,7 +376,7 @@ private fun Tasks(
                     dashedLine = it != tasks.lastIndex,
                     modifier = Modifier
                         .padding(
-                            start = 32.dp,
+                            start = 8.dp,
                             end = 16.dp,
                             top = dashSpace
                         )
@@ -537,7 +537,7 @@ private fun ContentPreview(
     }
     TaskifyTheme {
         Content(
-            period = TaskPeriod.WEEK,
+            period = TaskPeriod.DAY,
             tasks = tasks,
             onBackClick = {},
             currentDate = curDate,

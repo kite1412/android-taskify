@@ -7,12 +7,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +27,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,78 +58,118 @@ fun TaskCard(
     clickEnabled: Boolean = onClick != null,
     swipeEnabled: Boolean = true,
     swipeableKeys: Array<Any?>? = null,
-    additionalContent: (@Composable BoxScope.() -> Unit)? = null
+    additionalContent: (@Composable BoxScope.() -> Unit)? = null,
+    header: @Composable (BoxScope.() -> Unit)? = null,
+    bottom: @Composable (BoxScope.() -> Unit)? = null
 ) {
     val swipeableClip = 10.dp
     val showTime = showStartTime && task.activeStatus != null
+    var contentWidth by remember { mutableIntStateOf(0) }
+    val density = LocalDensity.current
 
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        if (showTime) AdaptiveText(
-            text = task.activeStatus!!.startDate.toTimeString(),
-            initialFontSize = MaterialTheme.typography.bodyMedium.fontSize,
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .weight(0.1f),
-            fontWeight = FontWeight.Bold,
-            maxLines = 1
-        )
-        Swipeable(
-            actions = actions,
-            modifier = Modifier.weight(0.9f),
-            state = swipeableState,
-            actionButtonsBorderShape = RoundedCornerShape(swipeableClip),
-            actionConfirmation = true,
-            swipeEnabled = swipeEnabled,
-            keys = swipeableKeys
-        ) { m ->
-            Box(modifier = m) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .combinedClickable(
-                            onLongClick = { onLongClick?.invoke(task) },
-                            onClick = { onClick?.invoke(task) },
-                            enabled = clickEnabled
-                        )
-                        .clip(RoundedCornerShape(swipeableClip))
-                        .background(task.color())
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Box(
+    Column(modifier = modifier) {
+        header?.let {
+            Box(
+                modifier = Modifier
+                    .width(
+                        with(density) {
+                            contentWidth.toDp()
+                        }
+                    )
+                    .align(Alignment.End)
+            ) {
+                it.invoke(this)
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            if (showTime) AdaptiveText(
+                text = task.activeStatus!!.startDate.toTimeString(),
+                initialFontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .weight(0.1f),
+                fontWeight = FontWeight.Bold,
+                maxLines = 1
+            )
+            Swipeable(
+                actions = actions,
+                modifier = Modifier
+                    .weight(1f)
+                    .then(
+                        if (header != null || bottom != null) Modifier
+                            .onGloballyPositioned {
+                                contentWidth = it.size.width
+                            }
+                        else Modifier
+                    ),
+                state = swipeableState,
+                actionButtonsBorderShape = RoundedCornerShape(swipeableClip),
+                actionConfirmation = true,
+                swipeEnabled = swipeEnabled,
+                keys = swipeableKeys
+            ) { m ->
+                Box(modifier = m) {
+                    Row(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(100.dp))
-                            .background(Color.White)
-                            .padding(12.dp)
+                            .fillMaxWidth()
+                            .combinedClickable(
+                                onLongClick = { onLongClick?.invoke(task) },
+                                onClick = { onClick?.invoke(task) },
+                                enabled = clickEnabled
+                            )
+                            .clip(RoundedCornerShape(swipeableClip))
+                            .background(task.color())
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(
-                            painter = painterResource(task.iconId()),
-                            contentDescription = task.taskType.name,
-                            modifier = Modifier.size(24.dp),
-                            tint = Color.Black
-                        )
-                    }
-                    Column {
-                        Text(
-                            text = task.title,
-                            fontWeight = FontWeight.Bold
-                        )
-                        task.description?.let { t ->
-                            with (MaterialTheme.typography.bodySmall.fontSize.value) {
-                                Text(
-                                    text = t,
-                                    fontSize = this.sp,
-                                    lineHeight = (this + 2f).sp
-                                )
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(100.dp))
+                                .background(Color.White)
+                                .padding(12.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(task.iconId()),
+                                contentDescription = task.taskType.name,
+                                modifier = Modifier.size(24.dp),
+                                tint = Color.Black
+                            )
+                        }
+                        Column {
+                            Text(
+                                text = task.title,
+                                fontWeight = FontWeight.Bold
+                            )
+                            task.description?.let { t ->
+                                with (MaterialTheme.typography.bodySmall.fontSize.value) {
+                                    Text(
+                                        text = t,
+                                        fontSize = this.sp,
+                                        lineHeight = (this + 2f).sp
+                                    )
+                                }
                             }
                         }
                     }
+                    additionalContent?.invoke(this)
                 }
-                additionalContent?.invoke(this)
+            }
+        }
+        bottom?.let {
+            Box(
+                modifier = Modifier
+                    .width(
+                        with(density) {
+                            contentWidth.toDp()
+                        }
+                    )
+                    .align(Alignment.End)
+            ) {
+                it.invoke(this)
             }
         }
     }
@@ -146,8 +188,8 @@ fun TaskCards(
     swipeEnabled: Boolean = true,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    header: @Composable (ColumnScope.(index: Int) -> Unit)? = null,
-    spacer: @Composable (ColumnScope.(index: Int) -> Unit)? = null,
+    header: @Composable (BoxScope.(index: Int) -> Unit)? = null,
+    spacer: @Composable (BoxScope.(index: Int) -> Unit)? = null,
     leadingIcon: @Composable (RowScope.(index: Int) -> Unit)? = null,
     additionalContent: @Composable (BoxScope.(Task) -> Unit)? = null,
     resetSwipes: Any? = null
@@ -180,24 +222,31 @@ fun TaskCards(
                 }
                 Row {
                     leadingIcon?.invoke(this, index)
-                    Column(modifier = Modifier.weight(1f)) {
-                        header?.invoke(this, index)
-                        TaskCard(
-                            task = task,
-                            actions = actions(task),
-                            swipeableState = s,
-                            showStartTime = showStartTime,
-                            onClick = { onClick?.invoke(task) },
-                            onLongClick = { onLongClick?.invoke(task) },
-                            clickEnabled = clickEnabled(index),
-                            swipeEnabled = swipeEnabled,
-                            additionalContent = additionalContent?.let {
-                                { it.invoke(this, task) }
-                            },
-                            swipeableKeys = arrayOf(tasks.size)
-                        )
-                        spacer?.invoke(this, index)
-                    }
+                    TaskCard(
+                        task = task,
+                        actions = actions(task),
+                        modifier = Modifier.weight(1f),
+                        swipeableState = s,
+                        showStartTime = showStartTime,
+                        onClick = { onClick?.invoke(task) },
+                        onLongClick = { onLongClick?.invoke(task) },
+                        clickEnabled = clickEnabled(index),
+                        swipeEnabled = swipeEnabled,
+                        additionalContent = additionalContent?.let {
+                            { it.invoke(this, task) }
+                        },
+                        swipeableKeys = arrayOf(tasks.size),
+                        header = if (header != null) {
+                            {
+                                header.invoke(this, index)
+                            }
+                        } else null,
+                        bottom = if (spacer != null) {
+                            {
+                                spacer.invoke(this, index)
+                            }
+                        } else null
+                    )
                 }
             }
         }
