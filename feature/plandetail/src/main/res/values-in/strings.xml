@@ -4,4 +4,12 @@
     <string name="plandetail_week_plan">Rencana minggu ini</string>
     <string name="plandetail_month_plan">Rencana bulan ini</string>
     <string name="plandetail_no_plan">Rencana belum diatur</string>
+    <string name="plandetail_complete">Selesai</string>
+    <string name="plandetail_remove">Hapus</string>
+    <string name="plandetail_completed">selesai</string>
+    <string name="plandetail_in_progress">Sedang berlangsung</string>
+    <string name="plandetail_waiting">Menunggu</string>
+    <string name="plandetail_late">Telat</string>
+    <string name="plandetail_due">Tenggat</string>
+    <string name="plandetail_priority">Prioritas</string>
 </resources>
