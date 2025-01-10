@@ -1,19 +1,21 @@
 package com.nrr.ui
 
 import androidx.compose.runtime.Composable
+import com.nrr.model.toLocalDateTime
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import java.time.format.TextStyle
 
 @Composable
-fun Instant.toDayLocalized(): String =
-    toLocalDateTime(TimeZone.currentSystemDefault())
-        .dayOfWeek.getDisplayName(
+fun LocalDateTime.toDayLocalized(): String =
+        dayOfWeek.getDisplayName(
             TextStyle.FULL,
             getCurrentLocale()
         )
+
+@Composable
+fun Instant.toDayLocalized(): String =
+    toLocalDateTime().toDayLocalized()
 
 @Composable
 fun LocalDateTime.toMonthLocalized(): String =
@@ -21,3 +23,17 @@ fun LocalDateTime.toMonthLocalized(): String =
         TextStyle.FULL,
         getCurrentLocale()
     )
+
+@Composable
+fun Instant.toDateStringLocalized(): String =
+    with(toLocalDateTime()) {
+        val locale = getCurrentLocale()
+        "$dayOfMonth " +
+                "${
+                    month.getDisplayName(
+                        TextStyle.FULL,
+                        locale
+                    )
+                } " +
+                "$year"
+    }

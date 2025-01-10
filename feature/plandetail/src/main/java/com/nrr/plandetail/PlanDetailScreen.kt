@@ -56,8 +56,6 @@ import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.ActiveStatus
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
-import com.nrr.model.toDateString
-import com.nrr.model.toDayOfWeekValue
 import com.nrr.model.toLocalDateTime
 import com.nrr.model.toTimeString
 import com.nrr.plandetail.util.PlanDetailDictionary
@@ -68,6 +66,7 @@ import com.nrr.ui.TaskCards
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.color
 import com.nrr.ui.getCurrentLocale
+import com.nrr.ui.toDateStringLocalized
 import com.nrr.ui.toDayLocalized
 import com.nrr.ui.toMonthLocalized
 import com.nrr.ui.toStringLocalized
@@ -282,7 +281,7 @@ private fun RealTimeClock(
             color = MaterialTheme.colorScheme.primary
         )
         Text(
-            text = "${instant.toDateString()}\n" +
+            text = "${instant.toDateStringLocalized()}\n" +
                     instant.toTimeString(withSecond = true),
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp,
@@ -344,28 +343,26 @@ else mutableListOf(
     )
 }.toList()
 
-private fun extractWeekHeaderBreakpoint(
+private fun extractHeaderBreakpoint(
     tasks: List<Task>,
+    breakpoint: (Task) -> Int
 ): List<HeaderBreakpoint> {
     if (tasks.isEmpty()) return emptyList()
     val breakpoints = mutableListOf(
         HeaderBreakpoint(
             index = 0,
-            breakpoint = tasks[0].activeStatus!!.startDate
-                .toDayOfWeekValue()
+            breakpoint = breakpoint(tasks[0])
         )
     )
     var latest = 0
     breakpoints.apply {
         for (i in 1..tasks.lastIndex) {
-            val t = tasks[i]
-            if (t.activeStatus!!.startDate.toDayOfWeekValue()
-                != breakpoints[latest].breakpoint) {
+            val t = tasks.getOrNull(i) ?: break
+            if (breakpoint(t) != breakpoints[latest].breakpoint) {
                 add(
                     HeaderBreakpoint(
                         index = i,
-                        breakpoint = t.activeStatus!!.startDate
-                            .toDayOfWeekValue()
+                        breakpoint = breakpoint(t)
                     )
                 )
                 latest++
@@ -388,7 +385,18 @@ private fun Tasks(
         val completeMessage = stringResource(PlanDetailDictionary.complete)
         val breakpoints = remember {
             when (period) {
-                TaskPeriod.WEEK -> extractWeekHeaderBreakpoint(it)
+                TaskPeriod.WEEK -> extractHeaderBreakpoint(
+                    tasks = it,
+                    breakpoint = { task ->
+                        task.activeStatus!!.startDate.toLocalDateTime().dayOfWeek.value
+                    }
+                )
+                TaskPeriod.MONTH -> extractHeaderBreakpoint(
+                    tasks = it,
+                    breakpoint = { task ->
+                        task.activeStatus!!.startDate.toLocalDateTime().dayOfMonth
+                    }
+                )
                 else -> emptyList()
             }
         }
@@ -440,7 +448,27 @@ private fun Tasks(
                         }
                     }
                 }
-                else -> null
+                TaskPeriod.MONTH-> {
+                    { i ->
+                        breakpoints.firstOrNull { it.index == i }?.let {
+                            val localDateTime = tasks[i].activeStatus!!.startDate.toLocalDateTime()
+                            TaskHeader(
+                                header = with(localDateTime) {
+                                    "${toMonthLocalized()} $dayOfMonth"
+                                },
+                                endPadding = endPadding,
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(
+                                        end = endPadding,
+                                        bottom = dashSpace
+                                    ),
+                                description = "(${localDateTime.toDayLocalized()})",
+                                dashedLine = it.index == 0
+                            )
+                        }
+                    }
+                }
             },
             spacer = {
                 TaskSpacer(
@@ -646,7 +674,7 @@ private fun ContentPreview(
     }
     TaskifyTheme {
         Content(
-            period = TaskPeriod.WEEK,
+            period = TaskPeriod.MONTH,
             tasks = tasks,
             onBackClick = {},
             currentDate = curDate,

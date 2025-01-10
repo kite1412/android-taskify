@@ -14,17 +14,3 @@ fun Instant.toTimeString(withSecond: Boolean = false): String =
                 minute.toString().padStart(2, '0') +
                 if (withSecond) ":" + second.toString().padStart(2, '0') else ""
     }
-
-fun Instant.toDateString(): String =
-    toLocalDateTime().run {
-        "$dayOfMonth " +
-                "${
-                    month.toString()
-                        .lowercase()
-                        .replaceFirstChar { it.uppercase() }
-                } " +
-                "$year"
-    }
-
-fun Instant.toDayOfWeekValue(): Int =
-    toLocalDateTime().dayOfWeek.value
