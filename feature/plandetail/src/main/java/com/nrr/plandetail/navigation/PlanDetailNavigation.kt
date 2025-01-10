@@ -20,7 +20,7 @@ fun NavController.navigateToPlanDetail(
 
 fun NavGraphBuilder.planDetailScreen(
     onBackClick: () -> Unit,
-    onArrangePlanClick: () -> Unit
+    onArrangePlanClick: (TaskPeriod) -> Unit
 ) {
     composable<PlanDetailRoute> {
         PlanDetailScreen(

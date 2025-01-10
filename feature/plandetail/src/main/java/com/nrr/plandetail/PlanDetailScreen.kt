@@ -86,7 +86,7 @@ import java.time.format.TextStyle
 @Composable
 internal fun PlanDetailScreen(
     onBackClick: () -> Unit,
-    onArrangePlanClick: () -> Unit,
+    onArrangePlanClick: (TaskPeriod) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PlanDetailViewModel = hiltViewModel()
 ) {
@@ -99,7 +99,7 @@ internal fun PlanDetailScreen(
         onBackClick = onBackClick,
         onRemove = viewModel::removeTask,
         onComplete = viewModel::markCompleted,
-        onArrangePlanClick = onArrangePlanClick,
+        onArrangePlanClick = { onArrangePlanClick(period) },
         modifier = modifier
     )
 }
