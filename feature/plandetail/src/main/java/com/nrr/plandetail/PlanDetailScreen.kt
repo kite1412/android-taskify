@@ -97,8 +97,8 @@ internal fun PlanDetailScreen(
         period = period,
         tasks = tasks,
         onBackClick = onBackClick,
-        onRemove = {},
-        onComplete = {},
+        onRemove = viewModel::removeTask,
+        onComplete = viewModel::markCompleted,
         onArrangePlanClick = onArrangePlanClick,
         modifier = modifier
     )
@@ -228,7 +228,7 @@ private fun monthIndicator(currentDate: Instant) =
     }
 
 @Composable
-fun StartIndicator(
+private fun StartIndicator(
     period: TaskPeriod,
     modifier: Modifier = Modifier
 ) {
@@ -401,7 +401,7 @@ else mutableListOf(
         onClick = { onRemove(task) }
     )
 ).apply {
-    if (task.activeStatus!!.isCompleted) add(
+    if (!task.activeStatus!!.isCompleted) add(
         index = 0,
         element = Action(
             action = completeMessage,
@@ -552,7 +552,8 @@ private fun Tasks(
                 )
             },
             verticalArrangement = Arrangement.spacedBy(dashSpace),
-            showStartTime = period != TaskPeriod.DAY
+            showStartTime = period != TaskPeriod.DAY,
+            resetSwipes = tasks
         )
     }
 }
@@ -747,17 +748,10 @@ private fun ContentPreview(
     @PreviewParameter(TaskPreviewParameter::class)
     tasks: List<Task>
 ) {
-    var curDate by remember { mutableStateOf(Clock.System.now()) }
     val tasks1 = remember {
         tasks.toMutableStateList()
     }
 
-//    LaunchedEffect(Unit) {
-//        while (true) {
-//            curDate = Clock.System.now()
-//            delay(1000)
-//        }
-//    }
     TaskifyTheme {
         Content(
             period = TaskPeriod.MONTH,
@@ -765,11 +759,15 @@ private fun ContentPreview(
             onBackClick = {},
             onRemove = { tasks1.remove(it) },
             onComplete = { t ->
-                tasks1.map {
-                    if (it == t) it
-                        .copy(activeStatus = it.activeStatus?.copy(isCompleted = true))
-                    else it
-                }
+                val p = tasks1.toList()
+                tasks1.clear()
+                tasks1.addAll(
+                    p.map {
+                        if (it.id == t.id)
+                            t.copy(activeStatus = t.activeStatus?.copy(isCompleted = true))
+                        else it
+                    }
+                )
             },
             onArrangePlanClick = {}
         )
