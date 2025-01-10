@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -47,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.designsystem.component.Action
+import com.nrr.designsystem.component.RoundRectButton
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.Blue
 import com.nrr.designsystem.theme.Gray
@@ -78,6 +80,7 @@ import java.time.format.TextStyle
 @Composable
 internal fun PlanDetailScreen(
     onBackClick: () -> Unit,
+    onArrangePlanClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PlanDetailViewModel = hiltViewModel()
 ) {
@@ -91,6 +94,7 @@ internal fun PlanDetailScreen(
         currentDate = viewModel.currentDate,
         onRemove = {},
         onComplete = {},
+        onArrangePlanClick = onArrangePlanClick,
         modifier = modifier
     )
 }
@@ -103,6 +107,7 @@ private fun Content(
     currentDate: Instant,
     onRemove: (Task) -> Unit,
     onComplete: (Task) -> Unit,
+    onArrangePlanClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -142,6 +147,11 @@ private fun Content(
             }
         }
         if (tasks?.isEmpty() == true) NoPlan()
+        if (tasks?.isNotEmpty() == true) ArrangePlan(
+            onClick = onArrangePlanClick,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+        )
     }
 }
 
@@ -383,7 +393,7 @@ private fun Tasks(
     tasks?.let {
         val removeMessage = stringResource(PlanDetailDictionary.remove)
         val completeMessage = stringResource(PlanDetailDictionary.complete)
-        val breakpoints = remember {
+        val breakpoints = remember(tasks) {
             when (period) {
                 TaskPeriod.WEEK -> extractHeaderBreakpoint(
                     tasks = it,
@@ -658,6 +668,20 @@ private fun VerticalDashedLine(
     }
 }
 
+@Composable
+private fun ArrangePlan(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    RoundRectButton(
+        onClick = onClick,
+        action = stringResource(PlanDetailDictionary.arrangePlan),
+        modifier = modifier,
+        iconId = TaskifyIcon.pencil2,
+        contentPadding = PaddingValues(6.dp)
+    )
+}
+
 @Preview
 @Composable
 private fun ContentPreview(
@@ -680,6 +704,7 @@ private fun ContentPreview(
             currentDate = curDate,
             onRemove = {},
             onComplete = {},
+            onArrangePlanClick = {}
         )
     }
 }

@@ -15,4 +15,5 @@
     <string name="plandetail_start_time">Start Time</string>
     <string name="plandetail_start_day">Start Day</string>
     <string name="plandetail_start_date">Start Date</string>
+    <string name="plandetail_arrange_plan">Arrange Plan</string>
 </resources>

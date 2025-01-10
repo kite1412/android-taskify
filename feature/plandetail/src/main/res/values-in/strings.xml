@@ -15,4 +15,5 @@
     <string name="plandetail_start_time">Waktu Mulai</string>
     <string name="plandetail_start_day">Hari Mulai</string>
     <string name="plandetail_start_date">Tanggal Mulai</string>
+    <string name="plandetail_arrange_plan">Atur Rencana</string>
 </resources>

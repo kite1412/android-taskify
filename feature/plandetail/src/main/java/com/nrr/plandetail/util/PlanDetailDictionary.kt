@@ -18,4 +18,5 @@ object PlanDetailDictionary {
     val startTime = R.string.plandetail_start_time
     val startDay = R.string.plandetail_start_day
     val startDate = R.string.plandetail_start_date
+    val arrangePlan = R.string.plandetail_arrange_plan
 }

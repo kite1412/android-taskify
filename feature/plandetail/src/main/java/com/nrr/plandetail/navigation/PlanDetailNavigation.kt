@@ -18,11 +18,13 @@ fun NavController.navigateToPlanDetail(
 )
 
 fun NavGraphBuilder.planDetailScreen(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onArrangePlanClick: () -> Unit
 ) {
     composable<PlanDetailRoute> {
         PlanDetailScreen(
-            onBackClick = onBackClick
+            onBackClick = onBackClick,
+            onArrangePlanClick = onArrangePlanClick
         )
     }
 }

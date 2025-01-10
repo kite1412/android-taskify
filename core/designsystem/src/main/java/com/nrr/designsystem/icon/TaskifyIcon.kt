@@ -27,4 +27,5 @@ object TaskifyIcon {
     val back = R.drawable.back
     val pencil = R.drawable.pencil
     val calendarCross = R.drawable.calendar_cross
+    val pencil2 = R.drawable.edit
 }

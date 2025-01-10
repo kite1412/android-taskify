@@ -1,5 +1,9 @@
 package com.nrr.designsystem.component
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonColors
@@ -25,7 +29,9 @@ fun RoundRectButton(
     shape: Shape = RoundedCornerShape(8.dp),
     fontSize: Int = MaterialTheme.typography.bodyMedium.fontSize.value.toInt(),
     enabled: Boolean = true,
-    colors: ButtonColors = TaskifyButtonDefaults.colors()
+    colors: ButtonColors = TaskifyButtonDefaults.colors(),
+    space: Int = 4,
+    contentPadding: PaddingValues = PaddingValues()
 ) = TextButton(
     onClick = onClick,
     colors = colors,
@@ -33,17 +39,22 @@ fun RoundRectButton(
     enabled = enabled,
     modifier = modifier
 ) {
-    Text(
-        text = action,
-        fontSize = fontSize.sp,
-    )
-    iconId?.let {
-        Icon(
-            painter = painterResource(it),
-            contentDescription = "add",
-            modifier = Modifier
-                .size((fontSize * 1.5).dp)
+    Row(
+        modifier = Modifier.padding(contentPadding),
+        horizontalArrangement = Arrangement.spacedBy(space.dp)
+    ) {
+        Text(
+            text = action,
+            fontSize = fontSize.sp,
         )
+        iconId?.let {
+            Icon(
+                painter = painterResource(it),
+                contentDescription = "add",
+                modifier = Modifier
+                    .size((fontSize * 1.5).dp)
+            )
+        }
     }
 }
 
