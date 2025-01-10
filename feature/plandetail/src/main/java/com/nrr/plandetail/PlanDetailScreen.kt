@@ -28,6 +28,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -96,7 +97,6 @@ internal fun PlanDetailScreen(
         period = period,
         tasks = tasks,
         onBackClick = onBackClick,
-        currentDate = viewModel.currentDate,
         onRemove = {},
         onComplete = {},
         onArrangePlanClick = onArrangePlanClick,
@@ -109,7 +109,6 @@ private fun Content(
     period: TaskPeriod,
     tasks: List<Task>?,
     onBackClick: () -> Unit,
-    currentDate: Instant,
     onRemove: (Task) -> Unit,
     onComplete: (Task) -> Unit,
     onArrangePlanClick: () -> Unit,
@@ -139,7 +138,6 @@ private fun Content(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         RealTimeClock(
-                            instant = currentDate,
                             modifier = Modifier.weight(0.8f)
                         )
                         StartIndicator(
@@ -297,18 +295,27 @@ fun StartIndicator(
 
 @Composable
 private fun RealTimeClock(
-    instant: Instant,
     modifier: Modifier = Modifier
 ) {
-    val locale = getCurrentLocale()
-    val localDateTime = instant.toLocalDateTime()
+    var instant by remember {
+        mutableStateOf(Clock.System.now())
+    }
 
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(1000)
+            instant = Clock.System.now()
+        }
+    }
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text(
-            text = localDateTime.dayOfWeek.getDisplayName(TextStyle.FULL, locale),
+            text = instant.toLocalDateTime().dayOfWeek.getDisplayName(
+                TextStyle.FULL,
+                getCurrentLocale()
+            ),
             fontWeight = FontWeight.Bold,
             fontSize = TaskifyDefault.HEADER_FONT_SIZE.sp,
             color = MaterialTheme.colorScheme.primary
@@ -442,19 +449,19 @@ private fun Tasks(
     onComplete: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    tasks?.let {
+    if (tasks != null) {
         val removeMessage = stringResource(PlanDetailDictionary.remove)
         val completeMessage = stringResource(PlanDetailDictionary.complete)
-        val breakpoints = remember(tasks) {
+        val breakpoints = remember(tasks.size) {
             when (period) {
                 TaskPeriod.WEEK -> extractHeaderBreakpoint(
-                    tasks = it,
+                    tasks = tasks,
                     breakpoint = { task ->
                         task.activeStatus!!.startDate.toLocalDateTime().dayOfWeek.value
                     }
                 )
                 TaskPeriod.MONTH -> extractHeaderBreakpoint(
-                    tasks = it,
+                    tasks = tasks,
                     breakpoint = { task ->
                         task.activeStatus!!.startDate.toLocalDateTime().dayOfMonth
                     }
@@ -741,21 +748,29 @@ private fun ContentPreview(
     tasks: List<Task>
 ) {
     var curDate by remember { mutableStateOf(Clock.System.now()) }
-
-    LaunchedEffect(Unit) {
-        while (true) {
-            curDate = Clock.System.now()
-            delay(1000)
-        }
+    val tasks1 = remember {
+        tasks.toMutableStateList()
     }
+
+//    LaunchedEffect(Unit) {
+//        while (true) {
+//            curDate = Clock.System.now()
+//            delay(1000)
+//        }
+//    }
     TaskifyTheme {
         Content(
             period = TaskPeriod.MONTH,
-            tasks = tasks,
+            tasks = tasks1,
             onBackClick = {},
-            currentDate = curDate,
-            onRemove = {},
-            onComplete = {},
+            onRemove = { tasks1.remove(it) },
+            onComplete = { t ->
+                tasks1.map {
+                    if (it == t) it
+                        .copy(activeStatus = it.activeStatus?.copy(isCompleted = true))
+                    else it
+                }
+            },
             onArrangePlanClick = {}
         )
     }
