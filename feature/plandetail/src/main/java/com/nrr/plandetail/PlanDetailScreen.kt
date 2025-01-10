@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,6 +35,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -113,6 +115,10 @@ private fun Content(
     onArrangePlanClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var arrangePlanHeight by remember {
+        mutableIntStateOf(0)
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -126,6 +132,8 @@ private fun Content(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    val density = LocalDensity.current
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -144,7 +152,13 @@ private fun Content(
                         tasks = tasks,
                         onRemove = onRemove,
                         onComplete = onComplete,
-                        modifier = Modifier.verticalScroll(rememberScrollState())
+                        modifier = Modifier
+                            .verticalScroll(rememberScrollState())
+                            .padding(
+                                bottom = with(density) {
+                                    (arrangePlanHeight + 8).toDp()
+                                }
+                            )
                     )
                 }
             }
@@ -156,6 +170,9 @@ private fun Content(
             onClick = onArrangePlanClick,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
+                .onGloballyPositioned {
+                    arrangePlanHeight = it.size.height
+                }
         )
     }
 }
@@ -734,7 +751,7 @@ private fun ContentPreview(
     TaskifyTheme {
         Content(
             period = TaskPeriod.MONTH,
-            tasks = emptyList(),
+            tasks = tasks,
             onBackClick = {},
             currentDate = curDate,
             onRemove = {},
