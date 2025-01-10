@@ -16,6 +16,7 @@ dependencies {
     implementation(projects.feature.registration)
     implementation(projects.feature.taskmanagement)
     implementation(projects.feature.taskdetail)
+    implementation(projects.feature.plandetail)
 
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.hilt.navigation.compose)

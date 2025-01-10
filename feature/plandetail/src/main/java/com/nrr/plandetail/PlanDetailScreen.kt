@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.designsystem.component.Action
+import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.RoundRectButton
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.Blue
@@ -178,7 +179,7 @@ private fun Header(
                 contentDescription = "back"
             )
         }
-        Text(
+        AdaptiveText(
             text = stringResource(
                 id = when (period) {
                     TaskPeriod.DAY -> PlanDetailDictionary.todayPlan
@@ -186,8 +187,9 @@ private fun Header(
                     TaskPeriod.MONTH -> PlanDetailDictionary.monthPlan
                 }
             ),
+            initialFontSize = TaskifyDefault.HEADER_FONT_SIZE.sp,
             fontWeight = FontWeight.Bold,
-            fontSize = TaskifyDefault.HEADER_FONT_SIZE.sp
+            maxLines = 1
         )
     }
 }
