@@ -5,6 +5,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.nrr.plandetail.navigation.navigateToPlanDetail
+import com.nrr.plandetail.navigation.planDetailScreen
 import com.nrr.taskdetail.navigation.navigateToTaskDetail
 import com.nrr.taskdetail.navigation.taskDetailScreen
 import com.nrr.taskmanagement.navigation.taskManagementScreen
@@ -28,9 +30,9 @@ fun TaskifyNavHost(
     ) {
         todayPlanScreen(
             onSettingClick = { /* TODO navigate to settings screen */ },
-            onPlanForTodayClick = { /* TODO navigate to plan for today screen */ },
-            onWeeklyClick = { /* TODO navigate to weekly screen */ },
-            onMonthlyClick = { /* TODO navigate to monthly screen */ },
+            onPlanForTodayClick = navController::navigateToPlanDetail,
+            onWeeklyClick = navController::navigateToPlanDetail,
+            onMonthlyClick = navController::navigateToPlanDetail,
             onSetTodayTasksClick = { /* TODO navigate to set today tasks screen */ }
         )
         taskManagementScreen(
@@ -38,6 +40,10 @@ fun TaskifyNavHost(
         )
         taskDetailScreen(
             onBackClick = navController::popBackStack
+        )
+        planDetailScreen(
+            onBackClick = navController::popBackStack,
+            onArrangePlanClick = { /* TODO navigate to arrange plan screen */ }
         )
         composable<FakeAnalyticsRoute> {  }
         composable<FakeProfileRoute> {  }

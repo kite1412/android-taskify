@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plandetail_today_plan">Today\'s plan</string>
+    <string name="plandetail_week_plan">This week\'s plan</string>
+    <string name="plandetail_month_plan">This month\'s plan</string>
+    <string name="plandetail_no_plan">Plan hasn\'t been set</string>
+    <string name="plandetail_complete">Complete</string>
+    <string name="plandetail_remove">Remove</string>
+    <string name="plandetail_completed">completed</string>
+    <string name="plandetail_in_progress">In progress</string>
+    <string name="plandetail_waiting">Waiting</string>
+    <string name="plandetail_late">Late</string>
+    <string name="plandetail_due">Due</string>
+    <string name="plandetail_priority">Priority</string>
+    <string name="plandetail_start_time">Start Time</string>
+    <string name="plandetail_start_day">Start Day</string>
+    <string name="plandetail_start_date">Start Date</string>
+    <string name="plandetail_arrange_plan">Arrange Plan</string>
+    <string name="plandetail_arrange_message">Arrange your plan here</string>
+</resources>

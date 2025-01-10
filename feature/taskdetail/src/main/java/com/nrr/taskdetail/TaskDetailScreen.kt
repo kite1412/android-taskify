@@ -73,7 +73,6 @@ import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.Task
 import com.nrr.model.TaskType
-import com.nrr.model.toDateString
 import com.nrr.model.toTimeString
 import com.nrr.taskdetail.util.TaskDetailDictionary
 import com.nrr.taskdetail.util.examplesId
@@ -83,6 +82,7 @@ import com.nrr.ui.LocalSnackbarHostState
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.color
 import com.nrr.ui.iconId
+import com.nrr.ui.toDateStringLocalized
 import com.nrr.ui.toStringLocalized
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
@@ -405,7 +405,7 @@ private fun Title(
                         lineHeight = smallFontSize
                     )
                     Text(
-                        text = "${createdAt.toDateString()}\n${createdAt.toTimeString()}",
+                        text = "${createdAt.toDateStringLocalized()}\n${createdAt.toTimeString()}",
                         fontSize = smallFontSize,
                         lineHeight = smallFontSize,
                     )
@@ -419,7 +419,7 @@ private fun Title(
                         lineHeight = smallFontSize
                     )
                     Text(
-                        text = "${updatedAt.toDateString()}\n${updatedAt.toTimeString()}",
+                        text = "${updatedAt.toDateStringLocalized()}\n${updatedAt.toTimeString()}",
                         fontSize = smallFontSize,
                         lineHeight = smallFontSize,
                     )

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nrr.designsystem.icon.TaskifyIcon
+import com.nrr.designsystem.util.TaskifyDefault
 
 @Composable
 fun EmptyTasks(
@@ -22,12 +22,12 @@ fun EmptyTasks(
     modifier: Modifier = Modifier,
     iconId: Int = TaskifyIcon.emptyNote
 ) {
-    val color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+    val color = TaskifyDefault.emptyWarningContentColor
 
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(
-            space = 16.dp,
+            space = TaskifyDefault.EMPTY_WARNING_CONTENT_SPACE.dp,
             alignment = Alignment.CenterVertically
         ),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -35,14 +35,14 @@ fun EmptyTasks(
         Icon(
             painter = painterResource(iconId),
             contentDescription = message,
-            modifier = Modifier.size(60.dp),
+            modifier = Modifier.size(TaskifyDefault.EMPTY_ICON_SIZE.dp),
             tint = color
         )
         Text(
             text = message,
             maxLines = 2,
             fontWeight = FontWeight.Bold,
-            fontSize = 20.sp,
+            fontSize = TaskifyDefault.EMPTY_LABEL_FONT_SIZE.sp,
             color = color
         )
     }
