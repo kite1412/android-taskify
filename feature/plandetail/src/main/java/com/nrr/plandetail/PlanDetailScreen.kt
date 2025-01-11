@@ -151,7 +151,6 @@ private fun Content(
                         onRemove = onRemove,
                         onComplete = onComplete,
                         modifier = Modifier
-                            .verticalScroll(rememberScrollState())
                             .padding(
                                 bottom = with(density) {
                                     (arrangePlanHeight + 8).toDp()

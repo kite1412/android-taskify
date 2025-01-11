@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,12 +21,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledIconButton
@@ -75,11 +74,11 @@ import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.taskmanagement.util.TaskManagementDictionary
 import com.nrr.ui.ConfirmationDialog
-import com.nrr.ui.TaskifyDialogDefaults
 import com.nrr.ui.EmptyTasks
 import com.nrr.ui.LocalSnackbarHostState
 import com.nrr.ui.TaskCards
 import com.nrr.ui.TaskPreviewParameter
+import com.nrr.ui.TaskifyDialogDefaults
 
 @Composable
 internal fun TaskManagementScreen(
@@ -250,10 +249,7 @@ private fun Content(
                 onCheckedChange = onCheckedChange,
                 onRemoveFromPlan = onRemoveTaskFromPlan,
                 onDelete = onDeleteTask,
-                showSnackbar = showSnackbar,
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .verticalScroll(rememberScrollState())
+                showSnackbar = showSnackbar
             )
         }
         when {
@@ -530,6 +526,7 @@ private fun Tasks(
                     )
                 },
                 modifier = modifier,
+                contentPadding = PaddingValues(top = 8.dp),
                 onClick = {
                     if (editMode) onCheckedChange(it, !checked(it))
                     else onClick(it)

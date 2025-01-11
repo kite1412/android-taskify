@@ -7,12 +7,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -180,6 +185,8 @@ fun TaskCards(
     tasks: List<Task>,
     actions: (Task) -> List<Action>,
     modifier: Modifier = Modifier,
+    state: LazyListState = rememberLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     showStartTime: Boolean = false,
     onClick: ((Task) -> Unit)? = null,
     onLongClick: ((Task) -> Unit)? = null,
@@ -204,12 +211,17 @@ fun TaskCards(
         mutableIntStateOf(-1)
     }
 
-    Column(
+    LazyColumn(
         modifier = modifier,
         verticalArrangement = verticalArrangement,
-        horizontalAlignment = horizontalAlignment
+        horizontalAlignment = horizontalAlignment,
+        state = state,
+        contentPadding = contentPadding
     ) {
-        tasks.forEachIndexed { index, task ->
+        itemsIndexed(
+            items = tasks,
+            key = { _, t -> t.id }
+        ) { index, task ->
             if (showCard(task)) {
                 val s = states[index]
                 LaunchedEffect(s.isOpen) {
