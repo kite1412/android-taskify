@@ -45,7 +45,7 @@ class TaskifyAppState(
             TopLevelDestination.entries.firstOrNull {
                 currentNavDestination?.hasRoute(it.route) == true
             }.also {
-                it?.let { d->
+                it?.let { d ->
                     currentDes = d.destination
                 }
             }

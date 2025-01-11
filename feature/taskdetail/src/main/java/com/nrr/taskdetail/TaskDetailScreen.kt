@@ -77,7 +77,7 @@ import com.nrr.model.toTimeString
 import com.nrr.taskdetail.util.TaskDetailDictionary
 import com.nrr.taskdetail.util.examplesId
 import com.nrr.ui.ConfirmationDialog
-import com.nrr.ui.ConfirmationDialogDefaults
+import com.nrr.ui.TaskifyDialogDefaults
 import com.nrr.ui.LocalSnackbarHostState
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.color
@@ -219,7 +219,7 @@ private fun Content(
             cancelText = stringResource(confirmation.cancelText),
             confirmationDesc = stringResource(confirmation.confirmationDesc),
             onConfirm = { onConfirm(confirmation) },
-            colors = ConfirmationDialogDefaults.colors(
+            colors = TaskifyDialogDefaults.colors(
                 confirmButtonColor = confirmation.confirmColor,
                 titleContentColor = if (confirmation == ConfirmationType.DELETE_TASK)
                     Color.Red else if (isSystemInDarkTheme()) Color.White else Color.Black

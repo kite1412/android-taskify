@@ -75,7 +75,7 @@ import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.taskmanagement.util.TaskManagementDictionary
 import com.nrr.ui.ConfirmationDialog
-import com.nrr.ui.ConfirmationDialogDefaults
+import com.nrr.ui.TaskifyDialogDefaults
 import com.nrr.ui.EmptyTasks
 import com.nrr.ui.LocalSnackbarHostState
 import com.nrr.ui.TaskCards
@@ -274,7 +274,7 @@ private fun Content(
                 formatArgs = listOf(confirmation.totalAffected).toTypedArray()
             ),
             onConfirm = { onConfirm(confirmation) },
-            colors = ConfirmationDialogDefaults.colors(
+            colors = TaskifyDialogDefaults.colors(
                 titleContentColor = Color.Red,
                 confirmButtonColor = Color.Red
             )
