@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="planarrangement_arrange_plan">Atur Rencana</string>
+    <string name="planarrangement_today">Hari Ini</string>
+    <string name="planarrangement_this_week">Minggu Ini</string>
+    <string name="planarrangement_this_month">Bulan Ini</string>
+    <string name="planarrangement_select_task">Pilih Tugas</string>
 </resources>

@@ -21,4 +21,8 @@ class PlanArrangementViewModel @Inject constructor(
         TaskPeriod.entries[savedStateHandle.toRoute<PlanArrangementRoute>().periodOrdinal]
     )
         private set
+
+    fun updatePeriod(period: TaskPeriod) {
+        this.period = period
+    }
 }

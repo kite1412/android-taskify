@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="planarrangement_arrange_plan">Arrange Plan</string>
+    <string name="planarrangement_today">Today</string>
+    <string name="planarrangement_this_week">This Week</string>
+    <string name="planarrangement_this_month">This Month</string>
+    <string name="planarrangement_select_task">Select Task</string>
 </resources>
