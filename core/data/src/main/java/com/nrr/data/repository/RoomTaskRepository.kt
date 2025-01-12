@@ -2,6 +2,7 @@ package com.nrr.data.repository
 
 import com.nrr.database.dao.ActiveTaskDao
 import com.nrr.database.dao.TaskDao
+import com.nrr.database.model.ActiveTask
 import com.nrr.database.model.TaskWithStatus
 import com.nrr.database.model.asEntity
 import com.nrr.database.model.asExternalModel
@@ -23,7 +24,7 @@ internal class RoomTaskRepository @Inject constructor(
 
     override fun getAllActiveTasksByPeriod(period: TaskPeriod): Flow<List<Task>> =
         activeTaskDao.getAllByPeriod(period).map {
-            it.map(TaskWithStatus::asExternalModel)
+            it.map(ActiveTask::asExternalModel)
         }
 
     override fun getByTitle(title: String): Flow<List<Task>> =

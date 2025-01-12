@@ -4,8 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.nrr.database.model.ActiveTask
 import com.nrr.database.model.ActiveTaskEntity
-import com.nrr.database.model.TaskWithStatus
 import com.nrr.model.TaskPeriod
 import kotlinx.coroutines.flow.Flow
 
@@ -15,11 +15,18 @@ interface ActiveTaskDao {
     fun getAllActiveTasks(): Flow<List<ActiveTaskEntity>>
 
     @Query("""
-        SELECT * FROM tasks
-        JOIN active_tasks AS at ON tasks.id = at.task_id
+        SELECT * FROM active_tasks AS at
+        JOIN tasks AS t ON at.task_id = t.id
         WHERE at.task_period = :period
     """)
-    fun getAllByPeriod(period: TaskPeriod): Flow<List<TaskWithStatus>>
+    fun getAllByPeriod(period: TaskPeriod): Flow<List<ActiveTask>>
+
+    @Query("""
+        SELECT * FROM active_tasks AS at
+        JOIN tasks AS t ON at.task_id = t.id
+        WHERE at.id IN (:ids)
+    """)
+    fun getAllByIds(ids: List<Long>): Flow<List<ActiveTask>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertActiveTasks(activeTask: List<ActiveTaskEntity>): List<Long>
