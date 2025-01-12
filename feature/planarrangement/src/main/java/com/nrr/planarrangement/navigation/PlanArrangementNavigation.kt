@@ -8,15 +8,29 @@ import com.nrr.model.TaskPeriod
 import com.nrr.planarrangement.PlanArrangementScreen
 import kotlinx.serialization.Serializable
 
-@Serializable data class PlanArrangementRoute(val periodOrdinal: Int)
+@Serializable data class PlanArrangementRoute(
+    val periodOrdinal: Int,
+    val activeStatusId: Long? = null,
+    val taskId: Long? = null
+)
 
 fun NavController.navigateToPlanArrangement(
     taskPeriod: TaskPeriod,
+    activeStatusId: Long? = null,
+    taskId: Long? = null,
     navOptions: NavOptions? = null
-) = navigate(
-    route = PlanArrangementRoute(taskPeriod.ordinal),
-    navOptions = navOptions
-)
+) {
+    if (activeStatusId != null && taskId != null)
+        throw RuntimeException("Cannot pass both activeStatusId and taskId to navigateToPlanArrangement")
+    navigate(
+        route = PlanArrangementRoute(
+            periodOrdinal = taskPeriod.ordinal,
+            activeStatusId = activeStatusId,
+            taskId = taskId
+        ),
+        navOptions = navOptions
+    )
+}
 
 fun NavGraphBuilder.planArrangementScreen(
     onBackClick: () -> Unit

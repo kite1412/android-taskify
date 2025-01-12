@@ -11,7 +11,7 @@ data class TaskWithStatus(
         parentColumn = "id",
         entityColumn = "task_id"
     )
-    val activeStatus: ActiveTaskEntity?
+    val activeStatuses: List<ActiveTaskEntity>
 )
 
 fun TaskWithStatus.asExternalModel() =
@@ -22,5 +22,6 @@ fun TaskWithStatus.asExternalModel() =
         createdAt = task.createdAt,
         updateAt = task.updateAt,
         taskType = task.taskType,
-        activeStatus = activeStatus?.asExternalModel()
+        activeStatus = activeStatuses.firstOrNull()?.asExternalModel(),
+        activeStatuses = activeStatuses.map { it.asExternalModel() }
     )

@@ -1,5 +1,11 @@
 package com.nrr.planarrangement
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -52,11 +58,13 @@ internal fun PlanArrangementScreen(
     viewModel: PlanArrangementViewModel = hiltViewModel()
 ) {
     val period = viewModel.period
-    val tasks by viewModel.tasks.collectAsStateWithLifecycle()
+    val tasks by viewModel.tasks.collectAsStateWithLifecycle(null)
+    val taskEdit = viewModel.taskEdit
 
     Content(
         tasks = tasks,
         onTaskClick = {},
+        taskEdit = taskEdit,
         onBackClick = onBackClick,
         period = period,
         onPeriodChange = viewModel::updatePeriod,
@@ -68,6 +76,7 @@ internal fun PlanArrangementScreen(
 private fun Content(
     tasks: List<Task>?,
     onTaskClick: (Task) -> Unit,
+    taskEdit: TaskEdit?,
     onBackClick: () -> Unit,
     period: TaskPeriod,
     onPeriodChange: (TaskPeriod) -> Unit,
@@ -80,34 +89,41 @@ private fun Content(
         Header(
             onBackClick = onBackClick
         )
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+        AnimatedContent(
+            targetState = taskEdit == null,
+            transitionSpec = {
+                fadeIn() + slideInHorizontally { it } togetherWith
+                        fadeOut() + slideOutHorizontally { -it }
+            }
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            if (it) Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                SelectTask()
-                PeriodSelect(
-                    period = period,
-                    onPeriodChange = onPeriodChange
-                )
-            }
-            when (tasks) {
-                null -> Unit
-                else -> if (tasks.isEmpty())
-                    EmptyTasks(
-                        message = stringResource(PlanArrangementDictionary.noTasks)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    SelectTask()
+                    PeriodSelect(
+                        period = period,
+                        onPeriodChange = onPeriodChange
                     )
-                else Tasks(
-                    tasks = tasks,
-                    onClick = onTaskClick
-                )
-            }
+                }
+                when (tasks) {
+                    null -> Unit
+                    else -> if (tasks.isEmpty())
+                        EmptyTasks(
+                            message = stringResource(PlanArrangementDictionary.noTasks)
+                        )
+                    else Tasks(
+                        tasks = tasks,
+                        onClick = onTaskClick
+                    )
+                }
+            } else Text("Placeholder")
         }
-
     }
 }
 
@@ -232,12 +248,14 @@ private fun ContentPreview(
     tasks: List<Task>
 ) {
     var period by remember { mutableStateOf(TaskPeriod.DAY) }
+    var taskEdit by remember { mutableStateOf<TaskEdit?>(null) }
 
     TaskifyTheme {
         Content(
             tasks = tasks,
-            onTaskClick = {},
-            onBackClick = {},
+            onTaskClick = { taskEdit = it.toTaskEdit() },
+            taskEdit = taskEdit,
+            onBackClick = { taskEdit = null },
             period = period,
             onPeriodChange = { period = it }
         )

@@ -21,5 +21,6 @@ fun ActiveTask.asExternalModel() = Task(
     createdAt = task.createdAt,
     updateAt = task.updateAt,
     taskType = task.taskType,
-    activeStatus = entity.asExternalModel()
+    activeStatus = entity.asExternalModel(),
+    activeStatuses = listOf(entity.asExternalModel())
 )

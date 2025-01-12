@@ -59,7 +59,7 @@ class TaskManagementViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            taskRepository.getAllTasks().collect {
+            taskRepository.getTasks().collect {
                 allTasks = it
                 _tasks.update {
                     allTasks.sortAndFilter(

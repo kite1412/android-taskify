@@ -8,11 +8,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.nrr.data.repository.TaskRepository
+import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.planarrangement.navigation.PlanArrangementRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,17 +23,53 @@ class PlanArrangementViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val taskRepository: TaskRepository
 ) : ViewModel() {
-    val tasks = taskRepository.getAllTasks()
+    // navigation from non-null ActiveStatus to be used in TaskEdit typically for
+    // editing existing ActiveStatus
+    // if not null navigate back to calling route instead of making TaskEdit null
+    private val activeStatusId = savedStateHandle.toRoute<PlanArrangementRoute>().activeStatusId
+
+    // navigation from nullable ActiveStatus typically for creating a new ActiveStatus
+    // if not null navigate back to calling route instead of making TaskEdit null
+    private val taskId = savedStateHandle.toRoute<PlanArrangementRoute>().taskId
+
+    val immediatePopBackStack = activeStatusId != null || taskId != null
+
+    val tasks = if (activeStatusId == null && taskId == null) taskRepository.getTasks()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = null
-        )
+        ) else flowOf(null)
 
     var period by mutableStateOf(
         TaskPeriod.entries[savedStateHandle.toRoute<PlanArrangementRoute>().periodOrdinal]
     )
         private set
+
+    private var actualTask: Task? = null
+
+    internal var taskEdit by mutableStateOf<TaskEdit?>(null)
+        private set
+
+    init {
+        viewModelScope.launch {
+            if (activeStatusId != null) taskRepository.getActiveTasksByIds(listOf(activeStatusId))
+                .collect {
+                    if (it.isNotEmpty()) with(it.first()) {
+                        taskEdit = toTaskEdit(activeStatuses.first().period)
+                        taskRepository.getByIds(listOf(id)).collect { l ->
+                            if (l.isNotEmpty()) actualTask = l.first()
+                        }
+                    }
+                }
+            else if (taskId != null) taskRepository.getByIds(listOf(taskId)).collect {
+                if (it.isNotEmpty()) with(it.first()) {
+                    taskEdit = toTaskEdit()
+                    actualTask = this
+                }
+            }
+        }
+    }
 
     fun updatePeriod(period: TaskPeriod) {
         this.period = period
