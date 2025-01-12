@@ -17,12 +17,12 @@ internal class RoomTaskRepository @Inject constructor(
     private val taskDao: TaskDao,
     private val activeTaskDao: ActiveTaskDao
 ) : TaskRepository {
-    override fun getAllTasks(): Flow<List<Task>> =
+    override fun getTasks(): Flow<List<Task>> =
         taskDao.getAllTasks().map {
             it.map(TaskWithStatus::asExternalModel)
         }
 
-    override fun getAllActiveTasksByPeriod(period: TaskPeriod): Flow<List<Task>> =
+    override fun getActiveTasksByPeriod(period: TaskPeriod): Flow<List<Task>> =
         activeTaskDao.getAllByPeriod(period).map {
             it.map(ActiveTask::asExternalModel)
         }
@@ -35,6 +35,11 @@ internal class RoomTaskRepository @Inject constructor(
     override fun getByIds(ids: List<Long>): Flow<List<Task>> =
         taskDao.getAllByIds(ids).map {
             it.map(TaskWithStatus::asExternalModel)
+        }
+
+    override fun getActiveTasksByIds(activeTaskIds: List<Long>): Flow<List<Task>> =
+        activeTaskDao.getAllByIds(activeTaskIds).map {
+            it.map(ActiveTask::asExternalModel)
         }
 
     override suspend fun saveTasks(
