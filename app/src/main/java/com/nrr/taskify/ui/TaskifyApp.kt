@@ -9,6 +9,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -56,7 +57,8 @@ internal fun TaskifyApp(
                     hostState = snackbarHostStateWrapper.snackbarHostState,
                     snackbar = { TaskifySnackbar(it) }
                 )
-            }
+            },
+            contentColor = LocalContentColor.current
         ) { innerPadding ->
             AnimatedVisibility(
                 visible = registered == true && viewModel.showContent,

@@ -43,7 +43,7 @@ fun Toggle(
 ) {
     val containerHeight = ToggleDefaults.CONTAINER_HEIGHT
     val containerWidth = ToggleDefaults.CONTAINER_WIDTH
-    val thumbRadius = ToggleDefaults.THUMB_RADIUS
+    val thumbDiameter = ToggleDefaults.THUMB_DIAMETER
     val shape = RoundedCornerShape(100)
     val containerColor by animateColorAsState(
         targetValue = if (checked) colors.checkedContainerColor
@@ -82,7 +82,7 @@ fun Toggle(
                     )
                 }
                 .clip(shape)
-                .size(thumbRadius.dp)
+                .size(thumbDiameter.dp)
                 .background(thumbColor)
         ) {
             if (showState) AnimatedContent(
@@ -126,8 +126,8 @@ data class ToggleColors(
 object ToggleDefaults {
     internal const val CONTAINER_HEIGHT = 40
     internal const val CONTAINER_WIDTH = CONTAINER_HEIGHT * 2
-    internal const val THUMB_RADIUS = CONTAINER_HEIGHT - 4
-    internal const val THUMB_PADDING_FROM_CONTAINER = ((CONTAINER_HEIGHT - THUMB_RADIUS) / 2)
+    internal const val THUMB_DIAMETER = CONTAINER_HEIGHT - 4
+    internal const val THUMB_PADDING_FROM_CONTAINER = ((CONTAINER_HEIGHT - THUMB_DIAMETER) / 2)
 
     @Composable
     fun colors(
