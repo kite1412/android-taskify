@@ -147,14 +147,16 @@ fun TaskCard(
                         Column {
                             Text(
                                 text = task.title,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
                             )
                             task.description?.let { t ->
                                 with (MaterialTheme.typography.bodySmall.fontSize.value) {
                                     Text(
                                         text = t,
                                         fontSize = this.sp,
-                                        lineHeight = (this + 2f).sp
+                                        lineHeight = (this + 2f).sp,
+                                        color = Color.Black
                                     )
                                 }
                             }
@@ -201,13 +203,13 @@ fun TaskCards(
     additionalContent: @Composable (BoxScope.(Task) -> Unit)? = null,
     resetSwipes: Any? = null
 ) {
-    val states = remember(resetSwipes, tasks.size) {
+    val states = remember(resetSwipes, tasks) {
         tasks.indices.map { SwipeableState() }
     }
-    var prevOpened by remember(resetSwipes, tasks.size) {
+    var prevOpened by remember(resetSwipes, tasks) {
         mutableIntStateOf(-1)
     }
-    var opened by remember(resetSwipes, tasks.size) {
+    var opened by remember(resetSwipes, tasks) {
         mutableIntStateOf(-1)
     }
 
@@ -247,7 +249,7 @@ fun TaskCards(
                         additionalContent = additionalContent?.let {
                             { it.invoke(this, task) }
                         },
-                        swipeableKeys = arrayOf(tasks.size),
+                        swipeableKeys = arrayOf(tasks),
                         header = if (header != null) {
                             {
                                 header.invoke(this, index)
