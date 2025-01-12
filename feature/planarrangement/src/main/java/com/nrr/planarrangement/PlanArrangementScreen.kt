@@ -27,17 +27,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.Blue
 import com.nrr.designsystem.theme.CharcoalClay30
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.util.TaskifyDefault
+import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.planarrangement.util.PlanArrangementDictionary
+import com.nrr.ui.EmptyTasks
+import com.nrr.ui.TaskCards
+import com.nrr.ui.TaskPreviewParameter
 
 @Composable
 internal fun PlanArrangementScreen(
@@ -46,8 +52,11 @@ internal fun PlanArrangementScreen(
     viewModel: PlanArrangementViewModel = hiltViewModel()
 ) {
     val period = viewModel.period
+    val tasks by viewModel.tasks.collectAsStateWithLifecycle()
 
     Content(
+        tasks = tasks,
+        onTaskClick = {},
         onBackClick = onBackClick,
         period = period,
         onPeriodChange = viewModel::updatePeriod,
@@ -57,6 +66,8 @@ internal fun PlanArrangementScreen(
 
 @Composable
 private fun Content(
+    tasks: List<Task>?,
+    onTaskClick: (Task) -> Unit,
     onBackClick: () -> Unit,
     period: TaskPeriod,
     onPeriodChange: (TaskPeriod) -> Unit,
@@ -69,17 +80,34 @@ private fun Content(
         Header(
             onBackClick = onBackClick
         )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            SelectTask()
-            PeriodSelect(
-                period = period,
-                onPeriodChange = onPeriodChange
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SelectTask()
+                PeriodSelect(
+                    period = period,
+                    onPeriodChange = onPeriodChange
+                )
+            }
+            when (tasks) {
+                null -> Unit
+                else -> if (tasks.isEmpty())
+                    EmptyTasks(
+                        message = stringResource(PlanArrangementDictionary.noTasks)
+                    )
+                else Tasks(
+                    tasks = tasks,
+                    onClick = onTaskClick
+                )
+            }
         }
+
     }
 }
 
@@ -182,13 +210,33 @@ private fun PeriodSelect(
     }
 }
 
+@Composable
+private fun Tasks(
+    tasks: List<Task>,
+    onClick: (Task) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TaskCards(
+        tasks = tasks,
+        actions = { emptyList() },
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        onClick = onClick
+    )
+}
+
 @Preview
 @Composable
-private fun ContentPreview() {
+private fun ContentPreview(
+    @PreviewParameter(TaskPreviewParameter::class)
+    tasks: List<Task>
+) {
     var period by remember { mutableStateOf(TaskPeriod.DAY) }
 
     TaskifyTheme {
         Content(
+            tasks = tasks,
+            onTaskClick = {},
             onBackClick = {},
             period = period,
             onPeriodChange = { period = it }

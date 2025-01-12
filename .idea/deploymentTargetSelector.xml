@@ -11,7 +11,7 @@
       <SelectionState runConfigName="TogglePreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="ContentPreview (2)">
+      <SelectionState runConfigName="ContentPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

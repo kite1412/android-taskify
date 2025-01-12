@@ -5,4 +5,5 @@
     <string name="planarrangement_this_week">This Week</string>
     <string name="planarrangement_this_month">This Month</string>
     <string name="planarrangement_select_task">Select Task</string>
+    <string name="planarrangement_no_tasks">No Tasks Available</string>
 </resources>
