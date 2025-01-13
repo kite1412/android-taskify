@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -72,7 +71,6 @@ import com.nrr.designsystem.util.drawRoundRectShadow
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.todayplan.util.TodayPlanDictionary
-import com.nrr.ui.TaskCards
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.rememberTaskCardsState
 import com.nrr.ui.taskCards
@@ -107,6 +105,27 @@ internal fun TodayPlanScreen(
         modifier = modifier
     )
 }
+
+private fun scheduleActions(
+    task: Task,
+    removeMessage: String,
+    completeMessage: String,
+    onRemove: (Task) -> Unit,
+    onComplete: (Task) -> Unit
+) = listOf(
+    Action(
+        action = removeMessage,
+        iconId = TaskifyIcon.trashBin,
+        onClick = { onRemove(task) },
+        color = Red
+    ),
+    Action(
+        action = completeMessage,
+        iconId = TaskifyIcon.check,
+        onClick = { onComplete(task) },
+        color = Green
+    )
+)
 
 @Composable
 private fun Content(
@@ -523,96 +542,6 @@ private fun PeriodCard(
             fontSize = 18.sp
         )
     }
-}
-
-private fun scheduleActions(
-    task: Task,
-    removeMessage: String,
-    completeMessage: String,
-    onRemove: (Task) -> Unit,
-    onComplete: (Task) -> Unit
-) = listOf(
-    Action(
-        action = removeMessage,
-        iconId = TaskifyIcon.trashBin,
-        onClick = { onRemove(task) },
-        color = Red
-    ),
-    Action(
-        action = completeMessage,
-        iconId = TaskifyIcon.check,
-        onClick = { onComplete(task) },
-        color = Green
-    )
-)
-
-@Composable
-private fun Schedule(
-    todayTasks: List<Task>,
-    onClick: (Task) -> Unit,
-    onRemove: (Task) -> Unit,
-    onComplete: (Task) -> Unit,
-    onSettingClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    list: @Composable LazyListScope.() -> Unit
-) {
-   if (todayTasks.isNotEmpty()) Column(
-       modifier = modifier,
-       verticalArrangement = Arrangement.spacedBy(16.dp)
-   ) {
-       val removeMessage = stringResource(TodayPlanDictionary.removeFromSchedule)
-       val completeMessage = stringResource(TodayPlanDictionary.markAsCompleted)
-
-       Text(
-           text = stringResource(TodayPlanDictionary.schedule),
-           fontWeight = FontWeight.Bold,
-           fontSize = 20.sp
-       )
-       TaskCards(
-           tasks = todayTasks,
-           actions = {
-               scheduleActions(
-                   task = it,
-                   removeMessage = removeMessage,
-                   completeMessage = completeMessage,
-                   onRemove = onRemove,
-                   onComplete = onComplete
-               )
-           },
-           modifier = Modifier.fillMaxSize(),
-           userScrollEnabled = false,
-           contentPadding = PaddingValues(start = 8.dp),
-           onClick = onClick,
-           showCard = { it.activeStatuses.any { s -> s.isSet } },
-           spacer = {
-               val darkMode = isSystemInDarkTheme()
-               if (it != todayTasks.lastIndex) BoxWithConstraints(
-                   modifier = Modifier
-                       .height(30.dp)
-                       .fillMaxWidth()
-               ) {
-                   Box(
-                       Modifier
-                           .align(Alignment.Center)
-                           .fillMaxHeight()
-                           .padding(end = maxWidth / 2f)
-                           .drawBehind {
-                               val lineHeight = 13.dp.toPx()
-                               val space = 4.dp.toPx()
-                               repeat(2) { i ->
-                                   drawLine(
-                                       color = if (darkMode) Color.White else Color.Black,
-                                       start = Offset(x = 0f, y = lineHeight * i + (space * i)),
-                                       end = Offset(x = 0f, y = lineHeight * (i + 1) + (space * i)),
-                                       strokeWidth = 2.dp.toPx()
-                                   )
-                               }
-                           }
-                   )
-               }
-           }
-       )
-   }
 }
 
 @Composable

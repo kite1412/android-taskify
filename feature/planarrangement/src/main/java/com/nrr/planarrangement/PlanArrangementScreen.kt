@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -46,10 +47,15 @@ import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
+import com.nrr.model.TaskType
 import com.nrr.planarrangement.util.PlanArrangementDictionary
 import com.nrr.ui.EmptyTasks
 import com.nrr.ui.TaskCards
+import com.nrr.ui.TaskDescription
 import com.nrr.ui.TaskPreviewParameter
+import com.nrr.ui.TaskStatuses
+import com.nrr.ui.TaskTitle
+import com.nrr.ui.TaskTypeBar
 
 @Composable
 internal fun PlanArrangementScreen(
@@ -60,9 +66,12 @@ internal fun PlanArrangementScreen(
     val period = viewModel.period
     val tasks by viewModel.tasks.collectAsStateWithLifecycle(null)
     val taskEdit = viewModel.taskEdit
+    val assignTask = viewModel.assignTask
 
     Content(
         tasks = tasks,
+        assignTask = assignTask,
+        assigningTask = viewModel.assigningTask,
         onTaskClick = {},
         taskEdit = taskEdit,
         onBackClick = onBackClick,
@@ -75,6 +84,8 @@ internal fun PlanArrangementScreen(
 @Composable
 private fun Content(
     tasks: List<Task>?,
+    assignTask: Task?,
+    assigningTask: Boolean,
     onTaskClick: (Task) -> Unit,
     taskEdit: TaskEdit?,
     onBackClick: () -> Unit,
@@ -90,10 +101,14 @@ private fun Content(
             onBackClick = onBackClick
         )
         AnimatedContent(
-            targetState = taskEdit == null,
+            targetState = !assigningTask,
             transitionSpec = {
-                fadeIn() + slideInHorizontally { it } togetherWith
-                        fadeOut() + slideOutHorizontally { -it }
+                fadeIn() + slideInHorizontally {
+                    if (targetState) -it else it
+                } togetherWith
+                        fadeOut() + slideOutHorizontally {
+                            if (targetState) it else -it
+                        }
             }
         ) {
             if (it) Column(
@@ -122,7 +137,10 @@ private fun Content(
                         onClick = onTaskClick
                     )
                 }
-            } else Text("Placeholder")
+            } else AssignTask(
+                task = assignTask,
+                taskEdit = taskEdit
+            )
         }
     }
 }
@@ -241,6 +259,61 @@ private fun Tasks(
     )
 }
 
+@Composable
+private fun AssignTask(
+    task: Task?,
+    taskEdit: TaskEdit?,
+    modifier: Modifier = Modifier
+) {
+    if (task != null && taskEdit != null) Box(modifier = modifier) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            item {
+                Title(
+                    title = task.title,
+                    taskType = task.taskType
+                )
+            }
+            item {
+                TaskDescription(
+                    description = task.description ?: ""
+                )
+            }
+            item {
+                TaskStatuses(
+                    statuses = task.activeStatuses
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun Title(
+    title: String,
+    taskType: TaskType,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TaskTitle(
+            title = title,
+            modifier = Modifier.weight(1f)
+        )
+        TaskTypeBar(
+            taskType = taskType,
+            fillBackground = true,
+            iconSize = 18.dp
+        )
+    }
+}
+
 @Preview
 @Composable
 private fun ContentPreview(
@@ -249,13 +322,23 @@ private fun ContentPreview(
 ) {
     var period by remember { mutableStateOf(TaskPeriod.DAY) }
     var taskEdit by remember { mutableStateOf<TaskEdit?>(null) }
+    var assignTask by remember { mutableStateOf<Task?>(null) }
+    var assigningTask by remember { mutableStateOf(false) }
 
     TaskifyTheme {
         Content(
             tasks = tasks,
-            onTaskClick = { taskEdit = it.toTaskEdit() },
+            assignTask = assignTask,
+            assigningTask = assigningTask,
+            onTaskClick = {
+                taskEdit = it.toTaskEdit()
+                assignTask = it
+                assigningTask = true
+            },
             taskEdit = taskEdit,
-            onBackClick = { taskEdit = null },
+            onBackClick = {
+                assigningTask = false
+            },
             period = period,
             onPeriodChange = { period = it }
         )

@@ -46,7 +46,11 @@ class PlanArrangementViewModel @Inject constructor(
     )
         private set
 
-    private var actualTask: Task? = null
+    var assignTask: Task? by mutableStateOf(null)
+        private set
+
+    var assigningTask by mutableStateOf(false)
+        private set
 
     internal var taskEdit by mutableStateOf<TaskEdit?>(null)
         private set
@@ -58,14 +62,14 @@ class PlanArrangementViewModel @Inject constructor(
                     if (it.isNotEmpty()) with(it.first()) {
                         taskEdit = toTaskEdit(activeStatuses.first().period)
                         taskRepository.getByIds(listOf(id)).collect { l ->
-                            if (l.isNotEmpty()) actualTask = l.first()
+                            if (l.isNotEmpty()) assignTask = l.first()
                         }
                     }
                 }
             else if (taskId != null) taskRepository.getByIds(listOf(taskId)).collect {
                 if (it.isNotEmpty()) with(it.first()) {
                     taskEdit = toTaskEdit()
-                    actualTask = this
+                    assignTask = this
                 }
             }
         }

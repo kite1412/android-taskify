@@ -14,7 +14,7 @@
       <SelectionState runConfigName="TaskCardsPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="ContentPreview (1)">
+      <SelectionState runConfigName="TaskStatusesPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

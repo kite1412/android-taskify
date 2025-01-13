@@ -21,7 +21,6 @@ object TaskDetailDictionary {
     val createTask = R.string.taskdetail_create_task
     val createdOn = R.string.taskdetail_created_on
     val updatedOn = R.string.taskdetail_updated_on
-    val noDescription = R.string.taskdetail_no_description
     val cancel = R.string.taskdetail_cancel
     val discard = R.string.taskdetail_discard
     val cancelEditMessage = R.string.taskdetail_cancel_edit_message

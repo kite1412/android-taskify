@@ -4,4 +4,7 @@
     <string name="ui_week_set">Diatur sebagai rencana minggu ini</string>
     <string name="ui_month_set">Diatur sebagai rencana bulan ini</string>
     <string name="ui_not_set">Tugas belum diatur</string>
+    <string name="ui_description">Deskripsi</string>
+    <string name="ui_no_description">Tidak ada deskripsi...</string>
+    <string name="ui_title">Nama</string>
 </resources>
