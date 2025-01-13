@@ -1,6 +1,5 @@
 package com.nrr.data.repository
 
-import com.nrr.model.ActiveStatus
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import kotlinx.coroutines.flow.Flow
@@ -16,10 +15,7 @@ interface TaskRepository {
 
     fun getActiveTasksByIds(activeTaskIds: List<Long>): Flow<List<Task>>
 
-    suspend fun saveTasks(
-        tasks: List<Task>,
-        activeStatus: List<ActiveStatus?> = emptyList()
-    ): List<Long>
+    suspend fun saveTasks(tasks: List<Task>): List<Long>
 
     suspend fun deleteActiveTasks(task: List<Task>): Int
 

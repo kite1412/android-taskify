@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +20,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -76,9 +78,10 @@ import com.nrr.taskmanagement.util.TaskManagementDictionary
 import com.nrr.ui.ConfirmationDialog
 import com.nrr.ui.EmptyTasks
 import com.nrr.ui.LocalSnackbarHostState
-import com.nrr.ui.TaskCards
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.TaskifyDialogDefaults
+import com.nrr.ui.rememberTaskCardsState
+import com.nrr.ui.taskCards
 
 @Composable
 internal fun TaskManagementScreen(
@@ -96,6 +99,9 @@ internal fun TaskManagementScreen(
     val deleteMessage = stringResource(TaskManagementDictionary.deleteMessage)
     val removeTasksMessage = stringResource(TaskManagementDictionary.removeTasksMessage)
     val deleteTasksMessage = stringResource(TaskManagementDictionary.deleteTasksMessage)
+    val tasksState = rememberLazyListState()
+    val sortState = viewModel.sortState
+    val filterState = viewModel.filterState
 
     LaunchedEffect(snackbarMessage) {
         if (snackbarMessage.isNotEmpty()) snackbarState.showSnackbar(
@@ -105,7 +111,9 @@ internal fun TaskManagementScreen(
             if (it == SnackbarResult.Dismissed) viewModel.updateSnackbarEvent("")
         }
     }
-
+    LaunchedEffect(sortState.selected, filterState.selected) {
+        tasksState.scrollToItem(0)
+    }
     Content(
         tasks = searchTasks ?: tasks,
         onTaskClick = onTaskClick,
@@ -119,14 +127,14 @@ internal fun TaskManagementScreen(
         onClear = viewModel::clearSearch,
         onSearch = viewModel::searchTask,
         onAddClick = onAddClick,
-        sortState = viewModel.sortState,
-        filterState = viewModel.filterState,
+        sortState = sortState,
+        filterState = filterState,
         onSortSelect = viewModel::onSort,
         onFilterSelect = viewModel::onFilter,
         onRemoveTaskFromPlan = viewModel::removeActiveTask,
         onDeleteTask = viewModel::deleteTask,
         selectAll = viewModel.selectAll,
-        removeAllEnabled = editedTasks.any { it.activeStatus != null },
+        removeAllEnabled = editedTasks.any { it.activeStatuses.isNotEmpty() },
         deleteAllEnable = editedTasks.isNotEmpty(),
         onCancelEditMode = viewModel::cancelEditMode,
         onSelectAll = viewModel::updateSelectAll,
@@ -152,11 +160,12 @@ internal fun TaskManagementScreen(
             )
         },
         onDismissConfirmation = viewModel::dismissConfirmation,
+        tasksState = tasksState,
         modifier = modifier
     )
 }
 
-
+// TODO remove tasks removal from plan
 @Composable
 private fun Content(
     tasks: List<Task>?,
@@ -188,7 +197,8 @@ private fun Content(
     confirmation: ConfirmationType?,
     onConfirm: (ConfirmationType) -> Unit,
     onDismissConfirmation: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    tasksState: LazyListState = rememberLazyListState()
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         Column(
@@ -240,7 +250,7 @@ private fun Content(
                     deleteEnabled = deleteAllEnable
                 )
             }
-            Tasks(
+            if (tasks != null) Tasks(
                 tasks = tasks,
                 editMode = editMode,
                 onClick = onTaskClick,
@@ -475,7 +485,7 @@ private fun taskActions(
         onClick = { onDelete(task) }
     )
 ).apply {
-    task.activeStatus?.let {
+    task.activeStatuses.firstOrNull()?.let {
         add(
             index = 0,
             element = Action(
@@ -490,7 +500,7 @@ private fun taskActions(
 
 @Composable
 private fun Tasks(
-    tasks: List<Task>?,
+    tasks: List<Task>,
     editMode: Boolean,
     onClick: (Task) -> Unit,
     onLongClick: (Task) -> Unit,
@@ -501,14 +511,18 @@ private fun Tasks(
     showSnackbar: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (tasks != null)
-        if (tasks.isNotEmpty()) {
-            val removeMessage = stringResource(TaskManagementDictionary.removeFromPlan)
-            val deleteMessage = stringResource(TaskManagementDictionary.delete)
-            val afterRemoveMessage = stringResource(TaskManagementDictionary.removeMessage)
-            val afterDeleteMessage = stringResource(TaskManagementDictionary.deleteMessage)
+    if (tasks.isNotEmpty()) {
+        val removeMessage = stringResource(TaskManagementDictionary.removeMessage)
+        val deleteMessage = stringResource(TaskManagementDictionary.deleteMessage)
+        val afterRemoveMessage = stringResource(TaskManagementDictionary.removeTasksMessage)
+        val afterDeleteMessage = stringResource(TaskManagementDictionary.deleteTasksMessage)
+        val state = rememberTaskCardsState(tasks, tasks)
 
-            TaskCards(
+        LazyColumn(
+            modifier = modifier,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            taskCards(
                 tasks = tasks,
                 actions = {
                     taskActions(
@@ -525,8 +539,7 @@ private fun Tasks(
                         }
                     )
                 },
-                modifier = modifier,
-                contentPadding = PaddingValues(top = 8.dp),
+                state = state,
                 onClick = {
                     if (editMode) onCheckedChange(it, !checked(it))
                     else onClick(it)
@@ -535,9 +548,8 @@ private fun Tasks(
                     if (!editMode) onLongClick(it)
                 },
                 swipeEnabled = !editMode,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
                 leadingIcon = {
-                    tasks[it].activeStatus?.let { status ->
+                    tasks[it].activeStatuses.firstOrNull()?.let { status ->
                         AdaptiveText(
                             text = stringResource(
                                 id = when (status.period) {
@@ -568,10 +580,10 @@ private fun Tasks(
                                 .padding(end = 8.dp)
                         )
                     }
-                } else null,
-                resetSwipes = editMode
+                } else null
             )
         }
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -669,7 +681,7 @@ private fun ContentPreview(
     val tasks1 = remember {
         tasks.mapIndexed { i, t ->
             if (i < 3) t.copy(
-                activeStatus = null
+                activeStatuses = emptyList()
             ) else t
         }.toMutableStateList()
     }

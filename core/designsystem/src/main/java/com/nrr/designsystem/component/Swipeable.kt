@@ -200,7 +200,7 @@ private fun SwipeableAction(
 
 @SuppressLint("ComposableNaming")
 @Composable
-fun rememberSwipeableState() = remember {
+fun rememberSwipeableState(vararg keys: Any?) = remember(keys) {
     SwipeableState()
 }
 

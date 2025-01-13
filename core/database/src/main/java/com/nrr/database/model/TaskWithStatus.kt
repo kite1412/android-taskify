@@ -22,6 +22,5 @@ fun TaskWithStatus.asExternalModel() =
         createdAt = task.createdAt,
         updateAt = task.updateAt,
         taskType = task.taskType,
-        activeStatus = activeStatuses.firstOrNull()?.asExternalModel(),
         activeStatuses = activeStatuses.map { it.asExternalModel() }
     )

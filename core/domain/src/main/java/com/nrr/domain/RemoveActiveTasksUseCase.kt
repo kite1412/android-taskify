@@ -8,12 +8,17 @@ class RemoveActiveTasksUseCase @Inject constructor(
     private val taskRepository: TaskRepository
 ) {
     suspend operator fun invoke(tasks: List<Task>): Int {
-        val (defaultTasks, activeTasks) = tasks.partition { it.activeStatus?.isDefault == true }
-        val ids = taskRepository.saveTasks(
+        val (defaultTasks, activeTasks) = tasks.partition { t ->
+            t.activeStatuses.any { it.isDefault }
+        }
+        val ids = if (defaultTasks.isNotEmpty()) taskRepository.saveTasks(
             defaultTasks.map {
-                it.copy(activeStatus = it.activeStatus?.copy(isDefault = false))
+                it.copy(activeStatuses = it.activeStatuses.map { s -> s.copy(isDefault = false) })
             }
-        ).size
-        return taskRepository.deleteActiveTasks(activeTasks) + ids
+        ).size else 0
+
+        return (if (activeTasks.isNotEmpty())
+            taskRepository.deleteActiveTasks(activeTasks)
+        else 0) + ids
     }
 }

@@ -17,7 +17,7 @@ internal fun Task.toTaskEdit(period: TaskPeriod = TaskPeriod.DAY) = TaskEdit(
     taskId = id,
     title = title,
     description = description,
-    period = activeStatus?.period ?: period,
-    selectedStartDate = activeStatus?.startDate,
-    selectedDueDate = activeStatus?.dueDate
+    period = activeStatuses.firstOrNull()?.period ?: period,
+    selectedStartDate = activeStatuses.firstOrNull()?.startDate,
+    selectedDueDate = activeStatuses.firstOrNull()?.dueDate
 )

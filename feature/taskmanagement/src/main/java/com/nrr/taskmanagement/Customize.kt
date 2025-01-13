@@ -32,6 +32,7 @@ internal sealed class Customize(open val name: String) {
         }
     }
 
+    // TODO remove Assigned
     sealed class Sort(name: String) : Customize(name) {
         data object LatestUpdate : Sort("Latest Update")
         data object Assigned : Sort("Set")
@@ -54,7 +55,7 @@ internal fun List<Task>.sort(type: Sort) = when (type) {
         this.sortedByDescending { it.updateAt }
     }
     is Assigned -> {
-        this.sortedBy { it.activeStatus?.period?.ordinal ?: Int.MAX_VALUE }
+        this.sortedBy { it.activeStatuses.firstOrNull()?.period?.ordinal ?: Int.MAX_VALUE }
     }
     is Newest -> {
         this.sortedByDescending { it.createdAt }

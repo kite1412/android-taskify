@@ -190,7 +190,7 @@ class TaskManagementViewModel @Inject constructor(
     fun removeAllConfirmation() {
         confirmation = ConfirmationType.REMOVE_ALL
         confirmation!!.updateTotalAffected(
-            value = editedTasks.filter { it.activeStatus != null }.size
+            value = editedTasks.filter { it.activeStatuses.isNotEmpty() }.size
         )
     }
 

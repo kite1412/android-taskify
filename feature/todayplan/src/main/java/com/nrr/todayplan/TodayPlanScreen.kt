@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -73,6 +74,8 @@ import com.nrr.model.TaskPeriod
 import com.nrr.todayplan.util.TodayPlanDictionary
 import com.nrr.ui.TaskCards
 import com.nrr.ui.TaskPreviewParameter
+import com.nrr.ui.rememberTaskCardsState
+import com.nrr.ui.taskCards
 
 @Composable
 internal fun TodayPlanScreen(
@@ -123,62 +126,107 @@ private fun Content(
     val contentWithRoundRectShadowPadding = with(LocalDensity.current) {
         7f.toDp()
     }
+    val removeMessage = stringResource(TodayPlanDictionary.removeFromSchedule)
+    val completeMessage = stringResource(TodayPlanDictionary.markAsCompleted)
+    val taskCardsState = rememberTaskCardsState(todayTasks, todayTasks)
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(bottom = 16.dp)
     ) {
-        item { GreetingHeader(username) }
         item {
-            Row(
-                modifier = Modifier
-                    .height(IntrinsicSize.Max)
-                    .padding(start = contentWithRoundRectShadowPadding),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                PlanForToday(
-                    modifier = Modifier.weight(0.9f),
-                    onClick = onPlanForTodayClick
-                )
-                IconButton(
-                    onClick = onSettingClick,
-                    modifier = Modifier.padding(end = 8.dp)
+                GreetingHeader(username)
+                Row(
+                    modifier = Modifier
+                        .height(IntrinsicSize.Max)
+                        .padding(start = contentWithRoundRectShadowPadding),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        painter = painterResource(TaskifyIcon.setting),
-                        contentDescription = "setting",
-                        modifier = Modifier.fillMaxHeight()
+                    PlanForToday(
+                        modifier = Modifier.weight(0.9f),
+                        onClick = onPlanForTodayClick
+                    )
+                    IconButton(
+                        onClick = onSettingClick,
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(TaskifyIcon.setting),
+                            contentDescription = "setting",
+                            modifier = Modifier.fillMaxHeight()
+                        )
+
+                    }
+                }
+                TodayProgress(
+                    todayTasks = todayTasks,
+                    onSetTodayTasksClick = onSetTodayTasksClick,
+                    modifier = Modifier.padding(start = contentWithRoundRectShadowPadding)
+                )
+                Periods(
+                    weeklyTasks = weeklyTasks,
+                    monthlyTasks = monthlyTasks,
+                    onWeeklyClick = onWeeklyClick,
+                    onMonthlyClick = onMonthlyClick,
+                    modifier = Modifier.padding(start = contentWithRoundRectShadowPadding)
+                )
+                if (todayTasks.isNotEmpty()) Text(
+                    text = stringResource(TodayPlanDictionary.schedule),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+            }
+        }
+        taskCards(
+            tasks = todayTasks,
+            actions = {
+                scheduleActions(
+                    task = it,
+                    removeMessage = removeMessage,
+                    completeMessage = completeMessage,
+                    onRemove = onRemoveTask,
+                    onComplete = onCompleteTask
+                )
+            },
+            state = taskCardsState,
+            onClick = {},
+            showCard = { it.activeStatuses.any { s -> s.isSet } },
+            spacer = {
+                val darkMode = isSystemInDarkTheme()
+                if (it != todayTasks.lastIndex) BoxWithConstraints(
+                    modifier = Modifier
+                        .height(30.dp)
+                        .fillMaxWidth()
+                ) {
+                    Box(
+                        Modifier
+                            .align(Alignment.Center)
+                            .fillMaxHeight()
+                            .padding(end = maxWidth / 2f)
+                            .drawBehind {
+                                val lineHeight = 13.dp.toPx()
+                                val space = 4.dp.toPx()
+                                repeat(2) { i ->
+                                    drawLine(
+                                        color = if (darkMode) Color.White else Color.Black,
+                                        start = Offset(x = 0f, y = lineHeight * i + (space * i)),
+                                        end = Offset(
+                                            x = 0f,
+                                            y = lineHeight * (i + 1) + (space * i)
+                                        ),
+                                        strokeWidth = 2.dp.toPx()
+                                    )
+                                }
+                            }
                     )
                 }
             }
-        }
-        item {
-            TodayProgress(
-                todayTasks = todayTasks,
-                onSetTodayTasksClick = onSetTodayTasksClick,
-                modifier = Modifier.padding(start = contentWithRoundRectShadowPadding)
-            )
-        }
-        item {
-            Periods(
-                weeklyTasks = weeklyTasks,
-                monthlyTasks = monthlyTasks,
-                onWeeklyClick = onWeeklyClick,
-                onMonthlyClick = onMonthlyClick,
-                modifier = Modifier.padding(start = contentWithRoundRectShadowPadding)
-            )
-        }
-        item {
-            Schedule(
-                todayTasks = todayTasks,
-                onClick = {},
-                onRemove = onRemoveTask,
-                onComplete = onCompleteTask,
-                onSettingClick = onSettingClick,
-            )
-        }
+        )
     }
 }
 
@@ -282,7 +330,7 @@ private fun TodayProgress(
     val density = LocalDensity.current
     val cornerRadius = 20.dp
     val completed = todayTasks.filter {
-        it.activeStatus?.period == TaskPeriod.DAY && it.activeStatus?.isCompleted == true
+        it.activeStatuses.any { s -> s.isCompleted }
     }
     val textColor = Color.White
     val progress = completed.size / todayTasks.size.toFloat()
@@ -415,7 +463,9 @@ private fun PeriodCard(
 ) {
     val cornerRadius = 10.dp
     val density = LocalDensity.current
-    val completed = tasks.filter { it.activeStatus?.isCompleted == true }
+    val completed = tasks.filter {
+        it.activeStatuses.any { s -> s.isCompleted }
+    }
 
     Box(
         modifier = modifier
@@ -503,7 +553,8 @@ private fun Schedule(
     onRemove: (Task) -> Unit,
     onComplete: (Task) -> Unit,
     onSettingClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    list: @Composable LazyListScope.() -> Unit
 ) {
    if (todayTasks.isNotEmpty()) Column(
        modifier = modifier,
@@ -528,14 +579,17 @@ private fun Schedule(
                    onComplete = onComplete
                )
            },
-           modifier = Modifier.padding(start = 8.dp),
-           showStartTime = true,
+           modifier = Modifier.fillMaxSize(),
+           userScrollEnabled = false,
+           contentPadding = PaddingValues(start = 8.dp),
            onClick = onClick,
-           showCard = { it.activeStatus?.isSet == true },
+           showCard = { it.activeStatuses.any { s -> s.isSet } },
            spacer = {
                val darkMode = isSystemInDarkTheme()
                if (it != todayTasks.lastIndex) BoxWithConstraints(
-                   modifier = Modifier.height(30.dp).fillMaxWidth()
+                   modifier = Modifier
+                       .height(30.dp)
+                       .fillMaxWidth()
                ) {
                    Box(
                        Modifier

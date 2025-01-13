@@ -148,12 +148,11 @@ private fun Content(
                         tasks = tasks,
                         onRemove = onRemove,
                         onComplete = onComplete,
-                        modifier = Modifier
-                            .padding(
-                                bottom = with(density) {
-                                    (arrangePlanHeight + 8).toDp()
-                                }
-                            )
+                        contentPadding = PaddingValues(
+                            bottom = with(density) {
+                                (arrangePlanHeight + 8).toDp()
+                            }
+                        )
                     )
                 }
             }
@@ -389,7 +388,7 @@ private fun actions(
     completeMessage: String,
     onRemove: (Task) -> Unit,
     onComplete: (Task) -> Unit
-) = if (task.activeStatus == null) emptyList()
+) = if (task.activeStatuses.isEmpty()) emptyList()
 else mutableListOf(
     Action(
         action = removeMessage,
@@ -398,7 +397,7 @@ else mutableListOf(
         onClick = { onRemove(task) }
     )
 ).apply {
-    if (!task.activeStatus!!.isCompleted) add(
+    if (!task.activeStatuses.any { it.isCompleted }) add(
         index = 0,
         element = Action(
             action = completeMessage,
@@ -444,6 +443,7 @@ private fun Tasks(
     tasks: List<Task>?,
     onRemove: (Task) -> Unit,
     onComplete: (Task) -> Unit,
+    contentPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
     if (tasks != null) {
@@ -454,13 +454,13 @@ private fun Tasks(
                 TaskPeriod.WEEK -> extractHeaderBreakpoint(
                     tasks = tasks,
                     breakpoint = { task ->
-                        task.activeStatus!!.startDate.toLocalDateTime().dayOfWeek.value
+                        task.activeStatuses.first().startDate.toLocalDateTime().dayOfWeek.value
                     }
                 )
                 TaskPeriod.MONTH -> extractHeaderBreakpoint(
                     tasks = tasks,
                     breakpoint = { task ->
-                        task.activeStatus!!.startDate.toLocalDateTime().dayOfMonth
+                        task.activeStatuses.first().startDate.toLocalDateTime().dayOfMonth
                     }
                 )
                 else -> emptyList()
@@ -484,7 +484,7 @@ private fun Tasks(
                 TaskPeriod.DAY -> {
                     {
                         Text(
-                            text = tasks[it].activeStatus?.startDate?.toTimeString() ?: "",
+                            text = tasks[it].activeStatuses.first().startDate.toTimeString(),
                             modifier = Modifier.align(Alignment.BottomEnd),
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
@@ -496,7 +496,7 @@ private fun Tasks(
                     { i ->
                         breakpoints.firstOrNull { it.index == i }?.let {
                             TaskHeader(
-                                header = tasks[i].activeStatus!!.startDate.toDayLocalized(),
+                                header = tasks[i].activeStatuses.first().startDate.toDayLocalized(),
                                 endPadding = endPadding,
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
@@ -505,7 +505,7 @@ private fun Tasks(
                                         bottom = dashSpace
                                     ),
                                 description = with(
-                                    tasks[i].activeStatus!!.startDate.toLocalDateTime()
+                                    tasks[i].activeStatuses.first().startDate.toLocalDateTime()
                                 ) {
                                     "($dayOfMonth ${toMonthLocalized()})"
                                 },
@@ -517,7 +517,7 @@ private fun Tasks(
                 TaskPeriod.MONTH-> {
                     { i ->
                         breakpoints.firstOrNull { it.index == i }?.let {
-                            val localDateTime = tasks[i].activeStatus!!.startDate.toLocalDateTime()
+                            val localDateTime = tasks[i].activeStatuses.first().startDate.toLocalDateTime()
                             TaskHeader(
                                 header = with(localDateTime) {
                                     "${toMonthLocalized()} $dayOfMonth"
@@ -548,9 +548,21 @@ private fun Tasks(
                         )
                 )
             },
+            leadingIcon = if (period != TaskPeriod.DAY) {
+                { i ->
+                    AdaptiveText(
+                        text = tasks[i].activeStatuses.first().startDate.toTimeString(),
+                        initialFontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .weight(0.1f),
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1
+                    )
+                }
+            } else null,
             verticalArrangement = Arrangement.spacedBy(dashSpace),
-            showStartTime = period != TaskPeriod.DAY,
-            resetSwipes = tasks
+            contentPadding = contentPadding
         )
     }
 }
@@ -616,7 +628,7 @@ private fun TaskSpacer(
     dashedLine: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val activeStatus = task.activeStatus
+    val activeStatus = task.activeStatuses.firstOrNull()
 
     activeStatus?.let {
         Row(
@@ -635,7 +647,7 @@ private fun TaskSpacer(
                             style = SpanStyle(
                                 color = status(
                                     currentDate = currentDate,
-                                    activeStatus = activeStatus,
+                                    activeStatus = it,
                                     completed = Green,
                                     inProgress = Gray,
                                     waiting = Gray,
@@ -647,7 +659,7 @@ private fun TaskSpacer(
                                 stringResource(
                                     id = status(
                                         currentDate = currentDate,
-                                        activeStatus = activeStatus,
+                                        activeStatus = it,
                                         completed = PlanDetailDictionary.completed,
                                         inProgress = PlanDetailDictionary.inProgress,
                                         waiting = PlanDetailDictionary.waiting,
@@ -660,7 +672,7 @@ private fun TaskSpacer(
                     fontSize = fontSize.sp,
                     lineHeight = lineHeight.sp
                 )
-                activeStatus.dueDate?.let {
+                it.dueDate?.let {
                     Text(
                         text = buildAnnotatedString {
                             append(stringResource(PlanDetailDictionary.due) + ": ")
@@ -682,7 +694,7 @@ private fun TaskSpacer(
                         withStyle(
                             style = SpanStyle(color = activeStatus.priority.color())
                         ) {
-                            append(activeStatus.priority.toStringLocalized())
+                            append(it.priority.toStringLocalized())
                         }
                     },
                     fontSize = fontSize.sp,
@@ -751,7 +763,7 @@ private fun ContentPreview(
 
     TaskifyTheme {
         Content(
-            period = TaskPeriod.MONTH,
+            period = TaskPeriod.WEEK,
             tasks = tasks1,
             onBackClick = {},
             onRemove = { tasks1.remove(it) },
@@ -761,7 +773,9 @@ private fun ContentPreview(
                 tasks1.addAll(
                     p.map {
                         if (it.id == t.id)
-                            t.copy(activeStatus = t.activeStatus?.copy(isCompleted = true))
+                            t.copy(activeStatuses = t.activeStatuses.map {
+                                s -> s.copy(isCompleted = true)
+                            })
                         else it
                     }
                 )
