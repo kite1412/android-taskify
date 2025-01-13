@@ -6,4 +6,9 @@
     <string name="planarrangement_this_month">Bulan Ini</string>
     <string name="planarrangement_select_task">Pilih Tugas</string>
     <string name="planarrangement_no_tasks">Tidak Ada Tugas</string>
+    <string name="planarrangement_priority">Prioritas</string>
+    <string name="planarrangement_start_time">Waktu Mulai</string>
+    <string name="planarrangement_end_time">Waktu Selesai</string>
+    <string name="planarrangement_set">Atur</string>
+    <string name="planarrangement_cancel">Batal</string>
 </resources>

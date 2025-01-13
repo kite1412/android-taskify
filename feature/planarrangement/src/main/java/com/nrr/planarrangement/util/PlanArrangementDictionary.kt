@@ -9,4 +9,9 @@ object PlanArrangementDictionary {
     val thisMonth = R.string.planarrangement_this_month
     val selectTask = R.string.planarrangement_select_task
     val noTasks = R.string.planarrangement_no_tasks
+    val priority = R.string.planarrangement_priority
+    val startTime = R.string.planarrangement_start_time
+    val endTime = R.string.planarrangement_end_time
+    val set = R.string.planarrangement_set
+    val cancel = R.string.planarrangement_cancel
 }

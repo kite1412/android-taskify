@@ -6,4 +6,9 @@
     <string name="planarrangement_this_month">This Month</string>
     <string name="planarrangement_select_task">Select Task</string>
     <string name="planarrangement_no_tasks">No Tasks Available</string>
+    <string name="planarrangement_priority">Priority</string>
+    <string name="planarrangement_start_time">Start Time</string>
+    <string name="planarrangement_end_time">End Time</string>
+    <string name="planarrangement_set">Set</string>
+    <string name="planarrangement_cancel">Cancel</string>
 </resources>

@@ -1,12 +1,15 @@
 package com.nrr.planarrangement
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,14 +17,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,17 +37,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
+import androidx.compose.ui.window.Popup
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.designsystem.component.AdaptiveText
+import com.nrr.designsystem.component.RoundRectButton
+import com.nrr.designsystem.component.Toggle
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.Blue
 import com.nrr.designsystem.theme.CharcoalClay30
@@ -47,8 +65,12 @@ import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
+import com.nrr.model.TaskPriority
 import com.nrr.model.TaskType
 import com.nrr.planarrangement.util.PlanArrangementDictionary
+import com.nrr.planarrangement.util.dashHeight
+import com.nrr.planarrangement.util.dashSpace
+import com.nrr.planarrangement.util.dashWidth
 import com.nrr.ui.EmptyTasks
 import com.nrr.ui.TaskCards
 import com.nrr.ui.TaskDescription
@@ -56,6 +78,9 @@ import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.TaskStatuses
 import com.nrr.ui.TaskTitle
 import com.nrr.ui.TaskTypeBar
+import com.nrr.ui.TimePicker
+import com.nrr.ui.color
+import com.nrr.ui.toStringLocalized
 
 @Composable
 internal fun PlanArrangementScreen(
@@ -311,6 +336,252 @@ private fun Title(
             fillBackground = true,
             iconSize = 18.dp
         )
+    }
+}
+
+@Composable
+private inline fun Field(
+    label: String,
+    alignment: Alignment.Horizontal = Alignment.Start,
+    modifier: Modifier = Modifier,
+    information: String? = null,
+    labelFontStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+    content: @Composable () -> Unit
+) {
+    var showInformation by remember {
+        mutableStateOf(false)
+    }
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = alignment
+    ) {
+        Box {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = label,
+                    color = MaterialTheme.colorScheme.primary,
+                    style = labelFontStyle,
+                    fontWeight = FontWeight.Bold
+                )
+                if (information != null) Icon(
+                    painter = painterResource(TaskifyIcon.info),
+                    contentDescription = "information",
+                    modifier = Modifier
+                        .size(labelFontStyle.fontSize.value.dp)
+                        .clickable(
+                            indication = null,
+                            interactionSource = null
+                        ) {
+                            showInformation = !showInformation
+                        },
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            if (showInformation && information != null) Popup {
+                val shape = RoundedCornerShape(16.dp)
+                val size = (LocalConfiguration.current.screenWidthDp / 2).dp
+
+                Box(
+                    modifier = Modifier
+                        .size(size)
+                        .clip(shape)
+                        .background(MaterialTheme.colorScheme.background)
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = shape
+                        )
+                        .padding(8.dp)
+                ) {
+                    Text(information)
+                }
+            }
+        }
+        content()
+    }
+}
+
+@Composable
+private fun ToggleField(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    label: String,
+    information: String,
+    modifier: Modifier = Modifier,
+    showState: Boolean
+) {
+    Field(
+        label = label,
+        modifier = modifier,
+        information = information
+    ) {
+        Toggle(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            showState = showState
+        )
+    }
+}
+
+@Composable
+private fun PriorityField(
+    priority: TaskPriority,
+    onPriorityChange: (TaskPriority) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Field(
+        label = stringResource(PlanArrangementDictionary.priority),
+        modifier = modifier
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            TaskPriority.entries.forEach {
+                PriorityButton(
+                    priority = it,
+                    onClick = onPriorityChange,
+                    fillBackground = priority == it
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PriorityButton(
+    priority: TaskPriority,
+    onClick: (TaskPriority) -> Unit,
+    fillBackground: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val background by animateColorAsState(
+        targetValue = if (fillBackground) priority.color()
+            else Color.Transparent,
+        label = "priority background"
+    )
+    val contentColor by animateColorAsState(
+        targetValue = if (!fillBackground) priority.color()
+            else Color.White,
+        label = "priority content"
+    )
+    val shape = RoundedCornerShape(8.dp)
+
+    Box(
+        modifier = modifier
+            .clip(shape)
+            .background(background)
+            .border(
+                width = 1.dp,
+                color = contentColor,
+                shape = shape
+            )
+            .clickable { onClick(priority) }
+            .padding(
+                vertical = 6.dp,
+                horizontal = 12.dp
+            ),
+    ) {
+        Text(
+            text = priority.toStringLocalized()
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TimeField(
+    startTime: Time,
+    endTime: Time?,
+    onStartTimeChange: (Time) -> Unit,
+    onEndTimeChange: (Time) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var editingStartTime by remember {
+        mutableStateOf<Boolean?>(null)
+    }
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(dashSpace)
+    ) {
+        Field(
+            label = stringResource(PlanArrangementDictionary.startTime)
+        ) {
+            RoundRectButton(
+                onClick = {
+                    editingStartTime = true
+                },
+                action = startTime.toString(),
+                iconId = TaskifyIcon.clock
+            )
+        }
+    }
+    if (editingStartTime != null) TimePicker(
+        onDismissRequest = { editingStartTime = null },
+        onConfirm = {
+            if (editingStartTime!!) onStartTimeChange(it.toTime())
+            else onEndTimeChange(it.toTime())
+            editingStartTime = null
+        },
+        confirmText = stringResource(PlanArrangementDictionary.set),
+        cancelText = stringResource(PlanArrangementDictionary.cancel),
+        title = stringResource(
+            id = if (editingStartTime!!) PlanArrangementDictionary.startTime
+                else PlanArrangementDictionary.endTime
+        ),
+        state = rememberTimePickerState(
+            initialHour = startTime.hour,
+            initialMinute = startTime.minute,
+            is24Hour = true
+        )
+    )
+}
+
+@Preview
+@Composable
+private fun TimePickerPreview() {
+    var startDate by remember {
+        mutableStateOf(Date(Time()))
+    }
+
+    TaskifyTheme {
+        TimeField(
+            startTime = startDate.time,
+            endTime = null,
+            onStartTimeChange = { startDate = startDate.copy(time = it) },
+            onEndTimeChange = {  }
+        )
+    }
+}
+
+@Composable
+private fun HorizontalDashedLine(
+    dashCount: Int,
+    modifier: Modifier = Modifier
+        .size(
+            height = dashHeight,
+            width = dashWidth * dashCount + ((dashCount - 1) * dashSpace)
+        ),
+    dashColor: Color = LocalContentColor.current
+) = Canvas(modifier = modifier) {
+    val dashWidth = dashWidth.toPx()
+    val dashHeight = dashHeight.toPx()
+    val dashSpace = dashSpace.toPx()
+    var currentX = 0f
+
+    repeat(dashCount) {
+        drawRoundRect(
+            color = dashColor,
+            topLeft = Offset(x = currentX, y = 0f),
+            size = Size(width = dashWidth, height = dashHeight),
+            cornerRadius = CornerRadius(x = 8f, y = 8f)
+        )
+        currentX += dashWidth + dashSpace
     }
 }
 
