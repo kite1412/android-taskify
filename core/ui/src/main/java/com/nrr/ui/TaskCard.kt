@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -32,8 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -66,18 +63,11 @@ fun TaskCard(
     leadingIcon: @Composable (RowScope.() -> Unit)? = null
 ) {
     val swipeableClip = 10.dp
-    var contentWidth by remember { mutableIntStateOf(0) }
-    val density = LocalDensity.current
 
     Column(modifier = modifier) {
         header?.let {
             Box(
                 modifier = Modifier
-                    .width(
-                        with(density) {
-                            contentWidth.toDp()
-                        }
-                    )
                     .align(Alignment.End)
             ) {
                 it.invoke(this)
@@ -91,14 +81,7 @@ fun TaskCard(
             Swipeable(
                 actions = actions,
                 modifier = Modifier
-                    .weight(1f)
-                    .then(
-                        if (header != null || bottom != null) Modifier
-                            .onGloballyPositioned {
-                                contentWidth = it.size.width
-                            }
-                        else Modifier
-                    ),
+                    .weight(1f),
                 state = swipeableState,
                 actionButtonsBorderShape = RoundedCornerShape(swipeableClip),
                 actionConfirmation = true,
@@ -158,11 +141,6 @@ fun TaskCard(
         bottom?.let {
             Box(
                 modifier = Modifier
-                    .width(
-                        with(density) {
-                            contentWidth.toDp()
-                        }
-                    )
                     .align(Alignment.End)
             ) {
                 it.invoke(this)
