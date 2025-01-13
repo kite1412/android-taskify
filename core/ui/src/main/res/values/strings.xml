@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ui_today_set">Set as today\'s plan</string>
+    <string name="ui_week_set">Set as this week\'s plan</string>
+    <string name="ui_month_set">Set as this month\'s plan</string>
+    <string name="ui_not_set">Not set on any plan</string>
+</resources>
