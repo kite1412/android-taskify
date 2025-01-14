@@ -99,21 +99,26 @@ internal fun PlanArrangementScreen(
     val period = viewModel.period
     val tasks by viewModel.tasks.collectAsStateWithLifecycle(null)
     val taskEdit = viewModel.taskEdit
+    val assigningTask = viewModel.assigningTask
 
     Content(
         tasks = tasks,
-        assigningTask = viewModel.assigningTask,
-        onTaskClick = {},
+        assigningTask = assigningTask,
+        onTaskClick = viewModel::updateEditTask,
         taskEdit = taskEdit,
-        onBackClick = onBackClick,
+        onBackClick = {
+            if (viewModel.immediatePopBackStack) onBackClick()
+            else if (assigningTask) viewModel.updateAssigningTask(false)
+            else onBackClick()
+        },
         period = period,
         onPeriodChange = viewModel::updatePeriod,
-        onPeriodEditChange = {},
-        onStartTimeChange = {},
-        onEndTimeChange = {},
-        onReminderChange = {},
-        onDefaultChange = {},
-        onPriorityChange = {},
+        onPeriodEditChange = viewModel::updateStatusPeriod,
+        onStartTimeChange = viewModel::updateStatusStartTime,
+        onEndTimeChange = viewModel::updateStatusEndTime,
+        onReminderChange = viewModel::updateStatusReminder,
+        onDefaultChange = viewModel::updateStatusDefault,
+        onPriorityChange = viewModel::updateStatusPriority,
         modifier = modifier
     )
 }
@@ -271,7 +276,7 @@ private fun PeriodSelect(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            text = period.string(),
+                            text = it.string(),
                             color = if (it == period) Blue else Color.White
                         )
                     },
@@ -451,7 +456,8 @@ private fun PeriodField(
                     textStyle = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Bold
                     ),
-                    contentPadding = PaddingValues(12.dp)
+                    contentPadding = PaddingValues(12.dp),
+                    enabled = it == TaskPeriod.DAY
                 )
             }
         }

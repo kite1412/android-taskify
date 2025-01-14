@@ -117,8 +117,8 @@ object TaskifyButtonDefaults {
     fun colors(
         containerColor: Color = MaterialTheme.colorScheme.primary,
         contentColor: Color = Color.White,
-        disabledContainerColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
-        disabledContentColor: Color = Color.White.copy(alpha = 0.7f)
+        disabledContainerColor: Color = containerColor.copy(alpha = 0.6f),
+        disabledContentColor: Color = contentColor.copy(alpha = 0.6f)
     ) = ButtonDefaults.textButtonColors(
         containerColor = containerColor,
         contentColor = contentColor,

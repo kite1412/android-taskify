@@ -20,7 +20,10 @@ internal data class TaskEdit private constructor(
         createdAt = task.createdAt,
         updateAt = task.updateAt,
         activeStatuses = task.activeStatuses.map {
-            if (it.id == activeStatus.id) activeStatus else it
+            if (it.id == activeStatus.id) activeStatus.copy(
+                startDate = selectedStartDate.toInstant(),
+                dueDate = selectedDueDate?.toInstant()
+            ) else it
         }
     )
 

@@ -8,7 +8,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.nrr.data.repository.TaskRepository
+import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
+import com.nrr.model.TaskPriority
 import com.nrr.planarrangement.navigation.PlanArrangementRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -62,21 +64,86 @@ class PlanArrangementViewModel @Inject constructor(
                                     task = l.first(),
                                     activeStatus = activeStatuses.first()
                                 )
-                                assigningTask = true
+                                updateAssigningTask(true)
                             }
                         }
                     }
                 }
-            else if (taskId != null) taskRepository.getByIds(listOf(taskId)).collect {
-                if (it.isNotEmpty()) with(it.first()) {
-                    taskEdit = TaskEdit(this)
-                    assigningTask = true
+            else if (taskId != null) getTask(taskId)
+        }
+    }
+
+    private suspend fun getTask(id: Long) {
+        taskRepository.getByIds(listOf(id)).collect {
+            if (it.isNotEmpty()) with(it.first()) {
+                taskEdit = TaskEdit(this).run {
+                    copy(
+                        activeStatus = this.activeStatus.copy(
+                            period = period ?: TaskPeriod.DAY
+                        )
+                    )
                 }
+                updateAssigningTask(true)
             }
         }
     }
 
     fun updatePeriod(period: TaskPeriod) {
         this.period = period
+    }
+
+    fun updateAssigningTask(assigning: Boolean) {
+        assigningTask = assigning
+    }
+
+    fun updateStatusPeriod(period: TaskPeriod) {
+        taskEdit = taskEdit?.copy(
+            activeStatus = taskEdit!!.activeStatus.copy(
+                period = period
+            )
+        )
+    }
+
+    fun updateStatusReminder(set: Boolean) {
+        taskEdit = taskEdit?.copy(
+            activeStatus = taskEdit!!.activeStatus.copy(
+                reminderSet = set
+            )
+        )
+    }
+
+    fun updateStatusDefault(set: Boolean) {
+        taskEdit = taskEdit?.copy(
+            activeStatus = taskEdit!!.activeStatus.copy(
+                isDefault = set
+            )
+        )
+    }
+
+    fun updateStatusPriority(priority: TaskPriority) {
+        taskEdit = taskEdit?.copy(
+            activeStatus = taskEdit!!.activeStatus.copy(
+                priority = priority
+            )
+        )
+    }
+
+    fun updateEditTask(task: Task) {
+        viewModelScope.launch {
+            getTask(task.id)
+        }
+    }
+
+    internal fun updateStatusStartTime(time: Time) {
+        taskEdit = taskEdit?.copy(
+            selectedStartDate = taskEdit!!.selectedStartDate.copy(time = time)
+        )
+    }
+
+    internal fun updateStatusEndTime(time: Time) {
+        taskEdit = taskEdit?.copy(
+            selectedStartDate = taskEdit!!.selectedDueDate?.copy(time = time)
+                ?: Date(time)
+        )
     }
 }
