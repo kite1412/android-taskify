@@ -30,7 +30,8 @@ fun TaskTypeBar(
     modifier: Modifier = Modifier,
     iconSize: Dp = 24.dp,
     nameTextStyle: TextStyle = MaterialTheme.typography.bodyMedium,
-    contentPadding: Dp = 8.dp
+    contentPadding: Dp = 8.dp,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp)
 ) {
     val name = taskType.toStringLocalized()
     val color = taskType.color()
@@ -56,7 +57,7 @@ fun TaskTypeBar(
                 shape = shape
             )
             .padding(contentPadding),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = horizontalArrangement,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(

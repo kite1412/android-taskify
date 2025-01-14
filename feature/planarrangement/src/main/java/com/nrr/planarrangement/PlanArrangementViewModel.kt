@@ -15,6 +15,7 @@ import com.nrr.planarrangement.navigation.PlanArrangementRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,6 +37,9 @@ class PlanArrangementViewModel @Inject constructor(
     val immediatePopBackStack = activeStatusId != null || taskId != null
 
     val tasks = if (activeStatusId == null && taskId == null) taskRepository.getTasks()
+        .map {
+            it.sortedByDescending { t -> t.updateAt }
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
@@ -142,7 +146,7 @@ class PlanArrangementViewModel @Inject constructor(
 
     internal fun updateStatusEndTime(time: Time) {
         taskEdit = taskEdit?.copy(
-            selectedStartDate = taskEdit!!.selectedDueDate?.copy(time = time)
+            selectedDueDate = taskEdit!!.selectedDueDate?.copy(time = time)
                 ?: Date(time)
         )
     }

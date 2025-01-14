@@ -365,7 +365,7 @@ private fun Title(
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         TaskTitle(
@@ -375,7 +375,8 @@ private fun Title(
         TaskTypeBar(
             taskType = taskType,
             fillBackground = true,
-            iconSize = 18.dp
+            iconSize = 18.dp,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         )
     }
 }
