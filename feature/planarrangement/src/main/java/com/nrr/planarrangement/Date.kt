@@ -8,7 +8,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 
 internal data class Date(
-    val time: Time,
+    val time: Time = Time(),
     val dayOfWeek: Int? = null,
     val dayOfMonth: Int? = null
 ) {
@@ -22,6 +22,14 @@ internal data class Date(
             minute = time.minute
         )
 
-        return localDateTime.toInstant(TimeZone.UTC)
+        return localDateTime.toInstant(TimeZone.currentSystemDefault())
     }
+}
+
+internal fun Instant.toDate() = with(toLocalDateTime()) {
+    Date(
+        time = Time(hour = hour, minute = minute),
+        dayOfWeek = dayOfWeek.value,
+        dayOfMonth = dayOfMonth
+    )
 }

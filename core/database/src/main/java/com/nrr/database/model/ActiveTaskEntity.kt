@@ -51,7 +51,8 @@ fun ActiveTaskEntity.asExternalModel() = ActiveStatus(
     period = taskPeriod,
     isSet = isSet,
     isDefault = isDefault,
-    isCompleted = isCompleted
+    isCompleted = isCompleted,
+    reminderSet = reminderSet
 )
 
 fun ActiveStatus.asEntity(taskId: Long) = ActiveTaskEntity(

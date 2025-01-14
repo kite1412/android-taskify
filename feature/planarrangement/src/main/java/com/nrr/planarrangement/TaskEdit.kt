@@ -1,23 +1,52 @@
 package com.nrr.planarrangement
 
+import com.nrr.model.ActiveStatus
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
-import kotlinx.datetime.Instant
+import com.nrr.model.TaskPriority
+import kotlinx.datetime.Clock
 
-internal data class TaskEdit(
-    val taskId: Long,
-    val title: String,
-    val description: String?,
-    val period: TaskPeriod,
-    val selectedStartDate: Instant? = null,
-    val selectedDueDate: Instant? = null
-)
+internal data class TaskEdit private constructor(
+    val task: Task,
+    val selectedStartDate: Date,
+    val selectedDueDate: Date? = null,
+    val activeStatus: ActiveStatus
+) {
+    fun toTask() = Task(
+        id = task.id,
+        title = task.title,
+        description = task.description,
+        taskType = task.taskType,
+        createdAt = task.createdAt,
+        updateAt = task.updateAt,
+        activeStatuses = task.activeStatuses.map {
+            if (it.id == activeStatus.id) activeStatus else it
+        }
+    )
 
-internal fun Task.toTaskEdit(period: TaskPeriod = TaskPeriod.DAY) = TaskEdit(
-    taskId = id,
-    title = title,
-    description = description,
-    period = activeStatuses.firstOrNull()?.period ?: period,
-    selectedStartDate = activeStatuses.firstOrNull()?.startDate,
-    selectedDueDate = activeStatuses.firstOrNull()?.dueDate
+    companion object {
+        fun create(task: Task, status: ActiveStatus?) = TaskEdit(
+            task = task,
+            selectedStartDate = status?.startDate?.toDate() ?: Date(),
+            selectedDueDate = status?.dueDate?.toDate(),
+            activeStatus = status ?: ActiveStatus(
+                id = 0,
+                startDate = Clock.System.now(),
+                dueDate = null,
+                priority = TaskPriority.NORMAL,
+                period = TaskPeriod.DAY,
+                isSet = true,
+                isDefault = false,
+                isCompleted = false
+            )
+        )
+    }
+}
+
+internal fun TaskEdit(
+    task: Task,
+    activeStatus: ActiveStatus? = null
+) = TaskEdit.create(
+    task = task,
+    status = activeStatus
 )

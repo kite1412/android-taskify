@@ -99,11 +99,9 @@ internal fun PlanArrangementScreen(
     val period = viewModel.period
     val tasks by viewModel.tasks.collectAsStateWithLifecycle(null)
     val taskEdit = viewModel.taskEdit
-    val assignTask = viewModel.assignTask
 
     Content(
         tasks = tasks,
-        assignTask = assignTask,
         assigningTask = viewModel.assigningTask,
         onTaskClick = {},
         taskEdit = taskEdit,
@@ -117,12 +115,11 @@ internal fun PlanArrangementScreen(
 @Composable
 private fun Content(
     tasks: List<Task>?,
-    assignTask: Task?,
     assigningTask: Boolean,
     onTaskClick: (Task) -> Unit,
     taskEdit: TaskEdit?,
     onBackClick: () -> Unit,
-    period: TaskPeriod,
+    period: TaskPeriod?,
     onPeriodChange: (TaskPeriod) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -148,7 +145,7 @@ private fun Content(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Row(
+                if (period != null) Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -171,7 +168,6 @@ private fun Content(
                     )
                 }
             } else AssignTask(
-                task = assignTask,
                 taskEdit = taskEdit
             )
         }
@@ -287,31 +283,34 @@ private fun Tasks(
 
 @Composable
 private fun AssignTask(
-    task: Task?,
     taskEdit: TaskEdit?,
     modifier: Modifier = Modifier
 ) {
-    if (task != null && taskEdit != null) Box(modifier = modifier) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            item {
-                Title(
-                    title = task.title,
-                    taskType = task.taskType
-                )
-            }
-            item {
-                TaskDescription(
-                    description = task.description ?: ""
-                )
-            }
-            item {
-                TaskStatuses(
-                    statuses = task.activeStatuses
-                )
+    if (taskEdit != null) {
+        val task = taskEdit.task
+
+        Box(modifier = modifier) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                item {
+                    Title(
+                        title = task.title,
+                        taskType = task.taskType
+                    )
+                }
+                item {
+                    TaskDescription(
+                        description = task.description ?: ""
+                    )
+                }
+                item {
+                    TaskStatuses(
+                        statuses = task.activeStatuses
+                    )
+                }
             }
         }
     }
@@ -336,6 +335,29 @@ private fun Title(
             taskType = taskType,
             fillBackground = true,
             iconSize = 18.dp
+        )
+    }
+}
+
+@Composable
+private fun AssignmentConfiguration(
+    taskEdit: TaskEdit,
+    onPeriodChange: (TaskPeriod) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        PeriodField(
+            period = taskEdit.activeStatus.period,
+            onPeriodChange = onPeriodChange
+        )
+        TimeField(
+            startTime = taskEdit.selectedStartDate.time,
+            endTime = taskEdit.selectedDueDate?.time,
+            onStartTimeChange = {},
+            onEndTimeChange = {}
         )
     }
 }
@@ -692,17 +714,14 @@ private fun ContentPreview(
 ) {
     var period by remember { mutableStateOf(TaskPeriod.DAY) }
     var taskEdit by remember { mutableStateOf<TaskEdit?>(null) }
-    var assignTask by remember { mutableStateOf<Task?>(null) }
     var assigningTask by remember { mutableStateOf(false) }
 
     TaskifyTheme {
         Content(
             tasks = tasks,
-            assignTask = assignTask,
             assigningTask = assigningTask,
             onTaskClick = {
-                taskEdit = it.toTaskEdit()
-                assignTask = it
+                taskEdit = TaskEdit(it)
                 assigningTask = true
             },
             taskEdit = taskEdit,

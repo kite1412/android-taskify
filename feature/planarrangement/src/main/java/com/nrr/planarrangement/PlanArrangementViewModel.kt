@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.nrr.data.repository.TaskRepository
-import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.planarrangement.navigation.PlanArrangementRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,12 +40,9 @@ class PlanArrangementViewModel @Inject constructor(
             initialValue = null
         ) else flowOf(null)
 
-    var period by mutableStateOf(
-        TaskPeriod.entries[savedStateHandle.toRoute<PlanArrangementRoute>().periodOrdinal]
+    var period by mutableStateOf<TaskPeriod?>(
+        savedStateHandle.toRoute<PlanArrangementRoute>().periodOrdinal?.let { TaskPeriod.entries[it] }
     )
-        private set
-
-    var assignTask: Task? by mutableStateOf(null)
         private set
 
     var assigningTask by mutableStateOf(false)
@@ -60,16 +56,21 @@ class PlanArrangementViewModel @Inject constructor(
             if (activeStatusId != null) taskRepository.getActiveTasksByIds(listOf(activeStatusId))
                 .collect {
                     if (it.isNotEmpty()) with(it.first()) {
-                        taskEdit = toTaskEdit(activeStatuses.first().period)
                         taskRepository.getByIds(listOf(id)).collect { l ->
-                            if (l.isNotEmpty()) assignTask = l.first()
+                            if (l.isNotEmpty()) {
+                                taskEdit = TaskEdit(
+                                    task = l.first(),
+                                    activeStatus = activeStatuses.first()
+                                )
+                                assigningTask = true
+                            }
                         }
                     }
                 }
             else if (taskId != null) taskRepository.getByIds(listOf(taskId)).collect {
                 if (it.isNotEmpty()) with(it.first()) {
-                    taskEdit = toTaskEdit()
-                    assignTask = this
+                    taskEdit = TaskEdit(this)
+                    assigningTask = true
                 }
             }
         }
