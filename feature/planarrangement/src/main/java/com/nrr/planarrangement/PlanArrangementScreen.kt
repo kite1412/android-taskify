@@ -108,6 +108,12 @@ internal fun PlanArrangementScreen(
         onBackClick = onBackClick,
         period = period,
         onPeriodChange = viewModel::updatePeriod,
+        onPeriodEditChange = {},
+        onStartTimeChange = {},
+        onEndTimeChange = {},
+        onReminderChange = {},
+        onDefaultChange = {},
+        onPriorityChange = {},
         modifier = modifier
     )
 }
@@ -121,6 +127,13 @@ private fun Content(
     onBackClick: () -> Unit,
     period: TaskPeriod?,
     onPeriodChange: (TaskPeriod) -> Unit,
+    // used while in edit mode
+    onPeriodEditChange: (TaskPeriod) -> Unit,
+    onStartTimeChange: (Time) -> Unit,
+    onEndTimeChange: (Time) -> Unit,
+    onReminderChange: (Boolean) -> Unit,
+    onDefaultChange: (Boolean) -> Unit,
+    onPriorityChange: (TaskPriority) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -168,7 +181,13 @@ private fun Content(
                     )
                 }
             } else AssignTask(
-                taskEdit = taskEdit
+                taskEdit = taskEdit,
+                onPeriodChange = onPeriodEditChange,
+                onStartTimeChange = onStartTimeChange,
+                onEndTimeChange = onEndTimeChange,
+                onReminderChange = onReminderChange,
+                onDefaultChange = onDefaultChange,
+                onPriorityChange = onPriorityChange
             )
         }
     }
@@ -284,6 +303,12 @@ private fun Tasks(
 @Composable
 private fun AssignTask(
     taskEdit: TaskEdit?,
+    onPeriodChange: (TaskPeriod) -> Unit,
+    onStartTimeChange: (Time) -> Unit,
+    onEndTimeChange: (Time) -> Unit,
+    onReminderChange: (Boolean) -> Unit,
+    onDefaultChange: (Boolean) -> Unit,
+    onPriorityChange: (TaskPriority) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (taskEdit != null) {
@@ -309,6 +334,17 @@ private fun AssignTask(
                 item {
                     TaskStatuses(
                         statuses = task.activeStatuses
+                    )
+                }
+                item {
+                    AssignmentConfiguration(
+                        taskEdit = taskEdit,
+                        onPeriodChange = onPeriodChange,
+                        onStartTimeChange = onStartTimeChange,
+                        onEndTimeChange = onEndTimeChange,
+                        onReminderChange = onReminderChange,
+                        onDefaultChange = onDefaultChange,
+                        onPriorityChange = onPriorityChange
                     )
                 }
             }
@@ -343,11 +379,16 @@ private fun Title(
 private fun AssignmentConfiguration(
     taskEdit: TaskEdit,
     onPeriodChange: (TaskPeriod) -> Unit,
+    onStartTimeChange: (Time) -> Unit,
+    onEndTimeChange: (Time) -> Unit,
+    onReminderChange: (Boolean) -> Unit,
+    onDefaultChange: (Boolean) -> Unit,
+    onPriorityChange: (TaskPriority) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(32.dp)
     ) {
         PeriodField(
             period = taskEdit.activeStatus.period,
@@ -356,8 +397,24 @@ private fun AssignmentConfiguration(
         TimeField(
             startTime = taskEdit.selectedStartDate.time,
             endTime = taskEdit.selectedDueDate?.time,
-            onStartTimeChange = {},
-            onEndTimeChange = {}
+            onStartTimeChange = onStartTimeChange,
+            onEndTimeChange = onEndTimeChange
+        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            ReminderToggle(
+                checked = taskEdit.activeStatus.reminderSet,
+                onCheckedChange = onReminderChange
+            )
+            DefaultToggle(
+                checked = taskEdit.activeStatus.isDefault,
+                onCheckedChange = onDefaultChange
+            )
+        }
+        PriorityField(
+            priority = taskEdit.activeStatus.priority,
+            onPriorityChange = onPriorityChange
         )
     }
 }
@@ -473,8 +530,8 @@ private fun TimeField(
             else PlanArrangementDictionary.endTime
         ),
         state = rememberTimePickerState(
-            initialHour = startTime.hour,
-            initialMinute = startTime.minute,
+            initialHour = if (editingStartTime!!) startTime.hour else endTime?.hour ?: 0,
+            initialMinute = if (editingStartTime!!) startTime.minute else endTime?.minute ?: 0,
             is24Hour = true
         )
     )
@@ -529,7 +586,7 @@ private fun PriorityButton(
             .background(background)
             .border(
                 width = 1.dp,
-                color = contentColor,
+                color = priority.color(),
                 shape = shape
             )
             .clickable { onClick(priority) }
@@ -539,7 +596,8 @@ private fun PriorityButton(
             ),
     ) {
         Text(
-            text = priority.toStringLocalized()
+            text = priority.toStringLocalized(),
+            color = contentColor
         )
     }
 }
@@ -640,11 +698,11 @@ private inline fun Field(
                             .clip(shape)
                             .background(MaterialTheme.colorScheme.background)
                             .border(
-                                width = 1.dp,
+                                width = 2.dp,
                                 color = MaterialTheme.colorScheme.primary,
                                 shape = shape
                             )
-                            .padding(8.dp)
+                            .padding(16.dp)
                     ) {
                         Text(
                             text = information,
@@ -729,7 +787,38 @@ private fun ContentPreview(
                 assigningTask = false
             },
             period = period,
-            onPeriodChange = { period = it }
+            onPeriodChange = { period = it },
+            onPeriodEditChange = {
+                taskEdit = taskEdit?.copy(
+                    activeStatus = taskEdit!!.activeStatus.copy(period = it)
+                )
+            },
+            onStartTimeChange = {
+                taskEdit = taskEdit!!.copy(
+                    selectedStartDate = taskEdit!!.selectedStartDate.copy(time = it)
+                )
+            },
+            onEndTimeChange = {
+                taskEdit = taskEdit?.copy(
+                    selectedDueDate = taskEdit!!.selectedDueDate?.copy(time = it)
+                        ?: Date(it)
+                )
+            },
+            onReminderChange = {
+                taskEdit = taskEdit?.copy(
+                    activeStatus = taskEdit!!.activeStatus.copy(reminderSet = it)
+                )
+            },
+            onDefaultChange = {
+                taskEdit = taskEdit?.copy(
+                    activeStatus = taskEdit!!.activeStatus.copy(isDefault = it)
+                )
+            },
+            onPriorityChange = {
+                taskEdit = taskEdit?.copy(
+                    activeStatus = taskEdit!!.activeStatus.copy(priority = it)
+                )
+            }
         )
     }
 }
