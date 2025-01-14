@@ -14,6 +14,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -58,6 +61,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.OutlinedRoundRectButton
 import com.nrr.designsystem.component.RoundRectButton
+import com.nrr.designsystem.component.TaskifyButtonDefaults
 import com.nrr.designsystem.component.Toggle
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.Blue
@@ -214,13 +218,6 @@ private fun PeriodSelect(
     modifier: Modifier = Modifier
 ) {
     var showPeriods by remember { mutableStateOf(false) }
-    val periodStringId = { p: TaskPeriod ->
-        when (p) {
-            TaskPeriod.DAY -> PlanArrangementDictionary.today
-            TaskPeriod.WEEK -> PlanArrangementDictionary.thisWeek
-            TaskPeriod.MONTH -> PlanArrangementDictionary.thisMonth
-        }
-    }
 
     Box(
         modifier = modifier
@@ -236,7 +233,7 @@ private fun PeriodSelect(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AdaptiveText(
-                text = stringResource(periodStringId(period)),
+                text = period.string(),
                 initialFontSize = 20.sp,
                 maxLines = 1,
                 fontWeight = FontWeight.Bold
@@ -256,7 +253,7 @@ private fun PeriodSelect(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            text = stringResource(periodStringId(it)),
+                            text = period.string(),
                             color = if (it == period) Blue else Color.White
                         )
                     },
@@ -338,6 +335,124 @@ private fun Title(
             iconSize = 18.dp
         )
     }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun PeriodField(
+    period: TaskPeriod,
+    onPeriodChange: (TaskPeriod) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Field(
+        label = stringResource(PlanArrangementDictionary.schedule),
+        labelFontStyle = MaterialTheme.typography.bodyLarge
+    ) {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            TaskPeriod.entries.forEach {
+                val backgroundColor by animateColorAsState(
+                    targetValue = if (period == it) Blue else Color.LightGray
+                )
+                val contentColor by animateColorAsState(
+                    targetValue = if (period == it) Color.White else Color.Black
+                )
+
+                RoundRectButton(
+                    onClick = { onPeriodChange(it) },
+                    action = it.string(),
+                    colors = TaskifyButtonDefaults.colors(
+                        containerColor = backgroundColor,
+                        contentColor = contentColor
+                    ),
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    contentPadding = PaddingValues(12.dp)
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TimeField(
+    startTime: Time,
+    endTime: Time?,
+    onStartTimeChange: (Time) -> Unit,
+    onEndTimeChange: (Time) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var editingStartTime by remember {
+        mutableStateOf<Boolean?>(null)
+    }
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(dashSpace),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Field(
+            label = stringResource(PlanArrangementDictionary.startTime)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(dashSpace),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RoundRectButton(
+                    onClick = {
+                        editingStartTime = true
+                    },
+                    action = startTime.toString(),
+                    iconId = TaskifyIcon.clock
+                )
+                HorizontalDashedLine(3)
+                Text(
+                    text = stringResource(PlanArrangementDictionary.to),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+        Field(
+            label = stringResource(PlanArrangementDictionary.endTime),
+            alignment = Alignment.End
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(dashSpace),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                HorizontalDashedLine(3)
+                OutlinedRoundRectButton(
+                    onClick = {
+                        editingStartTime = false
+                    },
+                    action = endTime?.toString() ?: stringResource(PlanArrangementDictionary.none),
+                    iconId = TaskifyIcon.clock
+                )
+            }
+        }
+    }
+    if (editingStartTime != null) TimePicker(
+        onDismissRequest = { editingStartTime = null },
+        onConfirm = {
+            if (editingStartTime!!) onStartTimeChange(it.toTime())
+            else onEndTimeChange(it.toTime())
+            editingStartTime = null
+        },
+        confirmText = stringResource(PlanArrangementDictionary.set),
+        cancelText = stringResource(PlanArrangementDictionary.cancel),
+        title = stringResource(
+            id = if (editingStartTime!!) PlanArrangementDictionary.startTime
+            else PlanArrangementDictionary.endTime
+        ),
+        state = rememberTimePickerState(
+            initialHour = startTime.hour,
+            initialMinute = startTime.minute,
+            is24Hour = true
+        )
+    )
 }
 
 @Composable
@@ -491,85 +606,6 @@ private fun PriorityButton(
             text = priority.toStringLocalized()
         )
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TimeField(
-    startTime: Time,
-    endTime: Time?,
-    onStartTimeChange: (Time) -> Unit,
-    onEndTimeChange: (Time) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var editingStartTime by remember {
-        mutableStateOf<Boolean?>(null)
-    }
-
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(dashSpace),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Field(
-            label = stringResource(PlanArrangementDictionary.startTime)
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(dashSpace),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RoundRectButton(
-                    onClick = {
-                        editingStartTime = true
-                    },
-                    action = startTime.toString(),
-                    iconId = TaskifyIcon.clock
-                )
-                HorizontalDashedLine(3)
-                Text(
-                    text = stringResource(PlanArrangementDictionary.to),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-        Field(
-            label = stringResource(PlanArrangementDictionary.endTime),
-            alignment = Alignment.End
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(dashSpace),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                HorizontalDashedLine(3)
-                OutlinedRoundRectButton(
-                    onClick = {
-                        editingStartTime = false
-                    },
-                    action = endTime?.toString() ?: stringResource(PlanArrangementDictionary.none),
-                    iconId = TaskifyIcon.clock
-                )
-            }
-        }
-    }
-    if (editingStartTime != null) TimePicker(
-        onDismissRequest = { editingStartTime = null },
-        onConfirm = {
-            if (editingStartTime!!) onStartTimeChange(it.toTime())
-            else onEndTimeChange(it.toTime())
-            editingStartTime = null
-        },
-        confirmText = stringResource(PlanArrangementDictionary.set),
-        cancelText = stringResource(PlanArrangementDictionary.cancel),
-        title = stringResource(
-            id = if (editingStartTime!!) PlanArrangementDictionary.startTime
-                else PlanArrangementDictionary.endTime
-        ),
-        state = rememberTimePickerState(
-            initialHour = startTime.hour,
-            initialMinute = startTime.minute,
-            is24Hour = true
-        )
-    )
 }
 
 @Composable
