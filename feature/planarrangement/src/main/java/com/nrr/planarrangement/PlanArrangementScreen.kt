@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
@@ -46,12 +47,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
@@ -456,95 +459,6 @@ private fun TimeField(
 }
 
 @Composable
-private inline fun Field(
-    label: String,
-    alignment: Alignment.Horizontal = Alignment.Start,
-    modifier: Modifier = Modifier,
-    information: String? = null,
-    labelFontStyle: TextStyle = MaterialTheme.typography.bodyMedium,
-    content: @Composable () -> Unit
-) {
-    var showInformation by remember {
-        mutableStateOf(false)
-    }
-
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalAlignment = alignment
-    ) {
-        Box {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = label,
-                    color = MaterialTheme.colorScheme.primary,
-                    style = labelFontStyle,
-                    fontWeight = FontWeight.Bold
-                )
-                if (information != null) Icon(
-                    painter = painterResource(TaskifyIcon.info),
-                    contentDescription = "information",
-                    modifier = Modifier
-                        .size(labelFontStyle.fontSize.value.dp)
-                        .clickable(
-                            indication = null,
-                            interactionSource = null
-                        ) {
-                            showInformation = !showInformation
-                        },
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-            if (showInformation && information != null) Popup {
-                val shape = RoundedCornerShape(16.dp)
-                val size = (LocalConfiguration.current.screenWidthDp / 2).dp
-
-                Box(
-                    modifier = Modifier
-                        .size(size)
-                        .clip(shape)
-                        .background(MaterialTheme.colorScheme.background)
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = shape
-                        )
-                        .padding(8.dp)
-                ) {
-                    Text(information)
-                }
-            }
-        }
-        content()
-    }
-}
-
-@Composable
-private fun ToggleField(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    label: String,
-    information: String,
-    modifier: Modifier = Modifier,
-    showState: Boolean
-) {
-    Field(
-        label = label,
-        modifier = modifier,
-        information = information
-    ) {
-        Toggle(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            showState = showState
-        )
-    }
-}
-
-@Composable
 private fun PriorityField(
     priority: TaskPriority,
     onPriorityChange: (TaskPriority) -> Unit,
@@ -604,6 +518,142 @@ private fun PriorityButton(
     ) {
         Text(
             text = priority.toStringLocalized()
+        )
+    }
+}
+
+@Composable
+private fun ReminderToggle(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ToggleField(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        label = stringResource(PlanArrangementDictionary.reminder),
+        information = stringResource(PlanArrangementDictionary.reminderInfo),
+        modifier = modifier,
+        showState = true
+    )
+}
+
+@Composable
+private fun DefaultToggle(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ToggleField(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        label = stringResource(PlanArrangementDictionary.default),
+        information = stringResource(PlanArrangementDictionary.defaultInfo),
+        modifier = modifier,
+        showState = false
+    )
+}
+
+@Composable
+private inline fun Field(
+    label: String,
+    alignment: Alignment.Horizontal = Alignment.Start,
+    modifier: Modifier = Modifier,
+    information: String? = null,
+    labelFontStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+    content: @Composable () -> Unit
+) {
+    var showInformation by remember {
+        mutableStateOf(false)
+    }
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = alignment
+    ) {
+        Box {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = label,
+                    color = MaterialTheme.colorScheme.primary,
+                    style = labelFontStyle,
+                    fontWeight = FontWeight.Bold
+                )
+                if (information != null) Icon(
+                    painter = painterResource(TaskifyIcon.info),
+                    contentDescription = "information",
+                    modifier = Modifier
+                        .size(labelFontStyle.fontSize.value.dp)
+                        .clickable(
+                            indication = null,
+                            interactionSource = null
+                        ) {
+                            showInformation = !showInformation
+                        },
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            if (showInformation && information != null) {
+                val density = LocalDensity.current
+
+                Popup(
+                    onDismissRequest = { showInformation = false },
+                    offset = IntOffset(
+                        x = 0,
+                        y = with(density) {
+                            labelFontStyle.fontSize.roundToPx()
+                        }
+                    )
+                ) {
+                    val shape = RoundedCornerShape(16.dp)
+                    val width = (LocalConfiguration.current.screenWidthDp / 2).dp
+
+                    Box(
+                        modifier = Modifier
+                            .width(width)
+                            .clip(shape)
+                            .background(MaterialTheme.colorScheme.background)
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = shape
+                            )
+                            .padding(8.dp)
+                    ) {
+                        Text(
+                            text = information,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            }
+        }
+        content()
+    }
+}
+
+@Composable
+private fun ToggleField(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    label: String,
+    information: String,
+    modifier: Modifier = Modifier,
+    showState: Boolean
+) {
+    Field(
+        label = label,
+        modifier = modifier,
+        information = information
+    ) {
+        Toggle(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            showState = showState
         )
     }
 }

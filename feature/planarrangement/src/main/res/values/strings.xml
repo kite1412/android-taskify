@@ -14,4 +14,8 @@
     <string name="planarrangement_to">to</string>
     <string name="planarrangement_none">None</string>
     <string name="planarrangement_schedule">Schedule</string>
+    <string name="planarrangement_reminder">Reminder</string>
+    <string name="planarrangement_reminder_info">Receive notification when the task about to start</string>
+    <string name="planarrangement_default">Set as default</string>
+    <string name="planarrangement_default_info">Set the task to repeat daily on chosen schedule (day, week, or month)</string>
 </resources>

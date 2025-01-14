@@ -17,4 +17,8 @@ object PlanArrangementDictionary {
     val to = R.string.planarrangement_to
     val none = R.string.planarrangement_none
     val schedule = R.string.planarrangement_schedule
+    val reminder = R.string.planarrangement_reminder
+    val reminderInfo = R.string.planarrangement_reminder_info
+    val default = R.string.planarrangement_default
+    val defaultInfo = R.string.planarrangement_default_info
 }
