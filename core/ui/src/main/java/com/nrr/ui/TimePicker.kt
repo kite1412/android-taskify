@@ -2,6 +2,7 @@ package com.nrr.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimeInput
@@ -44,13 +45,22 @@ fun TimePicker(
         title = title,
         desc = desc
     ) {
-        TimeInput(
-            state = state,
-            colors = TimePickerDefaults.colors(
-                timeSelectorSelectedContainerColor = Color.White,
-                timeSelectorUnselectedContainerColor = Color.LightGray
+        MaterialTheme(
+            colorScheme = MaterialTheme.colorScheme.copy(
+                onSurfaceVariant = LocalContentColor.current
+            ),
+            typography = MaterialTheme.typography
+        ) {
+            TimeInput(
+                state = state,
+                colors = TimePickerDefaults.colors(
+                    timeSelectorSelectedContainerColor = Color.White,
+                    timeSelectorUnselectedContainerColor = Color.LightGray,
+                    timeSelectorSelectedContentColor = Color.Black,
+                    timeSelectorUnselectedContentColor = Color.Black
+                )
             )
-        )
+        }
     }
 }
 

@@ -14,4 +14,6 @@ object PlanArrangementDictionary {
     val endTime = R.string.planarrangement_end_time
     val set = R.string.planarrangement_set
     val cancel = R.string.planarrangement_cancel
+    val to = R.string.planarrangement_to
+    val none = R.string.planarrangement_none
 }

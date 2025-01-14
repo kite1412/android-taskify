@@ -56,6 +56,7 @@ import androidx.compose.ui.window.Popup
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.designsystem.component.AdaptiveText
+import com.nrr.designsystem.component.OutlinedRoundRectButton
 import com.nrr.designsystem.component.RoundRectButton
 import com.nrr.designsystem.component.Toggle
 import com.nrr.designsystem.icon.TaskifyIcon
@@ -507,18 +508,47 @@ private fun TimeField(
 
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(dashSpace)
+        horizontalArrangement = Arrangement.spacedBy(dashSpace),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Field(
             label = stringResource(PlanArrangementDictionary.startTime)
         ) {
-            RoundRectButton(
-                onClick = {
-                    editingStartTime = true
-                },
-                action = startTime.toString(),
-                iconId = TaskifyIcon.clock
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(dashSpace),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RoundRectButton(
+                    onClick = {
+                        editingStartTime = true
+                    },
+                    action = startTime.toString(),
+                    iconId = TaskifyIcon.clock
+                )
+                HorizontalDashedLine(3)
+                Text(
+                    text = stringResource(PlanArrangementDictionary.to),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+        Field(
+            label = stringResource(PlanArrangementDictionary.endTime),
+            alignment = Alignment.End
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(dashSpace),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                HorizontalDashedLine(3)
+                OutlinedRoundRectButton(
+                    onClick = {
+                        editingStartTime = false
+                    },
+                    action = endTime?.toString() ?: stringResource(PlanArrangementDictionary.none),
+                    iconId = TaskifyIcon.clock
+                )
+            }
         }
     }
     if (editingStartTime != null) TimePicker(
@@ -540,23 +570,6 @@ private fun TimeField(
             is24Hour = true
         )
     )
-}
-
-@Preview
-@Composable
-private fun TimePickerPreview() {
-    var startDate by remember {
-        mutableStateOf(Date(Time()))
-    }
-
-    TaskifyTheme {
-        TimeField(
-            startTime = startDate.time,
-            endTime = null,
-            onStartTimeChange = { startDate = startDate.copy(time = it) },
-            onEndTimeChange = {  }
-        )
-    }
 }
 
 @Composable

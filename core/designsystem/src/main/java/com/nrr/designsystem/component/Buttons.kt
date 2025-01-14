@@ -80,7 +80,9 @@ fun OutlinedRoundRectButton(
     shape: Shape = RoundedCornerShape(8.dp),
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
     enabled: Boolean = true,
-    colors: ButtonColors = TaskifyButtonDefaults.colors(),
+    colors: ButtonColors = TaskifyButtonDefaults.colors(
+        contentColor = MaterialTheme.colorScheme.primary
+    ),
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(4.dp),
     contentPadding: PaddingValues = PaddingValues(
         vertical = 8.dp,

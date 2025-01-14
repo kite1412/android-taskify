@@ -11,4 +11,6 @@
     <string name="planarrangement_end_time">End Time</string>
     <string name="planarrangement_set">Set</string>
     <string name="planarrangement_cancel">Cancel</string>
+    <string name="planarrangement_to">to</string>
+    <string name="planarrangement_none">None</string>
 </resources>
