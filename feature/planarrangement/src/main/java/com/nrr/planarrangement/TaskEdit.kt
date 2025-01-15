@@ -8,29 +8,31 @@ import kotlinx.datetime.Clock
 
 internal data class TaskEdit private constructor(
     val task: Task,
-    val selectedStartDate: Date,
+    val selectedStartDate: Date?,
     val selectedDueDate: Date? = null,
     val activeStatus: ActiveStatus
 ) {
-    fun toTask() = Task(
-        id = task.id,
-        title = task.title,
-        description = task.description,
-        taskType = task.taskType,
-        createdAt = task.createdAt,
-        updateAt = task.updateAt,
-        activeStatuses = task.activeStatuses.map {
-            if (it.id == activeStatus.id) activeStatus.copy(
-                startDate = selectedStartDate.toInstant(),
-                dueDate = selectedDueDate?.toInstant()
-            ) else it
-        }
-    )
+    fun toTask() = selectedStartDate?.let {
+        Task(
+            id = task.id,
+            title = task.title,
+            description = task.description,
+            taskType = task.taskType,
+            createdAt = task.createdAt,
+            updateAt = task.updateAt,
+            activeStatuses = task.activeStatuses.map {
+                if (it.id == activeStatus.id) activeStatus.copy(
+                    startDate = selectedStartDate.toInstant(),
+                    dueDate = selectedDueDate?.toInstant()
+                ) else it
+            }
+        )
+    }
 
     companion object {
         fun create(task: Task, status: ActiveStatus?) = TaskEdit(
             task = task,
-            selectedStartDate = status?.startDate?.toDate() ?: Date(),
+            selectedStartDate = status?.startDate?.toDate(),
             selectedDueDate = status?.dueDate?.toDate(),
             activeStatus = status ?: ActiveStatus(
                 id = 0,

@@ -132,6 +132,7 @@ internal fun PlanArrangementScreen(
         else if (assigningTask) viewModel.updateAssigningTask(false)
         else onBackClick()
     }
+    val saveEnabled by viewModel.saveEnabled.collectAsStateWithLifecycle(false)
 
     BackHandler(onBack = backClick)
     Content(
@@ -150,7 +151,7 @@ internal fun PlanArrangementScreen(
         onReminderChange = viewModel::updateStatusReminder,
         onDefaultChange = viewModel::updateStatusDefault,
         onPriorityChange = viewModel::updateStatusPriority,
-        saveEnabled = false,
+        saveEnabled = saveEnabled,
         onSave = {},
         modifier = modifier
     )
@@ -451,7 +452,8 @@ private fun AssignTask(
                 onClick = onSave,
                 modifier = Modifier.align(Alignment.BottomEnd),
                 colors = TaskifyButtonDefaults.textButtonColors(
-                    disabledContentColor = Color.Gray
+                    disabledContentColor = Color.Gray,
+                    contentColor = MaterialTheme.colorScheme.tertiary
                 ),
                 enabled = saveEnabled
             ) {
@@ -509,7 +511,7 @@ private fun AssignmentConfiguration(
             onPeriodChange = onPeriodChange
         )
         TimeField(
-            startTime = taskEdit.selectedStartDate.time,
+            startTime = taskEdit.selectedStartDate?.time,
             endTime = taskEdit.selectedDueDate?.time,
             onStartTimeChange = onStartTimeChange,
             onEndTimeChange = onEndTimeChange
@@ -586,7 +588,7 @@ private fun PeriodField(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TimeField(
-    startTime: Time,
+    startTime: Time?,
     endTime: Time?,
     onStartTimeChange: (Time) -> Unit,
     onEndTimeChange: (Time) -> Unit,
@@ -599,17 +601,29 @@ private fun TimeField(
         mutableStateOf<String?>(null)
     }
     val invalidTimeWarning = stringResource(PlanArrangementDictionary.invalidTimeWarning)
-    val invalid = endTime?.let {
-        startTime > endTime
-    } ?: false
+    val invalid = if (startTime == null) -1
+        else {
+            endTime?.let {
+                if (startTime > it) 1
+                else 0
+            } ?: 0
+        }
 
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
-        if (invalid) InvalidWarning(
-            warning = invalidTimeWarning
-        )
+        when (invalid) {
+            0 -> Unit
+            else -> {
+                InvalidWarning(
+                    warning = stringResource(
+                        id = if (invalid == -1) PlanArrangementDictionary.enterStartTimeWarning
+                        else PlanArrangementDictionary.invalidTimeWarning
+                    )
+                )
+            }
+        }
         IntervalField(
             leftLabel = stringResource(PlanArrangementDictionary.startTime),
             rightLabel = stringResource(PlanArrangementDictionary.endTime),
@@ -618,7 +632,7 @@ private fun TimeField(
                     onClick = {
                         editingStartTime = true
                     },
-                    action = startTime.toString(),
+                    action = startTime?.toString() ?: stringResource(PlanArrangementDictionary.none),
                     iconId = TaskifyIcon.clock
                 )
             },
@@ -628,7 +642,12 @@ private fun TimeField(
                         editingStartTime = false
                     },
                     action = endTime?.toString() ?: stringResource(PlanArrangementDictionary.none),
-                    iconId = TaskifyIcon.clock
+                    iconId = TaskifyIcon.clock,
+                    enabled = startTime != null,
+                    colors = TaskifyButtonDefaults.colors(
+                        contentColor = MaterialTheme.colorScheme.primary,
+                        disabledContentColor = Color.Gray
+                    )
                 )
             }
         )
@@ -644,13 +663,15 @@ private fun TimeField(
                 editingStartTime = null
                 warning = null
             } else {
-                val time = it.toTime()
-                if (time >= startTime) {
-                    onEndTimeChange(time)
-                    editingStartTime = null
-                    warning = null
-                } else {
-                    warning = invalidTimeWarning
+                startTime?.let { st ->
+                    val time = it.toTime()
+                    if (time >= st) {
+                        onEndTimeChange(time)
+                        editingStartTime = null
+                        warning = null
+                    } else {
+                        warning = invalidTimeWarning
+                    }
                 }
             }
         },
@@ -661,8 +682,8 @@ private fun TimeField(
             else PlanArrangementDictionary.endTime
         ),
         state = rememberTimePickerState(
-            initialHour = if (editingStartTime!!) startTime.hour else endTime?.hour ?: 0,
-            initialMinute = if (editingStartTime!!) startTime.minute else endTime?.minute ?: 0,
+            initialHour = if (editingStartTime!!) startTime?.hour ?: 0 else endTime?.hour ?: 0,
+            initialMinute = if (editingStartTime!!) startTime?.minute ?: 0 else endTime?.minute ?: 0,
             is24Hour = true
         ),
         dialogColors = TaskifyDialogDefaults.colors(
@@ -1107,7 +1128,7 @@ private fun ContentPreview(
             },
             onStartTimeChange = {
                 taskEdit = taskEdit!!.copy(
-                    selectedStartDate = taskEdit!!.selectedStartDate.copy(time = it)
+                    selectedStartDate = taskEdit!!.selectedStartDate?.copy(time = it)
                 )
             },
             onEndTimeChange = {
@@ -1118,7 +1139,7 @@ private fun ContentPreview(
             },
             onStartDateChange = {
                 taskEdit = taskEdit?.copy(
-                    selectedStartDate = taskEdit!!.selectedStartDate.copy(dayOfMonth = it)
+                    selectedStartDate = taskEdit!!.selectedStartDate?.copy(dayOfMonth = it)
                 )
             },
             onEndDateChange = {

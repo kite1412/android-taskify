@@ -24,4 +24,5 @@
     <string name="planarrangement_invalid_time_warning">End time can\'t be earlier than start time</string>
     <string name="planarrangement_enter_start_date_warning">Select start date</string>
     <string name="planarrangement_invalid_date_warning">End date can\'t be earlier than start date</string>
+    <string name="planarrangement_enter_start_time_warning">Select start time</string>
 </resources>

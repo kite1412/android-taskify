@@ -124,7 +124,7 @@ data class ToggleColors(
 )
 
 object ToggleDefaults {
-    internal const val CONTAINER_HEIGHT = 40
+    internal const val CONTAINER_HEIGHT = 32
     internal const val CONTAINER_WIDTH = CONTAINER_HEIGHT * 2
     internal const val THUMB_DIAMETER = CONTAINER_HEIGHT - 4
     internal const val THUMB_PADDING_FROM_CONTAINER = ((CONTAINER_HEIGHT - THUMB_DIAMETER) / 2)

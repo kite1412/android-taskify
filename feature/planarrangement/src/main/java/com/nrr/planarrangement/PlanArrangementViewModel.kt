@@ -60,7 +60,17 @@ class PlanArrangementViewModel @Inject constructor(
 
     internal val saveEnabled = snapshotFlow { taskEdit }
         .map {
-            it != null
+            it?.selectedStartDate != null
+                && (it.task.activeStatuses.firstOrNull()?.let { status ->
+                    status.period != it.activeStatus.period
+                        || status.priority != it.activeStatus.priority
+                        || status.reminderSet != it.activeStatus.reminderSet
+                        || status.isDefault != it.activeStatus.isDefault
+                        || status.startDate.toDate() != it.selectedStartDate
+                        || status.dueDate?.toDate() != it.selectedDueDate
+                } ?: true)
+                && (it.selectedDueDate == null || it.selectedStartDate <= it.selectedDueDate)
+                && (it.activeStatus.period == TaskPeriod.DAY || it.selectedStartDate.dayOfMonth != null)
         }
 
     init {
@@ -146,7 +156,8 @@ class PlanArrangementViewModel @Inject constructor(
 
     internal fun updateStatusStartTime(time: Time) {
         taskEdit = taskEdit?.copy(
-            selectedStartDate = taskEdit!!.selectedStartDate.copy(time = time)
+            selectedStartDate = taskEdit!!.selectedStartDate?.copy(time = time)
+                ?: Date(time)
         )
     }
 
@@ -159,7 +170,8 @@ class PlanArrangementViewModel @Inject constructor(
 
     internal fun updateStatusStartDate(date: Int) {
         taskEdit = taskEdit?.copy(
-            selectedStartDate = taskEdit!!.selectedStartDate.copy(dayOfMonth = date)
+            selectedStartDate = taskEdit!!.selectedStartDate?.copy(dayOfMonth = date)
+                ?: Date(dayOfMonth = date)
         )
     }
 
