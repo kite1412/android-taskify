@@ -9,4 +9,5 @@ android {
 dependencies {
     implementation(projects.core.domain)
     implementation(libs.cronet.embedded)
+    implementation(libs.androidx.activity.compose)
 }

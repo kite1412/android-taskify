@@ -1,5 +1,6 @@
 package com.nrr.planarrangement
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -122,17 +123,19 @@ internal fun PlanArrangementScreen(
     val tasks by viewModel.tasks.collectAsStateWithLifecycle(null)
     val taskEdit = viewModel.taskEdit
     val assigningTask = viewModel.assigningTask
+    val backClick = {
+        if (viewModel.immediatePopBackStack) onBackClick()
+        else if (assigningTask) viewModel.updateAssigningTask(false)
+        else onBackClick()
+    }
 
+    BackHandler(onBack = backClick)
     Content(
         tasks = tasks,
         assigningTask = assigningTask,
         onTaskClick = viewModel::updateEditTask,
         taskEdit = taskEdit,
-        onBackClick = {
-            if (viewModel.immediatePopBackStack) onBackClick()
-            else if (assigningTask) viewModel.updateAssigningTask(false)
-            else onBackClick()
-        },
+        onBackClick = backClick,
         period = period,
         onPeriodChange = viewModel::updatePeriod,
         onPeriodEditChange = viewModel::updateStatusPeriod,
@@ -143,6 +146,8 @@ internal fun PlanArrangementScreen(
         onReminderChange = viewModel::updateStatusReminder,
         onDefaultChange = viewModel::updateStatusDefault,
         onPriorityChange = viewModel::updateStatusPriority,
+        saveEnabled = false,
+        onSave = {},
         modifier = modifier
     )
 }
@@ -165,6 +170,8 @@ private fun Content(
     onReminderChange: (Boolean) -> Unit,
     onDefaultChange: (Boolean) -> Unit,
     onPriorityChange: (TaskPriority) -> Unit,
+    saveEnabled: Boolean,
+    onSave: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -220,7 +227,9 @@ private fun Content(
                 onEndDateChange = onEndDateChange,
                 onReminderChange = onReminderChange,
                 onDefaultChange = onDefaultChange,
-                onPriorityChange = onPriorityChange
+                onPriorityChange = onPriorityChange,
+                saveEnabled = saveEnabled,
+                onSave = onSave
             )
         }
     }
@@ -344,6 +353,8 @@ private fun AssignTask(
     onReminderChange: (Boolean) -> Unit,
     onDefaultChange: (Boolean) -> Unit,
     onPriorityChange: (TaskPriority) -> Unit,
+    saveEnabled: Boolean,
+    onSave: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (taskEdit != null) {
@@ -433,9 +444,10 @@ private fun AssignTask(
                 )
             }
             TextButton(
-                onClick = {},
+                onClick = onSave,
                 modifier = Modifier.align(Alignment.BottomEnd),
-                colors = TaskifyButtonDefaults.textButtonColors()
+                colors = TaskifyButtonDefaults.textButtonColors(),
+                enabled = saveEnabled
             ) {
                 Text(
                     text = stringResource(PlanArrangementDictionary.save),
@@ -1032,7 +1044,9 @@ private fun ContentPreview(
                 taskEdit = taskEdit?.copy(
                     activeStatus = taskEdit!!.activeStatus.copy(priority = it)
                 )
-            }
+            },
+            saveEnabled = true,
+            onSave = {}
         )
     }
 }
