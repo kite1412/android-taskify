@@ -21,4 +21,6 @@ object PlanArrangementDictionary {
     val reminderInfo = R.string.planarrangement_reminder_info
     val default = R.string.planarrangement_default
     val defaultInfo = R.string.planarrangement_default_info
+    val startDate = R.string.planarrangement_start_date
+    val endDate = R.string.planarrangement_end_date
 }

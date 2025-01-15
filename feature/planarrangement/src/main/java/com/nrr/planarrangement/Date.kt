@@ -9,7 +9,6 @@ import kotlinx.datetime.toInstant
 
 internal data class Date(
     val time: Time = Time(),
-    val dayOfWeek: Int? = null,
     val dayOfMonth: Int? = null
 ) {
     fun toInstant(): Instant {
@@ -29,7 +28,6 @@ internal data class Date(
 internal fun Instant.toDate() = with(toLocalDateTime()) {
     Date(
         time = Time(hour = hour, minute = minute),
-        dayOfWeek = dayOfWeek.value,
         dayOfMonth = dayOfMonth
     )
 }

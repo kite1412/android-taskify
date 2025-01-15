@@ -1,6 +1,7 @@
 package com.nrr.planarrangement
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -75,6 +76,7 @@ import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.TaskPriority
 import com.nrr.model.TaskType
+import com.nrr.model.toLocalDateTime
 import com.nrr.planarrangement.util.PlanArrangementDictionary
 import com.nrr.planarrangement.util.dashHeight
 import com.nrr.planarrangement.util.dashSpace
@@ -86,9 +88,15 @@ import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.TaskStatuses
 import com.nrr.ui.TaskTitle
 import com.nrr.ui.TaskTypeBar
-import com.nrr.ui.picker.time.TimePicker
 import com.nrr.ui.color
+import com.nrr.ui.picker.date.DatePicker
+import com.nrr.ui.picker.date.SelectableDatesMonth
+import com.nrr.ui.picker.date.SelectableDatesWeek
+import com.nrr.ui.picker.date.rememberDefaultDatePickerState
+import com.nrr.ui.picker.time.TimePicker
 import com.nrr.ui.toStringLocalized
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 
 @Composable
 internal fun PlanArrangementScreen(
@@ -116,6 +124,8 @@ internal fun PlanArrangementScreen(
         onPeriodEditChange = viewModel::updateStatusPeriod,
         onStartTimeChange = viewModel::updateStatusStartTime,
         onEndTimeChange = viewModel::updateStatusEndTime,
+        onStartDateChange = viewModel::updateStatusStartDate,
+        onEndDateChange = viewModel::updateStatusEndDate,
         onReminderChange = viewModel::updateStatusReminder,
         onDefaultChange = viewModel::updateStatusDefault,
         onPriorityChange = viewModel::updateStatusPriority,
@@ -136,6 +146,8 @@ private fun Content(
     onPeriodEditChange: (TaskPeriod) -> Unit,
     onStartTimeChange: (Time) -> Unit,
     onEndTimeChange: (Time) -> Unit,
+    onStartDateChange: (Int) -> Unit,
+    onEndDateChange: (Int) -> Unit,
     onReminderChange: (Boolean) -> Unit,
     onDefaultChange: (Boolean) -> Unit,
     onPriorityChange: (TaskPriority) -> Unit,
@@ -190,6 +202,8 @@ private fun Content(
                 onPeriodChange = onPeriodEditChange,
                 onStartTimeChange = onStartTimeChange,
                 onEndTimeChange = onEndTimeChange,
+                onStartDateChange = onStartDateChange,
+                onEndDateChange = onEndDateChange,
                 onReminderChange = onReminderChange,
                 onDefaultChange = onDefaultChange,
                 onPriorityChange = onPriorityChange
@@ -311,6 +325,8 @@ private fun AssignTask(
     onPeriodChange: (TaskPeriod) -> Unit,
     onStartTimeChange: (Time) -> Unit,
     onEndTimeChange: (Time) -> Unit,
+    onStartDateChange: (Int) -> Unit,
+    onEndDateChange: (Int) -> Unit,
     onReminderChange: (Boolean) -> Unit,
     onDefaultChange: (Boolean) -> Unit,
     onPriorityChange: (TaskPriority) -> Unit,
@@ -347,6 +363,8 @@ private fun AssignTask(
                         onPeriodChange = onPeriodChange,
                         onStartTimeChange = onStartTimeChange,
                         onEndTimeChange = onEndTimeChange,
+                        onStartDateChange = onStartDateChange,
+                        onEndDateChange = onEndDateChange,
                         onReminderChange = onReminderChange,
                         onDefaultChange = onDefaultChange,
                         onPriorityChange = onPriorityChange
@@ -387,17 +405,21 @@ private fun AssignmentConfiguration(
     onPeriodChange: (TaskPeriod) -> Unit,
     onStartTimeChange: (Time) -> Unit,
     onEndTimeChange: (Time) -> Unit,
+    onStartDateChange: (Int) -> Unit,
+    onEndDateChange: (Int) -> Unit,
     onReminderChange: (Boolean) -> Unit,
     onDefaultChange: (Boolean) -> Unit,
     onPriorityChange: (TaskPriority) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val status = taskEdit.activeStatus
+
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(32.dp)
     ) {
         PeriodField(
-            period = taskEdit.activeStatus.period,
+            period = status.period,
             onPeriodChange = onPeriodChange
         )
         TimeField(
@@ -406,20 +428,31 @@ private fun AssignmentConfiguration(
             onStartTimeChange = onStartTimeChange,
             onEndTimeChange = onEndTimeChange
         )
+        AnimatedVisibility(
+            visible = status.period != TaskPeriod.DAY
+        ) {
+            DateField(
+                period = status.period,
+                startDate = taskEdit.selectedStartDate.dayOfMonth,
+                endDate = taskEdit.selectedDueDate?.dayOfMonth,
+                onStartDateChange = onStartDateChange,
+                onEndDateChange = onEndDateChange
+            )
+        }
         Row(
             horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             ReminderToggle(
-                checked = taskEdit.activeStatus.reminderSet,
+                checked = status.reminderSet,
                 onCheckedChange = onReminderChange
             )
             DefaultToggle(
-                checked = taskEdit.activeStatus.isDefault,
+                checked = status.isDefault,
                 onCheckedChange = onDefaultChange
             )
         }
         PriorityField(
-            priority = taskEdit.activeStatus.priority,
+            priority = status.priority,
             onPriorityChange = onPriorityChange
         )
     }
@@ -457,8 +490,7 @@ private fun PeriodField(
                     textStyle = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Bold
                     ),
-                    contentPadding = PaddingValues(12.dp),
-                    enabled = it == TaskPeriod.DAY
+                    contentPadding = PaddingValues(12.dp)
                 )
             }
         }
@@ -478,51 +510,29 @@ private fun TimeField(
         mutableStateOf<Boolean?>(null)
     }
 
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(dashSpace),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Field(
-            label = stringResource(PlanArrangementDictionary.startTime)
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(dashSpace),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RoundRectButton(
-                    onClick = {
-                        editingStartTime = true
-                    },
-                    action = startTime.toString(),
-                    iconId = TaskifyIcon.clock
-                )
-                HorizontalDashedLine(3)
-                Text(
-                    text = stringResource(PlanArrangementDictionary.to),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-        Field(
-            label = stringResource(PlanArrangementDictionary.endTime),
-            alignment = Alignment.End
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(dashSpace),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                HorizontalDashedLine(3)
-                OutlinedRoundRectButton(
-                    onClick = {
-                        editingStartTime = false
-                    },
-                    action = endTime?.toString() ?: stringResource(PlanArrangementDictionary.none),
-                    iconId = TaskifyIcon.clock
-                )
-            }
-        }
-    }
+    IntervalField(
+        leftLabel = stringResource(PlanArrangementDictionary.startTime),
+        rightLabel = stringResource(PlanArrangementDictionary.endTime),
+        left = {
+            RoundRectButton(
+                onClick = {
+                    editingStartTime = true
+                },
+                action = startTime.toString(),
+                iconId = TaskifyIcon.clock
+            )
+        },
+        right = {
+            OutlinedRoundRectButton(
+                onClick = {
+                    editingStartTime = false
+                },
+                action = endTime?.toString() ?: stringResource(PlanArrangementDictionary.none),
+                iconId = TaskifyIcon.clock
+            )
+        },
+        modifier = modifier
+    )
     if (editingStartTime != null) TimePicker(
         onDismissRequest = { editingStartTime = null },
         onConfirm = {
@@ -542,6 +552,123 @@ private fun TimeField(
             is24Hour = true
         )
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DateField(
+    period: TaskPeriod,
+    startDate: Int?,
+    endDate: Int?,
+    onStartDateChange: (Int) -> Unit,
+    onEndDateChange: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var editingStartDate by remember {
+        mutableStateOf<Boolean?>(null)
+    }
+    val curDate = remember {
+        Clock.System.now().toLocalDateTime()
+    }
+
+    IntervalField(
+        leftLabel = stringResource(PlanArrangementDictionary.startDate),
+        rightLabel = stringResource(PlanArrangementDictionary.endDate),
+        left = {
+            RoundRectButton(
+                onClick = {
+                    editingStartDate = true
+                },
+                action = if (startDate == null) stringResource(PlanArrangementDictionary.none)
+                    else "${curDate.month.value}/$startDate",
+                iconId = TaskifyIcon.calendar
+            )
+        },
+        right = {
+            OutlinedRoundRectButton(
+                onClick = {
+                    editingStartDate = false
+                },
+                action = if (endDate == null) stringResource(PlanArrangementDictionary.none)
+                    else "${curDate.month.value}/$endDate",
+                iconId = TaskifyIcon.calendar
+            )
+        }
+    )
+
+    if (editingStartDate != null) DatePicker(
+        onDismiss = { editingStartDate = null },
+        onConfirm = {
+            val dayOfMonth = Instant.fromEpochMilliseconds(it).toLocalDateTime()
+                .dayOfMonth
+            if (editingStartDate!!) onStartDateChange(dayOfMonth)
+            else onEndDateChange(dayOfMonth)
+            editingStartDate = null
+        },
+        confirmText = stringResource(PlanArrangementDictionary.set),
+        cancelText = stringResource(PlanArrangementDictionary.cancel),
+        title = stringResource(
+            id = if (editingStartDate!!) PlanArrangementDictionary.startDate
+                else PlanArrangementDictionary.endDate
+        ),
+        state = rememberDefaultDatePickerState(
+            selectableDates = if (period == TaskPeriod.WEEK) SelectableDatesWeek
+                else SelectableDatesMonth
+        ),
+        confirmColors = TaskifyButtonDefaults.textButtonColors(
+            contentColor = MaterialTheme.colorScheme.tertiary
+        ),
+        cancelColors = TaskifyButtonDefaults.textButtonColors(
+            contentColor = Color.White
+        )
+    )
+}
+
+@Composable
+private fun IntervalField(
+    leftLabel: String,
+    rightLabel: String,
+    left: @Composable () -> Unit,
+    right: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    rangeDesc: String = stringResource(PlanArrangementDictionary.to),
+    dashCount: Int = 6
+) {
+    val dashCountOnEach = dashCount / 2
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(dashSpace),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Field(
+            label = leftLabel
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(dashSpace),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                left()
+                HorizontalDashedLine(dashCountOnEach)
+                Text(
+                    text = rangeDesc,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+        Field(
+            label = rightLabel,
+            alignment = Alignment.End
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(dashSpace),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                HorizontalDashedLine(dashCountOnEach)
+                right()
+            }
+        }
+    }
 }
 
 @Composable
@@ -807,6 +934,17 @@ private fun ContentPreview(
                 taskEdit = taskEdit?.copy(
                     selectedDueDate = taskEdit!!.selectedDueDate?.copy(time = it)
                         ?: Date(it)
+                )
+            },
+            onStartDateChange = {
+                taskEdit = taskEdit?.copy(
+                    selectedStartDate = taskEdit!!.selectedStartDate.copy(dayOfMonth = it)
+                )
+            },
+            onEndDateChange = {
+                taskEdit = taskEdit?.copy(
+                    selectedDueDate = taskEdit!!.selectedDueDate?.copy(dayOfMonth = it)
+                        ?: Date(dayOfMonth = it)
                 )
             },
             onReminderChange = {

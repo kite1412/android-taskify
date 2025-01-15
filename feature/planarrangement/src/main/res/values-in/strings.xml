@@ -18,4 +18,6 @@
     <string name="planarrangement_reminder_info">Terima notifikasi ketika tugas akan dimulai</string>
     <string name="planarrangement_default">Atur sebagai default</string>
     <string name="planarrangement_default_info">Atur tugas untuk berulang setiap hari sesuai jadwal yang dipilih (hari, minggu, atau bulan)</string>
+    <string name="planarrangement_start_date">Tanggal Mulai</string>
+    <string name="planarrangement_end_date">Tanggal Akhir</string>
 </resources>

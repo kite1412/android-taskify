@@ -150,4 +150,17 @@ class PlanArrangementViewModel @Inject constructor(
                 ?: Date(time)
         )
     }
+
+    internal fun updateStatusStartDate(date: Int) {
+        taskEdit = taskEdit?.copy(
+            selectedStartDate = taskEdit!!.selectedStartDate.copy(dayOfMonth = date)
+        )
+    }
+
+    internal fun updateStatusEndDate(date: Int) {
+        taskEdit = taskEdit?.copy(
+            selectedDueDate = taskEdit!!.selectedDueDate?.copy(dayOfMonth = date)
+                ?: Date(dayOfMonth = date)
+        )
+    }
 }
