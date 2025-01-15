@@ -20,6 +20,8 @@ import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.toLocalDateTime
 import com.nrr.ui.picker.CustomSelectableDates
 import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 
 // title padding from DatePicker Material 3
 private val DatePickerTitlePadding =
@@ -80,14 +82,12 @@ fun DatePicker(
 fun rememberDefaultDatePickerState(
     selectableDates: CustomSelectableDates,
     initialSelectedDateMillis: Long? = null,
-) = with(Clock.System.now()) {
+) = with(Clock.System.now().toLocalDateTime()) {
     rememberDatePickerState(
-        yearRange = with(toLocalDateTime()) {
-            year..year
-        },
+        yearRange = year..year,
         selectableDates = selectableDates,
         initialSelectedDateMillis = initialSelectedDateMillis
-            ?: toEpochMilliseconds()
+            ?: toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
     )
 }
 

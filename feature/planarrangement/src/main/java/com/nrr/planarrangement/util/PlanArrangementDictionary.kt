@@ -25,4 +25,6 @@ object PlanArrangementDictionary {
     val endDate = R.string.planarrangement_end_date
     val save = R.string.planarrangement_save
     val invalidTimeWarning = R.string.planarrangement_invalid_time_warning
+    val invalidDateWarning = R.string.planarrangement_invalid_date_warning
+    val enterStartDateWarning = R.string.planarrangement_enter_start_date_warning
 }

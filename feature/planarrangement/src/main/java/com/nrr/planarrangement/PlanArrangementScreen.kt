@@ -519,8 +519,8 @@ private fun AssignmentConfiguration(
         ) {
             DateField(
                 period = status.period,
-                startDate = taskEdit.selectedStartDate.dayOfMonth,
-                endDate = taskEdit.selectedDueDate?.dayOfMonth,
+                startDate = taskEdit.selectedStartDate,
+                endDate = taskEdit.selectedDueDate,
                 onStartDateChange = onStartDateChange,
                 onEndDateChange = onEndDateChange
             )
@@ -607,29 +607,9 @@ private fun TimeField(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
-        if (invalid) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                val color = Color.Red
-                val style = MaterialTheme.typography.bodySmall
-
-                Icon(
-                    painter = painterResource(TaskifyIcon.info),
-                    contentDescription = "invalid",
-                    tint = color,
-                    modifier = Modifier.size((style.fontSize.value * 1.5).dp)
-                )
-                Text(
-                    text = invalidTimeWarning,
-                    color = Color.Red,
-                    style = style.copy(
-                        fontStyle = FontStyle.Italic
-                    )
-                )
-            }
-        }
+        if (invalid) InvalidWarning(
+            warning = invalidTimeWarning
+        )
         IntervalField(
             leftLabel = stringResource(PlanArrangementDictionary.startTime),
             rightLabel = stringResource(PlanArrangementDictionary.endTime),
@@ -654,7 +634,10 @@ private fun TimeField(
         )
     }
     if (editingStartTime != null) TimePicker(
-        onDismissRequest = { editingStartTime = null },
+        onDismissRequest = {
+            editingStartTime = null
+            warning = null
+        },
         onConfirm = {
             if (editingStartTime!!) {
                 onStartTimeChange(it.toTime())
@@ -704,8 +687,8 @@ private fun TimeField(
 @Composable
 private fun DateField(
     period: TaskPeriod,
-    startDate: Int?,
-    endDate: Int?,
+    startDate: Date?,
+    endDate: Date?,
     onStartDateChange: (Int) -> Unit,
     onEndDateChange: (Int) -> Unit,
     modifier: Modifier = Modifier
@@ -716,32 +699,52 @@ private fun DateField(
     val curDate = remember {
         Clock.System.now().toLocalDateTime()
     }
+    val invalid = if (startDate?.dayOfMonth == null) -1
+        else {
+            endDate?.dayOfMonth?.let {
+                if (startDate.dayOfMonth > it) 1
+                else 0
+            } ?: 0
+        }
 
-    IntervalField(
-        leftLabel = stringResource(PlanArrangementDictionary.startDate),
-        rightLabel = stringResource(PlanArrangementDictionary.endDate),
-        left = {
-            RoundRectButton(
-                onClick = {
-                    editingStartDate = true
-                },
-                action = if (startDate == null) stringResource(PlanArrangementDictionary.none)
-                    else "${curDate.month.value}/$startDate",
-                iconId = TaskifyIcon.calendar
-            )
-        },
-        right = {
-            OutlinedRoundRectButton(
-                onClick = {
-                    editingStartDate = false
-                },
-                action = if (endDate == null) stringResource(PlanArrangementDictionary.none)
-                    else "${curDate.month.value}/$endDate",
-                iconId = TaskifyIcon.calendar
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        when (invalid) {
+            0 -> Unit
+            else -> InvalidWarning(
+                warning = stringResource(
+                    id = if (invalid == -1) PlanArrangementDictionary.enterStartDateWarning
+                        else PlanArrangementDictionary.invalidDateWarning
+                )
             )
         }
-    )
-
+        IntervalField(
+            leftLabel = stringResource(PlanArrangementDictionary.startDate),
+            rightLabel = stringResource(PlanArrangementDictionary.endDate),
+            left = {
+                RoundRectButton(
+                    onClick = {
+                        editingStartDate = true
+                    },
+                    action = if (startDate?.dayOfMonth == null) stringResource(PlanArrangementDictionary.none)
+                    else "${curDate.month.value}/${startDate.dayOfMonth}",
+                    iconId = TaskifyIcon.calendar
+                )
+            },
+            right = {
+                OutlinedRoundRectButton(
+                    onClick = {
+                        editingStartDate = false
+                    },
+                    action = if (endDate?.dayOfMonth == null) stringResource(PlanArrangementDictionary.none)
+                    else "${curDate.month.value}/${endDate.dayOfMonth}",
+                    iconId = TaskifyIcon.calendar
+                )
+            }
+        )
+    }
     if (editingStartDate != null) DatePicker(
         onDismiss = { editingStartDate = null },
         onConfirm = {
@@ -759,7 +762,10 @@ private fun DateField(
         ),
         state = rememberDefaultDatePickerState(
             selectableDates = if (period == TaskPeriod.WEEK) SelectableDatesWeek
-                else SelectableDatesMonth
+                else SelectableDatesMonth,
+            initialSelectedDateMillis = if (editingStartDate!!) if (startDate?.dayOfMonth == null)
+                null else startDate.toInstant(true).toEpochMilliseconds()
+                else endDate?.toInstant(true)?.toEpochMilliseconds()
         ),
         confirmColors = TaskifyButtonDefaults.textButtonColors(
             contentColor = MaterialTheme.colorScheme.tertiary
@@ -768,6 +774,34 @@ private fun DateField(
             contentColor = Color.White
         )
     )
+}
+
+@Composable
+private fun InvalidWarning(
+    warning: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        val color = Color.Red
+        val style = MaterialTheme.typography.bodySmall
+
+        Icon(
+            painter = painterResource(TaskifyIcon.info),
+            contentDescription = "invalid",
+            tint = color,
+            modifier = Modifier.size((style.fontSize.value * 1.5).dp)
+        )
+        Text(
+            text = warning,
+            color = Color.Red,
+            style = style.copy(
+                fontStyle = FontStyle.Italic
+            )
+        )
+    }
 }
 
 @Composable
