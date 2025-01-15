@@ -20,4 +20,5 @@
     <string name="planarrangement_default_info">Set the task to repeat daily on chosen schedule (day, week, or month)</string>
     <string name="planarrangement_start_date">Start Date</string>
     <string name="planarrangement_end_date">End Date</string>
+    <string name="planarrangement_save">Save</string>
 </resources>
