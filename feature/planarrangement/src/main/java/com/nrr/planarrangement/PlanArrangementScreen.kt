@@ -86,7 +86,7 @@ import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.TaskStatuses
 import com.nrr.ui.TaskTitle
 import com.nrr.ui.TaskTypeBar
-import com.nrr.ui.TimePicker
+import com.nrr.ui.picker.time.TimePicker
 import com.nrr.ui.color
 import com.nrr.ui.toStringLocalized
 
@@ -555,7 +555,7 @@ private fun PriorityField(
         modifier = modifier
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             TaskPriority.entries.forEach {
                 PriorityButton(
@@ -597,14 +597,12 @@ private fun PriorityButton(
                 shape = shape
             )
             .clickable { onClick(priority) }
-            .padding(
-                vertical = 6.dp,
-                horizontal = 12.dp
-            ),
+            .padding(12.dp),
     ) {
         Text(
             text = priority.toStringLocalized(),
-            color = contentColor
+            color = contentColor,
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 }

@@ -125,4 +125,17 @@ object TaskifyButtonDefaults {
         disabledContentColor = disabledContentColor,
         disabledContainerColor = disabledContainerColor
     )
+
+    @Composable
+    fun textButtonColors(
+        contentColor: Color = MaterialTheme.colorScheme.primary,
+        containerColor: Color = Color.Transparent,
+        disabledContentColor: Color = contentColor.copy(alpha = 0.6f),
+        disabledContainerColor: Color = Color.Transparent
+    ) = ButtonDefaults.textButtonColors(
+        contentColor = contentColor,
+        containerColor = containerColor,
+        disabledContentColor = disabledContentColor,
+        disabledContainerColor = disabledContainerColor
+    )
 }
