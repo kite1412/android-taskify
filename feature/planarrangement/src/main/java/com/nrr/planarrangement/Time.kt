@@ -6,7 +6,16 @@ import androidx.compose.material3.TimePickerState
 internal data class Time(
     val minute: Int = 0,
     val hour: Int = 0
-) {
+) : Comparable<Time> {
+    override fun compareTo(other: Time): Int {
+        val checkHour = hour compareTo other.hour
+        if (checkHour != 0) {
+            return checkHour
+        }
+        val checkMinute = minute compareTo other.minute
+        return checkMinute
+    }
+
     override fun toString(): String {
         return "${"%02d".format(hour)}:${"%02d".format(minute)}"
     }

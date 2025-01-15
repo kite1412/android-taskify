@@ -21,4 +21,5 @@
     <string name="planarrangement_start_date">Tanggal Mulai</string>
     <string name="planarrangement_end_date">Tanggal Akhir</string>
     <string name="planarrangement_save">Simpan</string>
+    <string name="planarrangement_invalid_time_warning">Waktu selesai tidak bisa lebih dulu dari waktu mulai</string>
 </resources>

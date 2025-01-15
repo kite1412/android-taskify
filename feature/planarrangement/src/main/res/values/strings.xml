@@ -21,4 +21,5 @@
     <string name="planarrangement_start_date">Start Date</string>
     <string name="planarrangement_end_date">End Date</string>
     <string name="planarrangement_save">Save</string>
+    <string name="planarrangement_invalid_time_warning">End time can\'t be earlier than start time</string>
 </resources>

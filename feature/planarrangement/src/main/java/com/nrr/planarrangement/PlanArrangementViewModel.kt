@@ -3,6 +3,7 @@ package com.nrr.planarrangement
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -56,6 +57,11 @@ class PlanArrangementViewModel @Inject constructor(
 
     internal var taskEdit by mutableStateOf<TaskEdit?>(null)
         private set
+
+    internal val saveEnabled = snapshotFlow { taskEdit }
+        .map {
+            it != null
+        }
 
     init {
         viewModelScope.launch {

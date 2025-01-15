@@ -23,6 +23,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -66,7 +67,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.IntOffset
@@ -102,6 +105,7 @@ import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.TaskStatuses
 import com.nrr.ui.TaskTitle
 import com.nrr.ui.TaskTypeBar
+import com.nrr.ui.TaskifyDialogDefaults
 import com.nrr.ui.color
 import com.nrr.ui.picker.date.DatePicker
 import com.nrr.ui.picker.date.SelectableDatesMonth
@@ -446,13 +450,12 @@ private fun AssignTask(
             TextButton(
                 onClick = onSave,
                 modifier = Modifier.align(Alignment.BottomEnd),
-                colors = TaskifyButtonDefaults.textButtonColors(),
+                colors = TaskifyButtonDefaults.textButtonColors(
+                    disabledContentColor = Color.Gray
+                ),
                 enabled = saveEnabled
             ) {
-                Text(
-                    text = stringResource(PlanArrangementDictionary.save),
-                    color = MaterialTheme.colorScheme.tertiary
-                )
+                Text(stringResource(PlanArrangementDictionary.save))
             }
         }
     }
@@ -592,36 +595,81 @@ private fun TimeField(
     var editingStartTime by remember {
         mutableStateOf<Boolean?>(null)
     }
+    var warning by remember {
+        mutableStateOf<String?>(null)
+    }
+    val invalidTimeWarning = stringResource(PlanArrangementDictionary.invalidTimeWarning)
+    val invalid = endTime?.let {
+        startTime > endTime
+    } ?: false
 
-    IntervalField(
-        leftLabel = stringResource(PlanArrangementDictionary.startTime),
-        rightLabel = stringResource(PlanArrangementDictionary.endTime),
-        left = {
-            RoundRectButton(
-                onClick = {
-                    editingStartTime = true
-                },
-                action = startTime.toString(),
-                iconId = TaskifyIcon.clock
-            )
-        },
-        right = {
-            OutlinedRoundRectButton(
-                onClick = {
-                    editingStartTime = false
-                },
-                action = endTime?.toString() ?: stringResource(PlanArrangementDictionary.none),
-                iconId = TaskifyIcon.clock
-            )
-        },
-        modifier = modifier
-    )
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        if (invalid) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                val color = Color.Red
+                val style = MaterialTheme.typography.bodySmall
+
+                Icon(
+                    painter = painterResource(TaskifyIcon.info),
+                    contentDescription = "invalid",
+                    tint = color,
+                    modifier = Modifier.size((style.fontSize.value * 1.5).dp)
+                )
+                Text(
+                    text = invalidTimeWarning,
+                    color = Color.Red,
+                    style = style.copy(
+                        fontStyle = FontStyle.Italic
+                    )
+                )
+            }
+        }
+        IntervalField(
+            leftLabel = stringResource(PlanArrangementDictionary.startTime),
+            rightLabel = stringResource(PlanArrangementDictionary.endTime),
+            left = {
+                RoundRectButton(
+                    onClick = {
+                        editingStartTime = true
+                    },
+                    action = startTime.toString(),
+                    iconId = TaskifyIcon.clock
+                )
+            },
+            right = {
+                OutlinedRoundRectButton(
+                    onClick = {
+                        editingStartTime = false
+                    },
+                    action = endTime?.toString() ?: stringResource(PlanArrangementDictionary.none),
+                    iconId = TaskifyIcon.clock
+                )
+            }
+        )
+    }
     if (editingStartTime != null) TimePicker(
         onDismissRequest = { editingStartTime = null },
         onConfirm = {
-            if (editingStartTime!!) onStartTimeChange(it.toTime())
-            else onEndTimeChange(it.toTime())
-            editingStartTime = null
+            if (editingStartTime!!) {
+                onStartTimeChange(it.toTime())
+                editingStartTime = null
+                warning = null
+            } else {
+                val time = it.toTime()
+                if (time >= startTime) {
+                    onEndTimeChange(time)
+                    editingStartTime = null
+                    warning = null
+                } else {
+                    warning = invalidTimeWarning
+                }
+            }
         },
         confirmText = stringResource(PlanArrangementDictionary.set),
         cancelText = stringResource(PlanArrangementDictionary.cancel),
@@ -633,7 +681,22 @@ private fun TimeField(
             initialHour = if (editingStartTime!!) startTime.hour else endTime?.hour ?: 0,
             initialMinute = if (editingStartTime!!) startTime.minute else endTime?.minute ?: 0,
             is24Hour = true
-        )
+        ),
+        dialogColors = TaskifyDialogDefaults.colors(
+            confirmButtonColor = MaterialTheme.colorScheme.tertiary
+        ),
+        desc = warning?.let {
+            {
+                BoxWithConstraints {
+                    Text(
+                        text = it,
+                        modifier = Modifier.width(maxWidth / 1.5f),
+                        color = Color.Red,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        }
     )
 }
 
