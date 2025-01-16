@@ -31,6 +31,7 @@ import com.nrr.designsystem.component.TaskifyTopAppBarDefaults
 import com.nrr.designsystem.component.TopAppBar
 import com.nrr.registration.RegistrationScreen
 import com.nrr.taskify.navigation.TaskifyNavHost
+import com.nrr.ui.LocalSafeAnimateContent
 import com.nrr.ui.LocalSnackbarHostState
 import com.nrr.ui.SnackbarHostStateWrapper
 
@@ -49,7 +50,10 @@ internal fun TaskifyApp(
         )
     }
 
-    CompositionLocalProvider(value = LocalSnackbarHostState provides snackbarHostStateWrapper) {
+    CompositionLocalProvider(
+        LocalSnackbarHostState provides snackbarHostStateWrapper,
+        LocalSafeAnimateContent provides viewModel.safeToAnimate
+    ) {
         Scaffold(
             modifier = modifier,
             snackbarHost = {
@@ -61,7 +65,7 @@ internal fun TaskifyApp(
             contentColor = LocalContentColor.current
         ) { innerPadding ->
             AnimatedVisibility(
-                visible = registered == true && viewModel.showContent,
+                visible = registered == true,
                 label = "main content",
                 enter = slideInVertically(
                     animationSpec = tween(durationMillis = viewModel.contentEnterDelay)

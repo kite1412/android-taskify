@@ -1,5 +1,7 @@
 package com.nrr.todayplan
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -72,6 +74,7 @@ import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.toTimeString
 import com.nrr.todayplan.util.TodayPlanDictionary
+import com.nrr.ui.LocalSafeAnimateContent
 import com.nrr.ui.TaskCardTimeIndicator
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.rememberTaskCardsState
@@ -364,6 +367,12 @@ private fun TodayProgress(
     }
     val textColor = Color.White
     val progress = completed.size / todayTasks.size.toFloat()
+    val safeToAnimate = LocalSafeAnimateContent.current
+    val progressAnimated by animateFloatAsState(
+        targetValue = if (safeToAnimate) progress
+        else 0f,
+        animationSpec = tween(durationMillis = 1000)
+    )
 
     Row(
         modifier = modifier
@@ -432,7 +441,7 @@ private fun TodayProgress(
             )
         }
         if (todayTasks.isNotEmpty()) CircularTaskProgressIndicator(
-            progress = { progress },
+            progress = { progressAnimated },
             modifier = Modifier.size(100.dp),
             strokeWidth = 6.dp
         ) {

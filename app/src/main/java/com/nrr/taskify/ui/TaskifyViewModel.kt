@@ -31,6 +31,9 @@ class TaskifyViewModel @Inject constructor(
     var showContent by mutableStateOf(false)
         private set
 
+    var safeToAnimate by mutableStateOf(false)
+        private set
+
     private var slidingTextJob: Job? = null
 
     val registered = combine(
@@ -66,7 +69,11 @@ class TaskifyViewModel @Inject constructor(
 
     fun dismissSplash(delay: Long) = viewModelScope.launch {
         showSplash = false
-        delay(delay - contentEnterDelay)
+        // create an overlapping effect instead of
+        // waiting for the splash screen to fully disappear
+        delay(delay / 5)
         showContent = true
+        delay(contentEnterDelay + 200L)
+        safeToAnimate = true
     }
 }
