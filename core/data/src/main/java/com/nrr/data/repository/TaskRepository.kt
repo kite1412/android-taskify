@@ -17,6 +17,8 @@ interface TaskRepository {
 
     suspend fun saveTasks(tasks: List<Task>): List<Long>
 
+    suspend fun saveActiveTasks(tasks: List<Task>): List<Long>
+
     suspend fun deleteActiveTasks(task: List<Task>): Int
 
     suspend fun setActiveTaskAsCompleted(task: Task): Long

@@ -52,6 +52,15 @@ internal class RoomTaskRepository @Inject constructor(
         return ids
     }
 
+    override suspend fun saveActiveTasks(tasks: List<Task>): List<Long> =
+        activeTaskDao.insertActiveTasks(
+            activeTasks = tasks.flatMap {
+                it.activeStatuses.map { s ->
+                    s.asEntity(taskId = it.id)
+                }
+            }
+        )
+
     override suspend fun deleteActiveTasks(task: List<Task>): Int =
         task
             .filter { it.activeStatuses.isNotEmpty() }

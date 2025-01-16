@@ -29,7 +29,7 @@ interface ActiveTaskDao {
     fun getAllByIds(ids: List<Long>): Flow<List<ActiveTask>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertActiveTasks(activeTask: List<ActiveTaskEntity>): List<Long>
+    suspend fun insertActiveTasks(activeTasks: List<ActiveTaskEntity>): List<Long>
 
     @Query(
         """
