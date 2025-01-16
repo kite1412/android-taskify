@@ -524,8 +524,8 @@ private fun AssignmentConfiguration(
             onPeriodChange = onPeriodChange
         )
         TimeField(
-            startTime = taskEdit.selectedStartDate?.time,
-            endTime = taskEdit.selectedDueDate?.time,
+            startDate = taskEdit.selectedStartDate,
+            endDate = taskEdit.selectedDueDate,
             onStartTimeChange = onStartTimeChange,
             onEndTimeChange = onEndTimeChange
         )
@@ -601,8 +601,8 @@ private fun PeriodField(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TimeField(
-    startTime: Time?,
-    endTime: Time?,
+    startDate: Date?,
+    endDate: Date?,
     onStartTimeChange: (Time) -> Unit,
     onEndTimeChange: (Time) -> Unit,
     modifier: Modifier = Modifier
@@ -614,10 +614,10 @@ private fun TimeField(
         mutableStateOf<String?>(null)
     }
     val invalidTimeWarning = stringResource(PlanArrangementDictionary.invalidTimeWarning)
-    val invalid = if (startTime == null) -1
+    val invalid = if (startDate == null) -1
         else {
-            endTime?.let {
-                if (startTime > it) 1
+            endDate?.let {
+                if (startDate > it) 1
                 else 0
             } ?: 0
         }
@@ -645,7 +645,7 @@ private fun TimeField(
                     onClick = {
                         editingStartTime = true
                     },
-                    action = startTime?.toString() ?: stringResource(PlanArrangementDictionary.none),
+                    action = startDate?.time?.toString() ?: stringResource(PlanArrangementDictionary.none),
                     iconId = TaskifyIcon.clock
                 )
             },
@@ -654,9 +654,9 @@ private fun TimeField(
                     onClick = {
                         editingStartTime = false
                     },
-                    action = endTime?.toString() ?: stringResource(PlanArrangementDictionary.none),
+                    action = endDate?.time?.toString() ?: stringResource(PlanArrangementDictionary.none),
                     iconId = TaskifyIcon.clock,
-                    enabled = startTime != null,
+                    enabled = startDate != null,
                     colors = TaskifyButtonDefaults.colors(
                         contentColor = MaterialTheme.colorScheme.primary,
                         disabledContentColor = Color.Gray
@@ -676,9 +676,10 @@ private fun TimeField(
                 editingStartTime = null
                 warning = null
             } else {
-                startTime?.let { st ->
+                startDate?.let { st ->
                     val time = it.toTime()
-                    if (time >= st) {
+                    val ed = endDate?.copy(time = time) ?: Date(time = time)
+                    if (st <= ed) {
                         onEndTimeChange(time)
                         editingStartTime = null
                         warning = null
@@ -695,8 +696,10 @@ private fun TimeField(
             else PlanArrangementDictionary.endTime
         ),
         state = rememberTimePickerState(
-            initialHour = if (editingStartTime!!) startTime?.hour ?: 0 else endTime?.hour ?: 0,
-            initialMinute = if (editingStartTime!!) startTime?.minute ?: 0 else endTime?.minute ?: 0,
+            initialHour = if (editingStartTime!!) startDate?.time?.hour ?: 0
+                else endDate?.time?.hour ?: 0,
+            initialMinute = if (editingStartTime!!) startDate?.time?.minute ?: 0
+                else endDate?.time?.minute ?: 0,
             is24Hour = true
         ),
         dialogColors = TaskifyDialogDefaults.colors(
