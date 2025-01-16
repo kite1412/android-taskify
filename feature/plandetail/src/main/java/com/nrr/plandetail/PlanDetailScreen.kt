@@ -87,6 +87,7 @@ import java.time.format.TextStyle
 internal fun PlanDetailScreen(
     onBackClick: () -> Unit,
     onArrangePlanClick: (TaskPeriod) -> Unit,
+    onActiveTaskClick: (Task) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PlanDetailViewModel = hiltViewModel()
 ) {
@@ -99,6 +100,7 @@ internal fun PlanDetailScreen(
         onBackClick = onBackClick,
         onRemove = viewModel::removeTask,
         onComplete = viewModel::markCompleted,
+        onTaskClick = onActiveTaskClick,
         onArrangePlanClick = { onArrangePlanClick(period) },
         modifier = modifier
     )
@@ -111,6 +113,7 @@ private fun Content(
     onBackClick: () -> Unit,
     onRemove: (Task) -> Unit,
     onComplete: (Task) -> Unit,
+    onTaskClick: (Task) -> Unit,
     onArrangePlanClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -150,6 +153,7 @@ private fun Content(
                         tasks = tasks,
                         onRemove = onRemove,
                         onComplete = onComplete,
+                        onClick = onTaskClick,
                         contentPadding = PaddingValues(
                             bottom = with(density) {
                                 (arrangePlanHeight + 8).toDp()
@@ -445,6 +449,7 @@ private fun Tasks(
     tasks: List<Task>?,
     onRemove: (Task) -> Unit,
     onComplete: (Task) -> Unit,
+    onClick: (Task) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
@@ -488,6 +493,7 @@ private fun Tasks(
                     )
                 },
                 state = state,
+                onClick = onClick,
                 header = when (period) {
                     TaskPeriod.DAY -> {
                         {
@@ -792,6 +798,7 @@ private fun ContentPreview(
                     }
                 )
             },
+            onTaskClick = {},
             onArrangePlanClick = {}
         )
     }

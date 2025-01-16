@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.nrr.model.TaskPeriod
 import com.nrr.planarrangement.navigation.navigateToPlanArrangement
 import com.nrr.planarrangement.navigation.planArrangementScreen
 import com.nrr.plandetail.navigation.navigateToPlanDetail
@@ -45,7 +46,14 @@ fun TaskifyNavHost(
         )
         planDetailScreen(
             onBackClick = navController::popBackStack,
-            onArrangePlanClick = navController::navigateToPlanArrangement
+            onArrangePlanClick = navController::navigateToPlanArrangement,
+            onActiveTaskClick = {
+                val status = it.activeStatuses.firstOrNull()
+                navController.navigateToPlanArrangement(
+                    activeStatusId = status?.id,
+                    taskPeriod = if (status == null) TaskPeriod.DAY else null
+                )
+            }
         )
         planArrangementScreen(
             onBackClick = navController::popBackStack
