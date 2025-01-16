@@ -69,6 +69,7 @@ import com.nrr.plandetail.util.PlanDetailDictionary
 import com.nrr.plandetail.util.dashHeight
 import com.nrr.plandetail.util.dashSpace
 import com.nrr.plandetail.util.dashWidth
+import com.nrr.ui.TaskCardTimeIndicator
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.color
 import com.nrr.ui.getCurrentLocale
@@ -564,14 +565,8 @@ private fun Tasks(
                 },
                 leadingIcon = if (period != TaskPeriod.DAY) {
                     { i ->
-                        AdaptiveText(
-                            text = tasks[i].activeStatuses.first().startDate.toTimeString(),
-                            initialFontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                                .weight(0.1f),
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1
+                        TaskCardTimeIndicator(
+                            time = tasks[i].activeStatuses.first().startDate.toTimeString()
                         )
                     }
                 } else null

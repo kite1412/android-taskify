@@ -53,7 +53,10 @@ class TaskifyAppState(
     fun navigateToTopLevelDestination(des: Destination) {
         if (currentDes == des) return
         val navOptions = navOptions {
-//            popUpTo(navController.graph.startDestinationId)
+            popUpTo(navController.graph.startDestinationId) {
+                saveState = true
+            }
+            restoreState = true
         }
         when (des) {
             Destination.HOME -> navController.navigateToTodayPlan(navOptions)

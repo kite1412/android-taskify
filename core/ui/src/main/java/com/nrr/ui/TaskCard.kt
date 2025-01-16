@@ -32,12 +32,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nrr.designsystem.component.Action
+import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.Swipeable
 import com.nrr.designsystem.component.SwipeableState
 import com.nrr.designsystem.component.rememberSwipeableState
@@ -149,6 +151,24 @@ fun TaskCard(
     }
 }
 
+// typically used as the TaskCard's leadingIcon
+@Composable
+fun RowScope.TaskCardTimeIndicator(
+    time: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle = MaterialTheme.typography.bodyMedium
+) {
+    AdaptiveText(
+        text = time,
+        initialFontSize = style.fontSize,
+        modifier = modifier
+            .align(Alignment.CenterVertically)
+            .weight(0.1f),
+        fontWeight = FontWeight.Bold,
+        maxLines = 1,
+        style = style
+    )
+}
 
 // TODO fully migrate to LazyListScope.taskCards
 @Composable

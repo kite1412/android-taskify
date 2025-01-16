@@ -36,7 +36,11 @@ fun TaskifyNavHost(
             onPlanForTodayClick = navController::navigateToPlanDetail,
             onWeeklyClick = navController::navigateToPlanDetail,
             onMonthlyClick = navController::navigateToPlanDetail,
-            onSetTodayTasksClick = { /* TODO navigate to set today tasks screen */ }
+            onSetTodayTasksClick = {
+                navController.navigateToPlanArrangement(
+                    taskPeriod = TaskPeriod.DAY
+                )
+            }
         )
         taskManagementScreen(
             onTaskClick = navController::navigateToTaskDetail
@@ -51,7 +55,7 @@ fun TaskifyNavHost(
                 val status = it.activeStatuses.firstOrNull()
                 navController.navigateToPlanArrangement(
                     activeStatusId = status?.id,
-                    taskPeriod = if (status == null) TaskPeriod.DAY else null
+                    taskPeriod = TaskPeriod.DAY.takeIf { status == null }
                 )
             }
         )

@@ -70,7 +70,9 @@ import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.designsystem.util.drawRoundRectShadow
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
+import com.nrr.model.toTimeString
 import com.nrr.todayplan.util.TodayPlanDictionary
+import com.nrr.ui.TaskCardTimeIndicator
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.rememberTaskCardsState
 import com.nrr.ui.taskCards
@@ -196,6 +198,7 @@ private fun Content(
                 )
                 if (todayTasks.isNotEmpty()) Text(
                     text = stringResource(TodayPlanDictionary.schedule),
+                    modifier = Modifier.padding(top = 16.dp),
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )
@@ -244,6 +247,11 @@ private fun Content(
                             }
                     )
                 }
+            },
+            leadingIcon = { i ->
+                TaskCardTimeIndicator(
+                    time = todayTasks[i].activeStatuses.first().startDate.toTimeString()
+                )
             }
         )
     }
@@ -528,8 +536,10 @@ private fun PeriodCard(
                 progress = { completed.size / tasks.size.toFloat() },
                 modifier = Modifier.size(10.dp),
                 color = Color.Black,
+                trackColor = Color.Black.copy(alpha = 0.2f),
                 strokeCap = StrokeCap.Round,
-                strokeWidth = 2.dp
+                strokeWidth = 2.dp,
+                gapSize = 0.dp
             )
         }
         Text(
