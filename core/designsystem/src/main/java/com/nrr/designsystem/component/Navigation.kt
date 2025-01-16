@@ -85,7 +85,7 @@ enum class Destination(
             horizontalAnimation: Boolean = true
         ) {
             entries.forEachIndexed { i, d ->
-                NavigationItem(
+                DestinationItem(
                     data = d,
                     prevSelectedIndex = prevSelectedIndex,
                     selected = i == selectedIndex,
@@ -171,6 +171,12 @@ private fun NavigationRailPreview() {
     }
 }
 
+// from DrawerSheet docs
+private val NavigationDrawerMinWidth = 240.dp
+private val NavigationDrawerContentHorizontalPadding = 16.dp
+private val NavigationDrawerContentSafeMaxWidth =
+    NavigationDrawerMinWidth - NavigationDrawerContentHorizontalPadding * 2
+
 @Composable
 private fun NavigationDrawer(
     selectedIndex: Int,
@@ -183,7 +189,7 @@ private fun NavigationDrawer(
         ModalDrawerSheet {
             Column(
                 modifier = Modifier.padding(
-                    horizontal = 16.dp,
+                    horizontal = NavigationDrawerContentHorizontalPadding,
                     vertical = 8.dp
                 )
             ) {
@@ -221,7 +227,7 @@ private fun NavigationDrawerPreview() {
 }
 
 @Composable
-private fun NavigationItem(
+private fun DestinationItem(
     data: Destination,
     prevSelectedIndex: Int,
     selected: Boolean,
@@ -249,7 +255,8 @@ private fun NavigationItem(
     Box(
         modifier = modifier
             .size(
-                width = if (!showLabel) data.width + itemOuterSpace else 200.dp /* TODO change */,
+                width = if (!showLabel) data.width + itemOuterSpace
+                    else NavigationDrawerContentSafeMaxWidth ,
                 height = data.height + itemOuterSpace
             )
             .clickable(

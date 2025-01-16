@@ -23,6 +23,11 @@ class TodayPlanViewModel @Inject constructor(
     private val markTaskCompletedUseCase: MarkTaskCompletedUseCase
 ) : ViewModel() {
     val todayTasks = getTasksByPeriodUseCase(TaskPeriod.DAY)
+        .map {
+            it.sortedBy { t ->
+                t.activeStatuses.firstOrNull()?.startDate
+            }
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
