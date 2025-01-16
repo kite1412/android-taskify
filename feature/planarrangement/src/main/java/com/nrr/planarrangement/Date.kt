@@ -11,12 +11,15 @@ internal data class Date(
     val time: Time = Time(),
     val dayOfMonth: Int? = null
 ) : Comparable<Date> {
-    fun toInstant(ignoreTime: Boolean = false): Instant {
+    fun toInstant(
+        ignoreTime: Boolean = false,
+        dayOfMonth: Int? = null
+    ): Instant {
         val curDate = Clock.System.now().toLocalDateTime()
         val localDateTime = LocalDateTime(
             year = curDate.year,
             month = curDate.month,
-            dayOfMonth = dayOfMonth ?: curDate.dayOfMonth,
+            dayOfMonth = this.dayOfMonth ?: dayOfMonth ?: curDate.dayOfMonth,
             hour = if (!ignoreTime) time.hour else curDate.hour,
             minute = if (!ignoreTime) time.minute else curDate.minute
         )

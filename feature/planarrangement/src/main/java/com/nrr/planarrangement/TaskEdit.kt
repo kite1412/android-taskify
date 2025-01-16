@@ -22,8 +22,10 @@ internal data class TaskEdit private constructor(
             updateAt = task.updateAt,
             activeStatuses = listOf(
                 activeStatus.copy(
-                    startDate = selectedStartDate.toInstant(),
-                    dueDate = selectedDueDate?.toInstant()
+                    startDate = it.toInstant(),
+                    dueDate = if (activeStatus.period != TaskPeriod.DAY) selectedDueDate?.toInstant(
+                        dayOfMonth = it.dayOfMonth
+                    ) else selectedDueDate?.copy(dayOfMonth = it.dayOfMonth)?.toInstant()
                 )
             )
         )

@@ -101,7 +101,7 @@ class PlanArrangementViewModel @Inject constructor(
             if (it.isNotEmpty()) with(it.first()) {
                 taskEdit = TaskEdit(this).run {
                     copy(
-                        activeStatus = this.activeStatus.copy(
+                        activeStatus = activeStatus.copy(
                             period = period ?: TaskPeriod.DAY
                         )
                     )

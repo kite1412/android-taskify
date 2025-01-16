@@ -220,7 +220,7 @@ private fun weekIndicator(currentDate: Instant): String {
     val end = localDateTime.dayOfMonth + today - 1
     return "($start - " +
             "$end " +
-            localDateTime.toMonthLocalized()
+            "${localDateTime.toMonthLocalized()})"
 }
 
 @Composable
@@ -760,7 +760,7 @@ private fun ArrangePlan(
         action = stringResource(PlanDetailDictionary.arrangePlan),
         modifier = modifier,
         iconId = TaskifyIcon.pencil2,
-        contentPadding = PaddingValues(6.dp)
+        contentPadding = PaddingValues(12.dp)
     )
 }
 
