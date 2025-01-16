@@ -28,4 +28,5 @@ object PlanArrangementDictionary {
     val enterStartTimeWarning = R.string.planarrangement_enter_start_time_warning
     val invalidDateWarning = R.string.planarrangement_invalid_date_warning
     val enterStartDateWarning = R.string.planarrangement_enter_start_date_warning
+    val scheduled = R.string.planarrangement_scheduled
 }

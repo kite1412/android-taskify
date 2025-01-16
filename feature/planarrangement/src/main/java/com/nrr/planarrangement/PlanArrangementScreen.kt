@@ -99,6 +99,7 @@ import com.nrr.planarrangement.util.dashHeight
 import com.nrr.planarrangement.util.dashSpace
 import com.nrr.planarrangement.util.dashWidth
 import com.nrr.ui.EmptyTasks
+import com.nrr.ui.LocalSnackbarHostState
 import com.nrr.ui.TaskCards
 import com.nrr.ui.TaskDescription
 import com.nrr.ui.TaskPreviewParameter
@@ -133,6 +134,9 @@ internal fun PlanArrangementScreen(
         else onBackClick()
     }
     val saveEnabled by viewModel.saveEnabled.collectAsStateWithLifecycle(false)
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = LocalSnackbarHostState.current
+    val scheduledMessage = stringResource(PlanArrangementDictionary.scheduled)
 
     BackHandler(onBack = backClick)
     Content(
@@ -152,7 +156,16 @@ internal fun PlanArrangementScreen(
         onDefaultChange = viewModel::updateStatusDefault,
         onPriorityChange = viewModel::updateStatusPriority,
         saveEnabled = saveEnabled,
-        onSave = {},
+        onSave = {
+            scope.launch {
+                viewModel.save()
+                backClick()
+                snackbarHostState.showSnackbar(
+                    message = scheduledMessage,
+                    withDismissAction = true
+                )
+            }
+        },
         modifier = modifier
     )
 }

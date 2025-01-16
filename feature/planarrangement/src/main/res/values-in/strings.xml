@@ -25,4 +25,5 @@
     <string name="planarrangement_enter_start_date_warning">Pilih tanggal mulai</string>
     <string name="planarrangement_invalid_date_warning">Tanggal selesai tidak bisa lebih dulu dari tanggal mulai</string>
     <string name="planarrangement_enter_start_time_warning">Pilih waktu mulai</string>
+    <string name="planarrangement_scheduled">Tugas dijadwalkan</string>
 </resources>

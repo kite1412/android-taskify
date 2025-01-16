@@ -9,12 +9,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.nrr.data.repository.TaskRepository
+import com.nrr.domain.SaveActiveTasksUseCase
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.TaskPriority
 import com.nrr.planarrangement.navigation.PlanArrangementRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -24,7 +26,8 @@ import javax.inject.Inject
 @HiltViewModel
 class PlanArrangementViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val taskRepository: TaskRepository
+    private val taskRepository: TaskRepository,
+    private val saveActiveTasksUseCase: SaveActiveTasksUseCase
 ) : ViewModel() {
     // navigation from non-null ActiveStatus to be used in TaskEdit typically for
     // editing existing ActiveStatus
@@ -94,7 +97,7 @@ class PlanArrangementViewModel @Inject constructor(
     }
 
     private suspend fun getTask(id: Long) {
-        taskRepository.getByIds(listOf(id)).collect {
+        taskRepository.getByIds(listOf(id)).firstOrNull()?.let {
             if (it.isNotEmpty()) with(it.first()) {
                 taskEdit = TaskEdit(this).run {
                     copy(
@@ -151,6 +154,12 @@ class PlanArrangementViewModel @Inject constructor(
     fun updateEditTask(task: Task) {
         viewModelScope.launch {
             getTask(task.id)
+        }
+    }
+
+    suspend fun save() {
+        taskEdit?.toTask()?.let {
+            saveActiveTasksUseCase(listOf(it))
         }
     }
 
