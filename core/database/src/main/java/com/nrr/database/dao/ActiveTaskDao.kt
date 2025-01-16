@@ -16,14 +16,12 @@ interface ActiveTaskDao {
 
     @Query("""
         SELECT * FROM active_tasks AS at
-        JOIN tasks AS t ON at.task_id = t.id
         WHERE at.task_period = :period
     """)
     fun getAllByPeriod(period: TaskPeriod): Flow<List<ActiveTask>>
 
     @Query("""
         SELECT * FROM active_tasks AS at
-        JOIN tasks AS t ON at.task_id = t.id
         WHERE at.id IN (:ids)
     """)
     fun getAllByIds(ids: List<Long>): Flow<List<ActiveTask>>
