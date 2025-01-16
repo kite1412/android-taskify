@@ -40,6 +40,13 @@ fun TaskifyNavHost(
                 navController.navigateToPlanArrangement(
                     taskPeriod = TaskPeriod.DAY
                 )
+            },
+            onScheduledTaskClick = {
+                val status = it.activeStatuses.firstOrNull()
+                navController.navigateToPlanArrangement(
+                    activeStatusId = status?.id,
+                    taskPeriod = TaskPeriod.DAY.takeIf { status == null }
+                )
             }
         )
         taskManagementScreen(

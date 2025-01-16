@@ -66,7 +66,7 @@ class PlanArrangementViewModel @Inject constructor(
             it?.selectedStartDate != null
                 && (it.task.activeStatuses.firstOrNull { s ->
                     s.id == it.activeStatus.id
-                } ?.let { status ->
+                }?.let { status ->
                     status.period != it.activeStatus.period
                         || status.priority != it.activeStatus.priority
                         || status.reminderSet != it.activeStatus.reminderSet
@@ -123,6 +123,9 @@ class PlanArrangementViewModel @Inject constructor(
 
     fun updateStatusPeriod(period: TaskPeriod) {
         taskEdit = taskEdit?.copy(
+            selectedDueDate = if (period == TaskPeriod.DAY) taskEdit?.selectedDueDate?.copy(
+                dayOfMonth = taskEdit?.selectedStartDate?.dayOfMonth
+            ) else taskEdit?.selectedDueDate,
             activeStatus = taskEdit!!.activeStatus.copy(
                 period = period
             )
@@ -159,6 +162,7 @@ class PlanArrangementViewModel @Inject constructor(
         }
     }
 
+    // TODO handle notification
     suspend fun save() {
         taskEdit?.toTask()?.let {
             saveActiveTasksUseCase(listOf(it))

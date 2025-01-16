@@ -84,6 +84,7 @@ internal fun TodayPlanScreen(
     onWeeklyClick: (TaskPeriod) -> Unit,
     onMonthlyClick: (TaskPeriod) -> Unit,
     onSetTodayTasksClick: () -> Unit,
+    onScheduledTaskClick: (Task) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TodayPlanViewModel = hiltViewModel()
 ) {
@@ -101,6 +102,7 @@ internal fun TodayPlanScreen(
         onSettingClick = onSettingClick,
         onRemoveTask = viewModel::deleteTask,
         onCompleteTask = viewModel::completeTask,
+        onTaskClick = onScheduledTaskClick,
         onWeeklyClick = onWeeklyClick,
         onMonthlyClick = onMonthlyClick,
         onSetTodayTasksClick = onSetTodayTasksClick,
@@ -139,6 +141,7 @@ private fun Content(
     onSettingClick: () -> Unit,
     onRemoveTask: (Task) -> Unit,
     onCompleteTask: (Task) -> Unit,
+    onTaskClick: (Task) -> Unit,
     onWeeklyClick: (TaskPeriod) -> Unit,
     onMonthlyClick: (TaskPeriod) -> Unit,
     onSetTodayTasksClick: () -> Unit,
@@ -216,7 +219,7 @@ private fun Content(
                 )
             },
             state = taskCardsState,
-            onClick = {},
+            onClick = onTaskClick,
             showCard = { it.activeStatuses.any { s -> s.isSet } },
             spacer = {
                 val darkMode = isSystemInDarkTheme()
@@ -580,6 +583,7 @@ private fun ContentPreview(
                 onWeeklyClick = {},
                 onMonthlyClick = {},
                 onSetTodayTasksClick = {},
+                onTaskClick = {},
                 modifier = Modifier.padding(32.dp)
             )
         }
