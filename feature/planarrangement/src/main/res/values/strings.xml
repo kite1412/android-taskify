@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="planarrangement_arrange_plan">Arrange Plan</string>
+    <string name="planarrangement_today">Today</string>
+    <string name="planarrangement_this_week">This Week</string>
+    <string name="planarrangement_this_month">This Month</string>
+    <string name="planarrangement_select_task">Select Task</string>
+    <string name="planarrangement_no_tasks">No Tasks Available</string>
+    <string name="planarrangement_priority">Priority</string>
+    <string name="planarrangement_start_time">Start Time</string>
+    <string name="planarrangement_end_time">End Time</string>
+    <string name="planarrangement_set">Set</string>
+    <string name="planarrangement_cancel">Cancel</string>
+    <string name="planarrangement_to">to</string>
+    <string name="planarrangement_none">None</string>
+    <string name="planarrangement_schedule">Schedule</string>
+    <string name="planarrangement_reminder">Reminder</string>
+    <string name="planarrangement_reminder_info">Receive notification when the task about to start</string>
+    <string name="planarrangement_default">Set as default</string>
+    <string name="planarrangement_default_info">Set the task to repeat daily on chosen schedule (day, week, or month)</string>
+    <string name="planarrangement_start_date">Start Date</string>
+    <string name="planarrangement_end_date">End Date</string>
+    <string name="planarrangement_save">Save</string>
+    <string name="planarrangement_invalid_time_warning">End time can\'t be earlier than start time</string>
+    <string name="planarrangement_enter_start_date_warning">Select start date</string>
+    <string name="planarrangement_invalid_date_warning">End date can\'t be earlier than start date</string>
+    <string name="planarrangement_enter_start_time_warning">Select start time</string>
+    <string name="planarrangement_scheduled">Task scheduled</string>
+</resources>

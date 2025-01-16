@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -32,9 +31,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -48,7 +46,6 @@ import com.nrr.designsystem.component.rememberSwipeableState
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.Task
-import com.nrr.model.toTimeString
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -57,7 +54,6 @@ fun TaskCard(
     actions: List<Action>,
     modifier: Modifier = Modifier,
     swipeableState: SwipeableState = rememberSwipeableState(),
-    showStartTime: Boolean = false,
     onClick: ((Task) -> Unit)? = null,
     onLongClick: ((Task) -> Unit)? = null,
     clickEnabled: Boolean = onClick != null,
@@ -65,22 +61,15 @@ fun TaskCard(
     swipeableKeys: Array<Any?>? = null,
     additionalContent: (@Composable BoxScope.() -> Unit)? = null,
     header: @Composable (BoxScope.() -> Unit)? = null,
-    bottom: @Composable (BoxScope.() -> Unit)? = null
+    bottom: @Composable (BoxScope.() -> Unit)? = null,
+    leadingIcon: @Composable (RowScope.() -> Unit)? = null
 ) {
     val swipeableClip = 10.dp
-    val showTime = showStartTime && task.activeStatus != null
-    var contentWidth by remember { mutableIntStateOf(0) }
-    val density = LocalDensity.current
 
     Column(modifier = modifier) {
         header?.let {
             Box(
                 modifier = Modifier
-                    .width(
-                        with(density) {
-                            contentWidth.toDp()
-                        }
-                    )
                     .align(Alignment.End)
             ) {
                 it.invoke(this)
@@ -90,26 +79,11 @@ fun TaskCard(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            if (showTime) AdaptiveText(
-                text = task.activeStatus!!.startDate.toTimeString(),
-                initialFontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .weight(0.1f),
-                fontWeight = FontWeight.Bold,
-                maxLines = 1
-            )
+            leadingIcon?.invoke(this)
             Swipeable(
                 actions = actions,
                 modifier = Modifier
-                    .weight(1f)
-                    .then(
-                        if (header != null || bottom != null) Modifier
-                            .onGloballyPositioned {
-                                contentWidth = it.size.width
-                            }
-                        else Modifier
-                    ),
+                    .weight(1f),
                 state = swipeableState,
                 actionButtonsBorderShape = RoundedCornerShape(swipeableClip),
                 actionConfirmation = true,
@@ -147,14 +121,16 @@ fun TaskCard(
                         Column {
                             Text(
                                 text = task.title,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
                             )
                             task.description?.let { t ->
                                 with (MaterialTheme.typography.bodySmall.fontSize.value) {
                                     Text(
                                         text = t,
                                         fontSize = this.sp,
-                                        lineHeight = (this + 2f).sp
+                                        lineHeight = (this + 2f).sp,
+                                        color = Color.Black
                                     )
                                 }
                             }
@@ -167,11 +143,6 @@ fun TaskCard(
         bottom?.let {
             Box(
                 modifier = Modifier
-                    .width(
-                        with(density) {
-                            contentWidth.toDp()
-                        }
-                    )
                     .align(Alignment.End)
             ) {
                 it.invoke(this)
@@ -180,14 +151,34 @@ fun TaskCard(
     }
 }
 
+// typically used as the TaskCard's leadingIcon
+@Composable
+fun RowScope.TaskCardTimeIndicator(
+    time: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle = MaterialTheme.typography.bodyMedium
+) {
+    AdaptiveText(
+        text = time,
+        initialFontSize = style.fontSize,
+        modifier = modifier
+            .align(Alignment.CenterVertically)
+            .weight(0.1f),
+        fontWeight = FontWeight.Bold,
+        maxLines = 1,
+        style = style
+    )
+}
+
+// TODO fully migrate to LazyListScope.taskCards
 @Composable
 fun TaskCards(
     tasks: List<Task>,
     actions: (Task) -> List<Action>,
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
+    userScrollEnabled: Boolean = true,
     contentPadding: PaddingValues = PaddingValues(0.dp),
-    showStartTime: Boolean = false,
     onClick: ((Task) -> Unit)? = null,
     onLongClick: ((Task) -> Unit)? = null,
     clickEnabled: (Int) -> Boolean = { onClick != null },
@@ -201,13 +192,13 @@ fun TaskCards(
     additionalContent: @Composable (BoxScope.(Task) -> Unit)? = null,
     resetSwipes: Any? = null
 ) {
-    val states = remember(resetSwipes, tasks.size) {
+    val states = remember(resetSwipes, tasks) {
         tasks.indices.map { SwipeableState() }
     }
-    var prevOpened by remember(resetSwipes, tasks.size) {
+    var prevOpened by remember(resetSwipes, tasks) {
         mutableIntStateOf(-1)
     }
-    var opened by remember(resetSwipes, tasks.size) {
+    var opened by remember(resetSwipes, tasks) {
         mutableIntStateOf(-1)
     }
 
@@ -216,11 +207,12 @@ fun TaskCards(
         verticalArrangement = verticalArrangement,
         horizontalAlignment = horizontalAlignment,
         state = state,
-        contentPadding = contentPadding
+        contentPadding = contentPadding,
+        userScrollEnabled = userScrollEnabled
     ) {
         itemsIndexed(
             items = tasks,
-            key = { _, t -> t.id }
+            key = { _, t -> t.activeStatuses.firstOrNull()?.id ?: t.id }
         ) { index, task ->
             if (showCard(task)) {
                 val s = states[index]
@@ -232,34 +224,34 @@ fun TaskCards(
                         prevOpened = index
                     }
                 }
-                Row {
-                    leadingIcon?.invoke(this, index)
-                    TaskCard(
-                        task = task,
-                        actions = actions(task),
-                        modifier = Modifier.weight(1f),
-                        swipeableState = s,
-                        showStartTime = showStartTime,
-                        onClick = { onClick?.invoke(task) },
-                        onLongClick = { onLongClick?.invoke(task) },
-                        clickEnabled = clickEnabled(index),
-                        swipeEnabled = swipeEnabled,
-                        additionalContent = additionalContent?.let {
-                            { it.invoke(this, task) }
-                        },
-                        swipeableKeys = arrayOf(tasks.size),
-                        header = if (header != null) {
-                            {
-                                header.invoke(this, index)
-                            }
-                        } else null,
-                        bottom = if (spacer != null) {
-                            {
-                                spacer.invoke(this, index)
-                            }
-                        } else null
-                    )
-                }
+                TaskCard(
+                    task = task,
+                    actions = actions(task),
+                    swipeableState = s,
+                    onClick = { onClick?.invoke(task) },
+                    onLongClick = { onLongClick?.invoke(task) },
+                    clickEnabled = clickEnabled(index),
+                    swipeEnabled = swipeEnabled,
+                    additionalContent = additionalContent?.let {
+                        { it.invoke(this, task) }
+                    },
+                    swipeableKeys = arrayOf(tasks),
+                    header = if (header != null) {
+                        {
+                            header.invoke(this, index)
+                        }
+                    } else null,
+                    bottom = if (spacer != null) {
+                        {
+                            spacer.invoke(this, index)
+                        }
+                    } else null,
+                    leadingIcon = if (leadingIcon != null) {
+                        {
+                            leadingIcon.invoke(this, index)
+                        }
+                    } else null
+                )
             }
         }
     }
@@ -281,8 +273,7 @@ private fun TaskCardPreview(
                     onClick = {},
                     color = Color.Red
                 )
-            ),
-            showStartTime = s
+            )
         )
     }
     TaskifyTheme {
@@ -313,7 +304,7 @@ private fun TaskCardsPreview(
                     )
                 )
             },
-            showStartTime = true
+            verticalArrangement = Arrangement.spacedBy(250.dp)
         )
     }
 }

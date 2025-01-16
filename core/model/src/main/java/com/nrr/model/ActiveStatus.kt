@@ -10,5 +10,6 @@ data class ActiveStatus(
     val period: TaskPeriod,
     val isSet: Boolean,
     val isDefault: Boolean,
-    val isCompleted: Boolean
+    val isCompleted: Boolean,
+    val reminderSet: Boolean = true
 )

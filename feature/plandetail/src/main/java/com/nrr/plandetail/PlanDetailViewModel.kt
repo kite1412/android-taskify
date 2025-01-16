@@ -12,6 +12,7 @@ import com.nrr.model.TaskPeriod
 import com.nrr.plandetail.navigation.PlanDetailRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,6 +28,11 @@ class PlanDetailViewModel @Inject constructor(
         .entries[savedStateHandle.toRoute<PlanDetailRoute>().periodOrdinal]
 
     val tasks = getTasksByPeriodUseCase(period)
+        .map {
+            it.sortedBy { t ->
+                t.activeStatuses.firstOrNull()?.startDate
+            }
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),

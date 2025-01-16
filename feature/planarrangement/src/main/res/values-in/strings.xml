@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="planarrangement_arrange_plan">Atur Rencana</string>
+    <string name="planarrangement_today">Hari Ini</string>
+    <string name="planarrangement_this_week">Minggu Ini</string>
+    <string name="planarrangement_this_month">Bulan Ini</string>
+    <string name="planarrangement_select_task">Pilih Tugas</string>
+    <string name="planarrangement_no_tasks">Tidak Ada Tugas</string>
+    <string name="planarrangement_priority">Prioritas</string>
+    <string name="planarrangement_start_time">Waktu Mulai</string>
+    <string name="planarrangement_end_time">Waktu Selesai</string>
+    <string name="planarrangement_set">Atur</string>
+    <string name="planarrangement_cancel">Batal</string>
+    <string name="planarrangement_to">hingga</string>
+    <string name="planarrangement_none">Tidak ada</string>
+    <string name="planarrangement_schedule">Jadwal</string>
+    <string name="planarrangement_reminder">Pengingat</string>
+    <string name="planarrangement_reminder_info">Terima notifikasi ketika tugas akan dimulai</string>
+    <string name="planarrangement_default">Atur sebagai default</string>
+    <string name="planarrangement_default_info">Atur tugas untuk berulang setiap hari sesuai jadwal yang dipilih (hari, minggu, atau bulan)</string>
+    <string name="planarrangement_start_date">Tanggal Mulai</string>
+    <string name="planarrangement_end_date">Tanggal Akhir</string>
+    <string name="planarrangement_save">Simpan</string>
+    <string name="planarrangement_invalid_time_warning">Waktu selesai tidak bisa lebih dulu dari waktu mulai</string>
+    <string name="planarrangement_enter_start_date_warning">Pilih tanggal mulai</string>
+    <string name="planarrangement_invalid_date_warning">Tanggal selesai tidak bisa lebih dulu dari tanggal mulai</string>
+    <string name="planarrangement_enter_start_time_warning">Pilih waktu mulai</string>
+    <string name="planarrangement_scheduled">Tugas dijadwalkan</string>
+</resources>

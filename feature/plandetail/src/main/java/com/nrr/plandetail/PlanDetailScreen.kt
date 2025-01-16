@@ -14,8 +14,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
@@ -70,10 +69,12 @@ import com.nrr.plandetail.util.PlanDetailDictionary
 import com.nrr.plandetail.util.dashHeight
 import com.nrr.plandetail.util.dashSpace
 import com.nrr.plandetail.util.dashWidth
-import com.nrr.ui.TaskCards
+import com.nrr.ui.TaskCardTimeIndicator
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.color
 import com.nrr.ui.getCurrentLocale
+import com.nrr.ui.rememberTaskCardsState
+import com.nrr.ui.taskCards
 import com.nrr.ui.toDateStringLocalized
 import com.nrr.ui.toDayLocalized
 import com.nrr.ui.toMonthLocalized
@@ -87,6 +88,7 @@ import java.time.format.TextStyle
 internal fun PlanDetailScreen(
     onBackClick: () -> Unit,
     onArrangePlanClick: (TaskPeriod) -> Unit,
+    onActiveTaskClick: (Task) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PlanDetailViewModel = hiltViewModel()
 ) {
@@ -99,6 +101,7 @@ internal fun PlanDetailScreen(
         onBackClick = onBackClick,
         onRemove = viewModel::removeTask,
         onComplete = viewModel::markCompleted,
+        onTaskClick = onActiveTaskClick,
         onArrangePlanClick = { onArrangePlanClick(period) },
         modifier = modifier
     )
@@ -111,6 +114,7 @@ private fun Content(
     onBackClick: () -> Unit,
     onRemove: (Task) -> Unit,
     onComplete: (Task) -> Unit,
+    onTaskClick: (Task) -> Unit,
     onArrangePlanClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -150,12 +154,12 @@ private fun Content(
                         tasks = tasks,
                         onRemove = onRemove,
                         onComplete = onComplete,
-                        modifier = Modifier
-                            .padding(
-                                bottom = with(density) {
-                                    (arrangePlanHeight + 8).toDp()
-                                }
-                            )
+                        onClick = onTaskClick,
+                        contentPadding = PaddingValues(
+                            bottom = with(density) {
+                                (arrangePlanHeight + 8).toDp()
+                            }
+                        )
                     )
                 }
             }
@@ -216,7 +220,7 @@ private fun weekIndicator(currentDate: Instant): String {
     val end = localDateTime.dayOfMonth + today - 1
     return "($start - " +
             "$end " +
-            localDateTime.toMonthLocalized()
+            "${localDateTime.toMonthLocalized()})"
 }
 
 @Composable
@@ -391,7 +395,7 @@ private fun actions(
     completeMessage: String,
     onRemove: (Task) -> Unit,
     onComplete: (Task) -> Unit
-) = if (task.activeStatus == null) emptyList()
+) = if (task.activeStatuses.isEmpty()) emptyList()
 else mutableListOf(
     Action(
         action = removeMessage,
@@ -400,7 +404,7 @@ else mutableListOf(
         onClick = { onRemove(task) }
     )
 ).apply {
-    if (!task.activeStatus!!.isCompleted) add(
+    if (!task.activeStatuses.any { it.isCompleted }) add(
         index = 0,
         element = Action(
             action = completeMessage,
@@ -446,6 +450,8 @@ private fun Tasks(
     tasks: List<Task>?,
     onRemove: (Task) -> Unit,
     onComplete: (Task) -> Unit,
+    onClick: (Task) -> Unit,
+    contentPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
     if (tasks != null) {
@@ -456,104 +462,116 @@ private fun Tasks(
                 TaskPeriod.WEEK -> extractHeaderBreakpoint(
                     tasks = tasks,
                     breakpoint = { task ->
-                        task.activeStatus!!.startDate.toLocalDateTime().dayOfWeek.value
+                        task.activeStatuses.first().startDate.toLocalDateTime().dayOfWeek.value
                     }
                 )
                 TaskPeriod.MONTH -> extractHeaderBreakpoint(
                     tasks = tasks,
                     breakpoint = { task ->
-                        task.activeStatus!!.startDate.toLocalDateTime().dayOfMonth
+                        task.activeStatuses.first().startDate.toLocalDateTime().dayOfMonth
                     }
                 )
                 else -> emptyList()
             }
         }
         val endPadding = 16.dp
+        val state = rememberTaskCardsState(tasks, tasks)
 
-        TaskCards(
-            tasks = tasks,
-            actions = {
-                actions(
-                    task = it,
-                    removeMessage = removeMessage,
-                    completeMessage = completeMessage,
-                    onRemove = onRemove,
-                    onComplete = onComplete
-                )
-            },
+        LazyColumn(
             modifier = modifier,
-            header = when (period) {
-                TaskPeriod.DAY -> {
-                    {
-                        Text(
-                            text = tasks[it].activeStatus?.startDate?.toTimeString() ?: "",
-                            modifier = Modifier.align(Alignment.BottomEnd),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-                TaskPeriod.WEEK -> {
-                    { i ->
-                        breakpoints.firstOrNull { it.index == i }?.let {
-                            TaskHeader(
-                                header = tasks[i].activeStatus!!.startDate.toDayLocalized(),
-                                endPadding = endPadding,
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(
-                                        end = endPadding,
-                                        bottom = dashSpace
-                                    ),
-                                description = with(
-                                    tasks[i].activeStatus!!.startDate.toLocalDateTime()
-                                ) {
-                                    "($dayOfMonth ${toMonthLocalized()})"
-                                },
-                                dashedLine = it.index == 0
+            contentPadding = contentPadding,
+            verticalArrangement = Arrangement.spacedBy(dashSpace)
+        ) {
+            taskCards(
+                tasks = tasks,
+                actions = {
+                    actions(
+                        task = it,
+                        removeMessage = removeMessage,
+                        completeMessage = completeMessage,
+                        onRemove = onRemove,
+                        onComplete = onComplete
+                    )
+                },
+                state = state,
+                onClick = onClick,
+                header = when (period) {
+                    TaskPeriod.DAY -> {
+                        {
+                            Text(
+                                text = tasks[it].activeStatuses.first().startDate.toTimeString(),
+                                modifier = Modifier.align(Alignment.BottomEnd),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
-                }
-                TaskPeriod.MONTH-> {
-                    { i ->
-                        breakpoints.firstOrNull { it.index == i }?.let {
-                            val localDateTime = tasks[i].activeStatus!!.startDate.toLocalDateTime()
-                            TaskHeader(
-                                header = with(localDateTime) {
-                                    "${toMonthLocalized()} $dayOfMonth"
-                                },
-                                endPadding = endPadding,
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(
-                                        end = endPadding,
-                                        bottom = dashSpace
-                                    ),
-                                description = "(${localDateTime.toDayLocalized()})",
-                                dashedLine = it.index == 0
-                            )
+                    TaskPeriod.WEEK -> {
+                        { i ->
+                            breakpoints.firstOrNull { it.index == i }?.let {
+                                TaskHeader(
+                                    header = tasks[i].activeStatuses.first().startDate.toDayLocalized(),
+                                    endPadding = endPadding,
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .padding(
+                                            end = endPadding,
+                                            bottom = dashSpace
+                                        ),
+                                    description = with(
+                                        tasks[i].activeStatuses.first().startDate.toLocalDateTime()
+                                    ) {
+                                        "($dayOfMonth ${toMonthLocalized()})"
+                                    },
+                                    dashedLine = it.index == 0
+                                )
+                            }
                         }
                     }
-                }
-            },
-            spacer = {
-                TaskSpacer(
-                    task = tasks[it],
-                    dashedLine = it != tasks.lastIndex,
-                    modifier = Modifier
-                        .padding(
-                            start = 8.dp,
-                            end = endPadding,
-                            top = dashSpace
+                    TaskPeriod.MONTH-> {
+                        { i ->
+                            breakpoints.firstOrNull { it.index == i }?.let {
+                                val localDateTime = tasks[i].activeStatuses.first().startDate.toLocalDateTime()
+                                TaskHeader(
+                                    header = with(localDateTime) {
+                                        "${toMonthLocalized()} $dayOfMonth"
+                                    },
+                                    endPadding = endPadding,
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .padding(
+                                            end = endPadding,
+                                            bottom = dashSpace
+                                        ),
+                                    description = "(${localDateTime.toDayLocalized()})",
+                                    dashedLine = it.index == 0
+                                )
+                            }
+                        }
+                    }
+                },
+                spacer = {
+                    TaskSpacer(
+                        activeStatuses = tasks[it].activeStatuses,
+                        dashedLine = it != tasks.lastIndex,
+                        modifier = Modifier
+                            .padding(
+                                start = 8.dp,
+                                end = endPadding,
+                                top = dashSpace
+                            )
+                    )
+                },
+                leadingIcon = if (period != TaskPeriod.DAY) {
+                    { i ->
+                        TaskCardTimeIndicator(
+                            time = tasks[i].activeStatuses.first().startDate.toTimeString()
                         )
-                )
-            },
-            verticalArrangement = Arrangement.spacedBy(dashSpace),
-            showStartTime = period != TaskPeriod.DAY,
-            resetSwipes = tasks
-        )
+                    }
+                } else null
+            )
+        }
     }
 }
 
@@ -614,18 +632,23 @@ private fun <T> status(
 
 @Composable
 private fun TaskSpacer(
-    task: Task,
+    activeStatuses: List<ActiveStatus>,
     dashedLine: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val activeStatus = task.activeStatus
+    val activeStatus = activeStatuses.firstOrNull()
 
     activeStatus?.let {
         Row(
             modifier = modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.spacedBy(
+                space = 16.dp,
+                alignment = Alignment.End
+            )
         ) {
-            Column {
+            Column(
+                horizontalAlignment = Alignment.End
+            ) {
                 val fontSize = 14
                 val lineHeight = fontSize + 8
                 val currentDate = Clock.System.now()
@@ -637,7 +660,7 @@ private fun TaskSpacer(
                             style = SpanStyle(
                                 color = status(
                                     currentDate = currentDate,
-                                    activeStatus = activeStatus,
+                                    activeStatus = it,
                                     completed = Green,
                                     inProgress = Gray,
                                     waiting = Gray,
@@ -649,7 +672,7 @@ private fun TaskSpacer(
                                 stringResource(
                                     id = status(
                                         currentDate = currentDate,
-                                        activeStatus = activeStatus,
+                                        activeStatus = it,
                                         completed = PlanDetailDictionary.completed,
                                         inProgress = PlanDetailDictionary.inProgress,
                                         waiting = PlanDetailDictionary.waiting,
@@ -662,7 +685,7 @@ private fun TaskSpacer(
                     fontSize = fontSize.sp,
                     lineHeight = lineHeight.sp
                 )
-                activeStatus.dueDate?.let {
+                it.dueDate?.let {
                     Text(
                         text = buildAnnotatedString {
                             append(stringResource(PlanDetailDictionary.due) + ": ")
@@ -684,7 +707,7 @@ private fun TaskSpacer(
                         withStyle(
                             style = SpanStyle(color = activeStatus.priority.color())
                         ) {
-                            append(activeStatus.priority.toStringLocalized())
+                            append(it.priority.toStringLocalized())
                         }
                     },
                     fontSize = fontSize.sp,
@@ -737,7 +760,7 @@ private fun ArrangePlan(
         action = stringResource(PlanDetailDictionary.arrangePlan),
         modifier = modifier,
         iconId = TaskifyIcon.pencil2,
-        contentPadding = PaddingValues(6.dp)
+        contentPadding = PaddingValues(12.dp)
     )
 }
 
@@ -753,7 +776,7 @@ private fun ContentPreview(
 
     TaskifyTheme {
         Content(
-            period = TaskPeriod.MONTH,
+            period = TaskPeriod.WEEK,
             tasks = tasks1,
             onBackClick = {},
             onRemove = { tasks1.remove(it) },
@@ -763,11 +786,14 @@ private fun ContentPreview(
                 tasks1.addAll(
                     p.map {
                         if (it.id == t.id)
-                            t.copy(activeStatus = t.activeStatus?.copy(isCompleted = true))
+                            t.copy(activeStatuses = t.activeStatuses.map {
+                                s -> s.copy(isCompleted = true)
+                            })
                         else it
                     }
                 )
             },
+            onTaskClick = {},
             onArrangePlanClick = {}
         )
     }

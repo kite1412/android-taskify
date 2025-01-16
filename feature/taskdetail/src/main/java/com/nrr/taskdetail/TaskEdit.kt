@@ -18,7 +18,7 @@ internal data class TaskEdit(
                     (description == other.description ||
                             (description.isEmpty() && other.description == null)) &&
                     taskType == other.taskType &&
-                    activeStatus == other.activeStatus
+                    activeStatus == other.activeStatuses.firstOrNull()
         }
         return this === other
     }
@@ -33,7 +33,7 @@ internal fun Task.toTaskEdit() = TaskEdit(
     title = title,
     description = description ?: "",
     taskType = taskType,
-    activeStatus = activeStatus
+    activeStatus = activeStatuses.firstOrNull()
 )
 
 internal fun TaskEdit.toTask() = Task(
@@ -43,5 +43,5 @@ internal fun TaskEdit.toTask() = Task(
     createdAt = Clock.System.now(),
     updateAt = Clock.System.now(),
     taskType = taskType!!,
-    activeStatus = activeStatus
+    activeStatuses = activeStatus?.let { listOf(it) } ?: emptyList()
 )

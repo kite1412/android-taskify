@@ -10,5 +10,5 @@ class GetTasksByPeriodUseCase @Inject constructor(
     private val taskRepository: TaskRepository
 ) {
     operator fun invoke(period: TaskPeriod): Flow<List<Task>> =
-        taskRepository.getAllActiveTasksByPeriod(period)
+        taskRepository.getActiveTasksByPeriod(period)
 }

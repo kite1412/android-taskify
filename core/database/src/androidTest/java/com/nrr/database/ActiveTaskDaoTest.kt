@@ -8,14 +8,20 @@ import org.junit.Test
 
 internal class ActiveTaskDaoTest : DBSetup() {
     @Test
-    fun insertThenGetAllActiveTasks() = runTest {
+    fun insertThenGetAllActiveTasks_isSuccess() = runTest {
         taskDao.insertTasks(listOf(MockData.taskEntity))
-        activeTaskDao.insertActiveTasks(listOf(MockData.activeTaskEntity))
+        activeTaskDao.insertActiveTasks(
+            listOf(
+                *Array(5) {
+                    MockData.activeTaskEntity
+                }
+            )
+        )
         val res = activeTaskDao.getAllByPeriod(TaskPeriod.DAY).first()
         res.forEach {
             Log.i(tag, it.toString())
         }
-        assert(res.size == 1)
+        assert(res.size == 5)
     }
 
     @Test

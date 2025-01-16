@@ -5,6 +5,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.nrr.model.TaskPeriod
+import com.nrr.planarrangement.navigation.navigateToPlanArrangement
+import com.nrr.planarrangement.navigation.planArrangementScreen
 import com.nrr.plandetail.navigation.navigateToPlanDetail
 import com.nrr.plandetail.navigation.planDetailScreen
 import com.nrr.taskdetail.navigation.navigateToTaskDetail
@@ -33,7 +36,18 @@ fun TaskifyNavHost(
             onPlanForTodayClick = navController::navigateToPlanDetail,
             onWeeklyClick = navController::navigateToPlanDetail,
             onMonthlyClick = navController::navigateToPlanDetail,
-            onSetTodayTasksClick = { /* TODO navigate to set today tasks screen */ }
+            onSetTodayTasksClick = {
+                navController.navigateToPlanArrangement(
+                    taskPeriod = TaskPeriod.DAY
+                )
+            },
+            onScheduledTaskClick = {
+                val status = it.activeStatuses.firstOrNull()
+                navController.navigateToPlanArrangement(
+                    activeStatusId = status?.id,
+                    taskPeriod = TaskPeriod.DAY.takeIf { status == null }
+                )
+            }
         )
         taskManagementScreen(
             onTaskClick = navController::navigateToTaskDetail
@@ -43,7 +57,17 @@ fun TaskifyNavHost(
         )
         planDetailScreen(
             onBackClick = navController::popBackStack,
-            onArrangePlanClick = { /* TODO navigate to arrange plan screen */ }
+            onArrangePlanClick = navController::navigateToPlanArrangement,
+            onActiveTaskClick = {
+                val status = it.activeStatuses.firstOrNull()
+                navController.navigateToPlanArrangement(
+                    activeStatusId = status?.id,
+                    taskPeriod = TaskPeriod.DAY.takeIf { status == null }
+                )
+            }
+        )
+        planArrangementScreen(
+            onBackClick = navController::popBackStack
         )
         composable<FakeAnalyticsRoute> {  }
         composable<FakeProfileRoute> {  }

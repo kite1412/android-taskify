@@ -59,7 +59,7 @@ class TaskManagementViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            taskRepository.getAllTasks().collect {
+            taskRepository.getTasks().collect {
                 allTasks = it
                 _tasks.update {
                     allTasks.sortAndFilter(
@@ -190,7 +190,7 @@ class TaskManagementViewModel @Inject constructor(
     fun removeAllConfirmation() {
         confirmation = ConfirmationType.REMOVE_ALL
         confirmation!!.updateTotalAffected(
-            value = editedTasks.filter { it.activeStatus != null }.size
+            value = editedTasks.filter { it.activeStatuses.isNotEmpty() }.size
         )
     }
 

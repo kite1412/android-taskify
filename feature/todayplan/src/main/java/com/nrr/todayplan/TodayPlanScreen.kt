@@ -70,9 +70,12 @@ import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.designsystem.util.drawRoundRectShadow
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
+import com.nrr.model.toTimeString
 import com.nrr.todayplan.util.TodayPlanDictionary
-import com.nrr.ui.TaskCards
+import com.nrr.ui.TaskCardTimeIndicator
 import com.nrr.ui.TaskPreviewParameter
+import com.nrr.ui.rememberTaskCardsState
+import com.nrr.ui.taskCards
 
 @Composable
 internal fun TodayPlanScreen(
@@ -81,6 +84,7 @@ internal fun TodayPlanScreen(
     onWeeklyClick: (TaskPeriod) -> Unit,
     onMonthlyClick: (TaskPeriod) -> Unit,
     onSetTodayTasksClick: () -> Unit,
+    onScheduledTaskClick: (Task) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TodayPlanViewModel = hiltViewModel()
 ) {
@@ -98,12 +102,34 @@ internal fun TodayPlanScreen(
         onSettingClick = onSettingClick,
         onRemoveTask = viewModel::deleteTask,
         onCompleteTask = viewModel::completeTask,
+        onTaskClick = onScheduledTaskClick,
         onWeeklyClick = onWeeklyClick,
         onMonthlyClick = onMonthlyClick,
         onSetTodayTasksClick = onSetTodayTasksClick,
         modifier = modifier
     )
 }
+
+private fun scheduleActions(
+    task: Task,
+    removeMessage: String,
+    completeMessage: String,
+    onRemove: (Task) -> Unit,
+    onComplete: (Task) -> Unit
+) = listOf(
+    Action(
+        action = removeMessage,
+        iconId = TaskifyIcon.trashBin,
+        onClick = { onRemove(task) },
+        color = Red
+    ),
+    Action(
+        action = completeMessage,
+        iconId = TaskifyIcon.check,
+        onClick = { onComplete(task) },
+        color = Green
+    )
+)
 
 @Composable
 private fun Content(
@@ -115,6 +141,7 @@ private fun Content(
     onSettingClick: () -> Unit,
     onRemoveTask: (Task) -> Unit,
     onCompleteTask: (Task) -> Unit,
+    onTaskClick: (Task) -> Unit,
     onWeeklyClick: (TaskPeriod) -> Unit,
     onMonthlyClick: (TaskPeriod) -> Unit,
     onSetTodayTasksClick: () -> Unit,
@@ -123,62 +150,113 @@ private fun Content(
     val contentWithRoundRectShadowPadding = with(LocalDensity.current) {
         7f.toDp()
     }
+    val removeMessage = stringResource(TodayPlanDictionary.removeFromSchedule)
+    val completeMessage = stringResource(TodayPlanDictionary.markAsCompleted)
+    val taskCardsState = rememberTaskCardsState(todayTasks, todayTasks)
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(bottom = 16.dp)
     ) {
-        item { GreetingHeader(username) }
         item {
-            Row(
-                modifier = Modifier
-                    .height(IntrinsicSize.Max)
-                    .padding(start = contentWithRoundRectShadowPadding),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                PlanForToday(
-                    modifier = Modifier.weight(0.9f),
-                    onClick = onPlanForTodayClick
-                )
-                IconButton(
-                    onClick = onSettingClick,
-                    modifier = Modifier.padding(end = 8.dp)
+                GreetingHeader(username)
+                Row(
+                    modifier = Modifier
+                        .height(IntrinsicSize.Max)
+                        .padding(start = contentWithRoundRectShadowPadding),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        painter = painterResource(TaskifyIcon.setting),
-                        contentDescription = "setting",
-                        modifier = Modifier.fillMaxHeight()
+                    PlanForToday(
+                        modifier = Modifier.weight(0.9f),
+                        onClick = onPlanForTodayClick
                     )
+                    IconButton(
+                        onClick = onSettingClick,
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(TaskifyIcon.setting),
+                            contentDescription = "setting",
+                            modifier = Modifier.fillMaxHeight()
+                        )
+
+                    }
                 }
+                TodayProgress(
+                    todayTasks = todayTasks,
+                    onSetTodayTasksClick = onSetTodayTasksClick,
+                    modifier = Modifier.padding(start = contentWithRoundRectShadowPadding)
+                )
+                Periods(
+                    weeklyTasks = weeklyTasks,
+                    monthlyTasks = monthlyTasks,
+                    onWeeklyClick = onWeeklyClick,
+                    onMonthlyClick = onMonthlyClick,
+                    modifier = Modifier.padding(start = contentWithRoundRectShadowPadding)
+                )
+                if (todayTasks.isNotEmpty()) Text(
+                    text = stringResource(TodayPlanDictionary.schedule),
+                    modifier = Modifier.padding(top = 16.dp),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
             }
         }
-        item {
-            TodayProgress(
-                todayTasks = todayTasks,
-                onSetTodayTasksClick = onSetTodayTasksClick,
-                modifier = Modifier.padding(start = contentWithRoundRectShadowPadding)
-            )
-        }
-        item {
-            Periods(
-                weeklyTasks = weeklyTasks,
-                monthlyTasks = monthlyTasks,
-                onWeeklyClick = onWeeklyClick,
-                onMonthlyClick = onMonthlyClick,
-                modifier = Modifier.padding(start = contentWithRoundRectShadowPadding)
-            )
-        }
-        item {
-            Schedule(
-                todayTasks = todayTasks,
-                onClick = {},
-                onRemove = onRemoveTask,
-                onComplete = onCompleteTask,
-                onSettingClick = onSettingClick,
-            )
-        }
+        taskCards(
+            tasks = todayTasks,
+            actions = {
+                scheduleActions(
+                    task = it,
+                    removeMessage = removeMessage,
+                    completeMessage = completeMessage,
+                    onRemove = onRemoveTask,
+                    onComplete = onCompleteTask
+                )
+            },
+            state = taskCardsState,
+            onClick = onTaskClick,
+            showCard = { it.activeStatuses.any { s -> s.isSet } },
+            spacer = {
+                val darkMode = isSystemInDarkTheme()
+                if (it != todayTasks.lastIndex) BoxWithConstraints(
+                    modifier = Modifier
+                        .height(30.dp)
+                        .fillMaxWidth()
+                ) {
+                    Box(
+                        Modifier
+                            .align(Alignment.Center)
+                            .fillMaxHeight()
+                            .padding(end = maxWidth / 2f)
+                            .drawBehind {
+                                val lineHeight = 13.dp.toPx()
+                                val space = 4.dp.toPx()
+                                repeat(2) { i ->
+                                    drawLine(
+                                        color = if (darkMode) Color.White else Color.Black,
+                                        start = Offset(x = 0f, y = lineHeight * i + (space * i)),
+                                        end = Offset(
+                                            x = 0f,
+                                            y = lineHeight * (i + 1) + (space * i)
+                                        ),
+                                        strokeWidth = 2.dp.toPx()
+                                    )
+                                }
+                            }
+                    )
+                }
+            },
+            leadingIcon = { i ->
+                TaskCardTimeIndicator(
+                    time = todayTasks[i].activeStatuses.first().startDate.toTimeString()
+                )
+            }
+        )
     }
 }
 
@@ -282,7 +360,7 @@ private fun TodayProgress(
     val density = LocalDensity.current
     val cornerRadius = 20.dp
     val completed = todayTasks.filter {
-        it.activeStatus?.period == TaskPeriod.DAY && it.activeStatus?.isCompleted == true
+        it.activeStatuses.any { s -> s.isCompleted }
     }
     val textColor = Color.White
     val progress = completed.size / todayTasks.size.toFloat()
@@ -415,7 +493,9 @@ private fun PeriodCard(
 ) {
     val cornerRadius = 10.dp
     val density = LocalDensity.current
-    val completed = tasks.filter { it.activeStatus?.isCompleted == true }
+    val completed = tasks.filter {
+        it.activeStatuses.any { s -> s.isCompleted }
+    }
 
     Box(
         modifier = modifier
@@ -459,8 +539,10 @@ private fun PeriodCard(
                 progress = { completed.size / tasks.size.toFloat() },
                 modifier = Modifier.size(10.dp),
                 color = Color.Black,
+                trackColor = Color.Black.copy(alpha = 0.2f),
                 strokeCap = StrokeCap.Round,
-                strokeWidth = 2.dp
+                strokeWidth = 2.dp,
+                gapSize = 0.dp
             )
         }
         Text(
@@ -473,92 +555,6 @@ private fun PeriodCard(
             fontSize = 18.sp
         )
     }
-}
-
-private fun scheduleActions(
-    task: Task,
-    removeMessage: String,
-    completeMessage: String,
-    onRemove: (Task) -> Unit,
-    onComplete: (Task) -> Unit
-) = listOf(
-    Action(
-        action = removeMessage,
-        iconId = TaskifyIcon.trashBin,
-        onClick = { onRemove(task) },
-        color = Red
-    ),
-    Action(
-        action = completeMessage,
-        iconId = TaskifyIcon.check,
-        onClick = { onComplete(task) },
-        color = Green
-    )
-)
-
-@Composable
-private fun Schedule(
-    todayTasks: List<Task>,
-    onClick: (Task) -> Unit,
-    onRemove: (Task) -> Unit,
-    onComplete: (Task) -> Unit,
-    onSettingClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-   if (todayTasks.isNotEmpty()) Column(
-       modifier = modifier,
-       verticalArrangement = Arrangement.spacedBy(16.dp)
-   ) {
-       val removeMessage = stringResource(TodayPlanDictionary.removeFromSchedule)
-       val completeMessage = stringResource(TodayPlanDictionary.markAsCompleted)
-
-       Text(
-           text = stringResource(TodayPlanDictionary.schedule),
-           fontWeight = FontWeight.Bold,
-           fontSize = 20.sp
-       )
-       TaskCards(
-           tasks = todayTasks,
-           actions = {
-               scheduleActions(
-                   task = it,
-                   removeMessage = removeMessage,
-                   completeMessage = completeMessage,
-                   onRemove = onRemove,
-                   onComplete = onComplete
-               )
-           },
-           modifier = Modifier.padding(start = 8.dp),
-           showStartTime = true,
-           onClick = onClick,
-           showCard = { it.activeStatus?.isSet == true },
-           spacer = {
-               val darkMode = isSystemInDarkTheme()
-               if (it != todayTasks.lastIndex) BoxWithConstraints(
-                   modifier = Modifier.height(30.dp).fillMaxWidth()
-               ) {
-                   Box(
-                       Modifier
-                           .align(Alignment.Center)
-                           .fillMaxHeight()
-                           .padding(end = maxWidth / 2f)
-                           .drawBehind {
-                               val lineHeight = 13.dp.toPx()
-                               val space = 4.dp.toPx()
-                               repeat(2) { i ->
-                                   drawLine(
-                                       color = if (darkMode) Color.White else Color.Black,
-                                       start = Offset(x = 0f, y = lineHeight * i + (space * i)),
-                                       end = Offset(x = 0f, y = lineHeight * (i + 1) + (space * i)),
-                                       strokeWidth = 2.dp.toPx()
-                                   )
-                               }
-                           }
-                   )
-               }
-           }
-       )
-   }
 }
 
 @Composable
@@ -587,6 +583,7 @@ private fun ContentPreview(
                 onWeeklyClick = {},
                 onMonthlyClick = {},
                 onSetTodayTasksClick = {},
+                onTaskClick = {},
                 modifier = Modifier.padding(32.dp)
             )
         }

@@ -9,5 +9,5 @@ data class Task(
     val createdAt: Instant,
     val updateAt: Instant,
     val taskType: TaskType,
-    val activeStatus: ActiveStatus? = null
+    val activeStatuses: List<ActiveStatus> = emptyList()
 )
