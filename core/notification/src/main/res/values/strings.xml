@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_channel_name">Task reminder</string>
+    <string name="notifcation_channel_description">Reminder for scheduled tasks</string>
+    <string name="notification_task_start_title">Task Starting Soon</string>
+    <string name="notification_task_start_content">Your task \'%1$s\' is about to start at \'%2$s\'. Get ready!</string>
+    <string name="notification_task_end_content">Your task \'%1$s\' is ending at \'%2$s\'. Wrap things up soon!</string>
+    <string name="notification_task_end_title">Task Ending Soon</string>
+</resources>
