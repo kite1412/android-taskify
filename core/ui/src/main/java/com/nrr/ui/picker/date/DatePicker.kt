@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import com.nrr.designsystem.component.TaskifyButtonDefaults
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.toLocalDateTime
-import com.nrr.ui.picker.CustomSelectableDates
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant

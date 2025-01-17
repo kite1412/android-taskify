@@ -1,4 +1,4 @@
-package com.nrr.ui.picker
+package com.nrr.ui.picker.date
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SelectableDates
