@@ -11,4 +11,7 @@ dependencies {
     implementation(projects.core.model)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.gson)
+
+    androidTestImplementation(libs.androidx.work.testing)
+    androidTestImplementation(libs.androidx.test.rules)
 }

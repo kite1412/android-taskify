@@ -5,7 +5,7 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.content.pm.PackageManager
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import androidx.core.app.ActivityCompat
@@ -35,15 +35,19 @@ internal class ScheduledTaskNotificationWorker(
                 .checkSelfPermission(
                     this,
                     Manifest.permission.POST_NOTIFICATIONS
-                ) != PERMISSION_GRANTED
+                ) != PackageManager.PERMISSION_GRANTED
         ) return Result.failure()
 
         val data = gson {
-            fromJson(
-                inputData.getString(DATA_KEY),
-                TaskWithReminder::class.java
-            )
+            inputData.getString(DATA_KEY)?.let {
+                fromJson(
+                    it,
+                    TaskWithReminder::class.java
+                )
+            }
         }
+        if (data == null) return Result.failure()
+
         val task = data.task
         val reminderType = data.reminderType
 

@@ -48,9 +48,9 @@ class TaskWithReminderAdapter :
                         startDate = Instant.fromEpochMilliseconds(
                             this?.get("startDate")?.asLong ?: 0L
                         ),
-                        dueDate = Instant.fromEpochMilliseconds(
-                            this?.get("dueDate")?.asLong ?: 0L
-                        )
+                        dueDate = this?.get("dueDate")?.asLong?.let {
+                            Instant.fromEpochMilliseconds(it)
+                        }
                     )
                 },
                 reminderType = this?.get("reminderType")?.asString?.let {

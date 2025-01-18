@@ -27,6 +27,10 @@ kotlinxSerializationJson = "1.7.3"
 protobuf = "4.29.2"
 protobufPlugin = "0.9.4"
 room = "2.6.1"
+cronetEmbedded = "119.6045.31"
+media3CommonKtx = "1.5.1"
+rules = "1.6.1"
+workRuntimeKtx = "2.10.0"
 
 # Project versions
 projectApplicationId = "com.nrr.taskify"
@@ -35,9 +39,6 @@ projectMinSdkVersion = "24"
 projectTargetSdkVersion = "35"
 projectCompileSdkVersion = "35"
 projectVersionCode = "1"
-cronetEmbedded = "119.6045.31"
-media3CommonKtx = "1.5.1"
-workRuntimeKtx = "2.10.0"
 
 [libraries]
 androidx-adaptive = { module = "androidx.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
@@ -45,7 +46,9 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigation" }
+androidx-test-rules = { module = "androidx.test:rules", version.ref = "rules" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "workRuntimeKtx" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

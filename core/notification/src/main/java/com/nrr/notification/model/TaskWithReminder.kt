@@ -6,6 +6,7 @@ data class TaskWithReminder(
     val task: TaskFiltered,
     val reminderType: ReminderType
 ) {
+    // for testing only
     override fun equals(other: Any?): Boolean {
         if (other !is TaskWithReminder) return false
         return task.id == other.task.id
