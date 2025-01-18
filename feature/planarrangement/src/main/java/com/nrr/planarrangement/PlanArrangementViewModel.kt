@@ -13,6 +13,7 @@ import com.nrr.domain.SaveActiveTasksUseCase
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.TaskPriority
+import com.nrr.notification.ScheduledTaskNotifier
 import com.nrr.planarrangement.navigation.PlanArrangementRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -27,7 +28,8 @@ import javax.inject.Inject
 class PlanArrangementViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val taskRepository: TaskRepository,
-    private val saveActiveTasksUseCase: SaveActiveTasksUseCase
+    private val saveActiveTasksUseCase: SaveActiveTasksUseCase,
+    private val scheduledTaskNotifier: ScheduledTaskNotifier
 ) : ViewModel() {
     // navigation from non-null ActiveStatus to be used in TaskEdit typically for
     // editing existing ActiveStatus
@@ -164,8 +166,22 @@ class PlanArrangementViewModel @Inject constructor(
 
     // TODO handle notification
     suspend fun save() {
-        taskEdit?.toTask()?.let {
-            saveActiveTasksUseCase(listOf(it))
+        taskEdit?.toTask()?.let { t ->
+            val res = saveActiveTasksUseCase(listOf(t))
+            res.firstOrNull()?.let {
+                val task = t.copy(
+                    activeStatuses = listOf(
+                        t.activeStatuses.first().copy(
+                            id = it
+                        )
+                    )
+                )
+
+                if (taskEdit!!.activeStatus.reminderSet)
+                    scheduledTaskNotifier.scheduleReminder(task)
+                else
+                    scheduledTaskNotifier.cancelReminder(task)
+            }
         }
     }
 

@@ -64,7 +64,7 @@ internal class ScheduledTaskNotificationWorker(
             val title = getTitle(reminderType)
             val content = getContent(task, reminderType)
 
-            setSmallIcon(R.drawable.app_icon)
+            setSmallIcon(R.drawable.app_icon_small)
             setContentTitle(title)
             setContentText(content)
         }

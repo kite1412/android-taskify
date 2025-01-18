@@ -10,9 +10,11 @@ data class TaskFiltered(
     val dueDate: Instant?
 )
 
-internal fun Task.toFiltered() = TaskFiltered(
-    id = id,
-    title = title,
-    startDate = activeStatuses.first().startDate,
-    dueDate = activeStatuses.first().dueDate
-)
+internal fun Task.toFiltered() = with(activeStatuses.first()) {
+    TaskFiltered(
+        id = id,
+        title = title,
+        startDate = startDate,
+        dueDate = dueDate
+    )
+}

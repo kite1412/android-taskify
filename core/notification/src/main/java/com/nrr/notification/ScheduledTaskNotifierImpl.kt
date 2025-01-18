@@ -50,7 +50,7 @@ internal class ScheduledTaskNotifierImpl @Inject constructor(
         }
 
         wm.beginUniqueWork(
-            uniqueWorkName = task.id.toString(),
+            uniqueWorkName = filtered.id.toString(),
             existingWorkPolicy = ExistingWorkPolicy.REPLACE,
             request = workRequest
         ).apply {
@@ -65,7 +65,9 @@ internal class ScheduledTaskNotifierImpl @Inject constructor(
         return Result.Success(warning)
     }
 
-    override fun cancelReminder(task: Task) {
-        wm.cancelUniqueWork(task.id.toString())
+    override fun cancelReminder(activeTask: Task) {
+        activeTask.activeStatuses.firstOrNull()?.id?.let {
+            wm.cancelUniqueWork(it.toString())
+        }
     }
 }
