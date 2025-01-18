@@ -197,8 +197,8 @@ private fun Content(
     confirmation: ConfirmationType?,
     onConfirm: (ConfirmationType) -> Unit,
     onDismissConfirmation: () -> Unit,
-    modifier: Modifier = Modifier,
-    tasksState: LazyListState = rememberLazyListState()
+    tasksState: LazyListState,
+    modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         Column(
@@ -259,7 +259,8 @@ private fun Content(
                 onCheckedChange = onCheckedChange,
                 onRemoveFromPlan = onRemoveTaskFromPlan,
                 onDelete = onDeleteTask,
-                showSnackbar = showSnackbar
+                showSnackbar = showSnackbar,
+                tasksState = tasksState
             )
         }
         when {
@@ -509,6 +510,7 @@ private fun Tasks(
     onRemoveFromPlan: (Task) -> Unit,
     onDelete: (Task) -> Unit,
     showSnackbar: (String) -> Unit,
+    tasksState: LazyListState,
     modifier: Modifier = Modifier
 ) {
     if (tasks.isNotEmpty()) {
@@ -520,7 +522,8 @@ private fun Tasks(
 
         LazyColumn(
             modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            state = tasksState
         ) {
             taskCards(
                 tasks = tasks,
@@ -753,6 +756,7 @@ private fun ContentPreview(
                 confirmation = null,
                 onConfirm = {},
                 onDismissConfirmation = {},
+                tasksState = rememberLazyListState(),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)

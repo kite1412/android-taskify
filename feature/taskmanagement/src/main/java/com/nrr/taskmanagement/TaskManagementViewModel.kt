@@ -50,9 +50,9 @@ class TaskManagementViewModel @Inject constructor(
     var snackbarEvent by mutableStateOf("")
         private set
 
-    internal val sortState by mutableStateOf(SortState())
+    internal val sortState = SortState()
 
-    internal val filterState by mutableStateOf(FilterState())
+    internal val filterState = FilterState()
 
     internal var confirmation by mutableStateOf<ConfirmationType?>(null)
         private set
