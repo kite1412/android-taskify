@@ -64,4 +64,8 @@ internal class ScheduledTaskNotifierImpl @Inject constructor(
 
         return Result.Success(warning)
     }
+
+    override fun cancelReminder(task: Task) {
+        wm.cancelUniqueWork(task.id.toString())
+    }
 }

@@ -5,4 +5,6 @@ import com.nrr.notification.model.Result
 
 interface ScheduledTaskNotifier {
     fun scheduleReminder(task: Task) : Result
+
+    fun cancelReminder(task: Task)
 }

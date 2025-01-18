@@ -26,6 +26,7 @@ import com.nrr.notification.util.gson
 
 private const val CHANNEL_ID = "1"
 private const val NOTIFICATION_ID = 1
+private const val NOTIFICATION_REQUEST_CODE = 0
 
 // REQUIRE DATA OF TaskWithReminder TYPE
 internal class ScheduledTaskNotificationWorker(
@@ -53,7 +54,6 @@ internal class ScheduledTaskNotificationWorker(
 
         val task = data.task
         val reminderType = data.reminderType
-
         val date = when (reminderType) {
             ReminderType.START -> task.startDate
             ReminderType.END -> task.dueDate
@@ -68,6 +68,7 @@ internal class ScheduledTaskNotificationWorker(
             setContentTitle(title)
             setContentText(content)
         }
+
         NotificationManagerCompat.from(this)
             .notify(
                 NOTIFICATION_ID,
