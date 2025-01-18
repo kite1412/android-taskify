@@ -26,4 +26,5 @@
     <string name="planarrangement_invalid_date_warning">End date can\'t be earlier than start date</string>
     <string name="planarrangement_enter_start_time_warning">Select start time</string>
     <string name="planarrangement_scheduled">Task scheduled</string>
+    <string name="planarrangement_request_notification_warning">Allow notifications to receive reminder</string>
 </resources>

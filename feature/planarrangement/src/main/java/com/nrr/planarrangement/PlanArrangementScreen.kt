@@ -1,6 +1,11 @@
 package com.nrr.planarrangement
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -49,6 +54,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,6 +69,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -77,6 +84,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import androidx.compose.ui.window.Popup
+import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.designsystem.component.AdaptiveText
@@ -514,7 +522,27 @@ private fun AssignmentConfiguration(
     modifier: Modifier = Modifier
 ) {
     val status = taskEdit.activeStatus
+    val context = LocalContext.current
+    var showRequestPermissionWarning by remember { mutableStateOf(false) }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) {
+        showRequestPermissionWarning = !it
+        onReminderChange(it)
+    }
+    val reminderSet = status.reminderSet
 
+    LaunchedEffect(reminderSet) {
+        if (reminderSet) {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU) {
+                if (
+                    ActivityCompat.checkSelfPermission(
+                        context, Manifest.permission.POST_NOTIFICATIONS
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(32.dp)
@@ -540,16 +568,23 @@ private fun AssignmentConfiguration(
                 onEndDateChange = onEndDateChange
             )
         }
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            ReminderToggle(
-                checked = status.reminderSet,
-                onCheckedChange = onReminderChange
-            )
-            DefaultToggle(
-                checked = status.isDefault,
-                onCheckedChange = onDefaultChange
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                ReminderToggle(
+                    checked = status.reminderSet,
+                    onCheckedChange = onReminderChange
+                )
+                DefaultToggle(
+                    checked = status.isDefault,
+                    onCheckedChange = onDefaultChange
+                )
+            }
+            if (showRequestPermissionWarning) InvalidWarning(
+                warning = stringResource(PlanArrangementDictionary.requestNotificationWarning)
             )
         }
         PriorityField(
