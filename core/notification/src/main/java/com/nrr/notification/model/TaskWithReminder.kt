@@ -1,7 +1,5 @@
 package com.nrr.notification.model
 
-import com.nrr.notification.ReminderType
-
 data class TaskWithReminder(
     val task: TaskFiltered,
     val reminderType: ReminderType

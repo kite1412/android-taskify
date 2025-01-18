@@ -12,10 +12,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.CoroutineWorker
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequest
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkerParameters
 import com.nrr.model.toTimeString
 import com.nrr.notification.R
-import com.nrr.notification.ReminderType
+import com.nrr.notification.model.ReminderType
 import com.nrr.notification.model.TaskFiltered
 import com.nrr.notification.model.TaskWithReminder
 import com.nrr.notification.util.NotificationDictionary
@@ -96,6 +99,16 @@ internal class ScheduledTaskNotificationWorker(
 
     companion object {
         const val DATA_KEY = "taskWithReminder"
+
+        fun workRequest(
+            inputData: Data,
+            builder: (OneTimeWorkRequest.Builder.() -> Unit)? = null
+        ) = OneTimeWorkRequestBuilder<ScheduledTaskNotificationWorker>()
+                .setInputData(inputData)
+                .apply {
+                    builder?.invoke(this)
+                }
+                .build()
     }
 }
 

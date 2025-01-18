@@ -1,5 +1,6 @@
 package com.nrr.notification
 
+import com.nrr.notification.model.ReminderType
 import com.nrr.notification.model.TaskFiltered
 import com.nrr.notification.model.TaskWithReminder
 import com.nrr.notification.util.gson
