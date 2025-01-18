@@ -36,8 +36,7 @@ class ScheduledTaskNotificationWorkerTest {
         }
     )
 
-    @JvmField
-    @Rule(order = 0)
+    @get:Rule(order = 0)
     val postNotificationPermission = GrantPostNotificationPermissionRule()
 
     @Before

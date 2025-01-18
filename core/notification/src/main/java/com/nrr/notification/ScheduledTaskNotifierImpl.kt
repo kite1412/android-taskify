@@ -9,6 +9,7 @@ import com.nrr.model.Task
 import com.nrr.notification.model.ReminderType
 import com.nrr.notification.model.Result
 import com.nrr.notification.model.Result.Fail.Reason
+import com.nrr.notification.model.Result.Success.Warning
 import com.nrr.notification.model.TaskWithReminder
 import com.nrr.notification.model.toFiltered
 import com.nrr.notification.util.gson
@@ -26,10 +27,7 @@ internal class ScheduledTaskNotifierImpl @Inject constructor(
 ) : ScheduledTaskNotifier {
     private val wm = WorkManager.getInstance(context)
 
-    override fun scheduleReminder(
-        task: Task,
-        reminderType: ReminderType
-    ): Result {
+    override fun scheduleReminder(task: Task): Result {
         wm.cancelUniqueWork(task.id.toString())
 
         val filtered = task.toFiltered()
@@ -37,10 +35,11 @@ internal class ScheduledTaskNotifierImpl @Inject constructor(
         val startDelay = filtered.startDate - curDate
         if (startDelay < 0.seconds) return Result.Fail(Reason.START_DATE_IN_PAST)
 
+        var warning: Warning? = null
         val workRequest = ScheduledTaskNotificationWorker.workRequest(
             inputData = workDataOf(
                 ScheduledTaskNotificationWorker.DATA_KEY to gson {
-                    toJson(TaskWithReminder(filtered, reminderType))
+                    toJson(TaskWithReminder(filtered, ReminderType.START))
                 }
             )
         ) {
@@ -57,10 +56,12 @@ internal class ScheduledTaskNotifierImpl @Inject constructor(
         ).apply {
             // TODO handle due date scheduling
             if (filtered.dueDate != null) {
+                val endDelay = filtered.dueDate - curDate
+                if (endDelay < 0.seconds) warning = Warning.END_REMINDER_IN_PAST
 
-            }
+            } else warning = Warning.END_REMINDER_SKIPPED
         }.enqueue()
 
-        return Result.Success
+        return Result.Success(warning)
     }
 }
