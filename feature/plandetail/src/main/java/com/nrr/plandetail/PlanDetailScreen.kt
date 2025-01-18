@@ -216,8 +216,8 @@ private fun Header(
 private fun weekIndicator(currentDate: Instant): String {
     val localDateTime = currentDate.toLocalDateTime()
     val today = localDateTime.dayOfWeek.value
-    val start = localDateTime.dayOfMonth - today
-    val end = localDateTime.dayOfMonth + today - 1
+    val start = localDateTime.dayOfMonth - today + 1
+    val end = start + 6
     return "($start - " +
             "$end " +
             "${localDateTime.toMonthLocalized()})"
@@ -226,7 +226,7 @@ private fun weekIndicator(currentDate: Instant): String {
 @Composable
 private fun monthIndicator(currentDate: Instant) =
     with(currentDate.toLocalDateTime()) {
-        this.month.getDisplayName(TextStyle.FULL, getCurrentLocale()) +
+        toMonthLocalized() +
                 " ${this.year}"
     }
 
