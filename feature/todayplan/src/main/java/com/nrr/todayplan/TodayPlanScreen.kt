@@ -91,14 +91,14 @@ internal fun TodayPlanScreen(
     modifier: Modifier = Modifier,
     viewModel: TodayPlanViewModel = hiltViewModel()
 ) {
-    val todayPlan by viewModel.todayTasks.collectAsStateWithLifecycle()
+    val todayTasks by viewModel.todayTasks.collectAsStateWithLifecycle()
     val weeklyTasks by viewModel.weeklyTasks.collectAsStateWithLifecycle()
     val monthlyTasks by viewModel.monthlyTasks.collectAsStateWithLifecycle()
     val username by viewModel.username.collectAsStateWithLifecycle()
 
     Content(
         username = username,
-        todayTasks = todayPlan,
+        todayTasks = todayTasks,
         weeklyTasks = weeklyTasks,
         monthlyTasks = monthlyTasks,
         onPlanForTodayClick = onPlanForTodayClick,
@@ -369,7 +369,7 @@ private fun TodayProgress(
     val progress = completed.size / todayTasks.size.toFloat()
     val safeToAnimate = LocalSafeAnimateContent.current
     val progressAnimated by animateFloatAsState(
-        targetValue = if (safeToAnimate) progress
+        targetValue = if (safeToAnimate && todayTasks.isNotEmpty()) progress
         else 0f,
         animationSpec = tween(durationMillis = 1000)
     )
