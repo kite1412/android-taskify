@@ -9,6 +9,7 @@ import com.nrr.domain.MarkTaskCompletedUseCase
 import com.nrr.domain.RemoveActiveTasksUseCase
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
+import com.nrr.notification.receiver.DEEP_LINK_ACTIVE_TASK_ID_KEY
 import com.nrr.plandetail.navigation.PlanDetailRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,6 +27,12 @@ class PlanDetailViewModel @Inject constructor(
 ) : ViewModel() {
     val period = TaskPeriod
         .entries[savedStateHandle.toRoute<PlanDetailRoute>().periodOrdinal]
+
+    val deepLinkTaskId = savedStateHandle.getStateFlow<String?>(
+        key = DEEP_LINK_ACTIVE_TASK_ID_KEY,
+        initialValue = null
+    )
+        .map { it?.toLong() }
 
     val tasks = getTasksByPeriodUseCase(period)
         .map {

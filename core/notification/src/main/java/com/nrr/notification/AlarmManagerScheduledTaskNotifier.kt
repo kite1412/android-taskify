@@ -13,6 +13,7 @@ import com.nrr.notification.model.TaskWithReminder
 import com.nrr.notification.model.toFiltered
 import com.nrr.notification.receiver.ScheduledTaskReceiver
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.datetime.Clock
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,6 +32,10 @@ class AlarmManagerScheduledTaskNotifier @Inject constructor(
         ) return Result.Fail(Reason.EXACT_ALARM_NOT_PERMITTED)
 
         val data = TaskWithReminder(task.toFiltered(), ReminderType.START)
+
+        if (data.task.startDate <= Clock.System.now())
+            return Result.Fail(Reason.START_DATE_IN_PAST)
+
         val activeStatusId = data.task.id.toInt()
         val pendingIntent = pendingIntent(activeStatusId)
 

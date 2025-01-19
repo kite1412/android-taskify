@@ -27,15 +27,18 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+const val DEEP_LINK_ACTIVE_TASK_ID_KEY = "taskId"
 const val DEEP_LINK_PERIOD_ORDINAL_KEY = "periodOrdinal"
 const val DEEP_LINK_SCHEME_AND_HOST = "com.nrr.taskify://plan"
-const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_SCHEME_AND_HOST/{$DEEP_LINK_PERIOD_ORDINAL_KEY}"
+const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_SCHEME_AND_HOST/{$DEEP_LINK_PERIOD_ORDINAL_KEY}/{$DEEP_LINK_ACTIVE_TASK_ID_KEY}"
 
 @AndroidEntryPoint
 class ScheduledTaskReceiver : BroadcastReceiver() {
     @Inject
     lateinit var taskRepository: TaskRepository
+
     private val notificationId = 1
+
     private val mainActivityName = "com.nrr.taskify.MainActivity"
 
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -79,7 +82,10 @@ class ScheduledTaskReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun notificationContentIntent(context: Context, task: Task) = PendingIntent.getActivity(
+    private fun notificationContentIntent(
+        context: Context,
+        task: Task
+    ) = PendingIntent.getActivity(
         context,
         0,
         Intent().apply {
@@ -93,6 +99,7 @@ class ScheduledTaskReceiver : BroadcastReceiver() {
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )
 
-    private fun Task.toDeepLinkUri() =
-        "$DEEP_LINK_SCHEME_AND_HOST/${activeStatuses.first().period.ordinal}".toUri()
+    private fun Task.toDeepLinkUri() = with(activeStatuses.first()) {
+        "$DEEP_LINK_SCHEME_AND_HOST/${period.ordinal}/$id".toUri()
+    }
 }

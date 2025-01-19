@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
@@ -94,7 +96,19 @@ internal fun PlanDetailScreen(
 ) {
     val period = viewModel.period
     val tasks by viewModel.tasks.collectAsStateWithLifecycle()
+    val deepLinkTaskId by viewModel.deepLinkTaskId.collectAsStateWithLifecycle(null)
+    val state = rememberLazyListState()
 
+    LaunchedEffect(deepLinkTaskId, tasks) {
+        deepLinkTaskId?.let { taskId ->
+            tasks?.let {
+                it.indexOfFirst { t -> t.activeStatuses.first().id == taskId }
+                    .let { i ->
+                        state.animateScrollToItem(i)
+                    }
+            }
+        }
+    }
     Content(
         period = period,
         tasks = tasks,
@@ -103,6 +117,7 @@ internal fun PlanDetailScreen(
         onComplete = viewModel::markCompleted,
         onTaskClick = onActiveTaskClick,
         onArrangePlanClick = { onArrangePlanClick(period) },
+        tasksState = state,
         modifier = modifier
     )
 }
@@ -116,6 +131,7 @@ private fun Content(
     onComplete: (Task) -> Unit,
     onTaskClick: (Task) -> Unit,
     onArrangePlanClick: () -> Unit,
+    tasksState: LazyListState,
     modifier: Modifier = Modifier
 ) {
     var arrangePlanHeight by remember {
@@ -159,7 +175,8 @@ private fun Content(
                             bottom = with(density) {
                                 (arrangePlanHeight + 8).toDp()
                             }
-                        )
+                        ),
+                        lazyListState = tasksState
                     )
                 }
             }
@@ -452,6 +469,7 @@ private fun Tasks(
     onComplete: (Task) -> Unit,
     onClick: (Task) -> Unit,
     contentPadding: PaddingValues,
+    lazyListState: LazyListState,
     modifier: Modifier = Modifier
 ) {
     if (tasks != null) {
@@ -480,7 +498,8 @@ private fun Tasks(
         LazyColumn(
             modifier = modifier,
             contentPadding = contentPadding,
-            verticalArrangement = Arrangement.spacedBy(dashSpace)
+            verticalArrangement = Arrangement.spacedBy(dashSpace),
+            state = lazyListState
         ) {
             taskCards(
                 tasks = tasks,
@@ -794,7 +813,8 @@ private fun ContentPreview(
                 )
             },
             onTaskClick = {},
-            onArrangePlanClick = {}
+            onArrangePlanClick = {},
+            tasksState = rememberLazyListState()
         )
     }
 }
