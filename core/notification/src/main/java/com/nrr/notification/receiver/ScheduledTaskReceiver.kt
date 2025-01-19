@@ -1,14 +1,18 @@
 package com.nrr.notification.receiver
 
 import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.net.toUri
 import com.nrr.data.repository.TaskRepository
+import com.nrr.model.Task
 import com.nrr.notification.AlarmManagerScheduledTaskNotifier
 import com.nrr.notification.R
 import com.nrr.notification.model.ReminderType
@@ -23,12 +27,16 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+const val DEEP_LINK_PERIOD_ORDINAL_KEY = "periodOrdinal"
+const val DEEP_LINK_SCHEME_AND_HOST = "com.nrr.taskify://plan"
+const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_SCHEME_AND_HOST/{$DEEP_LINK_PERIOD_ORDINAL_KEY}"
+
 @AndroidEntryPoint
 class ScheduledTaskReceiver : BroadcastReceiver() {
     @Inject
     lateinit var taskRepository: TaskRepository
-
     private val notificationId = 1
+    private val mainActivityName = "com.nrr.taskify.MainActivity"
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent == null) return
@@ -59,6 +67,8 @@ class ScheduledTaskReceiver : BroadcastReceiver() {
                 setContentTitle(title)
                 setContentText(content)
                 setSmallIcon(R.drawable.app_icon_small)
+                setContentIntent(notificationContentIntent(context, task))
+                setAutoCancel(true)
             }
 
             NotificationManagerCompat.from(context)
@@ -68,4 +78,21 @@ class ScheduledTaskReceiver : BroadcastReceiver() {
                 )
         }
     }
+
+    private fun notificationContentIntent(context: Context, task: Task) = PendingIntent.getActivity(
+        context,
+        0,
+        Intent().apply {
+            action = Intent.ACTION_VIEW
+            data = task.toDeepLinkUri()
+            component = ComponentName(
+                context.packageName,
+                mainActivityName
+            )
+        },
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
+
+    private fun Task.toDeepLinkUri() =
+        "$DEEP_LINK_SCHEME_AND_HOST/${activeStatuses.first().period.ordinal}".toUri()
 }
