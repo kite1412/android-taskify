@@ -223,32 +223,37 @@ private fun Content(
                         }
             }
         ) {
-            if (it) Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            if (it) Box(
+                modifier = Modifier.fillMaxSize()
             ) {
-                if (period != null) Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    SelectTask()
-                    PeriodSelect(
-                        period = period,
-                        onPeriodChange = onPeriodChange
-                    )
-                }
-                when (tasks) {
-                    null -> Unit
-                    else -> if (tasks.isEmpty())
-                        EmptyTasks(
-                            message = stringResource(PlanArrangementDictionary.noTasks)
+                    if (period != null) Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        SelectTask()
+                        PeriodSelect(
+                            period = period,
+                            onPeriodChange = onPeriodChange
                         )
-                    else Tasks(
-                        tasks = tasks,
-                        onClick = onTaskClick
-                    )
+                    }
+                    when (tasks) {
+                        null -> Unit
+                        else -> if (tasks.isNotEmpty())
+                            Tasks(
+                                tasks = tasks,
+                                onClick = onTaskClick
+                            )
+                    }
                 }
+                if (tasks?.isEmpty() == true) EmptyTasks(
+                    message = stringResource(PlanArrangementDictionary.noTasks),
+                    modifier = Modifier.align(Alignment.Center)
+                )
             } else AssignTask(
                 taskEdit = taskEdit,
                 onPeriodChange = onPeriodEditChange,
