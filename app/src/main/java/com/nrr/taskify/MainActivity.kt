@@ -25,7 +25,9 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: TaskifyViewModel by viewModels()
+
     private var exactAlarmEnabled by mutableStateOf(false)
+
     private var exactAlarmStateReceiver: BroadcastReceiver? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,11 +69,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-//    override fun onStop() {
-//        super.onStop()
-//        exactAlarmStateReceiver?.let {
-//            unregisterReceiver(it)
-//        }
-//    }
 }

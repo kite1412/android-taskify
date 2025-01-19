@@ -54,6 +54,11 @@ internal fun TaskifyApp(
         LocalSnackbarHostState provides snackbarHostStateWrapper,
         LocalSafeAnimateContent provides viewModel.safeToAnimate
     ) {
+        val enterSpec = slideInVertically(
+            animationSpec = tween(durationMillis = viewModel.contentEnterDelay)
+        ) { it }
+        val exitSpec = slideOutVertically { it }
+
         Scaffold(
             modifier = modifier,
             snackbarHost = {
@@ -67,10 +72,8 @@ internal fun TaskifyApp(
             AnimatedVisibility(
                 visible = registered == true,
                 label = "main content",
-                enter = slideInVertically(
-                    animationSpec = tween(durationMillis = viewModel.contentEnterDelay)
-                ) { it },
-                exit = slideOutVertically { it },
+                enter = enterSpec,
+                exit = exitSpec,
                 modifier = Modifier.padding(innerPadding)
             ) {
                 TaskifyScaffold(
@@ -84,7 +87,14 @@ internal fun TaskifyApp(
                     TaskifyNavHost(navController)
                 }
             }
-            if (registered == false && viewModel.showContent) RegistrationScreen()
+            AnimatedVisibility(
+                visible = registered == false && viewModel.showContent,
+                label = "registration content",
+                enter = enterSpec,
+                exit = exitSpec
+            ) {
+                RegistrationScreen()
+            }
             SplashScreen(
                 onCompleted = viewModel::dismissSplash,
                 showSplash = viewModel.showSplash

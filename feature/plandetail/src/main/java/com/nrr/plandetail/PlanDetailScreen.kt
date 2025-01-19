@@ -100,6 +100,7 @@ internal fun PlanDetailScreen(
     val state = rememberLazyListState()
 
     LaunchedEffect(deepLinkTaskId, tasks) {
+        delay(500)
         deepLinkTaskId?.let { taskId ->
             tasks?.let {
                 it.indexOfFirst { t -> t.activeStatuses.first().id == taskId }
