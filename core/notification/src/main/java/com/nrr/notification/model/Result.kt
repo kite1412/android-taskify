@@ -5,7 +5,8 @@ sealed interface Result {
         val reason: Reason
     ) : Result {
         enum class Reason {
-            START_DATE_IN_PAST
+            START_DATE_IN_PAST,
+            EXACT_ALARM_NOT_PERMITTED
         }
     }
     data class Success(

@@ -22,7 +22,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 @Singleton
-internal class ScheduledTaskNotifierImpl @Inject constructor(
+internal class WorkerManagerScheduledTaskNotifier @Inject constructor(
     @ApplicationContext context: Context
 ) : ScheduledTaskNotifier {
     private val wm = WorkManager.getInstance(context)

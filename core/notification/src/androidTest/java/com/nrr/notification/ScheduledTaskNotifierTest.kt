@@ -47,7 +47,7 @@ class ScheduledTaskNotifierTest {
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        notifier = ScheduledTaskNotifierImpl(context)
+        notifier = WorkerManagerScheduledTaskNotifier(context)
 
         WorkManagerTestInitHelper.initializeTestWorkManager(context)
     }
