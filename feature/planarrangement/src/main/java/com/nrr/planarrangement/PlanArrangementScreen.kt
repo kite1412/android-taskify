@@ -108,7 +108,6 @@ import com.nrr.planarrangement.util.dashSpace
 import com.nrr.planarrangement.util.dashWidth
 import com.nrr.ui.EmptyTasks
 import com.nrr.ui.LocalSnackbarHostState
-import com.nrr.ui.TaskCards
 import com.nrr.ui.TaskDescription
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.TaskStatuses
@@ -121,6 +120,8 @@ import com.nrr.ui.picker.date.SelectableDatesMonth
 import com.nrr.ui.picker.date.SelectableDatesWeek
 import com.nrr.ui.picker.date.rememberDefaultDatePickerState
 import com.nrr.ui.picker.time.TimePicker
+import com.nrr.ui.rememberTaskCardsState
+import com.nrr.ui.taskCards
 import com.nrr.ui.toStringLocalized
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -359,13 +360,19 @@ private fun Tasks(
     onClick: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    TaskCards(
-        tasks = tasks,
-        actions = { emptyList() },
+    val state = rememberTaskCardsState(tasks)
+
+    LazyColumn(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        onClick = onClick
-    )
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        taskCards(
+            tasks = tasks,
+            actions = { emptyList() },
+            state = state,
+            onClick = onClick
+        )
+    }
 }
 
 @Composable

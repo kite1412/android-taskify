@@ -7,26 +7,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -170,93 +160,6 @@ fun RowScope.TaskCardTimeIndicator(
     )
 }
 
-// TODO fully migrate to LazyListScope.taskCards
-@Composable
-fun TaskCards(
-    tasks: List<Task>,
-    actions: (Task) -> List<Action>,
-    modifier: Modifier = Modifier,
-    state: LazyListState = rememberLazyListState(),
-    userScrollEnabled: Boolean = true,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
-    onClick: ((Task) -> Unit)? = null,
-    onLongClick: ((Task) -> Unit)? = null,
-    clickEnabled: (Int) -> Boolean = { onClick != null },
-    showCard: (Task) -> Boolean = { true },
-    swipeEnabled: Boolean = true,
-    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
-    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    header: @Composable (BoxScope.(index: Int) -> Unit)? = null,
-    spacer: @Composable (BoxScope.(index: Int) -> Unit)? = null,
-    leadingIcon: @Composable (RowScope.(index: Int) -> Unit)? = null,
-    additionalContent: @Composable (BoxScope.(Task) -> Unit)? = null,
-    resetSwipes: Any? = null
-) {
-    val states = remember(resetSwipes, tasks) {
-        tasks.indices.map { SwipeableState() }
-    }
-    var prevOpened by remember(resetSwipes, tasks) {
-        mutableIntStateOf(-1)
-    }
-    var opened by remember(resetSwipes, tasks) {
-        mutableIntStateOf(-1)
-    }
-
-    LazyColumn(
-        modifier = modifier,
-        verticalArrangement = verticalArrangement,
-        horizontalAlignment = horizontalAlignment,
-        state = state,
-        contentPadding = contentPadding,
-        userScrollEnabled = userScrollEnabled
-    ) {
-        itemsIndexed(
-            items = tasks,
-            key = { _, t -> t.activeStatuses.firstOrNull()?.id ?: t.id }
-        ) { index, task ->
-            if (showCard(task)) {
-                val s = states[index]
-                LaunchedEffect(s.isOpen) {
-                    if (s.isOpen && prevOpened == -1) prevOpened = index
-                    if (s.isOpen) opened = index
-                    if (prevOpened != opened) {
-                        states[prevOpened].reset()
-                        prevOpened = index
-                    }
-                }
-                TaskCard(
-                    task = task,
-                    actions = actions(task),
-                    swipeableState = s,
-                    onClick = { onClick?.invoke(task) },
-                    onLongClick = { onLongClick?.invoke(task) },
-                    clickEnabled = clickEnabled(index),
-                    swipeEnabled = swipeEnabled,
-                    additionalContent = additionalContent?.let {
-                        { it.invoke(this, task) }
-                    },
-                    swipeableKeys = arrayOf(tasks),
-                    header = if (header != null) {
-                        {
-                            header.invoke(this, index)
-                        }
-                    } else null,
-                    bottom = if (spacer != null) {
-                        {
-                            spacer.invoke(this, index)
-                        }
-                    } else null,
-                    leadingIcon = if (leadingIcon != null) {
-                        {
-                            leadingIcon.invoke(this, index)
-                        }
-                    } else null
-                )
-            }
-        }
-    }
-}
-
 @Preview
 @Composable
 private fun TaskCardPreview(
@@ -282,29 +185,5 @@ private fun TaskCardPreview(
                 task(it == 1)
             }
         }
-    }
-}
-
-@Preview
-@Composable
-private fun TaskCardsPreview(
-    @PreviewParameter(TaskPreviewParameter::class)
-    tasks: List<Task>
-) {
-    TaskifyTheme {
-        TaskCards(
-            tasks = tasks,
-            actions = {
-                listOf(
-                    Action(
-                        action = "Delete",
-                        iconId = TaskifyIcon.home,
-                        onClick = {},
-                        color = Color.Red
-                    )
-                )
-            },
-            verticalArrangement = Arrangement.spacedBy(250.dp)
-        )
     }
 }
