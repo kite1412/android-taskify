@@ -10,13 +10,12 @@ import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkerParameters
-import com.nrr.model.toTimeString
 import com.nrr.notification.R
 import com.nrr.notification.model.ReminderType
-import com.nrr.notification.model.TaskFiltered
 import com.nrr.notification.model.TaskWithReminder
-import com.nrr.notification.util.NotificationDictionary
 import com.nrr.notification.util.createNotification
+import com.nrr.notification.util.getContent
+import com.nrr.notification.util.getTitle
 import com.nrr.notification.util.gson
 
 private const val NOTIFICATION_ID = 1
@@ -68,27 +67,6 @@ internal class ScheduledTaskNotificationWorker(
                 notification
             )
         Result.success()
-    }
-
-    private fun Context.getTitle(type: ReminderType) = when (type) {
-        ReminderType.START -> getString(NotificationDictionary.taskStartTitle)
-        ReminderType.END -> getString(NotificationDictionary.taskEndTitle)
-    }
-
-    private fun Context.getContent(
-        task: TaskFiltered,
-        type: ReminderType
-    ) = when (type) {
-        ReminderType.START -> getString(
-            NotificationDictionary.taskStartContent,
-            task.title,
-            task.startDate.toTimeString()
-        )
-        ReminderType.END -> getString(
-            NotificationDictionary.taskEndContent,
-            task.title,
-            task.dueDate?.toTimeString()
-        )
     }
 
     companion object {

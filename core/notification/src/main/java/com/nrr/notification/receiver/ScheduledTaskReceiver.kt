@@ -11,7 +11,11 @@ import androidx.core.app.NotificationManagerCompat
 import com.nrr.data.repository.TaskRepository
 import com.nrr.notification.AlarmManagerScheduledTaskNotifier
 import com.nrr.notification.R
+import com.nrr.notification.model.ReminderType
+import com.nrr.notification.model.toFiltered
 import com.nrr.notification.util.createNotification
+import com.nrr.notification.util.getContent
+import com.nrr.notification.util.getTitle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,16 +45,19 @@ class ScheduledTaskReceiver : BroadcastReceiver() {
             && !alarmManager.canScheduleExactAlarms()
         ) return
 
-        val id = intent.getLongExtra(AlarmManagerScheduledTaskNotifier.DATA_KEY, 0L)
+        val id = intent.getIntExtra(AlarmManagerScheduledTaskNotifier.DATA_KEY, 0)
         CoroutineScope(Dispatchers.Main).launch {
             val task = id.takeIf { it > 0 }?.let {
-                taskRepository.getActiveTasksByIds(listOf(it))
+                taskRepository.getActiveTasksByIds(listOf(it.toLong()))
                     .firstOrNull()?.firstOrNull() ?: return@launch
             } ?: return@launch
 
             val notification = context.createNotification {
-                setContentTitle(task.title)
-                setContentText(task.description)
+                val title = context.getTitle(ReminderType.START)
+                val content = context.getContent(task.toFiltered(), ReminderType.START)
+
+                setContentTitle(title)
+                setContentText(content)
                 setSmallIcon(R.drawable.app_icon_small)
             }
 

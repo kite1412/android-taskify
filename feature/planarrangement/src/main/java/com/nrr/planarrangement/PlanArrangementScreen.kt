@@ -537,6 +537,12 @@ private fun AssignmentConfiguration(
         showRequestPermissionWarning = !it
         onReminderChange(it)
     }
+    val alarmPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) {
+
+    }
+
     val reminderSet = status.reminderSet
 
     LaunchedEffect(reminderSet) {
@@ -547,6 +553,15 @@ private fun AssignmentConfiguration(
                         context, Manifest.permission.POST_NOTIFICATIONS
                     ) != PackageManager.PERMISSION_GRANTED
                 ) permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+//                if (
+//                    ActivityCompat.checkSelfPermission(
+//                        context, Manifest.permission.SCHEDULE_EXACT_ALARM
+//                    ) != PackageManager.PERMISSION_GRANTED
+//                ) alarmPermissionLauncher.launch(
+//                    input = Intent().apply {
+//                        action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
+//                    }
+//                )
             }
         }
     }

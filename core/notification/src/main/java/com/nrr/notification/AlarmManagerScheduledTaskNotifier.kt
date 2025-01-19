@@ -23,6 +23,8 @@ class AlarmManagerScheduledTaskNotifier @Inject constructor(
     private val alarmManager = context
         .getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
+    private val action = "com.nrr.notification.TASK_REMINDER"
+
     override fun scheduleReminder(task: Task): Result {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
             && !alarmManager.canScheduleExactAlarms()
@@ -30,18 +32,7 @@ class AlarmManagerScheduledTaskNotifier @Inject constructor(
 
         val data = TaskWithReminder(task.toFiltered(), ReminderType.START)
         val activeStatusId = data.task.id.toInt()
-        val intent = Intent(context, ScheduledTaskReceiver::class.java).apply {
-            putExtra(
-                DATA_KEY,
-                activeStatusId
-            )
-        }
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            activeStatusId,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
+        val pendingIntent = pendingIntent(activeStatusId)
 
         alarmManager.cancel(pendingIntent)
         alarmManager.setExactAndAllowWhileIdle(
@@ -56,17 +47,18 @@ class AlarmManagerScheduledTaskNotifier @Inject constructor(
         val activeStatusId = activeTask.activeStatuses.firstOrNull()?.id?.toInt()
             ?: return
 
-        val intent = Intent(context, ScheduledTaskReceiver::class.java).apply {
-            putExtra(DATA_KEY, activeStatusId)
-        }
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            activeStatusId,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-        alarmManager.cancel(pendingIntent)
+        alarmManager.cancel(pendingIntent(activeStatusId))
     }
+
+    private fun pendingIntent(requestCode: Int) = PendingIntent.getBroadcast(
+        context,
+        requestCode,
+        Intent(context, ScheduledTaskReceiver::class.java).apply {
+            action = this@AlarmManagerScheduledTaskNotifier.action
+            putExtra(DATA_KEY, requestCode)
+        },
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
 
     companion object {
         const val DATA_KEY = "taskWithReminder"
