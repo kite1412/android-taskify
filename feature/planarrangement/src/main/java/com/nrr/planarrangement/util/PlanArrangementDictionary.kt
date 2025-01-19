@@ -30,4 +30,7 @@ object PlanArrangementDictionary {
     val enterStartDateWarning = R.string.planarrangement_enter_start_date_warning
     val scheduled = R.string.planarrangement_scheduled
     val requestNotificationWarning = R.string.planarrangement_request_notification_warning
+    val setAlarmsAndReminders = R.string.planarrangement_set_alarm_and_reminders
+    val alarmsAndReminders = R.string.planarrangement_alarms_and_reminders
+    val alarmsAndRemindersDesc = R.string.planarrangement_alarms_and_reminders_desc
 }

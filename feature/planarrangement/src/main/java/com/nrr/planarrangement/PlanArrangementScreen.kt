@@ -1,8 +1,10 @@
 package com.nrr.planarrangement
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -106,7 +108,9 @@ import com.nrr.planarrangement.util.PlanArrangementDictionary
 import com.nrr.planarrangement.util.dashHeight
 import com.nrr.planarrangement.util.dashSpace
 import com.nrr.planarrangement.util.dashWidth
+import com.nrr.ui.Dialog
 import com.nrr.ui.EmptyTasks
+import com.nrr.ui.LocalExactAlarmState
 import com.nrr.ui.LocalSnackbarHostState
 import com.nrr.ui.TaskDescription
 import com.nrr.ui.TaskPreviewParameter
@@ -530,7 +534,9 @@ private fun AssignmentConfiguration(
 ) {
     val status = taskEdit.activeStatus
     val context = LocalContext.current
+    val exactAlarmEnabled = LocalExactAlarmState.current
     var showRequestPermissionWarning by remember { mutableStateOf(false) }
+    var showRequestExactAlarmDialog by remember { mutableStateOf(false) }
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) {
@@ -542,7 +548,6 @@ private fun AssignmentConfiguration(
     ) {
 
     }
-
     val reminderSet = status.reminderSet
 
     LaunchedEffect(reminderSet) {
@@ -553,16 +558,8 @@ private fun AssignmentConfiguration(
                         context, Manifest.permission.POST_NOTIFICATIONS
                     ) != PackageManager.PERMISSION_GRANTED
                 ) permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-//                if (
-//                    ActivityCompat.checkSelfPermission(
-//                        context, Manifest.permission.SCHEDULE_EXACT_ALARM
-//                    ) != PackageManager.PERMISSION_GRANTED
-//                ) alarmPermissionLauncher.launch(
-//                    input = Intent().apply {
-//                        action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
-//                    }
-//                )
             }
+            if (!exactAlarmEnabled) showRequestExactAlarmDialog = true
         }
     }
     Column(
@@ -614,6 +611,38 @@ private fun AssignmentConfiguration(
             onPriorityChange = onPriorityChange
         )
     }
+    if (showRequestExactAlarmDialog) Dialog(
+        onDismiss = {
+            showRequestExactAlarmDialog = false
+            onReminderChange(false)
+        },
+        onConfirm = {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                alarmPermissionLauncher.launch(
+                    Intent().apply {
+                        action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
+                    }
+                )
+                showRequestExactAlarmDialog = false
+            }
+        },
+        confirmText = stringResource(PlanArrangementDictionary.setAlarmsAndReminders),
+        cancelText = stringResource(PlanArrangementDictionary.cancel),
+        title = {
+            Text(stringResource(PlanArrangementDictionary.alarmsAndReminders))
+        },
+        text = {
+            Text(stringResource(PlanArrangementDictionary.alarmsAndRemindersDesc))
+        },
+        icon = {
+            Icon(
+                painter = painterResource(TaskifyIcon.info),
+                contentDescription = "warning",
+                modifier = Modifier.size(30.dp),
+                tint = Color.Red
+            )
+        }
+    )
 }
 
 @OptIn(ExperimentalLayoutApi::class)

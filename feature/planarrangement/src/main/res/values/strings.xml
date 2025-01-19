@@ -27,4 +27,7 @@
     <string name="planarrangement_enter_start_time_warning">Select start time</string>
     <string name="planarrangement_scheduled">Task scheduled</string>
     <string name="planarrangement_request_notification_warning">Allow notifications to receive reminder</string>
+    <string name="planarrangement_set_alarm_and_reminders">Set alarm and reminders</string>
+    <string name="planarrangement_alarms_and_reminders">Alarms and reminders</string>
+    <string name="planarrangement_alarms_and_reminders_desc">This app needs alarms and reminders enabled to be able to send task reminders</string>
 </resources>

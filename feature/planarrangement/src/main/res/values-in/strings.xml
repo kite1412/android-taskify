@@ -27,4 +27,7 @@
     <string name="planarrangement_enter_start_time_warning">Pilih waktu mulai</string>
     <string name="planarrangement_scheduled">Tugas dijadwalkan</string>
     <string name="planarrangement_request_notification_warning">Izinkan notifikasi untuk menyalakan pengingat</string>
+    <string name="planarrangement_set_alarm_and_reminders">Atur alarm dan pengingat</string>
+    <string name="planarrangement_alarms_and_reminders">Alarm dan pengingat</string>
+    <string name="planarrangement_alarms_and_reminders_desc">Aplikasi ini membutuhkan izin alarm dan pengingat untuk mengirim pengingat tugas</string>
 </resources>
