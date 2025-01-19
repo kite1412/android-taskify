@@ -24,8 +24,8 @@ class AlarmManagerScheduledTaskNotifier @Inject constructor(
         .getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     override fun scheduleReminder(task: Task): Result {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-            !alarmManager.canScheduleExactAlarms()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+            && !alarmManager.canScheduleExactAlarms()
         ) return Result.Fail(Reason.EXACT_ALARM_NOT_PERMITTED)
 
         val data = TaskWithReminder(task.toFiltered(), ReminderType.START)
