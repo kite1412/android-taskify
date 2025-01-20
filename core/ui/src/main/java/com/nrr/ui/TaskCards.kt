@@ -11,6 +11,22 @@ import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.SwipeableState
 import com.nrr.model.Task
 
+@Deprecated(
+    message = "Use the other overload version instead",
+    replaceWith = ReplaceWith(
+        "taskCards(tasks, " +
+                "actions, " +
+                "state, " +
+                "onClick, " +
+                "onLongClick, " +
+                "clickEnabled, " +
+                "showCard, " +
+                "swipeEnabled, " +
+                "content " +
+                ")"
+    )
+)
+//TODO delete
 fun LazyListScope.taskCards(
     tasks: List<Task>,
     actions: (Task) -> List<Action>,
@@ -68,6 +84,49 @@ fun LazyListScope.taskCards(
                         }
                     } else null
                 )
+            }
+        }
+    }
+}
+
+fun LazyListScope.taskCards(
+    tasks: List<Task>,
+    actions: (Task) -> List<Action>,
+    state: TaskCardsState,
+    onClick: ((Task) -> Unit)? = null,
+    onLongClick: ((Task) -> Unit)? = null,
+    clickEnabled: (Int) -> Boolean = { onClick != null },
+    showCard: (Task) -> Boolean = { true },
+    swipeEnabled: Boolean = true,
+    content: @Composable (index: Int, taskCard: @Composable () -> Unit) -> Unit
+) {
+    itemsIndexed(
+        items = tasks,
+        key = { _, t -> t.hashCode() }
+    ) { index, task ->
+        if (showCard(task)) {
+            with(state) {
+                val s = getState(task.hashCode())
+                LaunchedEffect(s.isOpen) {
+                    if (s.isOpen && prevOpened == -1) prevOpenedChange(task.hashCode())
+                    if (s.isOpen) openedChange(task.hashCode())
+                    if (prevOpened != opened) {
+                        states[prevOpened]!!.reset()
+                        prevOpenedChange(task.hashCode())
+                    }
+                }
+                content(index) {
+                    TaskCard(
+                        task = task,
+                        actions = actions(task),
+                        swipeableState = s,
+                        onClick = { onClick?.invoke(task) },
+                        onLongClick = { onLongClick?.invoke(task) },
+                        clickEnabled = clickEnabled(index),
+                        swipeEnabled = swipeEnabled,
+                        swipeableKeys = arrayOf(tasks)
+                    )
+                }
             }
         }
     }

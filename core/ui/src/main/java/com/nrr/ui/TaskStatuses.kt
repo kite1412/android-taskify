@@ -37,13 +37,25 @@ fun TaskStatuses(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(6.dp)
 ) {
+    val (today, rest) = statuses.partition { it.period == TaskPeriod.DAY }
+    val (week, month) = rest.partition { it.period == TaskPeriod.WEEK }
+
     if (statuses.isNotEmpty()) Column(
         modifier = modifier,
         verticalArrangement = verticalArrangement
     ) {
-        statuses.forEach {
-            ActiveIndicator(it)
-        }
+        if (today.isNotEmpty()) ActiveIndicator(
+            statuses = today.sortedBy { it.startDate },
+            period = TaskPeriod.DAY
+        )
+        if (week.isNotEmpty()) ActiveIndicator(
+            statuses = week.sortedBy { it.startDate },
+            period = TaskPeriod.WEEK
+        )
+        if (month.isNotEmpty()) ActiveIndicator(
+            statuses = month.sortedBy { it.startDate },
+            period = TaskPeriod.MONTH
+        )
     } else Indicator(
         color = Gray,
         text = stringResource(UIDictionary.notSet),
@@ -79,7 +91,8 @@ private fun Indicator(
 
 @Composable
 private fun ActiveIndicator(
-    status: ActiveStatus,
+    statuses: List<ActiveStatus>,
+    period: TaskPeriod,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -89,22 +102,24 @@ private fun ActiveIndicator(
         Indicator(
             color = PastelGreen,
             text = stringResource(
-                id = when (status.period) {
+                id = when (period) {
                     TaskPeriod.DAY -> UIDictionary.todaySet
                     TaskPeriod.WEEK -> UIDictionary.weekSet
                     TaskPeriod.MONTH -> UIDictionary.monthSet
                 }
             )
         )
-        Text(
-            text = status.startDate.toDateStringLocalized() +
-                    " (${status.startDate.toTimeString()}" +
-                    "${if (status.dueDate != null) " - " + status.dueDate?.toTimeString() else ""})",
-            modifier = Modifier.padding(start = CIRCLE_DIAMETER.dp + space),
-            fontWeight = FontWeight.Bold,
-            fontSize = (CIRCLE_DIAMETER - 2).sp,
-            lineHeight = (CIRCLE_DIAMETER - 2).sp
-        )
+        statuses.forEach {
+            Text(
+                text = it.startDate.toDateStringLocalized() +
+                        " (${it.startDate.toTimeString()}" +
+                        "${if (it.dueDate != null) " - " + it.dueDate?.toTimeString() else ""})",
+                modifier = Modifier.padding(start = CIRCLE_DIAMETER.dp + space),
+                fontWeight = FontWeight.Bold,
+                fontSize = (CIRCLE_DIAMETER - 2).sp,
+                lineHeight = (CIRCLE_DIAMETER - 2).sp
+            )
+        }
     }
 }
 
@@ -116,7 +131,7 @@ private fun TaskStatusesPreview(
 ) {
     TaskifyTheme {
         TaskStatuses(
-            statuses =  tasks.flatMap { it.activeStatuses }
+            statuses = tasks.flatMap { it.activeStatuses }
         )
     }
 }

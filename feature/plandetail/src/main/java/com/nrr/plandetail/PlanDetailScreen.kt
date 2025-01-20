@@ -515,51 +515,43 @@ private fun Tasks(
                 },
                 state = state,
                 onClick = onClick,
-                header = when (period) {
-                    TaskPeriod.DAY -> {
-                        {
-                            Text(
-                                text = tasks[it].activeStatuses.first().startDate.toTimeString(),
-                                modifier = Modifier.align(Alignment.BottomEnd),
+                content = { index, taskCard ->
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        when (period) {
+                            TaskPeriod.DAY -> Text(
+                                text = tasks[index].activeStatuses.first().startDate.toTimeString(),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp,
                                 color = MaterialTheme.colorScheme.primary
                             )
-                        }
-                    }
-                    TaskPeriod.WEEK -> {
-                        { i ->
-                            breakpoints.firstOrNull { it.index == i }?.let {
+                            TaskPeriod.WEEK -> breakpoints.firstOrNull { it.index == index }?.let {
                                 TaskHeader(
-                                    header = tasks[i].activeStatuses.first().startDate.toDayLocalized(),
+                                    header = tasks[index].activeStatuses.first().startDate.toDayLocalized(),
                                     endPadding = endPadding,
                                     modifier = Modifier
-                                        .align(Alignment.BottomEnd)
                                         .padding(
                                             end = endPadding,
                                             bottom = dashSpace
                                         ),
                                     description = with(
-                                        tasks[i].activeStatuses.first().startDate.toLocalDateTime()
+                                        tasks[index].activeStatuses.first().startDate.toLocalDateTime()
                                     ) {
                                         "($dayOfMonth ${toMonthLocalized()})"
                                     },
                                     dashedLine = it.index == 0
                                 )
                             }
-                        }
-                    }
-                    TaskPeriod.MONTH-> {
-                        { i ->
-                            breakpoints.firstOrNull { it.index == i }?.let {
-                                val localDateTime = tasks[i].activeStatuses.first().startDate.toLocalDateTime()
+                            TaskPeriod.MONTH-> breakpoints.firstOrNull { it.index == index }?.let {
+                                val localDateTime = tasks[index].activeStatuses.first().startDate.toLocalDateTime()
                                 TaskHeader(
                                     header = with(localDateTime) {
                                         "${toMonthLocalized()} $dayOfMonth"
                                     },
                                     endPadding = endPadding,
                                     modifier = Modifier
-                                        .align(Alignment.BottomEnd)
                                         .padding(
                                             end = endPadding,
                                             bottom = dashSpace
@@ -569,27 +561,24 @@ private fun Tasks(
                                 )
                             }
                         }
-                    }
-                },
-                spacer = {
-                    TaskSpacer(
-                        activeStatuses = tasks[it].activeStatuses,
-                        dashedLine = it != tasks.lastIndex,
-                        modifier = Modifier
-                            .padding(
-                                start = 8.dp,
-                                end = endPadding,
-                                top = dashSpace
+                        Row {
+                            if (period != TaskPeriod.DAY) TaskCardTimeIndicator(
+                                time = tasks[index].activeStatuses.first().startDate.toTimeString()
                             )
-                    )
-                },
-                leadingIcon = if (period != TaskPeriod.DAY) {
-                    { i ->
-                        TaskCardTimeIndicator(
-                            time = tasks[i].activeStatuses.first().startDate.toTimeString()
+                            taskCard()
+                        }
+                        TaskSpacer(
+                            activeStatuses = tasks[index].activeStatuses,
+                            dashedLine = index != tasks.lastIndex,
+                            modifier = Modifier
+                                .padding(
+                                    start = 8.dp,
+                                    end = endPadding,
+                                    top = dashSpace
+                                )
                         )
                     }
-                } else null
+                }
             )
         }
     }
