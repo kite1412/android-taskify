@@ -4,8 +4,6 @@ import android.content.Context
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
 import androidx.test.core.app.ApplicationProvider
-import com.nrr.datastore.di.TaskifyPreferencesDataSource
-import com.nrr.datastore.di.UserPreferencesSerializer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope

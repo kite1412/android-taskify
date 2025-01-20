@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
 import com.nrr.datastore.UserPreferences
+import com.nrr.datastore.UserPreferencesSerializer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
