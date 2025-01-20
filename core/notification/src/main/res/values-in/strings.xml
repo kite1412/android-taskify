@@ -3,8 +3,12 @@
     <string name="notification_channel_name">Pengingat tugas</string>
     <string name="notifcation_channel_description">Pengingat untuk tugas yang dijadwalkan</string>
     <string name="notification_task_start_title">Tugas Segera Dimulai</string>
-    <string name="notification_task_start_content">Tugas kamu \'%1$s\' akan segera dimulai pada \'%2$s\'. Bersiaplah!</string>
+    <string name="notification_task_start_content">Tugas \'%1$s\' akan segera dimulai pada \'%2$s\'. Bersiaplah!</string>
     <string name="notification_task_end_content">Tugas \'%1$s\' berakhir pada \'%2$s\'. Ayo selesaikan segera!</string>
     <string name="notification_task_end_title">Tugas Segera Berakhir</string>
     <string name="notification_remind_later">Ingatkan aku dalam 5 menit</string>
+    <string name="notification_task_start_title_overdue">Tugas Dimulai!</string>
+    <string name="notification_task_start_content_overdue">Tugas kamu \'%1$s\' telah dimulai, ayo segera selesaikan!</string>
+    <string name="notification_task_end_title_overdue">Tugas Terlambat!</string>
+    <string name="notification_task_end_content_overdue">"Tugas '%1$s' belum diselesaikan, ayo segera selesaikan! "</string>
 </resources>

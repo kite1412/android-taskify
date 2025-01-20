@@ -1,9 +1,7 @@
 package com.nrr.notification
 
 import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import com.nrr.data.repository.UserDataRepository
 import com.nrr.model.Task
@@ -13,8 +11,7 @@ import com.nrr.notification.model.Result
 import com.nrr.notification.model.Result.Fail.Reason
 import com.nrr.notification.model.TaskWithReminder
 import com.nrr.notification.model.toFiltered
-import com.nrr.notification.receiver.ScheduledTaskReceiver
-import com.nrr.notification.receiver.TASK_REMINDER_ACTION
+import com.nrr.notification.receiver.scheduledTaskReceiverPendingIntent
 import com.nrr.notification.util.toDuration
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
@@ -51,7 +48,7 @@ class AlarmManagerScheduledTaskNotifier @Inject constructor(
             return Result.Fail(Reason.START_DATE_IN_PAST)
 
         val activeStatusId = data.task.id.toInt()
-        val pendingIntent = pendingIntent(activeStatusId)
+        val pendingIntent = scheduledTaskReceiverPendingIntent(context, activeStatusId)
 
         alarmManager.cancel(pendingIntent)
         alarmManager.setExactAndAllowWhileIdle(
@@ -66,21 +63,6 @@ class AlarmManagerScheduledTaskNotifier @Inject constructor(
         val activeStatusId = activeTask.activeStatuses.firstOrNull()?.id?.toInt()
             ?: return
 
-        alarmManager.cancel(pendingIntent(activeStatusId))
-    }
-
-    private fun pendingIntent(activeStatusId: Int) = PendingIntent.getBroadcast(
-        context,
-        activeStatusId,
-        Intent(context, ScheduledTaskReceiver::class.java).apply {
-            action = TASK_REMINDER_ACTION
-            putExtra(DATA_KEY, activeStatusId)
-        },
-        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-    )
-
-    companion object {
-        // represents the ActiveStatus id and its notification id
-        const val DATA_KEY = "activeStatusId"
+        alarmManager.cancel(scheduledTaskReceiverPendingIntent(context, activeStatusId))
     }
 }

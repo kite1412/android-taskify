@@ -42,22 +42,34 @@ internal fun Context.createNotification(
         .build()
 }
 
-internal fun Context.getTitle(type: ReminderType) = when (type) {
-    ReminderType.START -> getString(NotificationDictionary.taskStartTitle)
-    ReminderType.END -> getString(NotificationDictionary.taskEndTitle)
+internal fun Context.getTitle(
+    type: ReminderType,
+    overdue: Boolean = false
+) = when (type) {
+    ReminderType.START -> getString(
+        if (!overdue) NotificationDictionary.taskStartTitle
+        else NotificationDictionary.taskStartTitleOverdue
+    )
+    ReminderType.END -> getString(
+        if (!overdue) NotificationDictionary.taskEndTitle
+        else NotificationDictionary.taskEndTitleOverdue
+    )
 }
 
 internal fun Context.getContent(
     task: TaskFiltered,
-    type: ReminderType
+    type: ReminderType,
+    overdue: Boolean = false
 ) = when (type) {
     ReminderType.START -> getString(
-        NotificationDictionary.taskStartContent,
+        if (!overdue) NotificationDictionary.taskStartContent
+        else NotificationDictionary.taskStartContentOverdue,
         task.title,
         task.startDate.toTimeString()
     )
     ReminderType.END -> getString(
-        NotificationDictionary.taskEndContent,
+        if (!overdue) NotificationDictionary.taskEndContent
+        else NotificationDictionary.taskEndContentOverdue,
         task.title,
         task.dueDate?.toTimeString()
     )

@@ -13,7 +13,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
 import com.nrr.data.repository.TaskRepository
 import com.nrr.model.Task
-import com.nrr.notification.AlarmManagerScheduledTaskNotifier
 import com.nrr.notification.R
 import com.nrr.notification.model.ReminderType
 import com.nrr.notification.model.TaskWithReminder
@@ -27,6 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import javax.inject.Inject
 
 const val DEEP_LINK_ACTIVE_TASK_ID_KEY = "taskId"
@@ -57,7 +57,12 @@ class ScheduledTaskReceiver : BroadcastReceiver() {
             && !alarmManager.canScheduleExactAlarms()
         ) return
 
-        val id = intent.getIntExtra(AlarmManagerScheduledTaskNotifier.DATA_KEY, 0)
+        val id = intent.getIntExtra(DATA_KEY, 0)
+        val reminderType = intent.getIntExtra(REMINDER_TYPE_ORDINAL_KEY, -1)
+            .takeIf { it != -1 }
+            ?.let {
+                ReminderType.entries[it]
+            } ?: ReminderType.START
         // TODO implement due notification
         CoroutineScope(Dispatchers.Main).launch {
             val task = id.takeIf { it > 0 }?.let {
@@ -65,12 +70,23 @@ class ScheduledTaskReceiver : BroadcastReceiver() {
                     .firstOrNull()?.firstOrNull() ?: return@launch
             } ?: return@launch
 
-            val taskWithReminder = TaskWithReminder(task.toFiltered(), ReminderType.START)
+            val taskWithReminder = TaskWithReminder(task.toFiltered(), reminderType)
             val notification = context.createNotification {
-                val reminderType = taskWithReminder.reminderType
                 val taskFiltered = taskWithReminder.task
-                val title = context.getTitle(reminderType)
-                val content = context.getContent(taskFiltered, reminderType)
+                val now = Clock.System.now()
+                val overdue = now > when (reminderType) {
+                    ReminderType.START -> taskFiltered.startDate
+                    ReminderType.END -> taskFiltered.dueDate ?: now
+                }
+                val title = context.getTitle(
+                    type = reminderType,
+                    overdue = overdue
+                )
+                val content = context.getContent(
+                    task = taskFiltered,
+                    type = reminderType,
+                    overdue = overdue
+                )
 
                 setContentTitle(title)
                 setContentText(content)
@@ -118,10 +134,10 @@ class ScheduledTaskReceiver : BroadcastReceiver() {
     ) = PendingIntent.getBroadcast(
         this,
         0,
-        Intent(this, ScheduledTaskReceiver::class.java).apply {
+        Intent(this, RemindLaterReceiver::class.java).apply {
             action = REMIND_LATER_ACTION
-            putExtra(AlarmManagerScheduledTaskNotifier.DATA_KEY, activeStatusId)
-            putExtra(RemindLaterReceiver.REMINDER_TYPE_ORDINAL_KEY, reminderTypeOrdinal)
+            putExtra(DATA_KEY, activeStatusId)
+            putExtra(REMINDER_TYPE_ORDINAL_KEY, reminderTypeOrdinal)
         },
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )
@@ -129,4 +145,26 @@ class ScheduledTaskReceiver : BroadcastReceiver() {
     private fun Task.toDeepLinkUri() = with(activeStatuses.first()) {
         "$DEEP_LINK_SCHEME_AND_HOST/${period.ordinal}/$id".toUri()
     }
+
+    companion object {
+        const val DATA_KEY = "activeStatusId"
+        const val REMINDER_TYPE_ORDINAL_KEY = "reminderTypeOrdinal"
+    }
 }
+
+internal fun scheduledTaskReceiverPendingIntent(
+    context: Context,
+    activeStatusId: Int,
+    reminderType: ReminderType? = null
+) = PendingIntent.getBroadcast(
+    context,
+    activeStatusId,
+    Intent(context, ScheduledTaskReceiver::class.java).apply {
+        action = TASK_REMINDER_ACTION
+        putExtra(ScheduledTaskReceiver.DATA_KEY, activeStatusId)
+        reminderType?.let {
+            putExtra(ScheduledTaskReceiver.REMINDER_TYPE_ORDINAL_KEY, it.ordinal)
+        }
+    },
+    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+)
