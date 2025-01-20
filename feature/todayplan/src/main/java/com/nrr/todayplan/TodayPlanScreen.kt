@@ -119,20 +119,24 @@ private fun scheduleActions(
     completeMessage: String,
     onRemove: (Task) -> Unit,
     onComplete: (Task) -> Unit
-) = listOf(
+) = mutableListOf(
     Action(
         action = removeMessage,
         iconId = TaskifyIcon.trashBin,
         onClick = { onRemove(task) },
         color = Red
-    ),
-    Action(
-        action = completeMessage,
-        iconId = TaskifyIcon.check,
-        onClick = { onComplete(task) },
-        color = Green
     )
-)
+).apply {
+    if (task.activeStatuses.firstOrNull()?.isCompleted == false)
+        add(
+            Action(
+                action = completeMessage,
+                iconId = TaskifyIcon.check,
+                onClick = { onComplete(task) },
+                color = Green
+            )
+        )
+}.toList()
 
 @Composable
 private fun Content(

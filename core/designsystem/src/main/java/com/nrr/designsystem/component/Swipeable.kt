@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
@@ -85,7 +86,9 @@ fun Swipeable(
             content = {
                 content(
                     if (actions.isNotEmpty()) Modifier
-                        .offset(x = animatedOffset)
+                        .offset {
+                            IntOffset(x = animatedOffset.roundToPx(), y = 0)
+                        }
                         .pointerInput(swipeEnabled, *keys ?: emptyArray()) {
                             detectHorizontalDragGestures(
                                 onDragEnd = state::onSwipeEnd
@@ -280,7 +283,7 @@ class SwipeableState {
         isOpen = false
     }
 
-    fun swipeOpen() {
+    private fun swipeOpen() {
         offset = maxOffset
         isOpen = true
     }
