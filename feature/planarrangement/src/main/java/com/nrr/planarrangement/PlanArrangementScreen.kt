@@ -134,6 +134,7 @@ import kotlinx.datetime.Instant
 @Composable
 internal fun PlanArrangementScreen(
     onBackClick: () -> Unit,
+    onNewTaskClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PlanArrangementViewModel = hiltViewModel()
 ) {
@@ -179,6 +180,7 @@ internal fun PlanArrangementScreen(
                 )
             }
         },
+        onNewTaskClick = onNewTaskClick,
         modifier = modifier
     )
 }
@@ -203,6 +205,7 @@ private fun Content(
     onPriorityChange: (TaskPriority) -> Unit,
     saveEnabled: Boolean,
     onSave: () -> Unit,
+    onNewTaskClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -253,6 +256,16 @@ private fun Content(
                 if (tasks?.isEmpty() == true) EmptyTasks(
                     message = stringResource(PlanArrangementDictionary.noTasks),
                     modifier = Modifier.align(Alignment.Center)
+                )
+                RoundRectButton(
+                    onClick = onNewTaskClick,
+                    action = stringResource(PlanArrangementDictionary.newTask),
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                    iconId = TaskifyIcon.add,
+                    colors = TaskifyButtonDefaults.colors(
+                        containerColor = MaterialTheme.colorScheme.tertiary,
+                        contentColor = Color.White
+                    )
                 )
             } else AssignTask(
                 taskEdit = taskEdit,
@@ -1271,7 +1284,8 @@ private fun ContentPreview(
                 )
             },
             saveEnabled = true,
-            onSave = {}
+            onSave = {},
+            onNewTaskClick = {}
         )
     }
 }

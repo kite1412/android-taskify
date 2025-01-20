@@ -39,11 +39,13 @@ fun NavController.navigateToPlanArrangement(
 }
 
 fun NavGraphBuilder.planArrangementScreen(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onNewTaskClick: () -> Unit
 ) {
     composable<PlanArrangementRoute> {
         PlanArrangementScreen(
-            onBackClick = onBackClick
+            onBackClick = onBackClick,
+            onNewTaskClick = onNewTaskClick
         )
     }
 }

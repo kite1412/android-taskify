@@ -33,4 +33,5 @@ object PlanArrangementDictionary {
     val setAlarmsAndReminders = R.string.planarrangement_set_alarm_and_reminders
     val alarmsAndReminders = R.string.planarrangement_alarms_and_reminders
     val alarmsAndRemindersDesc = R.string.planarrangement_alarms_and_reminders_desc
+    val newTask = R.string.planarrangement_new_task
 }

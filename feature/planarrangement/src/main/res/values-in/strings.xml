@@ -30,4 +30,5 @@
     <string name="planarrangement_set_alarm_and_reminders">Atur alarm dan pengingat</string>
     <string name="planarrangement_alarms_and_reminders">Alarm dan pengingat</string>
     <string name="planarrangement_alarms_and_reminders_desc">Aplikasi ini membutuhkan izin alarm dan pengingat untuk mengirim pengingat tugas</string>
+    <string name="planarrangement_new_task">Tugas Baru</string>
 </resources>

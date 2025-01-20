@@ -70,7 +70,10 @@ fun TaskifyNavHost(
             }
         )
         planArrangementScreen(
-            onBackClick = navController::popBackStack
+            onBackClick = navController::popBackStack,
+            onNewTaskClick = {
+                navController.navigateToTaskDetail(null)
+            }
         )
         composable<FakeAnalyticsRoute> {  }
         composable<FakeProfileRoute> {  }
