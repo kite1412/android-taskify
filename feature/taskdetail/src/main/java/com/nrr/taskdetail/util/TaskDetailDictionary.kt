@@ -30,4 +30,5 @@ object TaskDetailDictionary {
     val deleteConfirmation = R.string.taskdetail_delete_confirmation
     val taskCreated = R.string.taskdetail_task_created
     val taskDeleted = R.string.taskdetail_task_deleted
+    val planTask = R.string.taskdetail_plan_task
 }

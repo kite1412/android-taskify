@@ -76,6 +76,7 @@ import com.nrr.ui.ConfirmationDialog
 import com.nrr.ui.LocalSnackbarHostState
 import com.nrr.ui.TaskDescription
 import com.nrr.ui.TaskPreviewParameter
+import com.nrr.ui.TaskStatuses
 import com.nrr.ui.TaskTitle
 import com.nrr.ui.TaskTypeBar
 import com.nrr.ui.TaskifyDialogDefaults
@@ -88,6 +89,7 @@ import kotlinx.datetime.Instant
 @Composable
 internal fun TaskDetailScreen(
     onBackClick: () -> Unit,
+    onPlanTaskClick: (Task) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TaskDetailViewModel = hiltViewModel()
 ) {
@@ -137,6 +139,7 @@ internal fun TaskDetailScreen(
         },
         onDelete = viewModel::deleteConfirmation,
         onDismissConfirmation = viewModel::dismissConfirmation,
+        onPlanTaskClick = onPlanTaskClick,
         modifier = modifier
     )
 }
@@ -157,6 +160,7 @@ private fun Content(
     confirmation: ConfirmationType?,
     onConfirm: (ConfirmationType) -> Unit,
     onDismissConfirmation: () -> Unit,
+    onPlanTaskClick: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -190,6 +194,7 @@ private fun Content(
                     onComplete = onEditComplete
                 ) else DetailPage(
                     task = task,
+                    onPlanClick = onPlanTaskClick,
                     modifier = Modifier.verticalScroll(rememberScrollState())
                 )
             }
@@ -300,6 +305,7 @@ private fun Header(
 @Composable
 private fun DetailPage(
     task: Task?,
+    onPlanClick: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
     task?.let {
@@ -316,6 +322,21 @@ private fun DetailPage(
             TaskDescription(
                 description = it.description ?: ""
             )
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                TaskStatuses(
+                    statuses = it.activeStatuses,
+                    modifier = Modifier.weight(0.8f)
+                )
+                RoundRectButton(
+                    onClick = { onPlanClick(task) },
+                    action = stringResource(TaskDetailDictionary.planTask),
+                    colors = TaskifyButtonDefaults.colors(
+                        containerColor = MaterialTheme.colorScheme.tertiary
+                    )
+                )
+            }
         }
     }
 }
@@ -673,6 +694,7 @@ private fun ContentPreview(
             confirmation = null,
             onConfirm = {},
             onDismissConfirmation = {},
+            onPlanTaskClick = {},
             modifier = Modifier
         )
     }
