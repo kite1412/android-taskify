@@ -1,5 +1,10 @@
 package com.nrr.plandetail
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +28,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -32,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -71,6 +78,7 @@ import com.nrr.plandetail.util.PlanDetailDictionary
 import com.nrr.plandetail.util.dashHeight
 import com.nrr.plandetail.util.dashSpace
 import com.nrr.plandetail.util.dashWidth
+import com.nrr.ui.LocalSafeAnimateContent
 import com.nrr.ui.TaskCardTimeIndicator
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.color
@@ -98,29 +106,41 @@ internal fun PlanDetailScreen(
     val tasks by viewModel.tasks.collectAsStateWithLifecycle()
     val deepLinkTaskId by viewModel.deepLinkTaskId.collectAsStateWithLifecycle(null)
     val state = rememberLazyListState()
+    val safeToAnimate = viewModel.safeToAnimate
 
-    LaunchedEffect(deepLinkTaskId, tasks) {
-        delay(500)
-        deepLinkTaskId?.let { taskId ->
-            tasks?.let {
-                it.indexOfFirst { t -> t.activeStatuses.first().id == taskId }
-                    .let { i ->
-                        state.animateScrollToItem(i)
-                    }
+    CompositionLocalProvider(
+        LocalDeepLinkTaskId provides deepLinkTaskId,
+        LocalSafeAnimateContent provides safeToAnimate
+    ) {
+        LaunchedEffect(deepLinkTaskId, tasks) {
+            delay(500)
+            if (!viewModel.oneTimeAnimate) deepLinkTaskId?.let { taskId ->
+                tasks?.let {
+                    it.indexOfFirst { t -> t.activeStatuses.first().id == taskId }
+                        .let { i ->
+                            state.animateScrollToItem(i)
+                            viewModel.updateSafeToAnimate(true)
+                            delay(1500L)
+                            viewModel.updateSafeToAnimate(false)
+                            viewModel.updateOneTimeAnimate(true)
+                        }
+                }
             }
         }
+        Content(
+            period = period,
+            tasks = tasks,
+            onBackClick = {
+                if (!safeToAnimate) onBackClick()
+            },
+            onRemove = viewModel::removeTask,
+            onComplete = viewModel::markCompleted,
+            onTaskClick = onActiveTaskClick,
+            onArrangePlanClick = { onArrangePlanClick(period) },
+            tasksState = state,
+            modifier = modifier
+        )
     }
-    Content(
-        period = period,
-        tasks = tasks,
-        onBackClick = onBackClick,
-        onRemove = viewModel::removeTask,
-        onComplete = viewModel::markCompleted,
-        onTaskClick = onActiveTaskClick,
-        onArrangePlanClick = { onArrangePlanClick(period) },
-        tasksState = state,
-        modifier = modifier
-    )
 }
 
 @Composable
@@ -495,12 +515,14 @@ private fun Tasks(
         }
         val endPadding = 16.dp
         val state = rememberTaskCardsState(tasks, tasks)
+        val safeToScroll = LocalSafeAnimateContent.current.not()
 
         LazyColumn(
             modifier = modifier,
             contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(dashSpace),
-            state = lazyListState
+            state = lazyListState,
+            userScrollEnabled = safeToScroll
         ) {
             taskCards(
                 tasks = tasks,
@@ -565,7 +587,28 @@ private fun Tasks(
                             if (period != TaskPeriod.DAY) TaskCardTimeIndicator(
                                 time = tasks[index].activeStatuses.first().startDate.toTimeString()
                             )
-                            taskCard()
+                            val deepLinkTaskId = LocalDeepLinkTaskId.current
+                            if (deepLinkTaskId != null) {
+                                val safeToAnimate = LocalSafeAnimateContent.current
+                                val highlight = deepLinkTaskId == tasks[index].activeStatuses.first().id
+                                val animatedRotation by rememberInfiniteTransition()
+                                    .animateFloat(
+                                        initialValue = if (!safeToAnimate) 0f
+                                        else if (highlight) 2f else 0f,
+                                        targetValue = if (!safeToAnimate) 0f
+                                        else if (highlight) -(2f) else 0f,
+                                        animationSpec = infiniteRepeatable(
+                                            animation = tween(100),
+                                            repeatMode = RepeatMode.Reverse
+                                        )
+                                    )
+                                Box(
+                                    modifier = Modifier
+                                        .rotate(animatedRotation)
+                                ) {
+                                    taskCard()
+                                }
+                            } else taskCard()
                         }
                         TaskSpacer(
                             activeStatuses = tasks[index].activeStatuses,

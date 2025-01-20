@@ -1,5 +1,8 @@
 package com.nrr.plandetail
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -46,6 +49,12 @@ class PlanDetailViewModel @Inject constructor(
             initialValue = null
         )
 
+    var safeToAnimate by mutableStateOf(false)
+        private set
+
+    var oneTimeAnimate by mutableStateOf(false)
+        private set
+
     fun markCompleted(task: Task) {
         viewModelScope.launch {
             markTaskCompletedUseCase(task)
@@ -56,5 +65,13 @@ class PlanDetailViewModel @Inject constructor(
         viewModelScope.launch {
             removeActiveTasksUseCase(listOf(task))
         }
+    }
+
+    fun updateSafeToAnimate(value: Boolean) {
+        safeToAnimate = value
+    }
+
+    fun updateOneTimeAnimate(value: Boolean) {
+        oneTimeAnimate = value
     }
 }
