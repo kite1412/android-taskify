@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+import "com/nrr/taskify/data/time_unit_proto.proto";
+
+option java_package = "com.nrr.datastore";
+option java_multiple_files = true;
+
+message NotificationOffsetConfigProto {
+    uint32 value = 1;
+    TimeUnitProto time_unit = 2;
+}

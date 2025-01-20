@@ -2,6 +2,7 @@ syntax = "proto3";
 
 import "com/nrr/taskify/data/language_config_proto.proto";
 import "com/nrr/taskify/data/theme_config_proto.proto";
+import "com/nrr/taskify/data/notification_offset_config_proto.proto";
 
 // datastore module namespace
 option java_package = "com.nrr.datastore";
@@ -11,4 +12,7 @@ message UserPreferences {
     string username = 1;
     LanguageConfigProto language_config = 2;
     ThemeConfigProto theme_config = 3;
+    NotificationOffsetConfigProto day_notification_offset = 4;
+    NotificationOffsetConfigProto week_notification_offset = 5;
+    NotificationOffsetConfigProto month_notification_offset = 6;
 }
