@@ -5,35 +5,50 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import com.nrr.data.repository.UserDataRepository
 import com.nrr.model.Task
+import com.nrr.model.TaskPeriod
 import com.nrr.notification.model.ReminderType
 import com.nrr.notification.model.Result
 import com.nrr.notification.model.Result.Fail.Reason
 import com.nrr.notification.model.TaskWithReminder
 import com.nrr.notification.model.toFiltered
 import com.nrr.notification.receiver.ScheduledTaskReceiver
+import com.nrr.notification.util.toDuration
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class AlarmManagerScheduledTaskNotifier @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val userDataRepository: UserDataRepository
 ) : ScheduledTaskNotifier {
     private val alarmManager = context
         .getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     private val action = "com.nrr.notification.TASK_REMINDER"
 
-    override fun scheduleReminder(task: Task): Result {
+    override suspend fun scheduleReminder(task: Task): Result {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
             && !alarmManager.canScheduleExactAlarms()
         ) return Result.Fail(Reason.EXACT_ALARM_NOT_PERMITTED)
 
         val data = TaskWithReminder(task.toFiltered(), ReminderType.START)
+        val notificationOffset = userDataRepository.userData
+            .map {
+                when (task.activeStatuses.first().period) {
+                    TaskPeriod.DAY -> it.dayNotificationOffset
+                    TaskPeriod.WEEK -> it.weekNotificationOffset
+                    TaskPeriod.MONTH -> it.monthNotificationOffset
+                }
+            }.first()
+        val notificationDate = data.task.startDate - notificationOffset.toDuration()
 
-        if (data.task.startDate <= Clock.System.now())
+        if (notificationDate <= Clock.System.now())
             return Result.Fail(Reason.START_DATE_IN_PAST)
 
         val activeStatusId = data.task.id.toInt()
@@ -42,7 +57,7 @@ class AlarmManagerScheduledTaskNotifier @Inject constructor(
         alarmManager.cancel(pendingIntent)
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
-            data.task.startDate.toEpochMilliseconds(),
+            notificationDate.toEpochMilliseconds(),
             pendingIntent
         )
         return Result.Success(null)
@@ -66,6 +81,6 @@ class AlarmManagerScheduledTaskNotifier @Inject constructor(
     )
 
     companion object {
-        const val DATA_KEY = "taskWithReminder"
+        const val DATA_KEY = "activeStatusId"
     }
 }

@@ -11,6 +11,7 @@ import com.nrr.model.TaskType
 import com.nrr.notification.model.Result
 import com.nrr.notification.model.Result.Success.Warning
 import com.nrr.notification.rule.GrantPostNotificationPermissionRule
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
 import org.junit.Before
 import org.junit.Rule
@@ -53,19 +54,19 @@ class ScheduledTaskNotifierTest {
     }
 
     @Test
-    fun scheduleReminder_success() {
+    fun scheduleReminder_success() = runTest {
         val res = notifier.scheduleReminder(task)
         assert(res is Result.Success)
     }
 
     @Test
-    fun scheduleReminder_dueDateNull_failure() {
+    fun scheduleReminder_dueDateNull_failure() = runTest {
         val res = notifier.scheduleReminder(task)
         assert(res is Result.Success && res.warning == Warning.END_REMINDER_SKIPPED)
     }
 
     @Test
-    fun scheduleReminder_dueDateInPast_failure() {
+    fun scheduleReminder_dueDateInPast_failure() = runTest {
         val res = notifier.scheduleReminder(
             task.copy(
                 activeStatuses = listOf(

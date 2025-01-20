@@ -34,12 +34,10 @@ const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_SCHEME_AND_HOST/{$DEEP_LINK_PERIOD
 
 @AndroidEntryPoint
 class ScheduledTaskReceiver : BroadcastReceiver() {
+    private val mainActivityName = "com.nrr.taskify.MainActivity"
+
     @Inject
     lateinit var taskRepository: TaskRepository
-
-    private val notificationId = 1
-
-    private val mainActivityName = "com.nrr.taskify.MainActivity"
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent == null) return
@@ -63,9 +61,10 @@ class ScheduledTaskReceiver : BroadcastReceiver() {
                     .firstOrNull()?.firstOrNull() ?: return@launch
             } ?: return@launch
 
+            val taskFiltered = task.toFiltered()
             val notification = context.createNotification {
                 val title = context.getTitle(ReminderType.START)
-                val content = context.getContent(task.toFiltered(), ReminderType.START)
+                val content = context.getContent(taskFiltered, ReminderType.START)
 
                 setContentTitle(title)
                 setContentText(content)
@@ -76,7 +75,7 @@ class ScheduledTaskReceiver : BroadcastReceiver() {
 
             NotificationManagerCompat.from(context)
                 .notify(
-                    notificationId,
+                    taskFiltered.id.toInt(),
                     notification
                 )
         }

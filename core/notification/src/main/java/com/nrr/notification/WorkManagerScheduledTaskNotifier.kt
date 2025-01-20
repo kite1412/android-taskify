@@ -27,7 +27,7 @@ internal class WorkManagerScheduledTaskNotifier @Inject constructor(
 ) : ScheduledTaskNotifier {
     private val wm = WorkManager.getInstance(context)
 
-    override fun scheduleReminder(task: Task): Result {
+    override suspend fun scheduleReminder(task: Task): Result {
         wm.cancelUniqueWork(task.id.toString())
 
         val filtered = task.toFiltered()
