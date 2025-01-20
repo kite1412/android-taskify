@@ -10,5 +10,12 @@
                 <action android:name="com.nrr.notification.TASK_REMINDER" />
             </intent-filter>
         </receiver>
+        <receiver android:name="com.nrr.notification.receiver.RemindLaterReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.nrr.notification.REMIND_LATER" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

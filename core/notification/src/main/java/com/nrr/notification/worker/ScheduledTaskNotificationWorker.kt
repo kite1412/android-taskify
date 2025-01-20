@@ -49,6 +49,7 @@ internal class ScheduledTaskNotificationWorker(
         val date = when (reminderType) {
             ReminderType.START -> task.startDate
             ReminderType.END -> task.dueDate
+            else -> return Result.failure()
         }
         if (date == null) return Result.failure()
 

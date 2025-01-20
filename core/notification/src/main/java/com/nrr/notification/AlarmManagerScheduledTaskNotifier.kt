@@ -14,6 +14,7 @@ import com.nrr.notification.model.Result.Fail.Reason
 import com.nrr.notification.model.TaskWithReminder
 import com.nrr.notification.model.toFiltered
 import com.nrr.notification.receiver.ScheduledTaskReceiver
+import com.nrr.notification.receiver.TASK_REMINDER_ACTION
 import com.nrr.notification.util.toDuration
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
@@ -29,8 +30,6 @@ class AlarmManagerScheduledTaskNotifier @Inject constructor(
 ) : ScheduledTaskNotifier {
     private val alarmManager = context
         .getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-    private val action = "com.nrr.notification.TASK_REMINDER"
 
     override suspend fun scheduleReminder(task: Task): Result {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
@@ -70,17 +69,18 @@ class AlarmManagerScheduledTaskNotifier @Inject constructor(
         alarmManager.cancel(pendingIntent(activeStatusId))
     }
 
-    private fun pendingIntent(requestCode: Int) = PendingIntent.getBroadcast(
+    private fun pendingIntent(activeStatusId: Int) = PendingIntent.getBroadcast(
         context,
-        requestCode,
+        activeStatusId,
         Intent(context, ScheduledTaskReceiver::class.java).apply {
-            action = this@AlarmManagerScheduledTaskNotifier.action
-            putExtra(DATA_KEY, requestCode)
+            action = TASK_REMINDER_ACTION
+            putExtra(DATA_KEY, activeStatusId)
         },
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )
 
     companion object {
+        // represents the ActiveStatus id and its notification id
         const val DATA_KEY = "activeStatusId"
     }
 }

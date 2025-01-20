@@ -6,4 +6,5 @@
     <string name="notification_task_start_content">Tugas kamu \'%1$s\' akan segera dimulai pada \'%2$s\'. Bersiaplah!</string>
     <string name="notification_task_end_content">Tugas \'%1$s\' berakhir pada \'%2$s\'. Ayo selesaikan segera!</string>
     <string name="notification_task_end_title">Tugas Segera Berakhir</string>
+    <string name="notification_remind_later">Ingatkan aku dalam 5 menit</string>
 </resources>

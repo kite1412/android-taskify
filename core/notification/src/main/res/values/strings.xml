@@ -6,4 +6,5 @@
     <string name="notification_task_start_content">Your task \'%1$s\' is about to start at %2$s. Get ready!</string>
     <string name="notification_task_end_content">Your task \'%1$s\' is ending at %2$s. Wrap things up soon!</string>
     <string name="notification_task_end_title">Task Ending Soon</string>
+    <string name="notification_remind_later">Remind me in 5 minutes</string>
 </resources>
