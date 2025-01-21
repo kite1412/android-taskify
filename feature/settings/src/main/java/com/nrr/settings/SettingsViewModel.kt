@@ -9,6 +9,7 @@ import com.nrr.data.repository.UserDataRepository
 import com.nrr.model.LanguageConfig
 import com.nrr.model.PushNotificationConfig
 import com.nrr.model.ThemeConfig
+import com.nrr.model.TimeUnit
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -49,6 +50,66 @@ class SettingsViewModel @Inject constructor(
                     false -> PushNotificationConfig.PUSH_NONE
                 }
             )
+        }
+    }
+
+    fun updateDayTimeUnitChange(timeUnit: TimeUnit) {
+        viewModelScope.launch {
+            userData.value?.dayNotificationOffset?.let {
+                userDataRepository.setDayNotificationOffsetConfig(
+                    it.copy(timeUnit = timeUnit)
+                )
+            }
+        }
+    }
+
+    fun updateDayOffsetChange(offset: Int) {
+        viewModelScope.launch {
+            userData.value?.dayNotificationOffset?.let {
+                userDataRepository.setDayNotificationOffsetConfig(
+                    it.copy(value = offset)
+                )
+            }
+        }
+    }
+
+    fun updateWeekTimeUnitChange(timeUnit: TimeUnit) {
+        viewModelScope.launch {
+            userData.value?.weekNotificationOffset?.let {
+                userDataRepository.setWeekNotificationOffsetConfig(
+                    it.copy(timeUnit = timeUnit)
+                )
+            }
+        }
+    }
+
+    fun updateWeekOffsetChange(offset: Int) {
+        viewModelScope.launch {
+            userData.value?.weekNotificationOffset?.let {
+                userDataRepository.setWeekNotificationOffsetConfig(
+                    it.copy(value = offset)
+                )
+            }
+        }
+    }
+
+    fun updateMonthTimeUnitChange(timeUnit: TimeUnit) {
+        viewModelScope.launch {
+            userData.value?.monthNotificationOffset?.let {
+                userDataRepository.setMonthNotificationOffsetConfig(
+                    it.copy(timeUnit = timeUnit)
+                )
+            }
+        }
+    }
+
+    fun updateMonthOffsetChange(offset: Int) {
+        viewModelScope.launch {
+            userData.value?.monthNotificationOffset?.let {
+                userDataRepository.setMonthNotificationOffsetConfig(
+                    it.copy(value = offset)
+                )
+            }
         }
     }
 

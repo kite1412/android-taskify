@@ -82,6 +82,8 @@ internal fun SettingsScreen(
     val language = userData?.languageConfig
     val pushNotification = userData?.pushNotification
     val dayNotificationOffset = userData?.dayNotificationOffset
+    val weekNotificationOffset = userData?.weekNotificationOffset
+    val monthNotificationOffset = userData?.monthNotificationOffset
 
     if (userData != null)
         if (windowWidthClass == WindowWidthSizeClass.COMPACT) Content(
@@ -101,14 +103,14 @@ internal fun SettingsScreen(
             pushNotification = pushNotification == PushNotificationConfig.PUSH_ALL,
             onPushNotificationClick = viewModel::updatePushNotification,
             dayNotificationOffset = dayNotificationOffset!!,
-            onDayTimeUnitClick = {},
-            onDayOffsetChange = {},
-            weekNotificationOffset = NotificationOffset(1, TimeUnit.MINUTES),
-            onWeekTimeUnitClick = {},
-            onWeekOffsetChange = {},
-            monthNotificationOffset = NotificationOffset(1, TimeUnit.MINUTES),
-            onMonthTimeUnitClick = {},
-            onMonthOffsetChange = {},
+            onDayTimeUnitClick = viewModel::updateDayTimeUnitChange,
+            onDayOffsetChange = viewModel::updateDayOffsetChange,
+            weekNotificationOffset = weekNotificationOffset!!,
+            onWeekTimeUnitClick = viewModel::updateWeekTimeUnitChange,
+            onWeekOffsetChange = viewModel::updateWeekOffsetChange,
+            monthNotificationOffset = monthNotificationOffset!!,
+            onMonthTimeUnitClick = viewModel::updateMonthTimeUnitChange,
+            onMonthOffsetChange = viewModel::updateMonthOffsetChange,
             modifier = modifier
         )
         else Content2Pane()
@@ -307,7 +309,7 @@ private fun NotificationOffsetSetting(
                     val bodyMedium = MaterialTheme.typography.bodyMedium
 
                     Text(
-                        text = "${sliderValue.toInt()} " + notificationOffset.timeUnit.toStringLocalized(),
+                        text = "${sliderValue.roundToInt()} " + notificationOffset.timeUnit.toStringLocalized(),
                         style = bodyMedium
                     )
                     Icon(
@@ -354,7 +356,9 @@ private fun NotificationOffsetSetting(
             onValueChangeFinished = {
                 onOffsetChange(sliderValue.roundToInt())
             },
-            steps = selectedRange.second.last - 1,
+            steps = with(selectedRange.second) {
+                last - start - 1
+            },
             colors = SliderDefaults.colors(
                 inactiveTrackColor = inactiveColor,
                 inactiveTickColor = Color.Transparent,
