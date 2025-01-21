@@ -22,7 +22,7 @@ import com.nrr.model.Task
                 "clickEnabled, " +
                 "showCard, " +
                 "swipeEnabled, " +
-                "content " +
+                "content" +
                 ")"
     )
 )
