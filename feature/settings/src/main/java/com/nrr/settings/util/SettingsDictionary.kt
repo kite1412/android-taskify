@@ -11,4 +11,6 @@ internal object SettingsDictionary {
     val dark = R.string.settings_dark
     val systemDefault = R.string.settings_system_default
     val settings = R.string.settings_settings
+    val language = R.string.settings_language
+    val notification = R.string.settings_notification
 }

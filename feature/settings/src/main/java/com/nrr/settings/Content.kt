@@ -35,6 +35,7 @@ import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.util.TaskifyDefault
+import com.nrr.model.LanguageConfig
 import com.nrr.model.ThemeConfig
 import com.nrr.settings.util.SettingsDictionary
 
@@ -48,6 +49,8 @@ internal fun Content(
     onBackClick: () -> Unit,
     theme: ThemeConfig,
     onThemeClick: (ThemeConfig) -> Unit,
+    language: LanguageConfig,
+    onLanguageClick: (LanguageConfig) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -98,7 +101,10 @@ internal fun Content(
                     theme = theme,
                     onThemeClick = onThemeClick
                 )
-                Menu.LANGUAGES -> Unit
+                Menu.LANGUAGES -> LanguagesConfig(
+                    language = language,
+                    onLanguageClick = onLanguageClick
+                )
                 Menu.NOTIFICATIONS -> Unit
             }
         }
@@ -197,7 +203,9 @@ private fun ContentPreview() {
             onMenuClick = { curMenu = it },
             onBackClick = { curMenu = null },
             theme = theme,
-            onThemeClick = { theme = it }
+            onThemeClick = { theme = it },
+            language = LanguageConfig.ENGLISH,
+            onLanguageClick = {}
         )
     }
 }

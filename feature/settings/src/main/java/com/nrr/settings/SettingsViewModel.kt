@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nrr.data.repository.UserDataRepository
+import com.nrr.model.LanguageConfig
 import com.nrr.model.ThemeConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -27,13 +28,19 @@ class SettingsViewModel @Inject constructor(
     internal var currentMenu by mutableStateOf<Menu?>(null)
         private set
 
-    internal fun updateCurrentMenu(menu: Menu?) {
-        currentMenu = menu
-    }
-
-    internal fun updateTheme(themeConfig: ThemeConfig) {
+    fun updateTheme(themeConfig: ThemeConfig) {
         viewModelScope.launch {
             userDataRepository.setThemeConfig(themeConfig)
         }
+    }
+
+    fun updateLanguage(languageConfig: LanguageConfig) {
+        viewModelScope.launch {
+            userDataRepository.setLanguageConfig(languageConfig)
+        }
+    }
+
+    internal fun updateCurrentMenu(menu: Menu?) {
+        currentMenu = menu
     }
 }

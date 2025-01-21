@@ -35,6 +35,7 @@ import androidx.window.core.layout.WindowWidthSizeClass
 import com.nrr.designsystem.component.Checkbox
 import com.nrr.designsystem.component.TaskifyCheckboxDefaults
 import com.nrr.designsystem.icon.TaskifyIcon
+import com.nrr.model.LanguageConfig
 import com.nrr.model.ThemeConfig
 import com.nrr.settings.util.SettingsDictionary
 import com.nrr.ui.toStringLocalized
@@ -50,12 +51,13 @@ internal fun SettingsScreen(
     val menu = viewModel.currentMenu
     val userData by viewModel.userData.collectAsStateWithLifecycle()
     val theme = userData?.themeConfig
+    val language = userData?.languageConfig
 
     if (userData != null)
         if (windowWidthClass == WindowWidthSizeClass.COMPACT) Content(
             menu = menu,
             themeIndicator = theme!!.toStringLocalized(),
-            languagesIndicator = "",
+            languagesIndicator = language!!.toString(),
             notificationsIndicator = "",
             onMenuClick = viewModel::updateCurrentMenu,
             onBackClick = {
@@ -64,6 +66,8 @@ internal fun SettingsScreen(
             },
             theme = theme,
             onThemeClick = viewModel::updateTheme,
+            language = language,
+            onLanguageClick = viewModel::updateLanguage,
             modifier = modifier
         )
         else Content2Pane()
@@ -126,13 +130,35 @@ internal fun ThemeConfig(
     modifier: Modifier = Modifier
 ) {
     SubMenu(
-        name = stringResource(SettingsDictionary.theme)
+        name = stringResource(SettingsDictionary.theme),
+        modifier = modifier
     ) {
         ThemeConfig.entries.forEach { t ->
             Selectable(
                 name = t.toString(),
                 selected = t == theme,
                 onClick = { onThemeClick(t) },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
+internal fun LanguagesConfig(
+    language: LanguageConfig,
+    onLanguageClick: (LanguageConfig) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    SubMenu(
+        name = stringResource(SettingsDictionary.language),
+        modifier = modifier
+    ) {
+        LanguageConfig.entries.forEach { l ->
+            Selectable(
+                name = l.toString(),
+                selected = l == language,
+                onClick = { onLanguageClick(l) },
                 modifier = Modifier.fillMaxWidth()
             )
         }
