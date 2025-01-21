@@ -36,7 +36,9 @@ import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.LanguageConfig
+import com.nrr.model.NotificationOffset
 import com.nrr.model.ThemeConfig
+import com.nrr.model.TimeUnit
 import com.nrr.settings.util.SettingsDictionary
 
 @Composable
@@ -51,6 +53,17 @@ internal fun Content(
     onThemeClick: (ThemeConfig) -> Unit,
     language: LanguageConfig,
     onLanguageClick: (LanguageConfig) -> Unit,
+    pushNotification: Boolean,
+    onPushNotificationClick: (Boolean) -> Unit,
+    dayNotificationOffset: NotificationOffset,
+    onDayTimeUnitClick: (TimeUnit) -> Unit,
+    onDayOffsetChange: (Int) -> Unit,
+    weekNotificationOffset: NotificationOffset,
+    onWeekTimeUnitClick: (TimeUnit) -> Unit,
+    onWeekOffsetChange: (Int) -> Unit,
+    monthNotificationOffset: NotificationOffset,
+    onMonthTimeUnitClick: (TimeUnit) -> Unit,
+    onMonthOffsetChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -73,7 +86,7 @@ internal fun Content(
         ) {
             if (it == null) Column(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
+                verticalArrangement = Arrangement.spacedBy(30.dp)
             ) {
                 MenuItem(
                     menu = Menu.THEME,
@@ -105,7 +118,19 @@ internal fun Content(
                     language = language,
                     onLanguageClick = onLanguageClick
                 )
-                Menu.NOTIFICATIONS -> Unit
+                Menu.NOTIFICATIONS -> NotificationsConfig(
+                    pushNotification = pushNotification,
+                    onPushNotificationClick = onPushNotificationClick,
+                    dayNotificationOffset = dayNotificationOffset,
+                    onDayTimeUnitClick = onDayTimeUnitClick,
+                    onDayOffsetChange = onDayOffsetChange,
+                    weekNotificationOffset = weekNotificationOffset,
+                    onWeekTimeUnitClick = onWeekTimeUnitClick,
+                    onWeekOffsetChange = onWeekOffsetChange,
+                    monthNotificationOffset = monthNotificationOffset,
+                    onMonthTimeUnitClick = onMonthTimeUnitClick,
+                    onMonthOffsetChange = onMonthOffsetChange
+                )
             }
         }
     }
@@ -193,6 +218,9 @@ private fun Header(
 private fun ContentPreview() {
     var curMenu by remember { mutableStateOf<Menu?>(null) }
     var theme by remember { mutableStateOf(ThemeConfig.SYSTEM_DEFAULT) }
+    var notificationOffset by remember {
+        mutableStateOf(NotificationOffset(1, TimeUnit.MINUTES))
+    }
 
     TaskifyTheme {
         Content(
@@ -205,7 +233,30 @@ private fun ContentPreview() {
             theme = theme,
             onThemeClick = { theme = it },
             language = LanguageConfig.ENGLISH,
-            onLanguageClick = {}
+            onLanguageClick = {},
+            pushNotification = true,
+            onPushNotificationClick = {},
+            dayNotificationOffset = notificationOffset,
+            onDayTimeUnitClick = {
+                notificationOffset = notificationOffset.copy(timeUnit = it)
+            },
+            onDayOffsetChange = {
+                notificationOffset = notificationOffset.copy(value = it)
+            },
+            weekNotificationOffset = notificationOffset,
+            onWeekTimeUnitClick = {
+                notificationOffset = notificationOffset.copy(timeUnit = it)
+            },
+            onWeekOffsetChange = {
+
+            },
+            monthNotificationOffset = notificationOffset,
+            onMonthTimeUnitClick = {
+                notificationOffset = notificationOffset.copy(timeUnit = it)
+            },
+            onMonthOffsetChange = {
+
+            }
         )
     }
 }

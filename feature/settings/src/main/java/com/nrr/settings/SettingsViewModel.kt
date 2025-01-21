@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nrr.data.repository.UserDataRepository
 import com.nrr.model.LanguageConfig
+import com.nrr.model.PushNotificationConfig
 import com.nrr.model.ThemeConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -37,6 +38,17 @@ class SettingsViewModel @Inject constructor(
     fun updateLanguage(languageConfig: LanguageConfig) {
         viewModelScope.launch {
             userDataRepository.setLanguageConfig(languageConfig)
+        }
+    }
+
+    fun updatePushNotification(pushNotification: Boolean) {
+        viewModelScope.launch {
+            userDataRepository.setPushNotificationConfig(
+                when (pushNotification) {
+                    true -> PushNotificationConfig.PUSH_ALL
+                    false -> PushNotificationConfig.PUSH_NONE
+                }
+            )
         }
     }
 
