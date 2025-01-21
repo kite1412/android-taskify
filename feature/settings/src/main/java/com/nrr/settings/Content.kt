@@ -31,8 +31,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.icon.TaskifyIcon
-import com.nrr.designsystem.theme.Gray
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.ThemeConfig
@@ -127,11 +127,13 @@ private inline fun MenuItem(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
+            val medium = MaterialTheme.typography.bodyMedium
+
+            AdaptiveText(
                 text = indicator,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = Gray
-                )
+                initialFontSize = medium.fontSize,
+                style = medium,
+                maxLines = 1
             )
             Icon(
                 painter = painterResource(TaskifyIcon.chevronDown),

@@ -1,5 +1,7 @@
 package com.nrr.settings.navigation
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavController
@@ -19,10 +21,10 @@ fun NavGraphBuilder.settingsScreen(
 ) {
     composable<SettingsRoute>(
         enterTransition = {
-            slideInHorizontally { it }
+            slideInHorizontally { it } + fadeIn()
         },
         exitTransition = {
-            slideOutHorizontally { it }
+            slideOutHorizontally { it } + fadeOut()
         }
     ) {
         SettingsScreen(

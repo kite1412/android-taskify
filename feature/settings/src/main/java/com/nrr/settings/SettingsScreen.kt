@@ -37,6 +37,7 @@ import com.nrr.designsystem.component.TaskifyCheckboxDefaults
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.model.ThemeConfig
 import com.nrr.settings.util.SettingsDictionary
+import com.nrr.ui.toStringLocalized
 
 @Composable
 internal fun SettingsScreen(
@@ -48,16 +49,20 @@ internal fun SettingsScreen(
         currentWindowAdaptiveInfo().windowSizeClass.windowWidthSizeClass
     val menu = viewModel.currentMenu
     val userData by viewModel.userData.collectAsStateWithLifecycle()
+    val theme = userData?.themeConfig
 
     if (userData != null)
         if (windowWidthClass == WindowWidthSizeClass.COMPACT) Content(
             menu = menu,
-            themeIndicator = "",
+            themeIndicator = theme!!.toStringLocalized(),
             languagesIndicator = "",
             notificationsIndicator = "",
             onMenuClick = viewModel::updateCurrentMenu,
-            onBackClick = onBackClick,
-            theme = viewModel.theme!!,
+            onBackClick = {
+                if (menu == null) onBackClick()
+                else viewModel.updateCurrentMenu(null)
+            },
+            theme = theme,
             onThemeClick = viewModel::updateTheme,
             modifier = modifier
         )

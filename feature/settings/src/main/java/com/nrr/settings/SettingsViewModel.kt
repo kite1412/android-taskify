@@ -24,12 +24,10 @@ class SettingsViewModel @Inject constructor(
             initialValue = null
         )
 
-    val theme = userData.value?.themeConfig
-
     internal var currentMenu by mutableStateOf<Menu?>(null)
         private set
 
-    internal fun updateCurrentMenu(menu: Menu) {
+    internal fun updateCurrentMenu(menu: Menu?) {
         currentMenu = menu
     }
 
