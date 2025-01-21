@@ -52,13 +52,14 @@ internal fun SettingsScreen(
     val userData by viewModel.userData.collectAsStateWithLifecycle()
     val theme = userData?.themeConfig
     val language = userData?.languageConfig
+    val pushNotification = userData?.pushNotification
 
     if (userData != null)
         if (windowWidthClass == WindowWidthSizeClass.COMPACT) Content(
             menu = menu,
             themeIndicator = theme!!.toStringLocalized(),
             languagesIndicator = language!!.toString(),
-            notificationsIndicator = "",
+            notificationsIndicator = pushNotification!!.toString(),
             onMenuClick = viewModel::updateCurrentMenu,
             onBackClick = {
                 if (menu == null) onBackClick()
