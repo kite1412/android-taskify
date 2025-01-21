@@ -35,6 +35,7 @@ import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.Gray
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.util.TaskifyDefault
+import com.nrr.model.ThemeConfig
 import com.nrr.settings.util.SettingsDictionary
 
 @Composable
@@ -45,6 +46,8 @@ internal fun Content(
     notificationsIndicator: String,
     onMenuClick: (Menu) -> Unit,
     onBackClick: () -> Unit,
+    theme: ThemeConfig,
+    onThemeClick: (ThemeConfig) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -91,7 +94,10 @@ internal fun Content(
                     NotificationsMenu()
                 }
             } else when (it) {
-                Menu.THEME -> Unit
+                Menu.THEME -> ThemeConfig(
+                    theme = theme,
+                    onThemeClick = onThemeClick
+                )
                 Menu.LANGUAGES -> Unit
                 Menu.NOTIFICATIONS -> Unit
             }
@@ -178,6 +184,7 @@ private fun Header(
 @Composable
 private fun ContentPreview() {
     var curMenu by remember { mutableStateOf<Menu?>(null) }
+    var theme by remember { mutableStateOf(ThemeConfig.SYSTEM_DEFAULT) }
 
     TaskifyTheme {
         Content(
@@ -186,7 +193,9 @@ private fun ContentPreview() {
             languagesIndicator = "Languages",
             notificationsIndicator = "Notifications",
             onMenuClick = { curMenu = it },
-            onBackClick = { curMenu = null }
+            onBackClick = { curMenu = null },
+            theme = theme,
+            onThemeClick = { theme = it }
         )
     }
 }

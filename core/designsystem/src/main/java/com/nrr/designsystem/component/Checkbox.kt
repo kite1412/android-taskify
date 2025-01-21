@@ -80,12 +80,12 @@ fun Checkbox(
 object TaskifyCheckboxDefaults {
     @Composable
     fun colors(
-        checkmarkColor: Color = Color.White,
+        checkmarkColor: Color = Color.Black,
         uncheckedColor: Color = Color.White,
-        checkedColor: Color = Color.Black
+        checkedColor: Color = Color.White
     ) = CheckboxDefaults.colors(
-        checkmarkColor,
-        uncheckedColor,
-        checkedColor
+        checkedColor = checkedColor,
+        uncheckedColor = uncheckedColor,
+        checkmarkColor = checkmarkColor
     )
 }

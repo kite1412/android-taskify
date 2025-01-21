@@ -607,7 +607,10 @@ private fun EditToolbar(
         horizontalAlignment = Alignment.End
     ) {
         FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(
+                space = 8.dp,
+                alignment = Alignment.End
+            ),
             verticalArrangement = Arrangement.spacedBy(
                 space = 4.dp,
                 alignment = Alignment.CenterVertically
@@ -651,9 +654,9 @@ private fun EditToolbar(
                     checked = selectAll,
                     onCheckedChange = onSelectAll,
                     colors = TaskifyCheckboxDefaults.colors(
-                        checkmarkColor = MaterialTheme.colorScheme.primary,
+                        checkmarkColor = Color.White,
                         uncheckedColor = MaterialTheme.colorScheme.primary,
-                        checkedColor = Color.White
+                        checkedColor = MaterialTheme.colorScheme.primary
                     )
                 )
             }
