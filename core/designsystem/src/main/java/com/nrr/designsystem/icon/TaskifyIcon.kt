@@ -30,4 +30,7 @@ object TaskifyIcon {
     val pencil2 = R.drawable.edit
     val clock = R.drawable.clock
     val calendar = R.drawable.calendar
+    val bell = R.drawable.bell
+    val language = R.drawable.language
+    val palette = R.drawable.palette
 }
