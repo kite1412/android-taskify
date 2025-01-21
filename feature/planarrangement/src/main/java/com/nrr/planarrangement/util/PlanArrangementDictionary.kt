@@ -2,7 +2,7 @@ package com.nrr.planarrangement.util
 
 import com.nrr.planarrangement.R
 
-object PlanArrangementDictionary {
+internal object PlanArrangementDictionary {
     val arrangePlan = R.string.planarrangement_arrange_plan
     val today = R.string.planarrangement_today
     val thisWeek = R.string.planarrangement_this_week

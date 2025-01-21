@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="notification_channel_name">Pengingat tugas</string>
-    <string name="notifcation_channel_description">Pengingat untuk tugas yang dijadwalkan</string>
+    <string name="notification_channel_description">Pengingat untuk tugas yang dijadwalkan</string>
     <string name="notification_task_start_title">Tugas Segera Dimulai</string>
     <string name="notification_task_start_content">Tugas \'%1$s\' akan segera dimulai pada \'%2$s\'. Bersiaplah!</string>
     <string name="notification_task_end_content">Tugas \'%1$s\' berakhir pada \'%2$s\'. Ayo selesaikan segera!</string>

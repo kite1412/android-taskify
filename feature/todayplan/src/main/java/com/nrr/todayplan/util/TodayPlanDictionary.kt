@@ -2,7 +2,7 @@ package com.nrr.todayplan.util
 
 import com.nrr.todayplan.R
 
-object TodayPlanDictionary {
+internal object TodayPlanDictionary {
     val greeting = R.string.todayplan_greeting
     val question = R.string.todayplan_question
     val planForToday = R.string.todayplan_plan_for_today

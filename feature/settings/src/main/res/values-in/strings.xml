@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_language">Bahasa</string>
+    <string name="settings_notifications">Notifikasi</string>
+    <string name="settings_notification_timing">Waktu Notifikasi</string>
+    <string name="settings_light">Terang</string>
+    <string name="settings_dark">Gelap</string>
+    <string name="settings_system_default">Default Sistem</string>
+</resources>
