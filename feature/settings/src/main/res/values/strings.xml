@@ -7,4 +7,5 @@
     <string name="settings_light">Light</string>
     <string name="settings_dark">Dark</string>
     <string name="settings_system_default">System Default</string>
+    <string name="settings_settings">Settings</string>
 </resources>

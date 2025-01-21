@@ -10,4 +10,5 @@ internal object SettingsDictionary {
     val light = R.string.settings_light
     val dark = R.string.settings_dark
     val systemDefault = R.string.settings_system_default
+    val settings = R.string.settings_settings
 }

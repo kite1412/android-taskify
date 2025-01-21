@@ -7,4 +7,5 @@
     <string name="settings_light">Terang</string>
     <string name="settings_dark">Gelap</string>
     <string name="settings_system_default">Default Sistem</string>
+    <string name="settings_settings">Pengaturan</string>
 </resources>
