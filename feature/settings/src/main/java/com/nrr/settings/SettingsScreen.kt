@@ -29,6 +29,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -267,19 +268,22 @@ internal fun NotificationsConfig(
                 period = TaskPeriod.DAY,
                 notificationOffset = dayNotificationOffset,
                 onTimeUnitClick = onDayTimeUnitClick,
-                onOffsetChange = onDayOffsetChange
+                onOffsetChange = onDayOffsetChange,
+                enabled = pushNotification
             )
             NotificationOffsetSetting(
                 period = TaskPeriod.WEEK,
                 notificationOffset = weekNotificationOffset,
                 onTimeUnitClick = onWeekTimeUnitClick,
-                onOffsetChange = onWeekOffsetChange
+                onOffsetChange = onWeekOffsetChange,
+                enabled = pushNotification
             )
             NotificationOffsetSetting(
                 period = TaskPeriod.MONTH,
                 notificationOffset = monthNotificationOffset,
                 onTimeUnitClick = onMonthTimeUnitClick,
-                onOffsetChange = onMonthOffsetChange
+                onOffsetChange = onMonthOffsetChange,
+                enabled = pushNotification
             )
         }
     }
@@ -292,6 +296,7 @@ private fun NotificationOffsetSetting(
     notificationOffset: NotificationOffset,
     onTimeUnitClick: (TimeUnit) -> Unit,
     onOffsetChange: (Int) -> Unit,
+    enabled: Boolean,
     modifier: Modifier = Modifier
 ) {
     val constraint = period.notificationOffsetConstraint()
@@ -302,102 +307,117 @@ private fun NotificationOffsetSetting(
     val selectedRange = constraint.selectableOffset.first {
         it.first == notificationOffset.timeUnit
     }
+    val disabledColor = Color.Gray
+    val contentColor = if (enabled) LocalContentColor.current
+        else disabledColor
 
-    Column(
-        modifier = modifier
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+    CompositionLocalProvider(LocalContentColor provides contentColor) {
+        Column(
+            modifier = modifier
         ) {
-            Text(
-                text = period.toStringLocalized(),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Box {
-                var showTimeUnit by remember { mutableStateOf(false) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = period.toStringLocalized(),
+                    style = MaterialTheme.typography.bodyMedium,
 
-                Row(
-                    modifier = Modifier.clickable(
-                        indication = null,
-                        interactionSource = null
+                    )
+                Box {
+                    var showTimeUnit by remember { mutableStateOf(false) }
+
+                    Row(
+                        modifier = Modifier.clickable(
+                            indication = null,
+                            interactionSource = null,
+                            enabled = enabled
+                        ) {
+                            showTimeUnit = !showTimeUnit
+                        },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        showTimeUnit = !showTimeUnit
-                    },
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    val bodyMedium = MaterialTheme.typography.bodyMedium
+                        val bodyMedium = MaterialTheme.typography.bodyMedium
 
-                    Text(
-                        text = "${sliderValue.roundToInt()} " + notificationOffset.timeUnit.toStringLocalized(),
-                        style = bodyMedium
-                    )
-                    Icon(
-                        painter = painterResource(TaskifyIcon.chevronDown),
-                        contentDescription = "more",
-                        modifier = Modifier.size(bodyMedium.fontSize.value.dp)
-                    )
-                }
-                DropdownMenu(
-                    expanded = showTimeUnit,
-                    onDismissRequest = { showTimeUnit = false },
-                    modifier = Modifier.background(CharcoalClay30)
-                ) {
-                    selectableTimeUnits.forEach {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = it.toStringLocalized(),
-                                    color = if (notificationOffset.timeUnit == it)
-                                        Blue else Color.White
-                                )
-                            },
-                            onClick = {
-                                showTimeUnit = false
-                                onOffsetChange(1)
-                                sliderValue = 1f
-                                onTimeUnitClick(it)
-                            }
+                        Text(
+                            text = "${sliderValue.roundToInt()} " + notificationOffset.timeUnit.toStringLocalized(),
+                            style = bodyMedium
                         )
+                        Icon(
+                            painter = painterResource(TaskifyIcon.chevronDown),
+                            contentDescription = "more",
+                            modifier = Modifier.size(bodyMedium.fontSize.value.dp)
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = showTimeUnit,
+                        onDismissRequest = { showTimeUnit = false },
+                        modifier = Modifier.background(CharcoalClay30)
+                    ) {
+                        selectableTimeUnits.forEach {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = it.toStringLocalized(),
+                                        color = if (notificationOffset.timeUnit == it)
+                                            Blue else Color.White
+                                    )
+                                },
+                                onClick = {
+                                    if (notificationOffset.timeUnit != it) {
+                                        showTimeUnit = false
+                                        onOffsetChange(1)
+                                        sliderValue = 1f
+                                        onTimeUnitClick(it)
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }
-        }
-        val activeColor = MaterialTheme.colorScheme.primary
-        val inactiveColor = activeColor.copy(alpha = 0.5f)
-        val interactionSource = remember { MutableInteractionSource() }
+            val activeColor = MaterialTheme.colorScheme.primary
+            val inactiveColor = activeColor.copy(alpha = 0.5f)
+            val interactionSource = remember { MutableInteractionSource() }
 
-        Slider(
-            value = sliderValue,
-            onValueChange = { sliderValue = it },
-            valueRange = with(selectedRange) {
-                second.first.toFloat()..second.last.toFloat()
-            },
-            onValueChangeFinished = {
-                onOffsetChange(sliderValue.roundToInt())
-            },
-            steps = with(selectedRange.second) {
-                last - start - 1
-            },
-            colors = SliderDefaults.colors(
-                inactiveTrackColor = inactiveColor,
-                inactiveTickColor = Color.Transparent,
-                activeTrackColor = activeColor,
-                activeTickColor = Color.Transparent,
-                thumbColor = activeColor
-            ),
-            thumb = {
-                SliderDefaults.Thumb(
-                    interactionSource = interactionSource,
-                    thumbSize = DpSize(
-                        width = 2.dp,
-                        height = 24.dp
+            Slider(
+                value = sliderValue,
+                onValueChange = { sliderValue = it },
+                valueRange = with(selectedRange) {
+                    second.first.toFloat()..second.last.toFloat()
+                },
+                onValueChangeFinished = {
+                    onOffsetChange(sliderValue.roundToInt())
+                },
+                steps = with(selectedRange.second) {
+                    last - start - 1
+                },
+                colors = SliderDefaults.colors(
+                    inactiveTrackColor = inactiveColor,
+                    inactiveTickColor = Color.Transparent,
+                    activeTrackColor = activeColor,
+                    activeTickColor = Color.Transparent,
+                    disabledInactiveTrackColor = disabledColor,
+                    disabledActiveTrackColor = disabledColor,
+                    disabledActiveTickColor = disabledColor,
+                    disabledInactiveTickColor = disabledColor,
+                    thumbColor = activeColor,
+                    disabledThumbColor = disabledColor
+                ),
+                thumb = {
+                    SliderDefaults.Thumb(
+                        interactionSource = interactionSource,
+                        thumbSize = DpSize(
+                            width = 2.dp,
+                            height = 24.dp
+                        )
                     )
-                )
-            }
-        )
+                },
+                enabled = enabled
+            )
+        }
     }
 }
 
