@@ -1,5 +1,6 @@
 package com.nrr.settings
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -48,7 +49,7 @@ internal fun Content(
     themeIndicator: String,
     languagesIndicator: String,
     notificationsIndicator: String,
-    onMenuClick: (Menu) -> Unit,
+    onMenuClick: (Menu?) -> Unit,
     onBackClick: () -> Unit,
     theme: ThemeConfig,
     onThemeClick: (ThemeConfig) -> Unit,
@@ -67,6 +68,10 @@ internal fun Content(
     onMonthOffsetChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    BackHandler {
+        if (menu != null) onBackClick()
+        else onMenuClick(null)
+    }
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(32.dp)
