@@ -29,9 +29,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -40,11 +42,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowWidthSizeClass
+import com.nrr.designsystem.LocalScaffoldComponentSizes
+import com.nrr.designsystem.ScaffoldComponent
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.CharcoalClay
 import com.nrr.designsystem.theme.TaskifyTheme
@@ -182,11 +190,16 @@ private fun NavigationDrawer(
     selectedIndex: Int,
     prevSelectedIndex: Int,
     onClick: (Destination) -> Unit,
+    onSizeChange: (IntSize) -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) = PermanentNavigationDrawer(
     drawerContent = {
-        ModalDrawerSheet {
+        ModalDrawerSheet(
+            modifier = Modifier.onGloballyPositioned {
+                onSizeChange(it.size)
+            }
+        ) {
             Column(
                 modifier = Modifier.padding(
                     horizontal = NavigationDrawerContentHorizontalPadding,
@@ -219,7 +232,8 @@ private fun NavigationDrawerPreview() {
                 selectedIndex = it.ordinal
             },
             selectedIndex = selectedIndex,
-            prevSelectedIndex = prevSelectedIndex
+            prevSelectedIndex = prevSelectedIndex,
+            onSizeChange = {}
         ) {
             Text("A text")
         }
@@ -338,6 +352,10 @@ fun NavigationScaffold(
         changeByClick = true
         onClick(data)
     }
+    val scaffoldComponentSizes = remember {
+        mutableStateMapOf<ScaffoldComponent, DpSize>()
+    }
+    val density = LocalDensity.current
 
     DisposableEffect(currentDestination) {
         if (currentDestination.ordinal != selectedIndex && !changeByClick) {
@@ -348,33 +366,53 @@ fun NavigationScaffold(
             changeByClick = false
         }
     }
-    Box(modifier = modifier.fillMaxSize()) {
-        when (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass) {
-            WindowWidthSizeClass.COMPACT -> {
-                content()
-                if (showNavBar) BottomNavigationBar(
+    CompositionLocalProvider(LocalScaffoldComponentSizes provides scaffoldComponentSizes) {
+        Box(modifier = modifier.fillMaxSize()) {
+            when (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass) {
+                WindowWidthSizeClass.COMPACT -> {
+                    content()
+                    if (showNavBar) BottomNavigationBar(
+                        selectedIndex = selectedIndex,
+                        prevSelectedIndex = prevSelectedIndex,
+                        onClick = onClickWrapper,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 30.dp)
+                            .onGloballyPositioned {
+                                with(density) {
+                                    scaffoldComponentSizes[ScaffoldComponent.BOTTOM_NAVIGATION_BAR] =
+                                        DpSize(it.size.width.toDp(), it.size.height.toDp())
+                                }
+                            }
+                    )
+                }
+                WindowWidthSizeClass.MEDIUM -> Row(modifier = Modifier.fillMaxSize()) {
+                    if (showNavBar) NavigationRail(
+                        selectedIndex = selectedIndex,
+                        prevSelectedIndex = prevSelectedIndex,
+                        onClick = onClickWrapper,
+                        modifier = Modifier.onGloballyPositioned {
+                            with(density) {
+                                scaffoldComponentSizes[ScaffoldComponent.NAVIGATION_RAIL] =
+                                    DpSize(it.size.width.toDp(), it.size.height.toDp())
+                            }
+                        }
+                    )
+                    content()
+                }
+                else -> if (showNavBar) NavigationDrawer(
                     selectedIndex = selectedIndex,
                     prevSelectedIndex = prevSelectedIndex,
                     onClick = onClickWrapper,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 30.dp)
-                )
+                    onSizeChange = {
+                        with(density) {
+                            scaffoldComponentSizes[ScaffoldComponent.DRAWER_NAVIGATION_BAR] =
+                                DpSize(it.width.toDp(), it.height.toDp())
+                        }
+                    },
+                    content = content
+                ) else content()
             }
-            WindowWidthSizeClass.MEDIUM -> Row(modifier = Modifier.fillMaxSize()) {
-                if (showNavBar) NavigationRail(
-                    selectedIndex = selectedIndex,
-                    prevSelectedIndex = prevSelectedIndex,
-                    onClick = onClickWrapper
-                )
-                content()
-            }
-            else -> if (showNavBar) NavigationDrawer(
-                selectedIndex = selectedIndex,
-                prevSelectedIndex = prevSelectedIndex,
-                onClick = onClickWrapper,
-                content = content
-            ) else content()
         }
     }
 }

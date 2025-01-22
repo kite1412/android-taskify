@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -62,6 +63,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nrr.designsystem.LocalScaffoldComponentSizes
+import com.nrr.designsystem.ScaffoldComponent
 import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.Checkbox
@@ -519,11 +522,14 @@ private fun Tasks(
         val afterRemoveMessage = stringResource(TaskManagementDictionary.removeTasksMessage)
         val afterDeleteMessage = stringResource(TaskManagementDictionary.deleteTasksMessage)
         val state = rememberTaskCardsState(tasks, tasks)
+        val bottomBarHeight = LocalScaffoldComponentSizes.current[ScaffoldComponent.BOTTOM_NAVIGATION_BAR]
+            ?.height ?: 0.dp
 
         LazyColumn(
             modifier = modifier,
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            state = tasksState
+            state = tasksState,
+            contentPadding = PaddingValues(bottom = 16.dp + bottomBarHeight)
         ) {
             taskCards(
                 tasks = tasks,

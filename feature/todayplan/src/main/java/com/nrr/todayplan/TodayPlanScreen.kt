@@ -56,6 +56,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nrr.designsystem.LocalScaffoldComponentSizes
+import com.nrr.designsystem.ScaffoldComponent
 import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.CircularTaskProgressIndicator
@@ -160,11 +162,13 @@ private fun Content(
     val removeMessage = stringResource(TodayPlanDictionary.removeFromSchedule)
     val completeMessage = stringResource(TodayPlanDictionary.markAsCompleted)
     val taskCardsState = rememberTaskCardsState(todayTasks, todayTasks)
+    val bottomBarHeight = LocalScaffoldComponentSizes.current[ScaffoldComponent.BOTTOM_NAVIGATION_BAR]
+        ?.height ?: 0.dp
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(bottom = 16.dp)
+        contentPadding = PaddingValues(bottom = 16.dp + bottomBarHeight),
     ) {
         item {
             Column(
