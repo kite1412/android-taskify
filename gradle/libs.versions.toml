@@ -1,6 +1,6 @@
 [versions]
 adaptive = "1.0.0"
-agp = "8.7.3"
+agp = "8.8.0"
 androidxDataStore = "1.1.1"
 androidxHiltNavigationCompose = "1.2.0"
 coreSplashscreen = "1.0.1"
