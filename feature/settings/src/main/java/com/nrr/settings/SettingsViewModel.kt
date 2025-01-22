@@ -9,9 +9,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.nrr.data.repository.UserDataRepository
 import com.nrr.model.LanguageConfig
+import com.nrr.model.NotificationOffset
 import com.nrr.model.PushNotificationConfig
 import com.nrr.model.ThemeConfig
-import com.nrr.model.TimeUnit
 import com.nrr.settings.navigation.SettingsRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -60,63 +60,21 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun updateDayTimeUnitChange(timeUnit: TimeUnit) {
+    fun updateDayNotificationOffset(offset: NotificationOffset) {
         viewModelScope.launch {
-            userData.value?.dayNotificationOffset?.let {
-                userDataRepository.setDayNotificationOffsetConfig(
-                    it.copy(timeUnit = timeUnit)
-                )
-            }
+            userDataRepository.setDayNotificationOffsetConfig(offset)
         }
     }
 
-    fun updateDayOffsetChange(offset: Int) {
+    fun updateWeekNotificationOffset(offset: NotificationOffset) {
         viewModelScope.launch {
-            userData.value?.dayNotificationOffset?.let {
-                userDataRepository.setDayNotificationOffsetConfig(
-                    it.copy(value = offset)
-                )
-            }
+            userDataRepository.setWeekNotificationOffsetConfig(offset)
         }
     }
 
-    fun updateWeekTimeUnitChange(timeUnit: TimeUnit) {
+    fun updateMonthNotificationOffset(offset: NotificationOffset) {
         viewModelScope.launch {
-            userData.value?.weekNotificationOffset?.let {
-                userDataRepository.setWeekNotificationOffsetConfig(
-                    it.copy(timeUnit = timeUnit)
-                )
-            }
-        }
-    }
-
-    fun updateWeekOffsetChange(offset: Int) {
-        viewModelScope.launch {
-            userData.value?.weekNotificationOffset?.let {
-                userDataRepository.setWeekNotificationOffsetConfig(
-                    it.copy(value = offset)
-                )
-            }
-        }
-    }
-
-    fun updateMonthTimeUnitChange(timeUnit: TimeUnit) {
-        viewModelScope.launch {
-            userData.value?.monthNotificationOffset?.let {
-                userDataRepository.setMonthNotificationOffsetConfig(
-                    it.copy(timeUnit = timeUnit)
-                )
-            }
-        }
-    }
-
-    fun updateMonthOffsetChange(offset: Int) {
-        viewModelScope.launch {
-            userData.value?.monthNotificationOffset?.let {
-                userDataRepository.setMonthNotificationOffsetConfig(
-                    it.copy(value = offset)
-                )
-            }
+            userDataRepository.setMonthNotificationOffsetConfig(offset)
         }
     }
 

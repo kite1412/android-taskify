@@ -58,14 +58,11 @@ internal fun Content(
     pushNotification: Boolean,
     onPushNotificationClick: (Boolean) -> Unit,
     dayNotificationOffset: NotificationOffset,
-    onDayTimeUnitClick: (TimeUnit) -> Unit,
-    onDayOffsetChange: (Int) -> Unit,
+    onDayNotificationOffsetChange: (NotificationOffset) -> Unit,
     weekNotificationOffset: NotificationOffset,
-    onWeekTimeUnitClick: (TimeUnit) -> Unit,
-    onWeekOffsetChange: (Int) -> Unit,
+    onWeekNotificationOffsetChange: (NotificationOffset) -> Unit,
     monthNotificationOffset: NotificationOffset,
-    onMonthTimeUnitClick: (TimeUnit) -> Unit,
-    onMonthOffsetChange: (Int) -> Unit,
+    onMonthNotificationOffsetChange: (NotificationOffset) -> Unit,
     modifier: Modifier = Modifier
 ) {
     BackHandler {
@@ -130,14 +127,11 @@ internal fun Content(
                             pushNotification = pushNotification,
                             onPushNotificationClick = onPushNotificationClick,
                             dayNotificationOffset = dayNotificationOffset,
-                            onDayTimeUnitClick = onDayTimeUnitClick,
-                            onDayOffsetChange = onDayOffsetChange,
+                            onDayNotificationOffsetChange = onDayNotificationOffsetChange,
                             weekNotificationOffset = weekNotificationOffset,
-                            onWeekTimeUnitClick = onWeekTimeUnitClick,
-                            onWeekOffsetChange = onWeekOffsetChange,
+                            onWeekNotificationOffsetChange = onWeekNotificationOffsetChange,
                             monthNotificationOffset = monthNotificationOffset,
-                            onMonthTimeUnitClick = onMonthTimeUnitClick,
-                            onMonthOffsetChange = onMonthOffsetChange
+                            onMonthNotificationOffsetChange = onMonthNotificationOffsetChange
                         )
                     }
                 }
@@ -247,26 +241,11 @@ private fun ContentPreview() {
             pushNotification = true,
             onPushNotificationClick = {},
             dayNotificationOffset = notificationOffset,
-            onDayTimeUnitClick = {
-                notificationOffset = notificationOffset.copy(timeUnit = it)
-            },
-            onDayOffsetChange = {
-                notificationOffset = notificationOffset.copy(value = it)
-            },
+            onDayNotificationOffsetChange = { notificationOffset = it },
             weekNotificationOffset = notificationOffset,
-            onWeekTimeUnitClick = {
-                notificationOffset = notificationOffset.copy(timeUnit = it)
-            },
-            onWeekOffsetChange = {
-
-            },
+            onWeekNotificationOffsetChange = { notificationOffset = it },
             monthNotificationOffset = notificationOffset,
-            onMonthTimeUnitClick = {
-                notificationOffset = notificationOffset.copy(timeUnit = it)
-            },
-            onMonthOffsetChange = {
-
-            }
+            onMonthNotificationOffsetChange = { notificationOffset = it }
         )
     }
 }

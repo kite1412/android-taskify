@@ -62,7 +62,6 @@ import com.nrr.model.NotificationOffset
 import com.nrr.model.PushNotificationConfig
 import com.nrr.model.TaskPeriod
 import com.nrr.model.ThemeConfig
-import com.nrr.model.TimeUnit
 import com.nrr.settings.util.SettingsDictionary
 import com.nrr.settings.util.notificationOffsetConstraint
 import com.nrr.settings.util.toStringLocalized
@@ -106,17 +105,13 @@ internal fun SettingsScreen(
             pushNotification = pushNotification == PushNotificationConfig.PUSH_ALL,
             onPushNotificationClick = viewModel::updatePushNotification,
             dayNotificationOffset = dayNotificationOffset!!,
-            onDayTimeUnitClick = viewModel::updateDayTimeUnitChange,
-            onDayOffsetChange = viewModel::updateDayOffsetChange,
+            onDayNotificationOffsetChange = viewModel::updateDayNotificationOffset,
             weekNotificationOffset = weekNotificationOffset!!,
-            onWeekTimeUnitClick = viewModel::updateWeekTimeUnitChange,
-            onWeekOffsetChange = viewModel::updateWeekOffsetChange,
+            onWeekNotificationOffsetChange = viewModel::updateWeekNotificationOffset,
             monthNotificationOffset = monthNotificationOffset!!,
-            onMonthTimeUnitClick = viewModel::updateMonthTimeUnitChange,
-            onMonthOffsetChange = viewModel::updateMonthOffsetChange,
+            onMonthNotificationOffsetChange = viewModel::updateMonthNotificationOffset,
             modifier = modifier
-        )
-        else if (menu != null) Content2Pane(
+        ) else if (menu != null) Content2Pane(
             selectedMenu = menu,
             onMenuClick = viewModel::updateCurrentMenu,
             onBackClick = onBackClick,
@@ -127,14 +122,11 @@ internal fun SettingsScreen(
             pushNotification = pushNotification == PushNotificationConfig.PUSH_ALL,
             onPushNotificationClick = viewModel::updatePushNotification,
             dayNotificationOffset = dayNotificationOffset!!,
-            onDayTimeUnitClick = viewModel::updateDayTimeUnitChange,
-            onDayOffsetChange = viewModel::updateDayOffsetChange,
+            onDayNotificationOffsetChange = viewModel::updateDayNotificationOffset,
             weekNotificationOffset = weekNotificationOffset!!,
-            onWeekTimeUnitClick = viewModel::updateWeekTimeUnitChange,
-            onWeekOffsetChange = viewModel::updateWeekOffsetChange,
+            onWeekNotificationOffsetChange = viewModel::updateWeekNotificationOffset,
             monthNotificationOffset = monthNotificationOffset!!,
-            onMonthTimeUnitClick = viewModel::updateMonthTimeUnitChange,
-            onMonthOffsetChange = viewModel::updateMonthOffsetChange,
+            onMonthNotificationOffsetChange = viewModel::updateMonthNotificationOffset,
             modifier = modifier
         )
 }
@@ -236,14 +228,11 @@ internal fun NotificationsConfig(
     pushNotification: Boolean,
     onPushNotificationClick: (Boolean) -> Unit,
     dayNotificationOffset: NotificationOffset,
-    onDayTimeUnitClick: (TimeUnit) -> Unit,
-    onDayOffsetChange: (Int) -> Unit,
+    onDayNotificationOffsetChange: (NotificationOffset) -> Unit,
     weekNotificationOffset: NotificationOffset,
-    onWeekTimeUnitClick: (TimeUnit) -> Unit,
-    onWeekOffsetChange: (Int) -> Unit,
+    onWeekNotificationOffsetChange: (NotificationOffset) -> Unit,
     monthNotificationOffset: NotificationOffset,
-    onMonthTimeUnitClick: (TimeUnit) -> Unit,
-    onMonthOffsetChange: (Int) -> Unit,
+    onMonthNotificationOffsetChange: (NotificationOffset) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -267,22 +256,19 @@ internal fun NotificationsConfig(
             NotificationOffsetSetting(
                 period = TaskPeriod.DAY,
                 notificationOffset = dayNotificationOffset,
-                onTimeUnitClick = onDayTimeUnitClick,
-                onOffsetChange = onDayOffsetChange,
+                onNotificationOffsetChange = onDayNotificationOffsetChange,
                 enabled = pushNotification
             )
             NotificationOffsetSetting(
                 period = TaskPeriod.WEEK,
                 notificationOffset = weekNotificationOffset,
-                onTimeUnitClick = onWeekTimeUnitClick,
-                onOffsetChange = onWeekOffsetChange,
+                onNotificationOffsetChange = onWeekNotificationOffsetChange,
                 enabled = pushNotification
             )
             NotificationOffsetSetting(
                 period = TaskPeriod.MONTH,
                 notificationOffset = monthNotificationOffset,
-                onTimeUnitClick = onMonthTimeUnitClick,
-                onOffsetChange = onMonthOffsetChange,
+                onNotificationOffsetChange = onMonthNotificationOffsetChange,
                 enabled = pushNotification
             )
         }
@@ -294,8 +280,7 @@ internal fun NotificationsConfig(
 private fun NotificationOffsetSetting(
     period: TaskPeriod,
     notificationOffset: NotificationOffset,
-    onTimeUnitClick: (TimeUnit) -> Unit,
-    onOffsetChange: (Int) -> Unit,
+    onNotificationOffsetChange: (NotificationOffset) -> Unit,
     enabled: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -368,9 +353,10 @@ private fun NotificationOffsetSetting(
                                 onClick = {
                                     if (notificationOffset.timeUnit != it) {
                                         showTimeUnit = false
-                                        onOffsetChange(1)
                                         sliderValue = 1f
-                                        onTimeUnitClick(it)
+                                        onNotificationOffsetChange(
+                                            NotificationOffset(1, it)
+                                        )
                                     }
                                 }
                             )
@@ -389,7 +375,9 @@ private fun NotificationOffsetSetting(
                     second.first.toFloat()..second.last.toFloat()
                 },
                 onValueChangeFinished = {
-                    onOffsetChange(sliderValue.roundToInt())
+                    onNotificationOffsetChange(
+                        notificationOffset.copy(value = sliderValue.roundToInt())
+                    )
                 },
                 steps = with(selectedRange.second) {
                     last - start - 1
@@ -479,7 +467,7 @@ internal inline fun SubMenu(
                                         max = 240.dp
                                     )
                                     .border(
-                                        width = 2.dp,
+                                        width = 1.dp,
                                         color = LocalContentColor.current,
                                         shape = shape
                                     )

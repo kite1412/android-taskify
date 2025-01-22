@@ -58,14 +58,11 @@ internal fun Content2Pane(
     pushNotification: Boolean,
     onPushNotificationClick: (Boolean) -> Unit,
     dayNotificationOffset: NotificationOffset,
-    onDayTimeUnitClick: (TimeUnit) -> Unit,
-    onDayOffsetChange: (Int) -> Unit,
+    onDayNotificationOffsetChange: (NotificationOffset) -> Unit,
     weekNotificationOffset: NotificationOffset,
-    onWeekTimeUnitClick: (TimeUnit) -> Unit,
-    onWeekOffsetChange: (Int) -> Unit,
+    onWeekNotificationOffsetChange: (NotificationOffset) -> Unit,
     monthNotificationOffset: NotificationOffset,
-    onMonthTimeUnitClick: (TimeUnit) -> Unit,
-    onMonthOffsetChange: (Int) -> Unit,
+    onMonthNotificationOffsetChange: (NotificationOffset) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp
@@ -110,14 +107,11 @@ internal fun Content2Pane(
                         pushNotification = pushNotification,
                         onPushNotificationClick = onPushNotificationClick,
                         dayNotificationOffset = dayNotificationOffset,
-                        onDayTimeUnitClick = onDayTimeUnitClick,
-                        onDayOffsetChange = onDayOffsetChange,
+                        onDayNotificationOffsetChange = onDayNotificationOffsetChange,
                         weekNotificationOffset = weekNotificationOffset,
-                        onWeekTimeUnitClick = onWeekTimeUnitClick,
-                        onWeekOffsetChange = onWeekOffsetChange,
+                        onWeekNotificationOffsetChange = onWeekNotificationOffsetChange,
                         monthNotificationOffset = monthNotificationOffset,
-                        onMonthTimeUnitClick = onMonthTimeUnitClick,
-                        onMonthOffsetChange = onMonthOffsetChange
+                        onMonthNotificationOffsetChange = onMonthNotificationOffsetChange
                     )
                 }
             }
@@ -242,14 +236,11 @@ private fun Content2PanePreview() {
             pushNotification = true,
             onPushNotificationClick = {},
             dayNotificationOffset = NotificationOffset(1, TimeUnit.MINUTES),
-            onDayTimeUnitClick = {},
-            onDayOffsetChange = {},
+            onDayNotificationOffsetChange = {},
             weekNotificationOffset = NotificationOffset(1, TimeUnit.MINUTES),
-            onWeekTimeUnitClick = {},
-            onWeekOffsetChange = {},
+            onWeekNotificationOffsetChange = {},
             monthNotificationOffset = NotificationOffset(1, TimeUnit.MINUTES),
-            onMonthTimeUnitClick = {},
-            onMonthOffsetChange = {}
+            onMonthNotificationOffsetChange = {}
         )
     }
 }
