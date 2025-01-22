@@ -16,7 +16,7 @@ fun CircularTaskProgressIndicator(
     progress: () -> Float,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.primary,
-    trackColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+    trackColor: Color = color.copy(alpha = 0.3f),
     strokeWidth: Dp = ProgressIndicatorDefaults.CircularStrokeWidth,
     content: @Composable (() -> Unit)? = null
 ) {

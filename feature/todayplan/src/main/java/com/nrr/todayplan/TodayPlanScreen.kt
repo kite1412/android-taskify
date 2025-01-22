@@ -1,5 +1,6 @@
 package com.nrr.todayplan
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -381,6 +382,10 @@ private fun TodayProgress(
         else 0f,
         animationSpec = tween(durationMillis = 1000)
     )
+    val progressColor by animateColorAsState(
+        targetValue = if (progress == 1f) PastelGreen
+            else MaterialTheme.colorScheme.primary
+    )
 
     Row(
         modifier = modifier
@@ -438,20 +443,23 @@ private fun TodayProgress(
                 )
             }
             Text(
-                text = "${todayTasks.size - completed.size} ${stringResource(TodayPlanDictionary.tasksLeft)}",
+                text = if (progress != 1f) "${todayTasks.size - completed.size} " +
+                        stringResource(TodayPlanDictionary.tasksLeft)
+                            else stringResource(TodayPlanDictionary.todayTasksCompleted),
                 modifier = Modifier
                     .clip(CircleShape)
                     .background(Color.White)
                     .padding(horizontal = 8.dp),
                 fontWeight = FontWeight.Bold,
-                color = Color.Red,
+                color = if (progress != 1f) Color.Red else Green,
                 fontSize = 12.sp
             )
         }
         if (todayTasks.isNotEmpty()) CircularTaskProgressIndicator(
             progress = { progressAnimated },
             modifier = Modifier.size(100.dp),
-            strokeWidth = 6.dp
+            strokeWidth = 6.dp,
+            color = progressColor
         ) {
             Text(
                 text = "${completed.size}/${todayTasks.size}",
