@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option java_package = "com.nrr.datastore";
+option java_multiple_files = true;
+
+enum PushNotificationConfigProto {
+    PUSH_NOTIFICATION_PROTO_PUSH_ALL = 0;
+    PUSH_NOTIFICATION_PROTO_PUSH_NONE = 1;
+}

@@ -10,6 +10,8 @@ import com.nrr.planarrangement.navigation.navigateToPlanArrangement
 import com.nrr.planarrangement.navigation.planArrangementScreen
 import com.nrr.plandetail.navigation.navigateToPlanDetail
 import com.nrr.plandetail.navigation.planDetailScreen
+import com.nrr.settings.navigation.navigateToSettings
+import com.nrr.settings.navigation.settingsScreen
 import com.nrr.taskdetail.navigation.navigateToTaskDetail
 import com.nrr.taskdetail.navigation.taskDetailScreen
 import com.nrr.taskmanagement.navigation.taskManagementScreen
@@ -32,7 +34,7 @@ fun TaskifyNavHost(
         modifier = modifier
     ) {
         todayPlanScreen(
-            onSettingClick = { /* TODO navigate to settings screen */ },
+            onSettingClick = navController::navigateToSettings,
             onPlanForTodayClick = navController::navigateToPlanDetail,
             onWeeklyClick = navController::navigateToPlanDetail,
             onMonthlyClick = navController::navigateToPlanDetail,
@@ -74,6 +76,9 @@ fun TaskifyNavHost(
             onNewTaskClick = {
                 navController.navigateToTaskDetail(null)
             }
+        )
+        settingsScreen(
+            onBackClick = navController::popBackStack
         )
         composable<FakeAnalyticsRoute> {  }
         composable<FakeProfileRoute> {  }

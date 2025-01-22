@@ -1,5 +1,6 @@
 package com.nrr.taskify.ui
 
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
@@ -8,7 +9,9 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.navOptions
+import androidx.window.core.layout.WindowWidthSizeClass
 import com.nrr.designsystem.component.Destination
+import com.nrr.settings.navigation.SettingsRoute
 import com.nrr.taskify.navigation.FakeAnalyticsRoute
 import com.nrr.taskify.navigation.FakeProfileRoute
 import com.nrr.taskify.navigation.TopLevelDestination
@@ -25,8 +28,6 @@ class TaskifyAppState(
     private val navController: NavController
 ) {
     private var previousNavDes: NavDestination? = null
-    var currentDes: Destination? = null
-        private set
 
     private val currentNavDestination: NavDestination?
         @Composable get() {
@@ -40,6 +41,9 @@ class TaskifyAppState(
             } ?: previousNavDes
         }
 
+    var currentDes: Destination? = null
+        private set
+
     val currentTopLevelDestination: TopLevelDestination?
         @Composable get() =
             TopLevelDestination.entries.firstOrNull {
@@ -49,6 +53,11 @@ class TaskifyAppState(
                     currentDes = d.destination
                 }
             }
+
+    val applyContentPadding: Boolean
+        @Composable get() = if (currentNavDestination?.hasRoute(SettingsRoute::class) == true)
+            currentWindowAdaptiveInfo().windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT
+                else true
 
     fun navigateToTopLevelDestination(des: Destination) {
         if (currentDes == des) return

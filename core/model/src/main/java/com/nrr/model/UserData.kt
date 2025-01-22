@@ -6,5 +6,6 @@ data class UserData(
     val themeConfig: ThemeConfig,
     val dayNotificationOffset: NotificationOffset,
     val weekNotificationOffset: NotificationOffset,
-    val monthNotificationOffset: NotificationOffset
+    val monthNotificationOffset: NotificationOffset,
+    val pushNotification: PushNotificationConfig
 )

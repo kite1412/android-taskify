@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_languages">Bahasa</string>
+    <string name="settings_notifications">Notifikasi</string>
+    <string name="settings_reminder_notification">Notifikasi Pengingat</string>
+    <string name="settings_settings">Pengaturan</string>
+    <string name="settings_language">Bahasa</string>
+    <string name="settings_notification">Notifikasi</string>
+    <string name="settings_show_notifications">Tampilkan notifikasi</string>
+    <string name="settings_reminder_notification_timing_about">Terima notifikasi sebelum \'waktu mulai\' dan \'waktu akhir\' dari sebuah tugas</string>
+    <string name="settings_day_period">Periode Harian</string>
+    <string name="settings_week_period">Periode Mingguan</string>
+    <string name="settings_month_period">Periode Bulanan</string>
+    <string name="settings_minute">Menit</string>
+    <string name="settings_hour">Jam</string>
+    <string name="settings_day">Hari</string>
+</resources>

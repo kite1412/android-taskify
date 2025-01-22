@@ -11,4 +11,5 @@ object TaskifyDefault {
     const val EMPTY_WARNING_CONTENT_SPACE = 16
     val emptyWarningContentColor: Color
         @Composable get() = MaterialTheme.colorScheme.primary.copy(0.6f)
+    const val CONTENT_PADDING = 32
 }

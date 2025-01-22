@@ -19,7 +19,7 @@ enum class LanguageConfig {
         return when (this) {
             SYSTEM_DEFAULT -> "System Default"
             ENGLISH -> "English"
-            else -> "Indonesian"
+            else -> "Indonesia"
         }
     }
 }

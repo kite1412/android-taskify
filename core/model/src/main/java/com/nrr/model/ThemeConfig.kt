@@ -23,4 +23,12 @@ enum class ThemeConfig {
             else -> "Dark"
         }
     }
+
+    fun toStringIn(): String {
+        return when (this) {
+            SYSTEM_DEFAULT -> "Default Sistem"
+            LIGHT -> "Gelap"
+            else -> "Terang"
+        }
+    }
 }

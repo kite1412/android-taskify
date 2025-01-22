@@ -6,6 +6,7 @@ import com.nrr.datastore.util.toTimeUnit
 import com.nrr.datastore.util.toTimeUnitProto
 import com.nrr.model.LanguageConfig
 import com.nrr.model.NotificationOffset
+import com.nrr.model.PushNotificationConfig
 import com.nrr.model.ThemeConfig
 import com.nrr.model.TimeUnit
 import com.nrr.model.UserData
@@ -42,7 +43,8 @@ class TaskifyPreferencesDataSource @Inject constructor(
                         value = value.takeIf { v -> v > 0 } ?: 1,
                         timeUnit = timeUnit.toTimeUnit()
                     )
-                }
+                },
+                pushNotification = PushNotificationConfig.entries[it.pushNotification.ordinal]
             )
         }
 
@@ -138,6 +140,21 @@ class TaskifyPreferencesDataSource @Inject constructor(
             }
         } catch (e: Exception) {
             Log.e(tag, "Error updating month notification offset config", e)
+        }
+    }
+
+    suspend fun setPushNotificationConfig(newPushNotificationConfig: PushNotificationConfig) {
+        try {
+            userPreferences.updateData {
+                it.copy {
+                    pushNotification = when (newPushNotificationConfig) {
+                        PushNotificationConfig.PUSH_ALL -> PushNotificationConfigProto.PUSH_NOTIFICATION_PROTO_PUSH_ALL
+                        PushNotificationConfig.PUSH_NONE -> PushNotificationConfigProto.PUSH_NOTIFICATION_PROTO_PUSH_NONE
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "Error updating push notification config", e)
         }
     }
 }
