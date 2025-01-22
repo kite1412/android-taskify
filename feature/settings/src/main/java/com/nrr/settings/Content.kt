@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -109,28 +110,32 @@ internal fun Content(
                 ) {
                     NotificationsMenu()
                 }
-            } else when (it) {
-                Menu.THEME -> ThemeConfig(
-                    theme = theme,
-                    onThemeClick = onThemeClick
-                )
-                Menu.LANGUAGES -> LanguagesConfig(
-                    language = language,
-                    onLanguageClick = onLanguageClick
-                )
-                Menu.NOTIFICATIONS -> NotificationsConfig(
-                    pushNotification = pushNotification,
-                    onPushNotificationClick = onPushNotificationClick,
-                    dayNotificationOffset = dayNotificationOffset,
-                    onDayTimeUnitClick = onDayTimeUnitClick,
-                    onDayOffsetChange = onDayOffsetChange,
-                    weekNotificationOffset = weekNotificationOffset,
-                    onWeekTimeUnitClick = onWeekTimeUnitClick,
-                    onWeekOffsetChange = onWeekOffsetChange,
-                    monthNotificationOffset = monthNotificationOffset,
-                    onMonthTimeUnitClick = onMonthTimeUnitClick,
-                    onMonthOffsetChange = onMonthOffsetChange
-                )
+            } else LazyColumn {
+                item {
+                    when (it) {
+                        Menu.THEME -> ThemeConfig(
+                            theme = theme,
+                            onThemeClick = onThemeClick
+                        )
+                        Menu.LANGUAGES -> LanguagesConfig(
+                            language = language,
+                            onLanguageClick = onLanguageClick
+                        )
+                        Menu.NOTIFICATIONS -> NotificationsConfig(
+                            pushNotification = pushNotification,
+                            onPushNotificationClick = onPushNotificationClick,
+                            dayNotificationOffset = dayNotificationOffset,
+                            onDayTimeUnitClick = onDayTimeUnitClick,
+                            onDayOffsetChange = onDayOffsetChange,
+                            weekNotificationOffset = weekNotificationOffset,
+                            onWeekTimeUnitClick = onWeekTimeUnitClick,
+                            onWeekOffsetChange = onWeekOffsetChange,
+                            monthNotificationOffset = monthNotificationOffset,
+                            onMonthTimeUnitClick = onMonthTimeUnitClick,
+                            onMonthOffsetChange = onMonthOffsetChange
+                        )
+                    }
+                }
             }
         }
     }

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -69,8 +70,7 @@ internal fun Content2Pane(
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp
     Row(
-        modifier = modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = modifier.fillMaxSize()
     ) {
         Box(
             modifier = Modifier
@@ -93,28 +93,34 @@ internal fun Content2Pane(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        when (selectedMenu) {
-            Menu.THEME -> ThemeConfig(
-                theme = theme,
-                onThemeClick = onThemeClick
-            )
-            Menu.LANGUAGES -> LanguagesConfig(
-                language = language,
-                onLanguageClick = onLanguageClick
-            )
-            Menu.NOTIFICATIONS -> NotificationsConfig(
-                pushNotification = pushNotification,
-                onPushNotificationClick = onPushNotificationClick,
-                dayNotificationOffset = dayNotificationOffset,
-                onDayTimeUnitClick = onDayTimeUnitClick,
-                onDayOffsetChange = onDayOffsetChange,
-                weekNotificationOffset = weekNotificationOffset,
-                onWeekTimeUnitClick = onWeekTimeUnitClick,
-                onWeekOffsetChange = onWeekOffsetChange,
-                monthNotificationOffset = monthNotificationOffset,
-                onMonthTimeUnitClick = onMonthTimeUnitClick,
-                onMonthOffsetChange = onMonthOffsetChange
-            )
+        LazyColumn (
+            modifier = Modifier.padding(TaskifyDefault.CONTENT_PADDING.dp)
+        ) {
+            item {
+                when (selectedMenu) {
+                    Menu.THEME -> ThemeConfig(
+                        theme = theme,
+                        onThemeClick = onThemeClick
+                    )
+                    Menu.LANGUAGES -> LanguagesConfig(
+                        language = language,
+                        onLanguageClick = onLanguageClick
+                    )
+                    Menu.NOTIFICATIONS -> NotificationsConfig(
+                        pushNotification = pushNotification,
+                        onPushNotificationClick = onPushNotificationClick,
+                        dayNotificationOffset = dayNotificationOffset,
+                        onDayTimeUnitClick = onDayTimeUnitClick,
+                        onDayOffsetChange = onDayOffsetChange,
+                        weekNotificationOffset = weekNotificationOffset,
+                        onWeekTimeUnitClick = onWeekTimeUnitClick,
+                        onWeekOffsetChange = onWeekOffsetChange,
+                        monthNotificationOffset = monthNotificationOffset,
+                        onMonthTimeUnitClick = onMonthTimeUnitClick,
+                        onMonthOffsetChange = onMonthOffsetChange
+                    )
+                }
+            }
         }
     }
 }

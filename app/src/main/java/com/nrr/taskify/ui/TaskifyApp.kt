@@ -29,6 +29,7 @@ import com.nrr.designsystem.component.NavigationScaffold
 import com.nrr.designsystem.component.SlidingTextData
 import com.nrr.designsystem.component.TaskifyTopAppBarDefaults
 import com.nrr.designsystem.component.TopAppBar
+import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.registration.RegistrationScreen
 import com.nrr.taskify.navigation.TaskifyNavHost
 import com.nrr.ui.LocalSafeAnimateContent
@@ -82,7 +83,8 @@ internal fun TaskifyApp(
                     currentDestination = appState.currentTopLevelDestination?.destination
                         ?: appState.currentDes ?: Destination.HOME,
                     onDestinationChange = appState::navigateToTopLevelDestination,
-                    showScaffoldComponents = appState.currentTopLevelDestination != null
+                    showScaffoldComponents = appState.currentTopLevelDestination != null,
+                    applyContentPadding = appState.applyContentPadding
                 ) {
                     TaskifyNavHost(navController)
                 }
@@ -111,6 +113,7 @@ internal fun TaskifyScaffold(
     onDestinationChange: (Destination) -> Unit,
     modifier: Modifier = Modifier,
     showScaffoldComponents: Boolean = true,
+    applyContentPadding: Boolean = true,
     content: @Composable () -> Unit
 ) {
     NavigationScaffold(
@@ -122,7 +125,11 @@ internal fun TaskifyScaffold(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(32.dp)
+                .padding(
+                    if (applyContentPadding)
+                        TaskifyDefault.CONTENT_PADDING.dp
+                    else 0.dp
+                )
         ) {
             Box(
                 modifier = Modifier.padding(
