@@ -76,7 +76,8 @@ internal fun SettingsScreen(
 ) {
     val windowWidthClass =
         currentWindowAdaptiveInfo().windowSizeClass.windowWidthSizeClass
-    val menu = viewModel.currentMenu
+    val routeMenu = viewModel.routeMenu
+    val menu = routeMenu ?: viewModel.currentMenu
         ?: if (windowWidthClass != WindowWidthSizeClass.COMPACT) Menu.THEME else null
     val userData by viewModel.userData.collectAsStateWithLifecycle()
     val theme = userData?.themeConfig
@@ -94,7 +95,7 @@ internal fun SettingsScreen(
             notificationsIndicator = pushNotification!!.toString(),
             onMenuClick = viewModel::updateCurrentMenu,
             onBackClick = {
-                if (menu == null) onBackClick()
+                if (menu == null || routeMenu != null) onBackClick()
                 else viewModel.updateCurrentMenu(null)
             },
             theme = theme,

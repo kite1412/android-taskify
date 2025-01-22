@@ -1,6 +1,6 @@
 package com.nrr.settings
 
-internal enum class Menu {
+enum class Menu {
     THEME,
     LANGUAGES,
     NOTIFICATIONS
