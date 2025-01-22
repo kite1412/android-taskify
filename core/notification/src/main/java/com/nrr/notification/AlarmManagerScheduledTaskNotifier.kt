@@ -21,7 +21,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AlarmManagerScheduledTaskNotifier @Inject constructor(
+internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
     @ApplicationContext private val context: Context,
     private val userDataRepository: UserDataRepository
 ) : ScheduledTaskNotifier {

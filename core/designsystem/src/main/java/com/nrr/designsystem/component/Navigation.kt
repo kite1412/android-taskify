@@ -301,7 +301,6 @@ private fun DestinationItem(
     }
 }
 
-@SuppressLint("ComposableNaming")
 @Composable
 private fun indicatorAnimationLogic(
     indexInList: Int,

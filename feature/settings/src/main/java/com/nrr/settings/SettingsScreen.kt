@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
@@ -77,6 +78,7 @@ internal fun SettingsScreen(
     val windowWidthClass =
         currentWindowAdaptiveInfo().windowSizeClass.windowWidthSizeClass
     val menu = viewModel.currentMenu
+        ?: if (windowWidthClass != WindowWidthSizeClass.COMPACT) Menu.THEME else null
     val userData by viewModel.userData.collectAsStateWithLifecycle()
     val theme = userData?.themeConfig
     val language = userData?.languageConfig
@@ -113,7 +115,27 @@ internal fun SettingsScreen(
             onMonthOffsetChange = viewModel::updateMonthOffsetChange,
             modifier = modifier
         )
-        else Content2Pane()
+        else if (menu != null) Content2Pane(
+            selectedMenu = menu,
+            onMenuClick = viewModel::updateCurrentMenu,
+            onBackClick = onBackClick,
+            theme = theme!!,
+            onThemeClick = viewModel::updateTheme,
+            language = language!!,
+            onLanguageClick = viewModel::updateLanguage,
+            pushNotification = pushNotification == PushNotificationConfig.PUSH_ALL,
+            onPushNotificationClick = viewModel::updatePushNotification,
+            dayNotificationOffset = dayNotificationOffset!!,
+            onDayTimeUnitClick = viewModel::updateDayTimeUnitChange,
+            onDayOffsetChange = viewModel::updateDayOffsetChange,
+            weekNotificationOffset = weekNotificationOffset!!,
+            onWeekTimeUnitClick = viewModel::updateWeekTimeUnitChange,
+            onWeekOffsetChange = viewModel::updateWeekOffsetChange,
+            monthNotificationOffset = monthNotificationOffset!!,
+            onMonthTimeUnitClick = viewModel::updateMonthTimeUnitChange,
+            onMonthOffsetChange = viewModel::updateMonthOffsetChange,
+            modifier = modifier
+        )
 }
 
 @Composable
@@ -223,42 +245,46 @@ internal fun NotificationsConfig(
     onMonthOffsetChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(40.dp)
     ) {
-        SubMenu(
-            name = stringResource(SettingsDictionary.notification)
-        ) {
-            Toggleable(
-                name = stringResource(SettingsDictionary.showNotifications),
-                checked = pushNotification,
-                onCheckedChange = onPushNotificationClick,
-                modifier = Modifier.fillMaxWidth()
-            )
+        item {
+            SubMenu(
+                name = stringResource(SettingsDictionary.notification)
+            ) {
+                Toggleable(
+                    name = stringResource(SettingsDictionary.showNotifications),
+                    checked = pushNotification,
+                    onCheckedChange = onPushNotificationClick,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
-        SubMenu(
-            name = stringResource(SettingsDictionary.reminderNotification),
-            about = stringResource(SettingsDictionary.reminderNotificationAbout)
-        ) {
-            NotificationOffsetSetting(
-                period = TaskPeriod.DAY,
-                notificationOffset = dayNotificationOffset,
-                onTimeUnitClick = onDayTimeUnitClick,
-                onOffsetChange = onDayOffsetChange
-            )
-            NotificationOffsetSetting(
-                period = TaskPeriod.WEEK,
-                notificationOffset = weekNotificationOffset,
-                onTimeUnitClick = onWeekTimeUnitClick,
-                onOffsetChange = onWeekOffsetChange
-            )
-            NotificationOffsetSetting(
-                period = TaskPeriod.MONTH,
-                notificationOffset = monthNotificationOffset,
-                onTimeUnitClick = onMonthTimeUnitClick,
-                onOffsetChange = onMonthOffsetChange
-            )
+        item {
+            SubMenu(
+                name = stringResource(SettingsDictionary.reminderNotification),
+                about = stringResource(SettingsDictionary.reminderNotificationAbout)
+            ) {
+                NotificationOffsetSetting(
+                    period = TaskPeriod.DAY,
+                    notificationOffset = dayNotificationOffset,
+                    onTimeUnitClick = onDayTimeUnitClick,
+                    onOffsetChange = onDayOffsetChange
+                )
+                NotificationOffsetSetting(
+                    period = TaskPeriod.WEEK,
+                    notificationOffset = weekNotificationOffset,
+                    onTimeUnitClick = onWeekTimeUnitClick,
+                    onOffsetChange = onWeekOffsetChange
+                )
+                NotificationOffsetSetting(
+                    period = TaskPeriod.MONTH,
+                    notificationOffset = monthNotificationOffset,
+                    onTimeUnitClick = onMonthTimeUnitClick,
+                    onOffsetChange = onMonthOffsetChange
+                )
+            }
         }
     }
 }
