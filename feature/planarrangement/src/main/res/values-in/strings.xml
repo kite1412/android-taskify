@@ -31,4 +31,8 @@
     <string name="planarrangement_alarms_and_reminders">Alarm dan pengingat</string>
     <string name="planarrangement_alarms_and_reminders_desc">Aplikasi ini membutuhkan izin alarm dan pengingat untuk mengirim pengingat tugas</string>
     <string name="planarrangement_new_task">Tugas Baru</string>
+    <string name="planarrangement_delete_active_task">Tugas dihapus dari jadwal</string>
+    <string name="planarrangement_delete_warning_title">Hapus Tugas</string>
+    <string name="planarrangement_delete">Hapus</string>
+    <string name="planarrangement_delete_warning_desc">Hapus tugas dari rencana?</string>
 </resources>

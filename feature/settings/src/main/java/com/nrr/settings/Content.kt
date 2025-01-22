@@ -66,7 +66,7 @@ internal fun Content(
     modifier: Modifier = Modifier
 ) {
     BackHandler {
-        if (menu != null) onBackClick()
+        if (menu == null) onBackClick()
         else onMenuClick(null)
     }
     Column(

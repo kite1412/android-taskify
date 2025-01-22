@@ -50,6 +50,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -97,6 +98,7 @@ import com.nrr.designsystem.component.Toggle
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.Blue
 import com.nrr.designsystem.theme.CharcoalClay30
+import com.nrr.designsystem.theme.Red
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.Task
@@ -108,6 +110,7 @@ import com.nrr.planarrangement.util.PlanArrangementDictionary
 import com.nrr.planarrangement.util.dashHeight
 import com.nrr.planarrangement.util.dashSpace
 import com.nrr.planarrangement.util.dashWidth
+import com.nrr.ui.ConfirmationDialog
 import com.nrr.ui.Dialog
 import com.nrr.ui.EmptyTasks
 import com.nrr.ui.LocalExactAlarmState
@@ -151,6 +154,8 @@ internal fun PlanArrangementScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalSnackbarHostState.current
     val scheduledMessage = stringResource(PlanArrangementDictionary.scheduled)
+    val removedMessage = stringResource(PlanArrangementDictionary.deleteActiveTask)
+    val showDeleteWarning = viewModel.deleteWarning
 
     BackHandler(onBack = backClick)
     Content(
@@ -181,6 +186,27 @@ internal fun PlanArrangementScreen(
             }
         },
         onNewTaskClick = onNewTaskClick,
+        onDeleteActiveTask = if (viewModel.activeStatusId != null) {
+            {
+                if (showDeleteWarning) {
+                    scope.launch {
+                        viewModel.deleteActiveTask()
+                        viewModel.updateDeleteWarning(false)
+                        backClick()
+                        snackbarHostState.showSnackbar(
+                            message = removedMessage,
+                            withDismissAction = true
+                        )
+                    }
+                } else {
+                    viewModel.updateDeleteWarning(true)
+                }
+            }
+        } else null,
+        showDeleteWarning = showDeleteWarning,
+        onDismissDeleteWarning = {
+            viewModel.updateDeleteWarning(false)
+        },
         modifier = modifier
     )
 }
@@ -206,14 +232,18 @@ private fun Content(
     saveEnabled: Boolean,
     onSave: () -> Unit,
     onNewTaskClick: () -> Unit,
-    modifier: Modifier = Modifier
+    showDeleteWarning: Boolean,
+    onDismissDeleteWarning: () -> Unit,
+    modifier: Modifier = Modifier,
+    onDeleteActiveTask: (() -> Unit)? = null
 ) {
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         Header(
-            onBackClick = onBackClick
+            onBackClick = onBackClick,
+            onRemoveActiveTask = onDeleteActiveTask
         )
         AnimatedContent(
             targetState = !assigningTask,
@@ -282,32 +312,64 @@ private fun Content(
             )
         }
     }
+    if (showDeleteWarning && onDeleteActiveTask != null) ConfirmationDialog(
+        onDismiss = onDismissDeleteWarning,
+        title = stringResource(PlanArrangementDictionary.deleteWarningTitle),
+        onConfirm = onDeleteActiveTask,
+        cancelText = stringResource(PlanArrangementDictionary.cancel),
+        confirmText = stringResource(PlanArrangementDictionary.delete),
+        confirmationDesc = stringResource(PlanArrangementDictionary.deleteWarningDesc),
+        colors = TaskifyDialogDefaults.colors(
+            confirmButtonColor = Red,
+            titleContentColor = Red
+        )
+    )
 }
 
 @Composable
 private fun Header(
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onRemoveActiveTask: (() -> Unit)? = null
 ) {
     Row(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        IconButton(
-            onClick = onBackClick
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                painter = painterResource(TaskifyIcon.back),
-                contentDescription = "back"
+            IconButton(
+                onClick = onBackClick
+            ) {
+                Icon(
+                    painter = painterResource(TaskifyIcon.back),
+                    contentDescription = "back"
+                )
+            }
+            AdaptiveText(
+                text = stringResource(PlanArrangementDictionary.arrangePlan),
+                initialFontSize = TaskifyDefault.HEADER_FONT_SIZE.sp,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
             )
         }
-        AdaptiveText(
-            text = stringResource(PlanArrangementDictionary.arrangePlan),
-            initialFontSize = TaskifyDefault.HEADER_FONT_SIZE.sp,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
-        )
+        onRemoveActiveTask?.let {
+            IconButton(
+                onClick = it,
+                colors = IconButtonDefaults.iconButtonColors(
+                    contentColor = Red
+                )
+            ) {
+                Icon(
+                    painter = painterResource(TaskifyIcon.trashBin),
+                    contentDescription = "remove",
+                    modifier = Modifier.size(30.dp)
+                )
+            }
+        }
     }
 }
 
@@ -1285,7 +1347,10 @@ private fun ContentPreview(
             },
             saveEnabled = true,
             onSave = {},
-            onNewTaskClick = {}
+            onNewTaskClick = {},
+            onDeleteActiveTask = {},
+            showDeleteWarning = false,
+            onDismissDeleteWarning = {}
         )
     }
 }

@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.nrr.data.repository.TaskRepository
+import com.nrr.domain.RemoveActiveTasksUseCase
 import com.nrr.domain.SaveActiveTasksUseCase
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
@@ -29,12 +30,13 @@ class PlanArrangementViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val taskRepository: TaskRepository,
     private val saveActiveTasksUseCase: SaveActiveTasksUseCase,
-    private val scheduledTaskNotifier: ScheduledTaskNotifier
+    private val scheduledTaskNotifier: ScheduledTaskNotifier,
+    private val removeActiveTasksUseCase: RemoveActiveTasksUseCase
 ) : ViewModel() {
     // navigation from non-null ActiveStatus to be used in TaskEdit typically for
     // editing existing ActiveStatus
     // if not null navigate back to calling route instead of making TaskEdit null
-    private val activeStatusId = savedStateHandle.toRoute<PlanArrangementRoute>().activeStatusId
+    val activeStatusId = savedStateHandle.toRoute<PlanArrangementRoute>().activeStatusId
 
     // navigation from nullable ActiveStatus typically for creating a new ActiveStatus
     // if not null navigate back to calling route instead of making TaskEdit null
@@ -58,6 +60,9 @@ class PlanArrangementViewModel @Inject constructor(
         private set
 
     var assigningTask by mutableStateOf(false)
+        private set
+
+    var deleteWarning by mutableStateOf(false)
         private set
 
     internal var taskEdit by mutableStateOf<TaskEdit?>(null)
@@ -164,7 +169,10 @@ class PlanArrangementViewModel @Inject constructor(
         }
     }
 
-    // TODO handle notification
+    fun updateDeleteWarning(value: Boolean) {
+        deleteWarning = value
+    }
+
     suspend fun save() {
         taskEdit?.toTask()?.let { t ->
             val res = saveActiveTasksUseCase(listOf(t))
@@ -182,6 +190,12 @@ class PlanArrangementViewModel @Inject constructor(
                 else
                     scheduledTaskNotifier.cancelReminder(task)
             }
+        }
+    }
+
+    suspend fun deleteActiveTask() {
+        taskEdit?.toTask()?.let {
+            removeActiveTasksUseCase(listOf(it))
         }
     }
 

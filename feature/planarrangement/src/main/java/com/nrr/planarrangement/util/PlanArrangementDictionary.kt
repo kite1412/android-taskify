@@ -34,4 +34,8 @@ internal object PlanArrangementDictionary {
     val alarmsAndReminders = R.string.planarrangement_alarms_and_reminders
     val alarmsAndRemindersDesc = R.string.planarrangement_alarms_and_reminders_desc
     val newTask = R.string.planarrangement_new_task
+    val deleteActiveTask = R.string.planarrangement_delete_active_task
+    val deleteWarningTitle = R.string.planarrangement_delete_warning_title
+    val delete = R.string.planarrangement_delete
+    val deleteWarningDesc = R.string.planarrangement_delete_warning_desc
 }

@@ -31,4 +31,8 @@
     <string name="planarrangement_alarms_and_reminders">Alarms and reminders</string>
     <string name="planarrangement_alarms_and_reminders_desc">This app needs alarms and reminders enabled to be able to send task reminders</string>
     <string name="planarrangement_new_task">New Task</string>
+    <string name="planarrangement_delete_active_task">Task deleted from plan</string>
+    <string name="planarrangement_delete_warning_title">Delete Task</string>
+    <string name="planarrangement_delete">Delete</string>
+    <string name="planarrangement_delete_warning_desc">Delete task from plan?</string>
 </resources>
