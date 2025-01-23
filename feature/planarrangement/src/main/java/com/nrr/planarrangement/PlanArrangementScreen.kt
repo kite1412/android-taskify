@@ -71,6 +71,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -264,6 +265,9 @@ private fun Content(
             if (it) Box(
                 modifier = Modifier.fillMaxSize()
             ) {
+                var newTaskButtonHeight by remember { mutableStateOf(0.dp) }
+                val density = LocalDensity.current
+
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -284,7 +288,8 @@ private fun Content(
                         else -> if (tasks.isNotEmpty())
                             Tasks(
                                 tasks = tasks,
-                                onClick = onTaskClick
+                                onClick = onTaskClick,
+                                contentPadding = PaddingValues(bottom = newTaskButtonHeight + 16.dp)
                             )
                     }
                 }
@@ -295,7 +300,13 @@ private fun Content(
                 RoundRectButton(
                     onClick = onNewTaskClick,
                     action = stringResource(PlanArrangementDictionary.newTask),
-                    modifier = Modifier.align(Alignment.BottomEnd),
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .onGloballyPositioned {
+                            with(density) {
+                                newTaskButtonHeight = it.size.height.toDp()
+                            }
+                        },
                     iconId = TaskifyIcon.add,
                     colors = TaskifyButtonDefaults.colors(
                         containerColor = MaterialTheme.colorScheme.tertiary,
@@ -448,13 +459,15 @@ private fun PeriodSelect(
 private fun Tasks(
     tasks: List<Task>,
     onClick: (Task) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     val state = rememberTaskCardsState(tasks)
 
     LazyColumn(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = contentPadding
     ) {
         taskCards(
             tasks = tasks,
@@ -490,13 +503,16 @@ private fun AssignTask(
             }
         }
         val scope = rememberCoroutineScope()
+        var saveButtonHeight by remember { mutableStateOf(0.dp) }
+        val density = LocalDensity.current
 
         Box(modifier = modifier) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize(),
                 state = state,
-                verticalArrangement = Arrangement.spacedBy(24.dp)
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                contentPadding = PaddingValues(bottom = saveButtonHeight)
             ) {
                 item {
                     Title(
@@ -536,7 +552,6 @@ private fun AssignTask(
                 exit = slideOutVertically { it } + fadeOut()
             ) {
                 val infiniteTransition = rememberInfiniteTransition()
-                val density = LocalDensity.current
                 val offset = with(density) {
                     infiniteTransition.animateFloat(
                         initialValue = 0f,
@@ -570,7 +585,13 @@ private fun AssignTask(
             }
             TextButton(
                 onClick = onSave,
-                modifier = Modifier.align(Alignment.BottomEnd),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .onGloballyPositioned {
+                        with(density) {
+                            saveButtonHeight = it.size.height.toDp()
+                        }
+                    },
                 colors = TaskifyButtonDefaults.textButtonColors(
                     disabledContentColor = Color.Gray,
                     contentColor = MaterialTheme.colorScheme.tertiary

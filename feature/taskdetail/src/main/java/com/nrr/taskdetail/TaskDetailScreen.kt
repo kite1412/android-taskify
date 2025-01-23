@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,12 +24,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -163,6 +164,9 @@ private fun Content(
     onPlanTaskClick: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var deleteButtonHeight by remember { mutableStateOf(0.dp) }
+    val density = LocalDensity.current
+
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -195,7 +199,7 @@ private fun Content(
                 ) else DetailPage(
                     task = task,
                     onPlanClick = onPlanTaskClick,
-                    modifier = Modifier.verticalScroll(rememberScrollState())
+                    contentPadding = PaddingValues(bottom = deleteButtonHeight + 16.dp)
                 )
             }
         }
@@ -212,7 +216,12 @@ private fun Content(
                 colors = TaskifyButtonDefaults.colors(
                     containerColor = Color.Red,
                     contentColor = Color.White
-                )
+                ),
+                modifier = Modifier.onGloballyPositioned {
+                    with(density) {
+                        deleteButtonHeight = it.size.height.toDp()
+                    }
+                }
             )
         }
         if (confirmation != null) ConfirmationDialog(
@@ -306,36 +315,44 @@ private fun Header(
 private fun DetailPage(
     task: Task?,
     onPlanClick: (Task) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     task?.let {
-        Column(
+        LazyColumn(
             modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(40.dp)
+            verticalArrangement = Arrangement.spacedBy(40.dp),
+            contentPadding = contentPadding
         ) {
-            Title(
-                title = it.title,
-                taskType = it.taskType,
-                createdAt = it.createdAt,
-                updatedAt = it.updateAt
-            )
-            TaskDescription(
-                description = it.description ?: ""
-            )
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                TaskStatuses(
-                    statuses = it.activeStatuses,
-                    modifier = Modifier.weight(0.8f)
+            item {
+                Title(
+                    title = it.title,
+                    taskType = it.taskType,
+                    createdAt = it.createdAt,
+                    updatedAt = it.updateAt
                 )
-                RoundRectButton(
-                    onClick = { onPlanClick(task) },
-                    action = stringResource(TaskDetailDictionary.planTask),
-                    colors = TaskifyButtonDefaults.colors(
-                        containerColor = MaterialTheme.colorScheme.tertiary
+            }
+            item {
+                TaskDescription(
+                    description = it.description ?: ""
+                )
+            }
+            item {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    TaskStatuses(
+                        statuses = it.activeStatuses,
+                        modifier = Modifier.weight(0.8f)
                     )
-                )
+                    RoundRectButton(
+                        onClick = { onPlanClick(task) },
+                        action = stringResource(TaskDetailDictionary.planTask),
+                        colors = TaskifyButtonDefaults.colors(
+                            containerColor = MaterialTheme.colorScheme.tertiary
+                        )
+                    )
+                }
             }
         }
     }
@@ -352,30 +369,45 @@ private fun EditPage(
     onComplete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var completeButtonHeight by remember { mutableStateOf(0.dp) }
+    val density = LocalDensity.current
+
     Box(modifier = modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier.verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(32.dp)
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(32.dp),
+            contentPadding = PaddingValues(bottom = completeButtonHeight + 16.dp)
         ) {
-            TitleEdit(
-                value = taskEdit.title,
-                onValueChange = onTitleChange
-            )
-            DescriptionEdit(
-                value = taskEdit.description,
-                onValueChange = onDescriptionChange
-            )
-            TaskTypeEdit(
-                type = taskEdit.taskType,
-                onTypeChange = onTypeChange
-            )
+            item {
+                TitleEdit(
+                    value = taskEdit.title,
+                    onValueChange = onTitleChange
+                )
+            }
+            item {
+                DescriptionEdit(
+                    value = taskEdit.description,
+                    onValueChange = onDescriptionChange
+                )
+            }
+            item {
+                TaskTypeEdit(
+                    type = taskEdit.taskType,
+                    onTypeChange = onTypeChange
+                )
+            }
         }
         CompleteEditButton(
             task = task,
             taskEdit = taskEdit,
             createMode = createMode,
             onComplete = onComplete,
-            modifier = Modifier.align(Alignment.BottomEnd)
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .onGloballyPositioned {
+                    with(density) {
+                        completeButtonHeight = it.size.height.toDp()
+                    }
+                }
         )
     }
 }
