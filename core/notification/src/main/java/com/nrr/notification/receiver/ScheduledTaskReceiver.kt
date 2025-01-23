@@ -12,9 +12,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
 import com.nrr.data.repository.TaskRepository
+import com.nrr.data.repository.UserDataRepository
+import com.nrr.model.ReminderType
 import com.nrr.model.Task
 import com.nrr.notification.R
-import com.nrr.notification.model.ReminderType
 import com.nrr.notification.model.TaskWithReminder
 import com.nrr.notification.model.toFiltered
 import com.nrr.notification.util.NotificationDictionary
@@ -41,6 +42,9 @@ class ScheduledTaskReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var taskRepository: TaskRepository
+
+    @Inject
+    lateinit var userDataRepository: UserDataRepository
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent == null) return
@@ -71,9 +75,9 @@ class ScheduledTaskReceiver : BroadcastReceiver() {
             } ?: return@launch
 
             val taskWithReminder = TaskWithReminder(task.toFiltered(), reminderType)
+            val now = Clock.System.now()
             val notification = context.createNotification {
                 val taskFiltered = taskWithReminder.task
-                val now = Clock.System.now()
                 val overdue = now > when (reminderType) {
                     ReminderType.START -> taskFiltered.startDate
                     ReminderType.END -> taskFiltered.dueDate ?: now
@@ -108,6 +112,10 @@ class ScheduledTaskReceiver : BroadcastReceiver() {
                     taskWithReminder.task.id.toInt(),
                     notification
                 )
+
+            // added for SequentialScheduleTaskReceiver
+            userDataRepository.removeTaskReminders(listOf(0))
+            context.sendBroadcast(sequentialScheduledTaskIntent(context))
         }
     }
 

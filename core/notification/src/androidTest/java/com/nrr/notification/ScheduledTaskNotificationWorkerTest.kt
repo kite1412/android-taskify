@@ -5,7 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.workDataOf
-import com.nrr.notification.model.ReminderType
+import com.nrr.model.ReminderType
 import com.nrr.notification.model.TaskFiltered
 import com.nrr.notification.model.TaskWithReminder
 import com.nrr.notification.rule.GrantPostNotificationPermissionRule

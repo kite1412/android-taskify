@@ -6,7 +6,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.nrr.model.Task
-import com.nrr.notification.model.ReminderType
+import com.nrr.model.ReminderType
 import com.nrr.notification.model.Result
 import com.nrr.notification.model.Result.Fail.Reason
 import com.nrr.notification.model.Result.Success.Warning

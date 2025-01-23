@@ -6,7 +6,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import com.nrr.notification.model.ReminderType
+import com.nrr.model.ReminderType
 import com.nrr.notification.model.TaskFiltered
 import com.nrr.notification.model.TaskWithReminder
 import kotlinx.datetime.Instant

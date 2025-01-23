@@ -4,14 +4,16 @@ import android.app.AlarmManager
 import android.content.Context
 import android.os.Build
 import com.nrr.data.repository.UserDataRepository
+import com.nrr.model.ReminderType
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
-import com.nrr.notification.model.ReminderType
 import com.nrr.notification.model.Result
 import com.nrr.notification.model.Result.Fail.Reason
 import com.nrr.notification.model.TaskWithReminder
 import com.nrr.notification.model.toFiltered
 import com.nrr.notification.receiver.scheduledTaskReceiverPendingIntent
+import com.nrr.notification.receiver.sequentialScheduledTaskIntent
+import com.nrr.notification.util.toTaskReminders
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -27,7 +29,7 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
     private val alarmManager = context
         .getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-    private val scheduler = ImmediateScheduler()
+    private val scheduler = SequentialScheduler()
 
     override suspend fun scheduleReminder(task: Task): Result =
         scheduler.scheduleReminder(task)
@@ -64,6 +66,68 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
                 notificationDate.toEpochMilliseconds(),
                 pendingIntent
             )
+            return Result.Success(null)
+        }
+
+        override fun cancelReminder(activeTask: Task) {
+            val activeStatusId = activeTask.activeStatuses.firstOrNull()?.id?.toInt()
+                ?: return
+
+            alarmManager.cancel(scheduledTaskReceiverPendingIntent(context, activeStatusId))
+        }
+    }
+
+    private inner class SequentialScheduler : ScheduledTaskNotifier {
+        override suspend fun scheduleReminder(task: Task): Result {
+            val reminders = task.toTaskReminders()
+            val userData = userDataRepository.userData.first()
+            var queue = userData.reminderQueue
+            val notificationOffset = when (task.activeStatuses.first().period) {
+                TaskPeriod.DAY -> userData.dayNotificationOffset
+                TaskPeriod.WEEK -> userData.weekNotificationOffset
+                TaskPeriod.MONTH -> userData.monthNotificationOffset
+            }.toDuration()
+            val deleteIndexes = queue.mapIndexed { index, r ->
+                index to r.activeTaskId
+            }
+                .filter {
+                    it.second == reminders.first.activeTaskId
+                }
+                .map { it.first }
+
+            userDataRepository.removeTaskReminders(deleteIndexes)
+
+            queue = queue.filter { it.activeTaskId != reminders.first.activeTaskId }
+            val startDate = reminders.first.date - notificationOffset
+
+            val startIndex = if (queue.isNotEmpty()) queue.indexOfFirst {
+                startDate <= it.date
+            }
+                .takeIf { it >= 0 } ?: queue.size else 0
+
+            var endIndex: Int = -1
+            reminders.second?.let { end ->
+                endIndex = if (queue.isNotEmpty()) queue.indexOfFirst {
+                    end.date - notificationOffset < it.date
+                }
+                    .takeIf { it >= 0 } ?: queue.size else 1
+            }
+            userDataRepository.addTaskReminders(
+                reminders = mutableMapOf(
+                    startIndex to reminders.first.copy(date = startDate)
+                ).apply {
+                    if (endIndex != -1) put(
+                        key = endIndex,
+                        value = reminders.second!!.copy(
+                            date = reminders.second!!.date - notificationOffset
+                        )
+                    )
+                }
+            )
+
+            if (startIndex == 0 || endIndex == 0) {
+                context.sendBroadcast(sequentialScheduledTaskIntent(context))
+            }
             return Result.Success(null)
         }
 

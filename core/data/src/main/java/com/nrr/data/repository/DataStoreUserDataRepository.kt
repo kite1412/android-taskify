@@ -37,9 +37,12 @@ class DataStoreUserDataRepository @Inject constructor(
     override suspend fun setPushNotificationConfig(newPushNotificationConfig: PushNotificationConfig) =
         taskifyPreferencesDataSource.setPushNotificationConfig(newPushNotificationConfig)
 
-    override suspend fun addTaskReminder(index: Int, reminder: TaskReminder) =
-        taskifyPreferencesDataSource.addToReminderQueue(index, reminder)
+    override suspend fun addTaskReminders(reminders: Map<Int, TaskReminder>) =
+        taskifyPreferencesDataSource.addToReminderQueue(reminders)
 
-    override suspend fun removeTaskReminder(index: Int) =
-        taskifyPreferencesDataSource.removeFromReminderQueue(index)
+    override suspend fun removeTaskReminders(indexes: List<Int>) =
+        taskifyPreferencesDataSource.removeFromReminderQueue(indexes)
+
+    override suspend fun removeAllTaskReminders() =
+        taskifyPreferencesDataSource.clearReminderQueue()
 }

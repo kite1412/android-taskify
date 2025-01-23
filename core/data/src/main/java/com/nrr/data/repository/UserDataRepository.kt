@@ -25,7 +25,9 @@ interface UserDataRepository {
 
     suspend fun setPushNotificationConfig(newPushNotificationConfig: PushNotificationConfig)
 
-    suspend fun addTaskReminder(index: Int, reminder: TaskReminder)
+    suspend fun addTaskReminders(reminders: Map<Int, TaskReminder>)
 
-    suspend fun removeTaskReminder(index: Int)
+    suspend fun removeTaskReminders(indexes: List<Int>)
+
+    suspend fun removeAllTaskReminders()
 }

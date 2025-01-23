@@ -9,7 +9,7 @@ import android.os.Build.VERSION_CODES
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.nrr.model.toTimeString
-import com.nrr.notification.model.ReminderType
+import com.nrr.model.ReminderType
 import com.nrr.notification.model.TaskFiltered
 
 private const val CHANNEL_ID = "1"

@@ -162,11 +162,16 @@ class TaskifyPreferencesDataSource @Inject constructor(
         }
     }
 
-    suspend fun addToReminderQueue(index: Int, reminder: TaskReminder) {
+    // map of index and its TaskReminder
+    suspend fun addToReminderQueue(reminders: Map<Int, TaskReminder>) {
         try {
             userPreferences.updateData {
                 it.toBuilder()
-                    .addReminderQueue(index, reminder.toTaskReminderProto())
+                    .apply {
+                        reminders.forEach { (i, r) ->
+                            addReminderQueue(i, r.toTaskReminderProto())
+                        }
+                    }
                     .build()
             }
         } catch (e: Exception) {
@@ -174,15 +179,31 @@ class TaskifyPreferencesDataSource @Inject constructor(
         }
     }
 
-    suspend fun removeFromReminderQueue(index: Int) {
+    suspend fun removeFromReminderQueue(indexes: List<Int>) {
         try {
             userPreferences.updateData {
                 it.toBuilder()
-                    .removeReminderQueue(index)
+                    .apply {
+                        indexes.forEach { i ->
+                            removeReminderQueue(i)
+                        }
+                    }
                     .build()
             }
         } catch (e: Exception) {
             Log.e(tag, "Error removing from reminder queue", e)
+        }
+    }
+
+    suspend fun clearReminderQueue() {
+        try {
+            userPreferences.updateData {
+                it.toBuilder()
+                    .clearReminderQueue()
+                    .build()
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "Error removing all from reminder queue", e)
         }
     }
 }

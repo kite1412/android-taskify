@@ -10,8 +10,8 @@ import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkerParameters
+import com.nrr.model.ReminderType
 import com.nrr.notification.R
-import com.nrr.notification.model.ReminderType
 import com.nrr.notification.model.TaskWithReminder
 import com.nrr.notification.util.createNotification
 import com.nrr.notification.util.getContent

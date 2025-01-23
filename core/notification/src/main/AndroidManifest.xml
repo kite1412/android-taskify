@@ -17,5 +17,13 @@
                 <action android:name="com.nrr.notification.REMIND_LATER" />
             </intent-filter>
         </receiver>
+        <receiver android:name="com.nrr.notification.receiver.SequentialScheduledTaskReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.nrr.notification.SEQUENTIAL_TASK_REMINDER" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
