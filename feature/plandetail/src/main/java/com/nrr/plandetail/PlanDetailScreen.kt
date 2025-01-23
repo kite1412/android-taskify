@@ -117,7 +117,8 @@ internal fun PlanDetailScreen(
             if (!viewModel.oneTimeAnimate) deepLinkTaskId?.let { taskId ->
                 tasks?.let {
                     it.indexOfFirst { t -> t.activeStatuses.first().id == taskId }
-                        .let { i ->
+                        .takeIf { i ->  i != -1 }
+                        ?.let { i ->
                             state.animateScrollToItem(i)
                             viewModel.updateSafeToAnimate(true)
                             delay(1500L)
