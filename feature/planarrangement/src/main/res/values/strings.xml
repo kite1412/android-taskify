@@ -35,4 +35,5 @@
     <string name="planarrangement_delete_warning_title">Delete Task</string>
     <string name="planarrangement_delete">Delete</string>
     <string name="planarrangement_delete_warning_desc">Delete task from plan?</string>
+    <string name="planarrangement_reminded_at">reminded at</string>
 </resources>

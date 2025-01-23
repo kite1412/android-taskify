@@ -12,7 +12,6 @@ import com.nrr.notification.model.Result.Fail.Reason
 import com.nrr.notification.model.TaskWithReminder
 import com.nrr.notification.model.toFiltered
 import com.nrr.notification.receiver.scheduledTaskReceiverPendingIntent
-import com.nrr.notification.util.toDuration
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map

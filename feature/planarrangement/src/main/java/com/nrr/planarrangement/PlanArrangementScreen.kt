@@ -98,9 +98,11 @@ import com.nrr.designsystem.component.Toggle
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.Blue
 import com.nrr.designsystem.theme.CharcoalClay30
+import com.nrr.designsystem.theme.Green
 import com.nrr.designsystem.theme.Red
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.util.TaskifyDefault
+import com.nrr.model.NotificationOffset
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.TaskPriority
@@ -156,6 +158,7 @@ internal fun PlanArrangementScreen(
     val scheduledMessage = stringResource(PlanArrangementDictionary.scheduled)
     val removedMessage = stringResource(PlanArrangementDictionary.deleteActiveTask)
     val showDeleteWarning = viewModel.deleteWarning
+    val notificationOffset by viewModel.notificationOffset.collectAsStateWithLifecycle()
 
     BackHandler(onBack = backClick)
     Content(
@@ -207,6 +210,7 @@ internal fun PlanArrangementScreen(
         onDismissDeleteWarning = {
             viewModel.updateDeleteWarning(false)
         },
+        notificationOffset = notificationOffset,
         modifier = modifier
     )
 }
@@ -234,6 +238,7 @@ private fun Content(
     onNewTaskClick: () -> Unit,
     showDeleteWarning: Boolean,
     onDismissDeleteWarning: () -> Unit,
+    notificationOffset: NotificationOffset,
     modifier: Modifier = Modifier,
     onDeleteActiveTask: (() -> Unit)? = null
 ) {
@@ -308,7 +313,8 @@ private fun Content(
                 onDefaultChange = onDefaultChange,
                 onPriorityChange = onPriorityChange,
                 saveEnabled = saveEnabled,
-                onSave = onSave
+                onSave = onSave,
+                notificationOffset = notificationOffset
             )
         }
     }
@@ -472,6 +478,7 @@ private fun AssignTask(
     onPriorityChange: (TaskPriority) -> Unit,
     saveEnabled: Boolean,
     onSave: () -> Unit,
+    notificationOffset: NotificationOffset,
     modifier: Modifier = Modifier
 ) {
     if (taskEdit != null) {
@@ -517,7 +524,8 @@ private fun AssignTask(
                         onEndDateChange = onEndDateChange,
                         onReminderChange = onReminderChange,
                         onDefaultChange = onDefaultChange,
-                        onPriorityChange = onPriorityChange
+                        onPriorityChange = onPriorityChange,
+                        notificationOffset = notificationOffset
                     )
                 }
             }
@@ -610,6 +618,7 @@ private fun AssignmentConfiguration(
     onReminderChange: (Boolean) -> Unit,
     onDefaultChange: (Boolean) -> Unit,
     onPriorityChange: (TaskPriority) -> Unit,
+    notificationOffset: NotificationOffset,
     modifier: Modifier = Modifier
 ) {
     val status = taskEdit.activeStatus
@@ -682,6 +691,20 @@ private fun AssignmentConfiguration(
                     onCheckedChange = onDefaultChange
                 )
             }
+            AnimatedVisibility(
+                visible = !showRequestPermissionWarning
+                        && !showRequestExactAlarmDialog
+                        && status.reminderSet
+            ) {
+                ReminderHint(
+                    startDate = taskEdit.selectedStartDate?.run {
+                        this - notificationOffset.toDuration()
+                    },
+                    dueDate = taskEdit.selectedDueDate?.run {
+                        this - notificationOffset.toDuration()
+                    }
+                )
+            }
             if (showRequestPermissionWarning) InvalidWarning(
                 warning = stringResource(PlanArrangementDictionary.requestNotificationWarning)
             )
@@ -723,6 +746,40 @@ private fun AssignmentConfiguration(
             )
         }
     )
+}
+
+@Composable
+private fun ReminderHint(
+    startDate: Date?,
+    dueDate: Date?,
+    modifier: Modifier = Modifier,
+    style: TextStyle = MaterialTheme.typography.bodySmall
+) {
+    val color = { d: Date ->
+        if (d.toInstant() < Clock.System.now())
+            Red
+        else Green
+    }
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        if (startDate != null) Text(
+            text = "~${stringResource(PlanArrangementDictionary.startTime)}: " +
+                        stringResource(PlanArrangementDictionary.remindedAt) + " " +
+                                startDate.toStringLocalized(),
+            color = color(startDate),
+            style = style
+        )
+        if (dueDate != null) Text(
+            text = "~${stringResource(PlanArrangementDictionary.endTime)}: " +
+                        stringResource(PlanArrangementDictionary.remindedAt) + " " +
+                                dueDate.toStringLocalized(),
+            color = color(dueDate),
+            style = style
+        )
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -1350,7 +1407,8 @@ private fun ContentPreview(
             onNewTaskClick = {},
             onDeleteActiveTask = {},
             showDeleteWarning = false,
-            onDismissDeleteWarning = {}
+            onDismissDeleteWarning = {},
+            notificationOffset = NotificationOffset.Default
         )
     }
 }

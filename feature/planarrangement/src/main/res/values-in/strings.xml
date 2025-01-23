@@ -35,4 +35,5 @@
     <string name="planarrangement_delete_warning_title">Hapus Tugas</string>
     <string name="planarrangement_delete">Hapus</string>
     <string name="planarrangement_delete_warning_desc">Hapus tugas dari rencana?</string>
+    <string name="planarrangement_reminded_at">diingatkan pada</string>
 </resources>

@@ -9,16 +9,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.nrr.data.repository.TaskRepository
+import com.nrr.data.repository.UserDataRepository
 import com.nrr.domain.RemoveActiveTasksUseCase
 import com.nrr.domain.SaveActiveTasksUseCase
+import com.nrr.model.NotificationOffset
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.TaskPriority
 import com.nrr.notification.ScheduledTaskNotifier
 import com.nrr.planarrangement.navigation.PlanArrangementRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -28,6 +32,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PlanArrangementViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    userDataRepository: UserDataRepository,
     private val taskRepository: TaskRepository,
     private val saveActiveTasksUseCase: SaveActiveTasksUseCase,
     private val scheduledTaskNotifier: ScheduledTaskNotifier,
@@ -67,6 +72,29 @@ class PlanArrangementViewModel @Inject constructor(
 
     internal var taskEdit by mutableStateOf<TaskEdit?>(null)
         private set
+
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    internal val notificationOffset = snapshotFlow { taskEdit }
+        .map {
+            it?.activeStatus?.period
+        }
+        .flatMapLatest { p ->
+            p?.let {
+                userDataRepository.userData.map {
+                    when (p) {
+                        TaskPeriod.DAY -> it.dayNotificationOffset
+                        TaskPeriod.WEEK -> it.weekNotificationOffset
+                        TaskPeriod.MONTH -> it.monthNotificationOffset
+                    }
+                }
+            } ?: flowOf(NotificationOffset.Default)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = NotificationOffset.Default
+        )
 
     internal val saveEnabled = snapshotFlow { taskEdit }
         .map {

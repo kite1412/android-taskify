@@ -7,7 +7,7 @@ internal data class Time(
     val minute: Int = 0,
     val hour: Int = 0
 ) : Comparable<Time> {
-    override fun compareTo(other: Time): Int {
+    override infix fun compareTo(other: Time): Int {
         val checkHour = hour compareTo other.hour
         if (checkHour != 0) {
             return checkHour
