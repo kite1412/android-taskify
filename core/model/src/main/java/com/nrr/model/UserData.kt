@@ -7,5 +7,6 @@ data class UserData(
     val dayNotificationOffset: NotificationOffset,
     val weekNotificationOffset: NotificationOffset,
     val monthNotificationOffset: NotificationOffset,
-    val pushNotification: PushNotificationConfig
+    val pushNotification: PushNotificationConfig,
+    val reminderQueue: List<TaskReminder>
 )

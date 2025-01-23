@@ -4,6 +4,7 @@ import "com/nrr/taskify/data/language_config_proto.proto";
 import "com/nrr/taskify/data/theme_config_proto.proto";
 import "com/nrr/taskify/data/notification_offset_config_proto.proto";
 import "com/nrr/taskify/data/push_notification_config_proto.proto";
+import "com/nrr/taskify/data/task_reminder_proto.proto";
 
 // datastore module namespace
 option java_package = "com.nrr.datastore";
@@ -17,4 +18,5 @@ message UserPreferences {
     NotificationOffsetConfigProto week_notification_offset = 5;
     NotificationOffsetConfigProto month_notification_offset = 6;
     PushNotificationConfigProto push_notification = 7;
+    repeated TaskReminderProto reminder_queue = 8;
 }

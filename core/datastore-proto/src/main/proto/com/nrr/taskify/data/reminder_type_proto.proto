@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option java_package = "com.nrr.datastore";
+option java_multiple_files = true;
+
+enum ReminderTypeProto {
+    REMINDER_TYPE_PROTO_START = 0;
+    REMINDER_TYPE_PROTO_END = 1;
+}

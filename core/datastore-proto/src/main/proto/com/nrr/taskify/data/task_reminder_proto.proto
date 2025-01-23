@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "com/nrr/taskify/data/reminder_type_proto.proto";
+
+option java_package = "com.nrr.datastore";
+option java_multiple_files = true;
+
+message TaskReminderProto {
+    int64 active_task_id = 1;
+    ReminderTypeProto reminder_type = 2;
+    int64 epoch_millis = 3;
+}
