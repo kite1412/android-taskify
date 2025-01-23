@@ -27,41 +27,51 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
     private val alarmManager = context
         .getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-    override suspend fun scheduleReminder(task: Task): Result {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-            && !alarmManager.canScheduleExactAlarms()
-        ) return Result.Fail(Reason.EXACT_ALARM_NOT_PERMITTED)
+    private val scheduler = ImmediateScheduler()
 
-        val data = TaskWithReminder(task.toFiltered(), ReminderType.START)
-        val notificationOffset = userDataRepository.userData
-            .map {
-                when (task.activeStatuses.first().period) {
-                    TaskPeriod.DAY -> it.dayNotificationOffset
-                    TaskPeriod.WEEK -> it.weekNotificationOffset
-                    TaskPeriod.MONTH -> it.monthNotificationOffset
-                }
-            }.first()
-        val notificationDate = data.task.startDate - notificationOffset.toDuration()
+    override suspend fun scheduleReminder(task: Task): Result =
+        scheduler.scheduleReminder(task)
 
-        if (notificationDate <= Clock.System.now())
-            return Result.Fail(Reason.START_DATE_IN_PAST)
+    override fun cancelReminder(activeTask: Task) =
+        scheduler.cancelReminder(activeTask)
 
-        val activeStatusId = data.task.id.toInt()
-        val pendingIntent = scheduledTaskReceiverPendingIntent(context, activeStatusId)
+    private inner class ImmediateScheduler : ScheduledTaskNotifier {
+        override suspend fun scheduleReminder(task: Task): Result {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                && !alarmManager.canScheduleExactAlarms()
+            ) return Result.Fail(Reason.EXACT_ALARM_NOT_PERMITTED)
 
-        alarmManager.cancel(pendingIntent)
-        alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            notificationDate.toEpochMilliseconds(),
-            pendingIntent
-        )
-        return Result.Success(null)
-    }
+            val data = TaskWithReminder(task.toFiltered(), ReminderType.START)
+            val notificationOffset = userDataRepository.userData
+                .map {
+                    when (task.activeStatuses.first().period) {
+                        TaskPeriod.DAY -> it.dayNotificationOffset
+                        TaskPeriod.WEEK -> it.weekNotificationOffset
+                        TaskPeriod.MONTH -> it.monthNotificationOffset
+                    }
+                }.first()
+            val notificationDate = data.task.startDate - notificationOffset.toDuration()
 
-    override fun cancelReminder(activeTask: Task) {
-        val activeStatusId = activeTask.activeStatuses.firstOrNull()?.id?.toInt()
-            ?: return
+            if (notificationDate <= Clock.System.now())
+                return Result.Fail(Reason.START_DATE_IN_PAST)
 
-        alarmManager.cancel(scheduledTaskReceiverPendingIntent(context, activeStatusId))
+            val activeStatusId = data.task.id.toInt()
+            val pendingIntent = scheduledTaskReceiverPendingIntent(context, activeStatusId)
+
+            alarmManager.cancel(pendingIntent)
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                notificationDate.toEpochMilliseconds(),
+                pendingIntent
+            )
+            return Result.Success(null)
+        }
+
+        override fun cancelReminder(activeTask: Task) {
+            val activeStatusId = activeTask.activeStatuses.firstOrNull()?.id?.toInt()
+                ?: return
+
+            alarmManager.cancel(scheduledTaskReceiverPendingIntent(context, activeStatusId))
+        }
     }
 }
