@@ -4,6 +4,7 @@ import com.nrr.datastore.TaskifyPreferencesDataSource
 import com.nrr.model.LanguageConfig
 import com.nrr.model.NotificationOffset
 import com.nrr.model.PushNotificationConfig
+import com.nrr.model.TaskReminder
 import com.nrr.model.ThemeConfig
 import com.nrr.model.UserData
 import kotlinx.coroutines.flow.Flow
@@ -35,4 +36,10 @@ class DataStoreUserDataRepository @Inject constructor(
 
     override suspend fun setPushNotificationConfig(newPushNotificationConfig: PushNotificationConfig) =
         taskifyPreferencesDataSource.setPushNotificationConfig(newPushNotificationConfig)
+
+    override suspend fun addTaskReminder(index: Int, reminder: TaskReminder) =
+        taskifyPreferencesDataSource.addToReminderQueue(index, reminder)
+
+    override suspend fun removeTaskReminder(index: Int) =
+        taskifyPreferencesDataSource.removeFromReminderQueue(index)
 }

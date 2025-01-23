@@ -3,6 +3,7 @@ package com.nrr.data.repository
 import com.nrr.model.LanguageConfig
 import com.nrr.model.NotificationOffset
 import com.nrr.model.PushNotificationConfig
+import com.nrr.model.TaskReminder
 import com.nrr.model.ThemeConfig
 import com.nrr.model.UserData
 import kotlinx.coroutines.flow.Flow
@@ -23,4 +24,8 @@ interface UserDataRepository {
     suspend fun setMonthNotificationOffsetConfig(newNotificationOffset: NotificationOffset)
 
     suspend fun setPushNotificationConfig(newPushNotificationConfig: PushNotificationConfig)
+
+    suspend fun addTaskReminder(index: Int, reminder: TaskReminder)
+
+    suspend fun removeTaskReminder(index: Int)
 }

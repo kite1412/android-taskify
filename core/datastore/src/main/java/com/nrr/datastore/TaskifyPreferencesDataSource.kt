@@ -2,18 +2,18 @@ package com.nrr.datastore
 
 import android.util.Log
 import androidx.datastore.core.DataStore
+import com.nrr.datastore.util.toTaskReminder
+import com.nrr.datastore.util.toTaskReminderProto
 import com.nrr.datastore.util.toTimeUnit
 import com.nrr.datastore.util.toTimeUnitProto
 import com.nrr.model.LanguageConfig
 import com.nrr.model.NotificationOffset
 import com.nrr.model.PushNotificationConfig
-import com.nrr.model.ReminderType
 import com.nrr.model.TaskReminder
 import com.nrr.model.ThemeConfig
 import com.nrr.model.TimeUnit
 import com.nrr.model.UserData
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Instant
 import javax.inject.Inject
 
 class TaskifyPreferencesDataSource @Inject constructor(
@@ -48,13 +48,7 @@ class TaskifyPreferencesDataSource @Inject constructor(
                     )
                 },
                 pushNotification = PushNotificationConfig.entries[it.pushNotification.ordinal],
-                reminderQueue = it.reminderQueueList.map { r ->
-                    TaskReminder(
-                        activeTaskId = r.activeTaskId,
-                        reminderType = ReminderType.entries[r.reminderType.ordinal],
-                        date = Instant.fromEpochMilliseconds(r.epochMillis)
-                    )
-                }
+                reminderQueue = it.reminderQueueList.map(TaskReminderProto::toTaskReminder)
             )
         }
 
@@ -165,6 +159,30 @@ class TaskifyPreferencesDataSource @Inject constructor(
             }
         } catch (e: Exception) {
             Log.e(tag, "Error updating push notification config", e)
+        }
+    }
+
+    suspend fun addToReminderQueue(index: Int, reminder: TaskReminder) {
+        try {
+            userPreferences.updateData {
+                it.toBuilder()
+                    .addReminderQueue(index, reminder.toTaskReminderProto())
+                    .build()
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "Error adding to reminder queue", e)
+        }
+    }
+
+    suspend fun removeFromReminderQueue(index: Int) {
+        try {
+            userPreferences.updateData {
+                it.toBuilder()
+                    .removeReminderQueue(index)
+                    .build()
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "Error removing from reminder queue", e)
         }
     }
 }
