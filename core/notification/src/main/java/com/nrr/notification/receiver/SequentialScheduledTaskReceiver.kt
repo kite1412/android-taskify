@@ -27,6 +27,9 @@ class SequentialScheduledTaskReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent == null) return
+        if (intent.action != Intent.ACTION_BOOT_COMPLETED
+            && intent.action != SEQUENTIAL_TASK_REMINDER_ACTION
+        ) return
 
         val alarmManager = context
             .getSystemService(Context.ALARM_SERVICE) as AlarmManager

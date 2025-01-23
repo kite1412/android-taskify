@@ -108,7 +108,7 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
             var endIndex: Int = -1
             reminders.second?.let { end ->
                 endIndex = if (queue.isNotEmpty()) queue.indexOfFirst {
-                    end.date - notificationOffset < it.date
+                    end.date - notificationOffset <= it.date
                 }
                     .takeIf { it >= 0 } ?: queue.size else 1
             }
