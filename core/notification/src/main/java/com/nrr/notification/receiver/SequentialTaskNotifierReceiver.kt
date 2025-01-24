@@ -64,13 +64,6 @@ class SequentialTaskNotifierReceiver : BroadcastReceiver() {
             } ?: return@launch
             val taskWithReminder = TaskWithReminder(task.toFiltered(), reminderType)
 
-            with(taskWithReminder.task) {
-                if (completed || !set) {
-                    removeFirstAndSendBroadcast()
-                    return@launch
-                }
-            }
-
             val userData = userDataRepository.userData.first()
             val queue = userData.reminderQueue
             val notificationOffset = when (task.activeStatuses.first().period) {
@@ -100,23 +93,27 @@ class SequentialTaskNotifierReceiver : BroadcastReceiver() {
                                 .firstOrNull()
                                 ?.let { l ->
                                     l.forEach { t ->
-                                        notifyScheduledTask(
-                                            context = context,
-                                            task = t,
-                                            reminderType = reminders.first { r ->
-                                                r.activeTaskId == t.activeStatuses.first().id
-                                            }.reminderType
-                                        )
+                                        with (t.activeStatuses.first()) {
+                                            if (!isCompleted && isSet) notifyScheduledTask(
+                                                context = context,
+                                                task = t,
+                                                reminderType = reminders.first { r ->
+                                                    r.activeTaskId == this.id
+                                                }.reminderType
+                                            )
+                                        }
                                     }
                                 }
                             context.sendBroadcast(sequentialTaskSchedulerIntent(context))
                         }
                 } ?: run {
-                    notifyScheduledTask(
-                        context = context,
-                        task = task,
-                        reminderType = reminderType
-                    )
+                    with(taskWithReminder.task) {
+                        if (!completed && set) notifyScheduledTask(
+                            context = context,
+                            task = task,
+                            reminderType = reminderType
+                        )
+                    }
                     removeFirstAndSendBroadcast()
                 }
         }
