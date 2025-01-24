@@ -1,5 +1,6 @@
 package com.nrr.settings
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -88,30 +89,35 @@ internal fun SettingsScreen(
     val monthNotificationOffset = userData?.monthNotificationOffset
 
     if (userData != null)
-        if (windowWidthClass == WindowWidthSizeClass.COMPACT) Content(
-            menu = menu,
-            themeIndicator = theme!!.toStringLocalized(),
-            languagesIndicator = language!!.toString(),
-            notificationsIndicator = pushNotification!!.toString(),
-            onMenuClick = viewModel::updateCurrentMenu,
-            onBackClick = {
+        if (windowWidthClass == WindowWidthSizeClass.COMPACT) {
+            val backClick = {
                 if (menu == null || routeMenu != null) onBackClick()
                 else viewModel.updateCurrentMenu(null)
-            },
-            theme = theme,
-            onThemeClick = viewModel::updateTheme,
-            language = language,
-            onLanguageClick = viewModel::updateLanguage,
-            pushNotification = pushNotification == PushNotificationConfig.PUSH_ALL,
-            onPushNotificationClick = viewModel::updatePushNotification,
-            dayNotificationOffset = dayNotificationOffset!!,
-            onDayNotificationOffsetChange = viewModel::updateDayNotificationOffset,
-            weekNotificationOffset = weekNotificationOffset!!,
-            onWeekNotificationOffsetChange = viewModel::updateWeekNotificationOffset,
-            monthNotificationOffset = monthNotificationOffset!!,
-            onMonthNotificationOffsetChange = viewModel::updateMonthNotificationOffset,
-            modifier = modifier
-        ) else if (menu != null) Content2Pane(
+            }
+
+            BackHandler(onBack = backClick)
+            Content(
+                menu = menu,
+                themeIndicator = theme!!.toStringLocalized(),
+                languagesIndicator = language!!.toString(),
+                notificationsIndicator = pushNotification!!.toString(),
+                onMenuClick = viewModel::updateCurrentMenu,
+                onBackClick = backClick,
+                theme = theme,
+                onThemeClick = viewModel::updateTheme,
+                language = language,
+                onLanguageClick = viewModel::updateLanguage,
+                pushNotification = pushNotification == PushNotificationConfig.PUSH_ALL,
+                onPushNotificationClick = viewModel::updatePushNotification,
+                dayNotificationOffset = dayNotificationOffset!!,
+                onDayNotificationOffsetChange = viewModel::updateDayNotificationOffset,
+                weekNotificationOffset = weekNotificationOffset!!,
+                onWeekNotificationOffsetChange = viewModel::updateWeekNotificationOffset,
+                monthNotificationOffset = monthNotificationOffset!!,
+                onMonthNotificationOffsetChange = viewModel::updateMonthNotificationOffset,
+                modifier = modifier
+            )
+        } else if (menu != null) Content2Pane(
             selectedMenu = menu,
             onMenuClick = viewModel::updateCurrentMenu,
             onBackClick = onBackClick,
