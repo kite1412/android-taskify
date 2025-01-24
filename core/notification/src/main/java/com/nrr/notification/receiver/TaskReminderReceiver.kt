@@ -37,7 +37,7 @@ const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_SCHEME_AND_HOST/{$DEEP_LINK_PERIOD
 const val TASK_REMINDER_ACTION = "com.nrr.notification.TASK_REMINDER"
 
 @AndroidEntryPoint
-class ScheduledTaskReceiver : BroadcastReceiver() {
+class TaskReminderReceiver : BroadcastReceiver() {
     private val mainActivityName = "com.nrr.taskify.MainActivity"
 
     @Inject
@@ -67,7 +67,7 @@ class ScheduledTaskReceiver : BroadcastReceiver() {
             ?.let {
                 ReminderType.entries[it]
             } ?: ReminderType.START
-        // TODO implement due notification
+        
         CoroutineScope(Dispatchers.Main).launch {
             val task = id.takeIf { it > 0 }?.let {
                 taskRepository.getActiveTasksByIds(listOf(it.toLong()))
@@ -160,18 +160,18 @@ class ScheduledTaskReceiver : BroadcastReceiver() {
     }
 }
 
-internal fun scheduledTaskReceiverPendingIntent(
+internal fun taskReminderReceiverPendingIntent(
     context: Context,
     activeStatusId: Int,
     reminderType: ReminderType? = null
 ) = PendingIntent.getBroadcast(
     context,
     activeStatusId,
-    Intent(context, ScheduledTaskReceiver::class.java).apply {
+    Intent(context, TaskReminderReceiver::class.java).apply {
         action = TASK_REMINDER_ACTION
-        putExtra(ScheduledTaskReceiver.DATA_KEY, activeStatusId)
+        putExtra(TaskReminderReceiver.DATA_KEY, activeStatusId)
         reminderType?.let {
-            putExtra(ScheduledTaskReceiver.REMINDER_TYPE_ORDINAL_KEY, it.ordinal)
+            putExtra(TaskReminderReceiver.REMINDER_TYPE_ORDINAL_KEY, it.ordinal)
         }
     },
     PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT

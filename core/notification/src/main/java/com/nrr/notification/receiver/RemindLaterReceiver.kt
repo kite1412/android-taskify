@@ -15,8 +15,8 @@ class RemindLaterReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent == null) return
 
-        val id = intent.getIntExtra(ScheduledTaskReceiver.DATA_KEY, 0)
-        val reminderType = intent.getIntExtra(ScheduledTaskReceiver.REMINDER_TYPE_ORDINAL_KEY, -1)
+        val id = intent.getIntExtra(TaskReminderReceiver.DATA_KEY, 0)
+        val reminderType = intent.getIntExtra(TaskReminderReceiver.REMINDER_TYPE_ORDINAL_KEY, -1)
         (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
             .cancel(id)
 
@@ -24,7 +24,7 @@ class RemindLaterReceiver : BroadcastReceiver() {
             .setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 (Clock.System.now() + 5.minutes).toEpochMilliseconds(),
-                scheduledTaskReceiverPendingIntent(
+                taskReminderReceiverPendingIntent(
                     context = context,
                     activeStatusId = id,
                     reminderType = reminderType.takeIf { it != -1 }

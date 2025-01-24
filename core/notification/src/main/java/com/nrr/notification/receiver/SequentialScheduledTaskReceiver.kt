@@ -57,7 +57,7 @@ class SequentialScheduledTaskReceiver : BroadcastReceiver() {
 
             val first = queue[firstIndex]
 
-            val pendingIntent = scheduledTaskReceiverPendingIntent(
+            val pendingIntent = taskReminderReceiverPendingIntent(
                 context = context,
                 activeStatusId = first.activeTaskId.toInt(),
                 reminderType = first.reminderType

@@ -7,12 +7,13 @@ import com.nrr.data.repository.UserDataRepository
 import com.nrr.model.ReminderType
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
+import com.nrr.model.TaskReminder
 import com.nrr.notification.model.Result
 import com.nrr.notification.model.Result.Fail.Reason
 import com.nrr.notification.model.TaskWithReminder
 import com.nrr.notification.model.toFiltered
-import com.nrr.notification.receiver.scheduledTaskReceiverPendingIntent
 import com.nrr.notification.receiver.sequentialScheduledTaskIntent
+import com.nrr.notification.receiver.taskReminderReceiverPendingIntent
 import com.nrr.notification.util.toTaskReminders
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
@@ -58,7 +59,7 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
                 return Result.Fail(Reason.START_DATE_IN_PAST)
 
             val activeStatusId = data.task.id.toInt()
-            val pendingIntent = scheduledTaskReceiverPendingIntent(context, activeStatusId)
+            val pendingIntent = taskReminderReceiverPendingIntent(context, activeStatusId)
 
             alarmManager.cancel(pendingIntent)
             alarmManager.setExactAndAllowWhileIdle(
@@ -73,7 +74,7 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
             val activeStatusId = activeTask.activeStatuses.firstOrNull()?.id?.toInt()
                 ?: return
 
-            alarmManager.cancel(scheduledTaskReceiverPendingIntent(context, activeStatusId))
+            alarmManager.cancel(taskReminderReceiverPendingIntent(context, activeStatusId))
         }
     }
 
@@ -100,42 +101,50 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
             queue = queue.filter { it.activeTaskId != reminders.first.activeTaskId }
             val startDate = reminders.first.date - notificationOffset
 
-            val startIndex = if (queue.isNotEmpty()) queue.indexOfFirst {
+            val now = Clock.System.now()
+            val startIndex = if (startDate > now) if (queue.isNotEmpty()) queue.indexOfFirst {
                 startDate <= it.date
             }
-                .takeIf { it >= 0 } ?: queue.size else 0
+                .takeIf { it >= 0 } ?: queue.size else 0 else -1
 
             var endIndex: Int = -1
             reminders.second?.let { end ->
-                endIndex = if (queue.isNotEmpty()) queue.indexOfFirst {
-                    end.date - notificationOffset <= it.date
+                val endDate = end.date - notificationOffset
+                endIndex = if (endDate > now) if (queue.isNotEmpty()) queue.indexOfFirst {
+                    endDate <= it.date
                 }
-                    .takeIf { it >= 0 } ?: queue.size else 1
+                    .takeIf { it >= 0 } ?: queue.size else 1 else -1
             }
-            userDataRepository.addTaskReminders(
-                reminders = mutableMapOf(
-                    startIndex to reminders.first.copy(date = startDate)
-                ).apply {
-                    if (endIndex != -1) put(
+            if (startIndex != -1 || endIndex != -1) userDataRepository.addTaskReminders(
+                reminders = mutableMapOf<Int, TaskReminder>().apply {
+                    if (startIndex != -1) put(
+                        key = startIndex,
+                        value = reminders.first.copy(date = startDate)
+                    )
+                    if (endIndex != -1 && startIndex != endIndex) put(
                         key = endIndex,
                         value = reminders.second!!.copy(
                             date = reminders.second!!.date - notificationOffset
                         )
                     )
                 }
-            )
+            ) else return Result.Fail(Reason.BOTH_DATE_IN_PAST)
 
             if (startIndex == 0 || endIndex == 0) {
                 context.sendBroadcast(sequentialScheduledTaskIntent(context))
             }
-            return Result.Success(null)
+            return Result.Success(
+                warning = if (startIndex == -1) Result.Success.Warning.START_REMINDER_IN_PAST
+                    else if (endIndex == -1) Result.Success.Warning.END_REMINDER_IN_PAST
+                    else null
+            )
         }
 
         override fun cancelReminder(activeTask: Task) {
             val activeStatusId = activeTask.activeStatuses.firstOrNull()?.id?.toInt()
                 ?: return
 
-            alarmManager.cancel(scheduledTaskReceiverPendingIntent(context, activeStatusId))
+            alarmManager.cancel(taskReminderReceiverPendingIntent(context, activeStatusId))
         }
     }
 }
