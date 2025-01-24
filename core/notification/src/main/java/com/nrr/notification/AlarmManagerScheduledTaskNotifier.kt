@@ -105,14 +105,12 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
 
             val now = Clock.System.now()
             val remindersInQueue = queue.toMutableList().apply {
-                var index = 0
                 if (startDate > now) {
-                    add(index, reminders.first.copy(date = startDate))
-                    index = 1
+                    add(reminders.first.copy(date = startDate))
                 }
                 reminders.second?.let {
                     val endDate = reminders.second!!.date - notificationOffset
-                    if (endDate > now) add(index, reminders.second!!.copy(date = endDate))
+                    if (endDate > now) add(reminders.second!!.copy(date = endDate))
                 }
             }
                 .sortedBy { it.date }

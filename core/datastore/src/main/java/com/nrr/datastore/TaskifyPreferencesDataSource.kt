@@ -184,7 +184,7 @@ class TaskifyPreferencesDataSource @Inject constructor(
             userPreferences.updateData {
                 it.toBuilder()
                     .apply {
-                        indexes.forEach { i ->
+                        indexes.sortedDescending().forEach { i ->
                             removeReminderQueue(i)
                         }
                     }
