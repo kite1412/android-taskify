@@ -9,14 +9,15 @@ import com.nrr.model.ReminderType
 import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.minutes
 
-const val REMIND_LATER_ACTION = "com.nrr.notification.REMIND_LATER"
+const val REMIND_LATER_SCHEDULER_ACTION = "com.nrr.notification.REMIND_LATER_SCHEDULER"
 
-class RemindLaterReceiver : BroadcastReceiver() {
+class RemindLaterSchedulerReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent == null) return
 
-        val id = intent.getIntExtra(TaskReminderReceiver.DATA_KEY, 0)
-        val reminderType = intent.getIntExtra(TaskReminderReceiver.REMINDER_TYPE_ORDINAL_KEY, -1)
+        val id = intent.getIntExtra(SequentialTaskNotifierReceiver.DATA_KEY, 0)
+        val reminderTypeOrdinal =
+            intent.getIntExtra(SequentialTaskNotifierReceiver.REMINDER_TYPE_ORDINAL_KEY, -1)
         (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
             .cancel(id)
 
@@ -24,11 +25,10 @@ class RemindLaterReceiver : BroadcastReceiver() {
             .setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 (Clock.System.now() + 5.minutes).toEpochMilliseconds(),
-                taskReminderReceiverPendingIntent(
+                simpleTaskNotifierReceiverPendingIntent(
                     context = context,
                     activeStatusId = id,
-                    reminderType = reminderType.takeIf { it != -1 }
-                        ?.let { ReminderType.entries[it] }
+                    reminderType = ReminderType.entries[reminderTypeOrdinal]
                 )
             )
     }

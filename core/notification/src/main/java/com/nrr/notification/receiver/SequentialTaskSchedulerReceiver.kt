@@ -15,10 +15,10 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import javax.inject.Inject
 
-const val SEQUENTIAL_TASK_REMINDER_ACTION = "com.nrr.taskify.SEQUENTIAL_TASK_REMINDER"
+const val SEQUENTIAL_TASK_SCHEDULER_ACTION = "com.nrr.taskify.SEQUENTIAL_TASK_SCHEDULER"
 
 @AndroidEntryPoint
-class SequentialScheduledTaskReceiver : BroadcastReceiver() {
+class SequentialTaskSchedulerReceiver : BroadcastReceiver() {
     @Inject
     lateinit var userDataRepository: UserDataRepository
 
@@ -28,7 +28,7 @@ class SequentialScheduledTaskReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent == null) return
         if (intent.action != Intent.ACTION_BOOT_COMPLETED
-            && intent.action != SEQUENTIAL_TASK_REMINDER_ACTION
+            && intent.action != SEQUENTIAL_TASK_SCHEDULER_ACTION
         ) return
 
         val alarmManager = context
@@ -57,7 +57,7 @@ class SequentialScheduledTaskReceiver : BroadcastReceiver() {
 
             val first = queue[firstIndex]
 
-            val pendingIntent = taskReminderReceiverPendingIntent(
+            val pendingIntent = sequentialTaskNotifierPendingIntent(
                 context = context,
                 activeStatusId = first.activeTaskId.toInt(),
                 reminderType = first.reminderType
@@ -73,7 +73,7 @@ class SequentialScheduledTaskReceiver : BroadcastReceiver() {
     }
 }
 
-internal fun sequentialScheduledTaskIntent(context: Context) =
-    Intent(context, SequentialScheduledTaskReceiver::class.java).apply {
-        action = SEQUENTIAL_TASK_REMINDER_ACTION
+internal fun sequentialTaskSchedulerIntent(context: Context) =
+    Intent(context, SequentialTaskSchedulerReceiver::class.java).apply {
+        action = SEQUENTIAL_TASK_SCHEDULER_ACTION
     }
