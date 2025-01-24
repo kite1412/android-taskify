@@ -39,4 +39,5 @@ internal object PlanArrangementDictionary {
     val delete = R.string.planarrangement_delete
     val deleteWarningDesc = R.string.planarrangement_delete_warning_desc
     val remindedAt = R.string.planarrangement_reminded_at
+    val reminderSetting = R.string.planarrangement_reminder_setting
 }

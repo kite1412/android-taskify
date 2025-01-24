@@ -44,6 +44,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -141,6 +142,7 @@ import kotlinx.datetime.Instant
 internal fun PlanArrangementScreen(
     onBackClick: () -> Unit,
     onNewTaskClick: () -> Unit,
+    onReminderSettingClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PlanArrangementViewModel = hiltViewModel()
 ) {
@@ -190,6 +192,13 @@ internal fun PlanArrangementScreen(
             }
         },
         onNewTaskClick = onNewTaskClick,
+        showDeleteWarning = showDeleteWarning,
+        onDismissDeleteWarning = {
+            viewModel.updateDeleteWarning(false)
+        },
+        notificationOffset = notificationOffset,
+        onReminderSettingClick = onReminderSettingClick,
+        modifier = modifier,
         onDeleteActiveTask = if (viewModel.activeStatusId != null) {
             {
                 if (showDeleteWarning) {
@@ -206,13 +215,7 @@ internal fun PlanArrangementScreen(
                     viewModel.updateDeleteWarning(true)
                 }
             }
-        } else null,
-        showDeleteWarning = showDeleteWarning,
-        onDismissDeleteWarning = {
-            viewModel.updateDeleteWarning(false)
-        },
-        notificationOffset = notificationOffset,
-        modifier = modifier
+        } else null
     )
 }
 
@@ -240,6 +243,7 @@ private fun Content(
     showDeleteWarning: Boolean,
     onDismissDeleteWarning: () -> Unit,
     notificationOffset: NotificationOffset,
+    onReminderSettingClick: () -> Unit,
     modifier: Modifier = Modifier,
     onDeleteActiveTask: (() -> Unit)? = null
 ) {
@@ -325,7 +329,8 @@ private fun Content(
                 onPriorityChange = onPriorityChange,
                 saveEnabled = saveEnabled,
                 onSave = onSave,
-                notificationOffset = notificationOffset
+                notificationOffset = notificationOffset,
+                onReminderSettingClick = onReminderSettingClick
             )
         }
     }
@@ -492,6 +497,7 @@ private fun AssignTask(
     saveEnabled: Boolean,
     onSave: () -> Unit,
     notificationOffset: NotificationOffset,
+    onReminderSettingClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (taskEdit != null) {
@@ -541,7 +547,8 @@ private fun AssignTask(
                         onReminderChange = onReminderChange,
                         onDefaultChange = onDefaultChange,
                         onPriorityChange = onPriorityChange,
-                        notificationOffset = notificationOffset
+                        notificationOffset = notificationOffset,
+                        onReminderSettingClick = onReminderSettingClick
                     )
                 }
             }
@@ -639,6 +646,7 @@ private fun AssignmentConfiguration(
     onReminderChange: (Boolean) -> Unit,
     onDefaultChange: (Boolean) -> Unit,
     onPriorityChange: (TaskPriority) -> Unit,
+    onReminderSettingClick: () -> Unit,
     notificationOffset: NotificationOffset,
     modifier: Modifier = Modifier
 ) {
@@ -701,11 +709,13 @@ private fun AssignmentConfiguration(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(24.dp)
+                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                verticalAlignment = Alignment.Bottom
             ) {
                 ReminderToggle(
                     checked = status.reminderSet,
-                    onCheckedChange = onReminderChange
+                    onCheckedChange = onReminderChange,
+                    onReminderSettingClick = onReminderSettingClick
                 )
                 DefaultToggle(
                     checked = status.isDefault,
@@ -1199,16 +1209,51 @@ private fun PriorityButton(
 private fun ReminderToggle(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
+    onReminderSettingClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    ToggleField(
-        checked = checked,
-        onCheckedChange = onCheckedChange,
-        label = stringResource(PlanArrangementDictionary.reminder),
-        information = stringResource(PlanArrangementDictionary.reminderInfo),
+    Column(
         modifier = modifier,
-        showState = true
-    )
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        val labelFontStyle = MaterialTheme.typography.bodyMedium
+
+        Row(
+            modifier = Modifier
+                .clickable(
+                    indication = null,
+                    interactionSource = null,
+                    onClick = onReminderSettingClick
+                ),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val color = MaterialTheme.colorScheme.tertiary
+
+            Icon(
+                painter = painterResource(TaskifyIcon.setting),
+                contentDescription = "setting",
+                tint = color,
+                modifier = Modifier
+                    .size((labelFontStyle.fontSize.value).dp)
+                    .clip(CircleShape)
+            )
+            Text(
+                text = stringResource(PlanArrangementDictionary.reminderSetting),
+                color = color,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+        ToggleField(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            label = stringResource(PlanArrangementDictionary.reminder),
+            information = stringResource(PlanArrangementDictionary.reminderInfo),
+            showState = true,
+            modifier = modifier,
+            labelFontStyle = labelFontStyle
+        )
+    }
 }
 
 @Composable
@@ -1315,13 +1360,15 @@ private fun ToggleField(
     onCheckedChange: (Boolean) -> Unit,
     label: String,
     information: String,
+    showState: Boolean,
     modifier: Modifier = Modifier,
-    showState: Boolean
+    labelFontStyle: TextStyle = MaterialTheme.typography.bodyMedium
 ) {
     Field(
         label = label,
         modifier = modifier,
-        information = information
+        information = information,
+        labelFontStyle = labelFontStyle
     ) {
         Toggle(
             checked = checked,
@@ -1429,7 +1476,8 @@ private fun ContentPreview(
             onDeleteActiveTask = {},
             showDeleteWarning = false,
             onDismissDeleteWarning = {},
-            notificationOffset = NotificationOffset.Default
+            notificationOffset = NotificationOffset.Default,
+            onReminderSettingClick = {}
         )
     }
 }

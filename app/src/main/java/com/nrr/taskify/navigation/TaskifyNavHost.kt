@@ -10,6 +10,7 @@ import com.nrr.planarrangement.navigation.navigateToPlanArrangement
 import com.nrr.planarrangement.navigation.planArrangementScreen
 import com.nrr.plandetail.navigation.navigateToPlanDetail
 import com.nrr.plandetail.navigation.planDetailScreen
+import com.nrr.settings.Menu
 import com.nrr.settings.navigation.navigateToSettings
 import com.nrr.settings.navigation.settingsScreen
 import com.nrr.taskdetail.navigation.navigateToTaskDetail
@@ -75,6 +76,9 @@ fun TaskifyNavHost(
             onBackClick = navController::popBackStack,
             onNewTaskClick = {
                 navController.navigateToTaskDetail(null)
+            },
+            onReminderSettingClick = {
+                navController.navigateToSettings(Menu.NOTIFICATIONS)
             }
         )
         settingsScreen(
