@@ -27,9 +27,9 @@ internal fun notifyScheduledTask(
     task: Task,
     reminderType: ReminderType
 ) {
+    val taskFiltered = task.toFiltered()
     val notification = context.createNotification {
         val now = Clock.System.now()
-        val taskFiltered = task.toFiltered()
         val overdue = now > when (reminderType) {
             ReminderType.START -> taskFiltered.startDate
             ReminderType.END -> taskFiltered.dueDate ?: now
@@ -60,7 +60,7 @@ internal fun notifyScheduledTask(
     }
     NotificationManagerCompat.from(context)
         .notify(
-            task.id.toInt(),
+            taskFiltered.id.toInt(),
             notification
         )
 }

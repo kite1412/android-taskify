@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-const val REMIND_LATER_NOTIFIER_ACTION = "com.nrr.notification.SIMPLE_TASK_NOTIFIER"
+const val SIMPLE_TASK_NOTIFIER_ACTION = "com.nrr.notification.SIMPLE_TASK_NOTIFIER"
 
 @AndroidEntryPoint
 class SimpleTaskNotifierReceiver : BroadcastReceiver() {
@@ -74,7 +74,7 @@ internal fun simpleTaskNotifierReceiverPendingIntent(
     context,
     activeStatusId,
     Intent(context, SimpleTaskNotifierReceiver::class.java).apply {
-        action = REMIND_LATER_NOTIFIER_ACTION
+        action = SIMPLE_TASK_NOTIFIER_ACTION
         putExtra(SimpleTaskNotifierReceiver.ACTIVE_STATUS_ID, activeStatusId)
         putExtra(SimpleTaskNotifierReceiver.REMINDER_TYPE_ORDINAL, reminderType.ordinal)
     },
