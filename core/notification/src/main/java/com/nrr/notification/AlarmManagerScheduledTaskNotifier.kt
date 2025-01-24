@@ -15,8 +15,11 @@ import com.nrr.notification.receiver.sequentialTaskNotifierPendingIntent
 import com.nrr.notification.receiver.sequentialTaskSchedulerIntent
 import com.nrr.notification.util.toTaskReminders
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -135,7 +138,20 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
             val activeStatusId = activeTask.activeStatuses.firstOrNull()?.id?.toInt()
                 ?: return
 
-            alarmManager.cancel(sequentialTaskNotifierPendingIntent(context, activeStatusId))
+            CoroutineScope(Dispatchers.Main).launch {
+                val queue = userDataRepository.userData.first().reminderQueue
+                queue
+                    .mapIndexed { i, r -> i to r }
+                    .filter { it.second.activeTaskId == activeStatusId.toLong() }
+                    .let {
+                        if (it.isNotEmpty()) userDataRepository.removeTaskReminders(
+                            indexes = it.map { p -> p.first }
+                        )
+                    }
+
+                alarmManager.cancel(sequentialTaskNotifierPendingIntent(context, activeStatusId))
+
+            }
         }
     }
 }
