@@ -861,7 +861,7 @@ private fun TimeField(
     val invalid = if (startDate == null) -1
         else {
             endDate?.let {
-                if (startDate > it) 1
+                if (startDate >= it) 1
                 else 0
             } ?: 0
         }
@@ -923,7 +923,7 @@ private fun TimeField(
                 startDate?.let { st ->
                     val time = it.toTime()
                     val ed = endDate?.copy(time = time) ?: Date(time = time)
-                    if (st <= ed) {
+                    if (st < ed) {
                         onEndTimeChange(time)
                         editingStartTime = null
                         warning = null

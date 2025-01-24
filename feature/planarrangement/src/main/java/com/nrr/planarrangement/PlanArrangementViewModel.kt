@@ -109,7 +109,7 @@ class PlanArrangementViewModel @Inject constructor(
                         || status.startDate.toDate() != it.selectedStartDate
                         || status.dueDate?.toDate() != it.selectedDueDate
                 } ?: true)
-                && (it.selectedDueDate == null || it.selectedStartDate <= it.selectedDueDate)
+                && (it.selectedDueDate == null || it.selectedStartDate < it.selectedDueDate)
                 && (it.activeStatus.period == TaskPeriod.DAY || it.selectedStartDate.dayOfMonth != null)
         }
 
