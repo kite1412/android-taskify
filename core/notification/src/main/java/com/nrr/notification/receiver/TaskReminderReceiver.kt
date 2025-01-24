@@ -73,8 +73,11 @@ class TaskReminderReceiver : BroadcastReceiver() {
                 taskRepository.getActiveTasksByIds(listOf(it.toLong()))
                     .firstOrNull()?.firstOrNull() ?: return@launch
             } ?: return@launch
-
             val taskWithReminder = TaskWithReminder(task.toFiltered(), reminderType)
+            with(taskWithReminder.task) {
+                if (completed || !set) return@launch
+            }
+
             val now = Clock.System.now()
             val notification = context.createNotification {
                 val taskFiltered = taskWithReminder.task

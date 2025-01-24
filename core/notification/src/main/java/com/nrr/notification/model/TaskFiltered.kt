@@ -7,7 +7,9 @@ data class TaskFiltered(
     val id: Long,
     val title: String,
     val startDate: Instant,
-    val dueDate: Instant?
+    val dueDate: Instant?,
+    val completed: Boolean = false,
+    val set: Boolean = false
 )
 
 internal fun Task.toFiltered() = with(activeStatuses.first()) {
@@ -15,6 +17,8 @@ internal fun Task.toFiltered() = with(activeStatuses.first()) {
         id = id,
         title = title,
         startDate = startDate,
-        dueDate = dueDate
+        dueDate = dueDate,
+        completed = isCompleted,
+        set = isSet
     )
 }
