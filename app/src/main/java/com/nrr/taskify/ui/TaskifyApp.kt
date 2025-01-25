@@ -1,5 +1,6 @@
 package com.nrr.taskify.ui
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
@@ -31,6 +32,7 @@ import com.nrr.designsystem.component.TaskifyTopAppBarDefaults
 import com.nrr.designsystem.component.TopAppBar
 import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.registration.RegistrationScreen
+import com.nrr.taskify.MainActivity
 import com.nrr.taskify.navigation.TaskifyNavHost
 import com.nrr.ui.LocalSafeAnimateContent
 import com.nrr.ui.LocalSnackbarHostState
@@ -50,6 +52,7 @@ internal fun TaskifyApp(
             coroutineScope = viewModel.viewModelScope
         )
     }
+    val contextIntent = (LocalActivity.current as MainActivity).intent
 
     CompositionLocalProvider(
         LocalSnackbarHostState provides snackbarHostStateWrapper,
@@ -71,7 +74,7 @@ internal fun TaskifyApp(
             contentColor = LocalContentColor.current
         ) { innerPadding ->
             AnimatedVisibility(
-                visible = registered == true,
+                visible = registered == true || contextIntent.data != null,
                 label = "main content",
                 enter = enterSpec,
                 exit = exitSpec,
@@ -99,7 +102,7 @@ internal fun TaskifyApp(
             }
             SplashScreen(
                 onCompleted = viewModel::dismissSplash,
-                showSplash = viewModel.showSplash
+                showSplash = viewModel.showSplash && contextIntent.data == null
             )
         }
     }
