@@ -9,9 +9,9 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-internal abstract class NotificationModule {
+internal interface NotificationModule {
     @Binds
-    abstract fun bindsScheduledTaskNotifier(
+    fun bindsScheduledTaskNotifier(
         scheduledTaskNotifier: AlarmManagerScheduledTaskNotifier
     ): ScheduledTaskNotifier
 }

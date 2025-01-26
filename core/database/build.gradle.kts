@@ -8,7 +8,7 @@ android {
 }
 
 dependencies {
-    api(projects.taskify.core.model)
+    api(projects.core.model)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

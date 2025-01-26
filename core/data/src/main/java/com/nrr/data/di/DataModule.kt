@@ -11,14 +11,14 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-internal abstract class DataModule {
+internal interface DataModule {
     @Binds
-    abstract fun bindsTaskRepository(
+    fun bindsTaskRepository(
         taskRepository: RoomTaskRepository
     ): TaskRepository
 
     @Binds
-    abstract fun bindsUserDataRepository(
+    fun bindsUserDataRepository(
         userDataRepository: DataStoreUserDataRepository
     ): UserDataRepository
 }

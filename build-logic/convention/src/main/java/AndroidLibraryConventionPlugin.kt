@@ -19,7 +19,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
 
             extensions.configure<LibraryExtension> {
                 configureKotlinAndroid(this)
-
+                defaultConfig.targetSdk = libs.findVersion("projectTargetSdkVersion").get().toString().toInt()
                 configureBuildTypes(
                     commonExtension = this,
                     type = ExtensionType.LIBRARY
@@ -27,6 +27,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
 
                 defaultConfig {
                     consumerProguardFiles("consumer-rules.pro")
+                    proguardFiles("proguard-rules.pro")
                 }
 
                 dependencies {

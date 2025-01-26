@@ -11,4 +11,5 @@ dependencies {
     api(projects.taskify.core.model)
     implementation(libs.cronet.embedded)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.compose.ui.tooling.preview)
 }

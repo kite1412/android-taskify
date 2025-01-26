@@ -17,7 +17,10 @@ internal fun Project.configureBuildTypes(
                 extensions.configure<ApplicationExtension> {
                     buildTypes {
                         release {
-                            configureReleaseBuildType(commonExtension)
+                            configureReleaseBuildType(
+                                extensionType = type,
+                                commonExtension = commonExtension
+                            )
                         }
                     }
                 }
@@ -26,7 +29,10 @@ internal fun Project.configureBuildTypes(
                 extensions.configure<LibraryExtension> {
                     buildTypes {
                         release {
-                            configureReleaseBuildType(commonExtension)
+                            configureReleaseBuildType(
+                                extensionType = type,
+                                commonExtension = commonExtension
+                            )
                         }
                     }
                 }
@@ -36,12 +42,11 @@ internal fun Project.configureBuildTypes(
 }
 
 private fun BuildType.configureReleaseBuildType(
+    extensionType: ExtensionType,
     commonExtension: CommonExtension<*, *, *, *, *, *>
 ) {
-    // change later
-    isMinifyEnabled = false
+    isMinifyEnabled = extensionType == ExtensionType.APPLICATION
     proguardFiles(
-        commonExtension.getDefaultProguardFile("proguard-android-optimize.txt"),
-        "proguard-rules.pro"
+        commonExtension.getDefaultProguardFile("proguard-android-optimize.txt")
     )
 }
