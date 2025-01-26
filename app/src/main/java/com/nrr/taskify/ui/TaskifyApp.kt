@@ -52,11 +52,11 @@ internal fun TaskifyApp(
             coroutineScope = viewModel.viewModelScope
         )
     }
-    val contextIntent = (LocalActivity.current as MainActivity).intent
+    val intentData = (LocalActivity.current as MainActivity).intent.data
 
     CompositionLocalProvider(
         LocalSnackbarHostState provides snackbarHostStateWrapper,
-        LocalSafeAnimateContent provides viewModel.safeToAnimate
+        LocalSafeAnimateContent provides (viewModel.safeToAnimate || intentData != null)
     ) {
         val enterSpec = slideInVertically(
             animationSpec = tween(durationMillis = viewModel.contentEnterDelay)
@@ -74,7 +74,7 @@ internal fun TaskifyApp(
             contentColor = LocalContentColor.current
         ) { innerPadding ->
             AnimatedVisibility(
-                visible = registered == true || contextIntent.data != null,
+                visible = registered == true || intentData != null,
                 label = "main content",
                 enter = enterSpec,
                 exit = exitSpec,
@@ -102,7 +102,7 @@ internal fun TaskifyApp(
             }
             SplashScreen(
                 onCompleted = viewModel::dismissSplash,
-                showSplash = viewModel.showSplash && contextIntent.data == null
+                showSplash = viewModel.showSplash && intentData == null
             )
         }
     }

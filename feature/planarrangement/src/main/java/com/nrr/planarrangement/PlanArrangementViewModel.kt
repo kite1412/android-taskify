@@ -16,6 +16,7 @@ import com.nrr.model.NotificationOffset
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.TaskPriority
+import com.nrr.model.toLocalDateTime
 import com.nrr.notification.ScheduledTaskNotifier
 import com.nrr.planarrangement.navigation.PlanArrangementRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,6 +28,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import javax.inject.Inject
 
 @HiltViewModel
@@ -163,7 +165,10 @@ class PlanArrangementViewModel @Inject constructor(
             ) else taskEdit?.selectedDueDate,
             activeStatus = taskEdit!!.activeStatus.copy(
                 period = period
-            )
+            ),
+            selectedStartDate = if (period == TaskPeriod.DAY) taskEdit?.selectedStartDate?.copy(
+                dayOfMonth = Clock.System.now().toLocalDateTime().dayOfMonth
+            ) else taskEdit?.selectedStartDate
         )
     }
 
