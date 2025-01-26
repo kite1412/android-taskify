@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.nrr.designsystem.LocalDarkTheme
 
 private val LightColorScheme = lightColorScheme(
     primary = VelvetRose,
@@ -57,7 +58,8 @@ fun TaskifyTheme(
         typography = Typography
     ) {
         CompositionLocalProvider(
-            LocalContentColor provides if (darkTheme) Color.White else Color.Black
+            LocalContentColor provides if (darkTheme) Color.White else Color.Black,
+            LocalDarkTheme provides darkTheme
         ) {
             content()
         }

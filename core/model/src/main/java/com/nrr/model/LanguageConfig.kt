@@ -22,4 +22,10 @@ enum class LanguageConfig {
             else -> "Indonesia"
         }
     }
+
+    fun toCode(): String = when (this) {
+        SYSTEM_DEFAULT -> "en"
+        ENGLISH -> "en"
+        else -> "in"
+    }
 }

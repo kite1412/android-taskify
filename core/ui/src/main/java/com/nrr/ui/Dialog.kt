@@ -1,6 +1,5 @@
 package com.nrr.ui
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -9,6 +8,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.nrr.designsystem.LocalDarkTheme
 
 @Composable
 fun Dialog(
@@ -64,7 +64,7 @@ data class DialogColors(
 
 object TaskifyDialogDefaults {
     private val whiteOrBlack: Color
-        @Composable get() = if (isSystemInDarkTheme()) Color.White else Color.Black
+        @Composable get() = if (LocalDarkTheme.current) Color.White else Color.Black
 
     @Composable
     fun colors(

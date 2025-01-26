@@ -11,12 +11,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.designsystem.theme.TaskifyTheme
+import com.nrr.model.ThemeConfig
 import com.nrr.taskify.ui.TaskifyApp
 import com.nrr.taskify.ui.TaskifyViewModel
 import com.nrr.ui.LocalExactAlarmState
@@ -46,7 +49,15 @@ class MainActivity : ComponentActivity() {
         }
         enableEdgeToEdge()
         setContent {
-            TaskifyTheme {
+            val userData by viewModel.userData.collectAsStateWithLifecycle()
+
+            TaskifyTheme(
+                darkTheme = when (userData?.themeConfig) {
+                    ThemeConfig.LIGHT -> false
+                    ThemeConfig.DARK -> true
+                    else -> isSystemInDarkTheme()
+                }
+            ){
                 CompositionLocalProvider(
                     LocalExactAlarmState provides exactAlarmEnabled
                 ) {

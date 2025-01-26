@@ -6,7 +6,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -57,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nrr.designsystem.LocalDarkTheme
 import com.nrr.designsystem.LocalScaffoldComponentSizes
 import com.nrr.designsystem.ScaffoldComponent
 import com.nrr.designsystem.component.Action
@@ -234,7 +234,7 @@ private fun Content(
             onClick = onTaskClick,
             showCard = { it.activeStatuses.any { s -> s.isSet } },
             spacer = {
-                val darkMode = isSystemInDarkTheme()
+                val darkTheme = LocalDarkTheme.current
                 if (it != todayTasks.lastIndex) BoxWithConstraints(
                     modifier = Modifier
                         .height(30.dp)
@@ -250,7 +250,7 @@ private fun Content(
                                 val space = 4.dp.toPx()
                                 repeat(2) { i ->
                                     drawLine(
-                                        color = if (darkMode) Color.White else Color.Black,
+                                        color = if (darkTheme) Color.White else Color.Black,
                                         start = Offset(x = 0f, y = lineHeight * i + (space * i)),
                                         end = Offset(
                                             x = 0f,
@@ -386,6 +386,7 @@ private fun TodayProgress(
         targetValue = if (progress == 1f) PastelGreen
             else MaterialTheme.colorScheme.primary
     )
+    val darkTheme = LocalDarkTheme.current
 
     Row(
         modifier = modifier
@@ -395,11 +396,11 @@ private fun TodayProgress(
                     CornerRadius(x = cornerRadius.toPx(), y = cornerRadius.toPx())
                 },
                 color = boxShadowColor(),
-                alpha = if (isSystemInDarkTheme()) 0.4f else 0.25f
+                alpha = if (darkTheme) 0.4f else 0.25f
             )
             .clip(RoundedCornerShape(cornerRadius))
             .background(
-                if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onBackground
+                if (darkTheme) MaterialTheme.colorScheme.onBackground
                 else CharcoalClay
             )
             .padding(
@@ -583,10 +584,10 @@ private fun PeriodCard(
 }
 
 @Composable
-private fun boxShadowOpacity() = if (isSystemInDarkTheme()) 0.5f else 0.25f
+private fun boxShadowOpacity() = if (LocalDarkTheme.current) 0.5f else 0.25f
 
 @Composable
-private fun boxShadowColor() = if (isSystemInDarkTheme()) Color.White else Color.Black
+private fun boxShadowColor() = if (LocalDarkTheme.current) Color.White else Color.Black
 
 @Preview
 @Composable

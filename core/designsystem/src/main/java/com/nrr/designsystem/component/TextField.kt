@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.nrr.designsystem.LocalDarkTheme
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
 import androidx.compose.material3.TextField as TF
@@ -74,7 +74,7 @@ fun TextField(
 
 object TaskifyTextFieldDefaults {
     private val whiteOrBlack: Color
-        @Composable get() = if (isSystemInDarkTheme()) Color.White else Color.Black
+        @Composable get() = if (LocalDarkTheme.current) Color.White else Color.Black
 
     @Composable
     fun colors(
@@ -218,7 +218,7 @@ data class TextFieldWithOptionsColors(
 
 object TaskifyTextFieldWithOptionsDefaults {
     private val whiteOrBlack: Color
-        @Composable get() = if (isSystemInDarkTheme()) Color.White else Color.Black
+        @Composable get() = if (LocalDarkTheme.current) Color.White else Color.Black
 
     @Composable
     fun colors(

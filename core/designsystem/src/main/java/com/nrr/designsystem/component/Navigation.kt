@@ -12,7 +12,6 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -51,6 +50,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowWidthSizeClass
+import com.nrr.designsystem.LocalDarkTheme
 import com.nrr.designsystem.LocalScaffoldComponentSizes
 import com.nrr.designsystem.ScaffoldComponent
 import com.nrr.designsystem.icon.TaskifyIcon
@@ -250,7 +250,7 @@ private fun DestinationItem(
     showLabel: Boolean = false,
     onClick: (Destination) -> Unit
 ) {
-    val darkTheme = isSystemInDarkTheme()
+    val darkTheme = LocalDarkTheme.current
     val color = if (!darkTheme) Color.Black else Color.White
     val selectedColor = if (!darkTheme) Color.White else CharcoalClay
     val indicatorColor = if (!darkTheme) CharcoalClay else Color.White

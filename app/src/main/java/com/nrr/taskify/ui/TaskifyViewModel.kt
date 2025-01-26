@@ -22,6 +22,8 @@ import javax.inject.Inject
 class TaskifyViewModel @Inject constructor(
     userDataRepository: UserDataRepository
 ) : ViewModel() {
+    private var slidingTextJob: Job? = null
+
     var titleIndex by mutableIntStateOf(0)
         private set
 
@@ -34,7 +36,12 @@ class TaskifyViewModel @Inject constructor(
     var safeToAnimate by mutableStateOf(false)
         private set
 
-    private var slidingTextJob: Job? = null
+    val userData = userDataRepository.userData
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = null
+        )
 
     val registered = combine(
         userDataRepository.userData,

@@ -10,7 +10,6 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -63,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.nrr.designsystem.LocalDarkTheme
 import com.nrr.designsystem.component.RoundRectButton
 import com.nrr.designsystem.component.TaskifyButtonDefaults
 import com.nrr.designsystem.component.TextField
@@ -234,7 +234,7 @@ private fun Content(
             colors = TaskifyDialogDefaults.colors(
                 confirmButtonColor = confirmation.confirmColor,
                 titleContentColor = if (confirmation == ConfirmationType.DELETE_TASK)
-                    Color.Red else if (isSystemInDarkTheme()) Color.White else Color.Black
+                    Color.Red else if (LocalDarkTheme.current) Color.White else Color.Black
             )
         )
     }
@@ -537,7 +537,7 @@ private fun DescriptionEdit(
                     minHeight = (descTextStyle.lineHeight.value.toInt() * descMaxLines).dp
                 ),
             textStyle = descTextStyle.copy(
-                color = if (isSystemInDarkTheme()) Color.White else Color.Black
+                color = if (LocalDarkTheme.current) Color.White else Color.Black
             ),
             maxLines = descMaxLines,
             decorationBox = {
