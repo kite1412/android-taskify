@@ -10,6 +10,11 @@ data class ActiveStatus(
     val period: TaskPeriod,
     val isSet: Boolean,
     val isDefault: Boolean,
+    @Deprecated(
+        message = "Use the nullability of completedAt as complete status",
+        replaceWith = ReplaceWith("completedAt")
+    )
     val isCompleted: Boolean,
-    val reminderSet: Boolean = true
+    val reminderSet: Boolean = true,
+    val completedAt: Instant? = null
 )

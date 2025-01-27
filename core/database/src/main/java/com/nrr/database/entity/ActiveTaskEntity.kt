@@ -40,7 +40,9 @@ data class ActiveTaskEntity(
     @ColumnInfo(name = "is_default")
     val isDefault: Boolean,
     @ColumnInfo(name = "is_completed")
-    val isCompleted: Boolean
+    val isCompleted: Boolean,
+    @ColumnInfo(name = "completed_at")
+    val completedAt: Instant?
 )
 
 fun ActiveTaskEntity.asExternalModel() = ActiveStatus(
@@ -52,7 +54,8 @@ fun ActiveTaskEntity.asExternalModel() = ActiveStatus(
     isSet = isSet,
     isDefault = isDefault,
     isCompleted = isCompleted,
-    reminderSet = reminderSet
+    reminderSet = reminderSet,
+    completedAt = completedAt
 )
 
 fun ActiveStatus.asEntity(taskId: Long) = ActiveTaskEntity(
@@ -65,5 +68,6 @@ fun ActiveStatus.asEntity(taskId: Long) = ActiveTaskEntity(
     dueDate = dueDate,
     isSet = isSet,
     isDefault = isDefault,
-    isCompleted = isCompleted
+    isCompleted = isCompleted,
+    completedAt = completedAt
 )
