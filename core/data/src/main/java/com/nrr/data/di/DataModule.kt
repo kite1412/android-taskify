@@ -1,7 +1,9 @@
 package com.nrr.data.di
 
 import com.nrr.data.repository.DataStoreUserDataRepository
+import com.nrr.data.repository.RoomSummaryRepository
 import com.nrr.data.repository.RoomTaskRepository
+import com.nrr.data.repository.SummaryRepository
 import com.nrr.data.repository.TaskRepository
 import com.nrr.data.repository.UserDataRepository
 import dagger.Binds
@@ -21,4 +23,9 @@ internal interface DataModule {
     fun bindsUserDataRepository(
         userDataRepository: DataStoreUserDataRepository
     ): UserDataRepository
+
+    @Binds
+    fun bindsSummaryRepository(
+        summaryRepository: RoomSummaryRepository
+    ): SummaryRepository
 }
