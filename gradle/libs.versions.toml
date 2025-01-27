@@ -24,6 +24,7 @@ ksp = "2.1.0-1.0.29"
 androidDesugarJdkLibs = "2.1.4"
 androidxNavigation = "2.8.5"
 kotlinxSerializationJson = "1.7.3"
+mockk = "1.13.16"
 protobuf = "4.29.2"
 protobufPlugin = "0.9.4"
 room = "2.6.1"
@@ -70,6 +71,7 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "androidDesugarJdkLibs" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobuf" }
 protobuf-protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "protobuf" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }

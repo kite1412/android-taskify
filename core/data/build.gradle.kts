@@ -10,4 +10,7 @@ android {
 dependencies {
     api(projects.core.database)
     api(projects.core.datastore)
+
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
 }
