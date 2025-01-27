@@ -15,4 +15,10 @@ data class SummaryGroupEntity(
     val startDate: Instant,
     @ColumnInfo(name = "end_date")
     val endDate: Instant
-)
+) {
+    constructor(
+        period: TaskPeriod,
+        startDate: Instant,
+        endDate: Instant
+    ): this(0, period, startDate, endDate)
+}

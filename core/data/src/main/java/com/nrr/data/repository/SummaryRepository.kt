@@ -13,5 +13,5 @@ interface SummaryRepository {
     suspend fun createSummary(
         period: TaskPeriod,
         startDate: Instant
-    ): Summary
+    ): Summary?
 }
