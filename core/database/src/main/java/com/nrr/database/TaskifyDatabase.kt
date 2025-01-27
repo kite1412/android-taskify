@@ -9,6 +9,8 @@ import com.nrr.database.converter.TaskPeriodConverter
 import com.nrr.database.converter.TaskPriorityConverter
 import com.nrr.database.converter.TaskTypeConverter
 import com.nrr.database.dao.ActiveTaskDao
+import com.nrr.database.dao.ActiveTaskSummaryDao
+import com.nrr.database.dao.SummaryGroupDao
 import com.nrr.database.dao.TaskDao
 import com.nrr.database.entity.ActiveTaskEntity
 import com.nrr.database.entity.ActiveTaskSummaryEntity
@@ -39,4 +41,6 @@ import com.nrr.database.entity.TaskEntity
 internal abstract class TaskifyDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
     abstract fun activeTaskDao(): ActiveTaskDao
+    abstract fun activeTaskSummaryDao(): ActiveTaskSummaryDao
+    abstract fun summaryGroupDao(): SummaryGroupDao
 }
