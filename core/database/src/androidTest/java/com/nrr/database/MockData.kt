@@ -1,7 +1,7 @@
 package com.nrr.database
 
-import com.nrr.database.model.ActiveTaskEntity
-import com.nrr.database.model.TaskEntity
+import com.nrr.database.entity.ActiveTaskEntity
+import com.nrr.database.entity.TaskEntity
 import com.nrr.model.TaskPeriod
 import com.nrr.model.TaskPriority
 import com.nrr.model.TaskType

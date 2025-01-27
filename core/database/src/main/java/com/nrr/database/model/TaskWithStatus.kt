@@ -2,6 +2,9 @@ package com.nrr.database.model
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import com.nrr.database.entity.ActiveTaskEntity
+import com.nrr.database.entity.TaskEntity
+import com.nrr.database.entity.asExternalModel
 import com.nrr.model.Task
 
 data class TaskWithStatus(

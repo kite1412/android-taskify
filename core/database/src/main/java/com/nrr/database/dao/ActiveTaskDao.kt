@@ -4,8 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.nrr.database.entity.ActiveTaskEntity
 import com.nrr.database.model.ActiveTask
-import com.nrr.database.model.ActiveTaskEntity
 import com.nrr.model.TaskPeriod
 import kotlinx.coroutines.flow.Flow
 

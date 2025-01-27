@@ -1,4 +1,4 @@
-package com.nrr.database.model
+package com.nrr.database.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

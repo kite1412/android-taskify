@@ -5,7 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.nrr.database.model.TaskEntity
+import com.nrr.database.entity.TaskEntity
 import com.nrr.database.model.TaskWithStatus
 import kotlinx.coroutines.flow.Flow
 

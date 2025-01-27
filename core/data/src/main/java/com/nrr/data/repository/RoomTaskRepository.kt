@@ -2,9 +2,9 @@ package com.nrr.data.repository
 
 import com.nrr.database.dao.ActiveTaskDao
 import com.nrr.database.dao.TaskDao
+import com.nrr.database.entity.asEntity
 import com.nrr.database.model.ActiveTask
 import com.nrr.database.model.TaskWithStatus
-import com.nrr.database.model.asEntity
 import com.nrr.database.model.asExternalModel
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod

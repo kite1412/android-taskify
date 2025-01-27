@@ -9,8 +9,8 @@ import com.nrr.database.converter.TaskPriorityConverter
 import com.nrr.database.converter.TaskTypeConverter
 import com.nrr.database.dao.ActiveTaskDao
 import com.nrr.database.dao.TaskDao
-import com.nrr.database.model.ActiveTaskEntity
-import com.nrr.database.model.TaskEntity
+import com.nrr.database.entity.ActiveTaskEntity
+import com.nrr.database.entity.TaskEntity
 
 @Database(
     entities = [
