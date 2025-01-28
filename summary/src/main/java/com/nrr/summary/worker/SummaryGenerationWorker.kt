@@ -25,23 +25,30 @@ internal class SummaryGenerationWorker @AssistedInject constructor(
     private val summaryRepository: SummaryRepository
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
-        val taskPeriod = inputData.getInt(TASK_PERIOD_ORDINAL_KEY, -1)
+        val taskPeriod = inputData.getInt(TASK_PERIOD_ORDINAL_INPUT_KEY, -1)
             .takeIf { it >= 0 }
             ?.let { TaskPeriod.entries[it] } ?: return Result.failure()
 
         val priorDay = Clock.System.now() - 1.days
         val summary = summaryRepository.createSummary(taskPeriod, priorDay)
 
-        return if (summary != null) Result.success()
+        return if (summary != null) Result.success(
+            workDataOf(
+                CREATED_START_DATE_OUTPUT_KEY to summary.startDate.toEpochMilliseconds(),
+                CREATED_END_DATE_OUTPUT_KEY to summary.endDate.toEpochMilliseconds()
+            )
+        )
             else Result.failure()
     }
 
     companion object {
-        const val TASK_PERIOD_ORDINAL_KEY = "task_period_ordinal"
+        const val TASK_PERIOD_ORDINAL_INPUT_KEY = "task_period_ordinal"
+        const val CREATED_START_DATE_OUTPUT_KEY = "created_start_date"
+        const val CREATED_END_DATE_OUTPUT_KEY = "created_end_date"
 
         private fun periodicWorkRequest(
             taskPeriod: TaskPeriod,
-            builder: PeriodicWorkRequest.Builder.() -> Unit
+            builder: (PeriodicWorkRequest.Builder.() -> Unit)? = null
         ) = PeriodicWorkRequestBuilder<SummaryGenerationWorker>(
             repeatInterval = when (taskPeriod) {
                 TaskPeriod.DAY -> 1.days
@@ -50,15 +57,17 @@ internal class SummaryGenerationWorker @AssistedInject constructor(
             }.toJavaDuration()
         )
             .setInputData(
-                workDataOf(TASK_PERIOD_ORDINAL_KEY to taskPeriod.ordinal)
+                workDataOf(TASK_PERIOD_ORDINAL_INPUT_KEY to taskPeriod.ordinal)
             )
-            .apply(builder)
+            .apply {
+                builder?.invoke(this)
+            }
             .build()
 
         fun WorkManager.enqueuePeriodicSummaryGeneration(
             uniqueWorkName: String,
             taskPeriod: TaskPeriod,
-            builder: PeriodicWorkRequest.Builder.() -> Unit
+            builder: (PeriodicWorkRequest.Builder.() -> Unit)? = null
         ) = enqueueUniquePeriodicWork(
             uniqueWorkName = uniqueWorkName,
             existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP,

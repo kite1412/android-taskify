@@ -20,7 +20,7 @@ internal fun Instant.normalize() = toLocalDateTime().run {
     ).toInstant(TimeZone.currentSystemDefault())
 }
 
-internal fun Instant.getStartDate(
+fun Instant.getStartDate(
     period: TaskPeriod
 ): Instant = with(toLocalDateTime()) {
     val priorMonth = YearMonth.of(
