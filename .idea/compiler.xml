@@ -3,6 +3,7 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="11">
       <module name="Taskify.feature.arrangeplan" target="21" />
+      <module name="Taskify.sync" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>

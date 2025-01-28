@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.taskify.android.library)
-    alias(libs.plugins.taskify.hilt)
 }
 
 android {
@@ -11,4 +10,6 @@ dependencies {
     api(projects.core.data)
 
     implementation(projects.core.notification)
+
+    implementation(libs.javax.inject)
 }
