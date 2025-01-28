@@ -43,6 +43,7 @@
             <option value="$PROJECT_DIR$/feature/taskdetail" />
             <option value="$PROJECT_DIR$/feature/taskmanagement" />
             <option value="$PROJECT_DIR$/feature/todayplan" />
+            <option value="$PROJECT_DIR$/summary" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />
