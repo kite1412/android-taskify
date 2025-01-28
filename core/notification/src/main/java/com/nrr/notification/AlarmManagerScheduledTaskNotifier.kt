@@ -148,7 +148,6 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
                     }
 
                 alarmManager.cancel(sequentialTaskNotifierPendingIntent(context, activeStatusId))
-
             }
         }
     }

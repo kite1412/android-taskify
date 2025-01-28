@@ -43,7 +43,7 @@ class RoomSummaryRepositoryTest {
 
     private fun answerAll(period: TaskPeriod, tasks: List<ActiveTask>) {
         activeTaskDao_answer_getAllByPeriod(period, tasks)
-        val id = summaryGroupDao_answer_insertSummaryGroups(tasks)
+        val id = summaryGroupDao_answer_insertSummaryGroups()
         activeTaskSummaryDao_answer_insertActiveTaskSummaries(
             tasks.map { it.toSummary(id) }
         )
@@ -55,7 +55,7 @@ class RoomSummaryRepositoryTest {
                 flowOf(tasks)
     }
 
-    private fun summaryGroupDao_answer_insertSummaryGroups(tasks: List<ActiveTask>): Long {
+    private fun summaryGroupDao_answer_insertSummaryGroups(): Long {
         coEvery { summaryGroupDao.insertSummaryGroups(any()) } returns
                 listOf(1L)
         return 1L

@@ -87,7 +87,7 @@ private fun Context.remindLaterSchedulerPendingIntent(
     reminderTypeOrdinal: Int
 ) = PendingIntent.getBroadcast(
     this,
-    0,
+    activeStatusId,
     Intent(this, RemindLaterSchedulerReceiver::class.java).apply {
         action = REMIND_LATER_SCHEDULER_ACTION
         putExtra(DATA_KEY, activeStatusId)
