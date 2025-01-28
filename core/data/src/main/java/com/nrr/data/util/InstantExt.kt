@@ -55,7 +55,7 @@ internal fun Instant.getStartDate(
     ).toInstant(TimeZone.currentSystemDefault())
 }
 
-internal fun Instant.getEndDate(
+fun Instant.getEndDate(
     period: TaskPeriod
 ): Instant = with(toLocalDateTime()) {
     val thisMonth = YearMonth.of(year, monthNumber)
@@ -84,8 +84,8 @@ internal fun Instant.getEndDate(
         year = year,
         monthNumber = monthNumber,
         dayOfMonth = dayOfMonth,
-        hour = 0,
-        minute = 0,
-        second = 0
+        hour = 23,
+        minute = 59,
+        second = 59
     ).toInstant(TimeZone.currentSystemDefault())
 }

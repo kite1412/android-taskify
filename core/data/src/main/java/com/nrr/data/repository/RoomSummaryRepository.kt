@@ -46,12 +46,12 @@ internal class RoomSummaryRepository @Inject constructor(
         val tasks = activeTaskDao.getAllByPeriod(period).first()
 
         tasks.takeIf { it.isNotEmpty() }?.let {
-            val sd = startDate.getStartDate(period)
-            val ed = startDate.getEndDate(period)
+            val startDateNormalized = startDate.getStartDate(period)
+            val endDate = startDate.getEndDate(period)
             val summaryGroupEntity = SummaryGroupEntity(
                 period = period,
-                startDate = sd,
-                endDate = ed
+                startDate = startDateNormalized,
+                endDate = endDate
             )
 
             val summaryGroupId = summaryGroupDao.insertSummaryGroups(
@@ -64,8 +64,8 @@ internal class RoomSummaryRepository @Inject constructor(
                 Summary(
                     id = groupId,
                     period = period,
-                    startDate = sd,
-                    endDate = ed,
+                    startDate = startDateNormalized,
+                    endDate = endDate,
                     tasks = taskSummaries.map(ActiveTaskSummaryEntity::asExternalModel)
                 )
             }

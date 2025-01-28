@@ -6,3 +6,10 @@ plugins {
 android {
     namespace = "com.nrr.summary"
 }
+
+dependencies {
+    implementation(projects.core.data)
+
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.hilt.work)
+}
