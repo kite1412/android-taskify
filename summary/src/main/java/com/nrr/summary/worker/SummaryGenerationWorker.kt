@@ -20,15 +20,13 @@ import com.nrr.data.repository.SummaryRepository
 import com.nrr.model.TaskPeriod
 import com.nrr.notification.util.MAIN_ACTIVITY_NAME
 import com.nrr.notification.util.createNotification
+import com.nrr.summary.DefaultSummariesGenerationScheduler
 import com.nrr.summary.util.SummaryDictionary
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.datetime.Clock
-import java.time.YearMonth
+import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.days
-import kotlin.time.toJavaDuration
-
-private const val SUMMARY_NOTIFICATION_ID = 0
 
 @HiltWorker
 internal class SummaryGenerationWorker @AssistedInject constructor(
@@ -65,13 +63,13 @@ internal class SummaryGenerationWorker @AssistedInject constructor(
             setSmallIcon(com.nrr.notification.R.drawable.app_icon_small)
             setContentTitle(notificationTitle(period))
             setContentText(notificationContent(period))
-            setContentIntent(notificationIntent())
+            setContentIntent(notificationIntent(period))
             setAutoCancel(true)
         }
 
         NotificationManagerCompat.from(context)
             .notify(
-                SUMMARY_NOTIFICATION_ID,
+                DefaultSummariesGenerationScheduler.getPeriodId(period),
                 notification
             )
     }
@@ -92,9 +90,9 @@ internal class SummaryGenerationWorker @AssistedInject constructor(
         }
     )
 
-    private fun notificationIntent() = PendingIntent.getActivity(
+    private fun notificationIntent(period: TaskPeriod) = PendingIntent.getActivity(
         context,
-        SUMMARY_NOTIFICATION_ID,
+        DefaultSummariesGenerationScheduler.getPeriodId(period),
         Intent().apply {
             action = Intent.ACTION_VIEW
             component = ComponentName(
@@ -115,10 +113,12 @@ internal class SummaryGenerationWorker @AssistedInject constructor(
             builder: (PeriodicWorkRequest.Builder.() -> Unit)? = null
         ) = PeriodicWorkRequestBuilder<SummaryGenerationWorker>(
             repeatInterval = when (taskPeriod) {
-                TaskPeriod.DAY -> 1.days
-                TaskPeriod.WEEK -> 7.days
-                TaskPeriod.MONTH -> YearMonth.now().lengthOfMonth().days
-            }.toJavaDuration()
+                TaskPeriod.DAY -> 1
+                TaskPeriod.WEEK -> 7
+                // TODO use separate logic on enqueuing monthly summary
+                TaskPeriod.MONTH -> 30
+            },
+            repeatIntervalTimeUnit = TimeUnit.DAYS
         )
             .setInputData(
                 workDataOf(TASK_PERIOD_ORDINAL_INPUT_KEY to taskPeriod.ordinal)
