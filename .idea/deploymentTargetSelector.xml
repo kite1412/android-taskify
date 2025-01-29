@@ -14,6 +14,9 @@
       <SelectionState runConfigName="doWork_oneTime_isSuccess()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="SummaryGenerationWorkerTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>

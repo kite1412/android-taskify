@@ -1,6 +1,13 @@
 package com.nrr.summary.worker
 
+import android.Manifest
+import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import androidx.annotation.RequiresPermission
+import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -11,6 +18,9 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.nrr.data.repository.SummaryRepository
 import com.nrr.model.TaskPeriod
+import com.nrr.notification.util.MAIN_ACTIVITY_NAME
+import com.nrr.notification.util.createNotification
+import com.nrr.summary.util.SummaryDictionary
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.datetime.Clock
@@ -18,9 +28,11 @@ import java.time.YearMonth
 import kotlin.time.Duration.Companion.days
 import kotlin.time.toJavaDuration
 
+private const val SUMMARY_NOTIFICATION_ID = 0
+
 @HiltWorker
 internal class SummaryGenerationWorker @AssistedInject constructor(
-    @Assisted context: Context,
+    @Assisted private val context: Context,
     @Assisted params: WorkerParameters,
     private val summaryRepository: SummaryRepository
 ) : CoroutineWorker(context, params) {
@@ -31,6 +43,13 @@ internal class SummaryGenerationWorker @AssistedInject constructor(
 
         val priorDay = Clock.System.now() - 1.days
         val summary = summaryRepository.createSummary(taskPeriod, priorDay)
+        // TODO auto delete active tasks on given period
+
+        if (
+            context
+                .checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
+            == PackageManager.PERMISSION_GRANTED
+        ) showNotification(taskPeriod)
 
         return if (summary != null) Result.success(
             workDataOf(
@@ -39,6 +58,52 @@ internal class SummaryGenerationWorker @AssistedInject constructor(
             )
         ) else Result.failure()
     }
+
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+    private fun showNotification(period: TaskPeriod) {
+        val notification = context.createNotification {
+            setSmallIcon(com.nrr.notification.R.drawable.app_icon_small)
+            setContentTitle(notificationTitle(period))
+            setContentText(notificationContent(period))
+            setContentIntent(notificationIntent())
+            setAutoCancel(true)
+        }
+
+        NotificationManagerCompat.from(context)
+            .notify(
+                SUMMARY_NOTIFICATION_ID,
+                notification
+            )
+    }
+
+    private fun notificationTitle(period: TaskPeriod) = context.getString(
+        when (period) {
+            TaskPeriod.DAY -> SummaryDictionary.dailySummaryTitle
+            TaskPeriod.WEEK -> SummaryDictionary.weeklySummaryTitle
+            TaskPeriod.MONTH -> SummaryDictionary.monthlySummaryTitle
+        }
+    )
+
+    private fun notificationContent(period: TaskPeriod) = context.getString(
+        when (period) {
+            TaskPeriod.DAY -> SummaryDictionary.dailySummaryContent
+            TaskPeriod.WEEK -> SummaryDictionary.weeklySummaryContent
+            TaskPeriod.MONTH -> SummaryDictionary.monthlySummaryContent
+        }
+    )
+
+    private fun notificationIntent() = PendingIntent.getActivity(
+        context,
+        SUMMARY_NOTIFICATION_ID,
+        Intent().apply {
+            action = Intent.ACTION_VIEW
+            component = ComponentName(
+                context.packageName,
+                MAIN_ACTIVITY_NAME
+            )
+        },
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
 
     companion object {
         const val TASK_PERIOD_ORDINAL_INPUT_KEY = "task_period_ordinal"

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="summary_daily_title">Ringkasan Tugas Hari Ini</string>
+    <string name="summary_weekly_title">Ringkasan Tugas Minggu Ini</string>
+    <string name="summary_monthly_title">RIngkasan Tugas Bulan Ini</string>
+    <string name="summary_daily_content">Ringkasan tugas harian telah disusun!</string>
+    <string name="summary_weekly_content">Ringkasan tugas minggu ini telah disusun!</string>
+    <string name="summary_monthly_content">Ringkasan tugas bulan ini telah disusun!</string>
+</resources>

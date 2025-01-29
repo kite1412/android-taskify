@@ -19,7 +19,7 @@ import com.nrr.notification.receiver.SequentialTaskNotifierReceiver.Companion.DA
 import com.nrr.notification.receiver.SequentialTaskNotifierReceiver.Companion.REMINDER_TYPE_ORDINAL_KEY
 import kotlinx.datetime.Clock
 
-private const val MAIN_ACTIVITY_NAME = "com.nrr.taskify.MainActivity"
+const val MAIN_ACTIVITY_NAME = "com.nrr.taskify.MainActivity"
 
 @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
 internal fun notifyScheduledTask(

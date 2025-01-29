@@ -9,6 +9,7 @@ android {
 
 dependencies {
     implementation(projects.core.data)
+    implementation(projects.core.notification)
 
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.hilt.work)

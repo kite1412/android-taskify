@@ -8,11 +8,25 @@ import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.nrr.model.toTimeString
 import com.nrr.model.ReminderType
+import com.nrr.model.toTimeString
 import com.nrr.notification.model.TaskFiltered
 
 private const val CHANNEL_ID = "1"
+
+fun Context.createNotification(
+    block: NotificationCompat.Builder.() -> Unit
+): Notification {
+    ensureNotificationChannelExists()
+
+    return NotificationCompat.Builder(
+        this,
+        CHANNEL_ID
+    )
+        .setPriority(NotificationCompat.PRIORITY_HIGH)
+        .apply(block)
+        .build()
+}
 
 private fun Context.ensureNotificationChannelExists() {
     if (VERSION.SDK_INT < VERSION_CODES.O) return
@@ -26,20 +40,6 @@ private fun Context.ensureNotificationChannelExists() {
     }
 
     NotificationManagerCompat.from(this).createNotificationChannel(channel)
-}
-
-internal fun Context.createNotification(
-    block: NotificationCompat.Builder.() -> Unit
-): Notification {
-    ensureNotificationChannelExists()
-
-    return NotificationCompat.Builder(
-        this,
-        CHANNEL_ID
-    )
-        .setPriority(NotificationCompat.PRIORITY_HIGH)
-        .apply(block)
-        .build()
 }
 
 internal fun Context.getTitle(

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="summary_daily_title">Today\'s Tasks Summary</string>
+    <string name="summary_weekly_title">This Week\'s Tasks Summary</string>
+    <string name="summary_monthly_title">This Month\'s Tasks Summary</string>
+    <string name="summary_daily_content">Daily tasks have been summed up!</string>
+    <string name="summary_weekly_content">Weekly tasks have been summed up!</string>
+    <string name="summary_monthly_content">Monthly tasks have been summed up!</string>
+</resources>
