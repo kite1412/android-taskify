@@ -47,10 +47,7 @@ internal class DefaultSummariesGenerationScheduler @Inject constructor(
             uniqueWorkName = workName,
             taskPeriod = period,
             builder = {
-                val now = Clock.System.now()
-                val endOfPeriod = now.getEndDate(period)
-
-                setInitialDelay((endOfPeriod - now + 1.seconds).toJavaDuration())
+                setInitialDelay(initialExecutionDelay(period).toJavaDuration())
             }
         )
     }
@@ -59,5 +56,10 @@ internal class DefaultSummariesGenerationScheduler @Inject constructor(
         private const val DAILY_SUMMARY_WORK_NAME = "daily_summary"
         private const val WEEKLY_SUMMARY_WORK_NAME = "weekly_summary"
         private const val MONTHLY_SUMMARY_WORK_NAME = "monthly_summary"
+
+        // expose for testing
+        fun initialExecutionDelay(period: TaskPeriod) = with(Clock.System.now()) {
+            getEndDate(period) - this + 1.seconds
+        }
     }
 }

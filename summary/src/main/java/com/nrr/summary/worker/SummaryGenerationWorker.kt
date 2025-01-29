@@ -37,8 +37,7 @@ internal class SummaryGenerationWorker @AssistedInject constructor(
                 CREATED_START_DATE_OUTPUT_KEY to summary.startDate.toEpochMilliseconds(),
                 CREATED_END_DATE_OUTPUT_KEY to summary.endDate.toEpochMilliseconds()
             )
-        )
-            else Result.failure()
+        ) else Result.failure()
     }
 
     companion object {
@@ -46,7 +45,7 @@ internal class SummaryGenerationWorker @AssistedInject constructor(
         const val CREATED_START_DATE_OUTPUT_KEY = "created_start_date"
         const val CREATED_END_DATE_OUTPUT_KEY = "created_end_date"
 
-        private fun periodicWorkRequest(
+        fun periodicSummaryGenerationWorkRequest(
             taskPeriod: TaskPeriod,
             builder: (PeriodicWorkRequest.Builder.() -> Unit)? = null
         ) = PeriodicWorkRequestBuilder<SummaryGenerationWorker>(
@@ -71,7 +70,7 @@ internal class SummaryGenerationWorker @AssistedInject constructor(
         ) = enqueueUniquePeriodicWork(
             uniqueWorkName = uniqueWorkName,
             existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP,
-            request = periodicWorkRequest(
+            request = periodicSummaryGenerationWorkRequest(
                 taskPeriod = taskPeriod,
                 builder = builder
             )

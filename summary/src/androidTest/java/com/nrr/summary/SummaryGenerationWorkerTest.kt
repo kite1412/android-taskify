@@ -4,10 +4,10 @@ import android.content.Context
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.Configuration
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
@@ -27,6 +27,7 @@ import kotlinx.datetime.Instant
 import org.junit.Before
 import org.junit.Test
 import kotlin.time.Duration.Companion.days
+import kotlin.time.toJavaDuration
 
 class SummaryGenerationWorkerTest {
     private lateinit var context: Context
@@ -47,8 +48,8 @@ class SummaryGenerationWorkerTest {
                 endDate = startDate.getEndDate(period),
                 tasks = emptyList()
             )
-
     }
+    private lateinit var workManager: WorkManager
 
     @Before
     fun setUp() {
@@ -72,13 +73,14 @@ class SummaryGenerationWorkerTest {
             context,
             Configuration.Builder()
                 .setWorkerFactory(factory)
+                .setExecutor(Runnable::run)
                 .build()
         )
+        workManager = WorkManager.getInstance(context)
     }
 
     @Test
-    fun doWork_isSuccess() = runTest {
-        val workManager = WorkManager.getInstance(context)
+    fun doWork_oneTime_isSuccess() = runTest {
         val now = Clock.System.now()
         val period = TaskPeriod.DAY
 
@@ -95,14 +97,6 @@ class SummaryGenerationWorkerTest {
                     .build()
             )
 
-        while (true) {
-            val workInfo = workManager.getWorkInfosForUniqueWork("test")
-                .await()
-                .first()
-            if (workInfo.state == WorkInfo.State.SUCCEEDED) break
-            delay(1000)
-        }
-
         val outputData = workManager.getWorkInfosForUniqueWork("test")
             .await()
             .first()
@@ -118,8 +112,55 @@ class SummaryGenerationWorkerTest {
         val expectedEndDate = (now.getEndDate(period) - 1.days).toEpochMilliseconds()
 
         assert(
-            expectedStartDate == startDate &&
-                    expectedEndDate == endDate
+            expectedStartDate == startDate
+                    && expectedEndDate == endDate
+        )
+    }
+
+    @Test
+    fun doWork_periodic_isSuccess() = runTest {
+        val period = TaskPeriod.DAY
+        val initialDelay = DefaultSummariesGenerationScheduler
+            .initialExecutionDelay(period)
+        val req = SummaryGenerationWorker
+            .periodicSummaryGenerationWorkRequest(
+                taskPeriod = period
+            ) {
+                setInitialDelay(initialDelay.toJavaDuration())
+            }
+
+        workManager.enqueueUniquePeriodicWork(
+            "test",
+            ExistingPeriodicWorkPolicy.KEEP,
+            req
+        )
+
+        val testDriver = WorkManagerTestInitHelper.getTestDriver(context)!!
+
+        testDriver.setPeriodDelayMet(req.id)
+        testDriver.setAllConstraintsMet(req.id)
+        testDriver.setInitialDelayMet(req.id)
+
+        delay(2000)
+
+        val now = Clock.System.now()
+
+        // use direct result of createSummary as PeriodicWorkRequest is almost always in ENQUEUED state,
+        // so it's difficult to receive the work info in SUCCEEDED state.
+        // ref: https://stackoverflow.com/questions/51476480/workstatus-observer-always-in-enqueued-state
+        val summary = mockSummaryRepository.createSummary(period, now)
+
+        // subtraction comes from SummaryGenerationWorker logic
+        val startDate = (summary!!.startDate - 1.days).toEpochMilliseconds()
+        val endDate = (summary.endDate - 1.days).toEpochMilliseconds()
+
+        val expectedStartDate = (now - 1.days).getStartDate(period).toEpochMilliseconds()
+        val expectedEndDate = (now - 1.days).getEndDate(period).toEpochMilliseconds()
+
+        println(initialDelay)
+        assert(
+            expectedStartDate == startDate
+                    && expectedEndDate == endDate
         )
     }
 }
