@@ -49,12 +49,12 @@ internal class SummaryGenerationWorker @AssistedInject constructor(
             == PackageManager.PERMISSION_GRANTED
         ) showNotification(taskPeriod)
 
-        return if (summary != null) Result.success(
+        return Result.success(
             workDataOf(
-                CREATED_START_DATE_OUTPUT_KEY to summary.startDate.toEpochMilliseconds(),
-                CREATED_END_DATE_OUTPUT_KEY to summary.endDate.toEpochMilliseconds()
+                CREATED_START_DATE_OUTPUT_KEY to summary?.startDate?.toEpochMilliseconds(),
+                CREATED_END_DATE_OUTPUT_KEY to summary?.endDate?.toEpochMilliseconds()
             )
-        ) else Result.failure()
+        )
     }
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)

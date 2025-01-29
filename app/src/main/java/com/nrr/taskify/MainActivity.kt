@@ -20,10 +20,12 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.ThemeConfig
+import com.nrr.summary.SummariesGenerationScheduler
 import com.nrr.taskify.ui.TaskifyApp
 import com.nrr.taskify.ui.TaskifyViewModel
 import com.nrr.ui.LocalExactAlarmState
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -33,9 +35,13 @@ class MainActivity : ComponentActivity() {
 
     private var exactAlarmStateReceiver: BroadcastReceiver? = null
 
+    @Inject
+    lateinit var summaryGenerationScheduler: SummariesGenerationScheduler
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen().setKeepOnScreenCondition { false }
+        summaryGenerationScheduler.scheduleSummariesGeneration()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             exactAlarmEnabled = (getSystemService(Context.ALARM_SERVICE) as AlarmManager)
                 .canScheduleExactAlarms()

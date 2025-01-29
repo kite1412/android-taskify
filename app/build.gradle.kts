@@ -12,6 +12,8 @@ dependencies {
     implementation(projects.core.data)
     implementation(projects.core.ui)
 
+    implementation(projects.summary)
+
     implementation(projects.feature.todayplan)
     implementation(projects.feature.registration)
     implementation(projects.feature.taskmanagement)
