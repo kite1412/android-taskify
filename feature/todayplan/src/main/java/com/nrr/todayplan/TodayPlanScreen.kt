@@ -1,6 +1,5 @@
 package com.nrr.todayplan
 
-import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -32,10 +31,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,18 +54,22 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.designsystem.LocalDarkTheme
@@ -125,6 +130,10 @@ internal fun TodayPlanScreen(
         onWeeklyClick = onWeeklyClick,
         onMonthlyClick = onMonthlyClick,
         onSetTodayTasksClick = onSetTodayTasksClick,
+        showProfile = showProfile,
+        onDismissProfile = { viewModel.updateShowProfile(false) },
+        onUsernameUpdate = {  },
+        onLogoClick = { viewModel.updateShowProfile(true) },
         modifier = modifier
     )
 }
@@ -168,6 +177,10 @@ private fun Content(
     onWeeklyClick: (TaskPeriod) -> Unit,
     onMonthlyClick: (TaskPeriod) -> Unit,
     onSetTodayTasksClick: () -> Unit,
+    showProfile: Boolean,
+    onDismissProfile: () -> Unit,
+    onUsernameUpdate: (String) -> Unit,
+    onLogoClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val contentWithRoundRectShadowPadding = with(LocalDensity.current) {
@@ -180,7 +193,8 @@ private fun Content(
         ?.height ?: 0.dp
 
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(bottom = 16.dp + bottomBarHeight),
     ) {
@@ -188,7 +202,10 @@ private fun Content(
             Column(
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                GreetingHeader(username)
+                GreetingHeader(
+                    username = username,
+                    onLogoClick = onLogoClick
+                )
                 Row(
                     modifier = Modifier
                         .height(IntrinsicSize.Max)
@@ -283,6 +300,15 @@ private fun Content(
             }
         )
     }
+    if (showProfile) Dialog(
+        onDismissRequest = onDismissProfile
+    ) {
+        Profile(
+            username = username,
+            onDismiss = onDismissProfile,
+            onUsernameUpdate = onUsernameUpdate
+        )
+    }
 }
 
 @Composable
@@ -295,58 +321,53 @@ private fun Profile(
     var editMode by rememberSaveable {
         mutableStateOf(false)
     }
+    val borderRadius = 16.dp
+    val density = LocalDensity.current
 
-    Box(
+    Row(
         modifier = modifier
-            .fillMaxSize()
-            .background(
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                    Color.Transparent else Color.Black.copy(0.4f)
+            .sizeIn(
+                maxWidth = 400.dp,
+                maxHeight = 350.dp
             )
-            .clickable(
-                indication = null,
-                interactionSource = null,
-                onClick = onDismiss
+            .drawRoundRectShadow(
+                cornerRadius = with(density) {
+                    CornerRadius(borderRadius.toPx())
+                },
+                color = MaterialTheme.colorScheme.onBackground,
+                alpha = 1f
             )
+            .clip(RoundedCornerShape(borderRadius))
+            .background(MaterialTheme.colorScheme.background)
+            .padding(16.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .sizeIn(
-                    maxWidth = 400.dp,
-                    maxHeight = 350.dp
-                )
-                .background(MaterialTheme.colorScheme.onBackground)
-                .padding(16.dp)
+        Column(
+            modifier = Modifier.weight(0.9f),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                ProfileHead(
-                    username = username,
-                    editMode = editMode,
-                    onUsernameUpdate = {
-                        onUsernameUpdate(it)
-                        editMode = false
-                    },
-                    onEditModeChange = {
-                        editMode = it
-                    }
-                )
-            }
-            Icon(
-                painter = painterResource(TaskifyIcon.cancel),
-                contentDescription = "back",
-                modifier = Modifier
-                    .size(24.dp)
-                    .align(Alignment.TopEnd)
-                    .clickable(
-                        indication = null,
-                        interactionSource = null,
-                        onClick = onDismiss
-                    )
+            ProfileHead(
+                username = username,
+                editMode = editMode,
+                onUsernameUpdate = {
+                    onUsernameUpdate(it)
+                    editMode = false
+                },
+                onEditModeChange = {
+                    editMode = it
+                }
             )
         }
+        Icon(
+            painter = painterResource(TaskifyIcon.cancel),
+            contentDescription = "back",
+            modifier = Modifier
+                .size(24.dp)
+                .clickable(
+                    indication = null,
+                    interactionSource = null,
+                    onClick = onDismiss
+                )
+        )
     }
 }
 
@@ -358,11 +379,19 @@ private fun ProfileHead(
     onEditModeChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var updatableUsername by rememberSaveable(username) {
-        mutableStateOf(username)
+    var updatableUsername by remember(username) {
+        mutableStateOf(
+            TextFieldValue(
+                text = username,
+                selection = TextRange(username.length)
+            )
+        )
     }
     val focusRequester = remember { FocusRequester() }
 
+    LaunchedEffect(editMode) {
+        if (editMode) focusRequester.requestFocus()
+    }
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -376,6 +405,8 @@ private fun ProfileHead(
                 top = 12.dp
             )
         ) {
+            val contentColor = LocalContentColor.current
+
             BasicTextField(
                 value = updatableUsername,
                 onValueChange = { updatableUsername = it },
@@ -384,35 +415,39 @@ private fun ProfileHead(
                     .onFocusChanged {
                         if (!it.isFocused) {
                             onEditModeChange(false)
-                            updatableUsername = username
+                            updatableUsername = updatableUsername.copy(
+                                text = username
+                            )
                         }
                     },
                 maxLines = 1,
                 singleLine = true,
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = contentColor
                 ),
                 enabled = editMode,
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = { onUsernameUpdate(updatableUsername) }
-                )
+                    onDone = { onUsernameUpdate(updatableUsername.text) }
+                ),
+                cursorBrush = SolidColor(contentColor)
             )
             AnimatedVisibility(
                 visible = !editMode
             ) {
                 Text(
                     text = stringResource(TodayPlanDictionary.changeUsername),
-                    modifier = Modifier.clickable(
-                        indication = null,
-                        interactionSource = null
-                    ) {
-                        onEditModeChange(true)
-                        focusRequester.requestFocus()
-                    },
+                    modifier = Modifier
+                        .clickable(
+                            indication = null,
+                            interactionSource = null
+                        ) {
+                            onEditModeChange(true)
+                        },
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.tertiary,
                     textDecoration = TextDecoration.Underline
@@ -425,6 +460,7 @@ private fun ProfileHead(
 @Composable
 private fun GreetingHeader(
     username: String,
+    onLogoClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -456,7 +492,13 @@ private fun GreetingHeader(
         }
         if (username.isNotEmpty()) UsernameLogo(
             initial = username[0],
-            initialSize = initialNameSize
+            initialSize = initialNameSize,
+            modifier = Modifier
+                .clickable(
+                    indication = null,
+                    interactionSource = null,
+                    onClick = onLogoClick
+                )
         )
     }
 }
@@ -772,6 +814,10 @@ private fun ContentPreview(
                 onMonthlyClick = {},
                 onSetTodayTasksClick = {},
                 onTaskClick = {},
+                showProfile = false,
+                onDismissProfile = {},
+                onUsernameUpdate = {},
+                onLogoClick = {},
                 modifier = Modifier.padding(32.dp)
             )
         }
