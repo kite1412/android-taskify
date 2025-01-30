@@ -24,10 +24,13 @@ fun NavController.navigateToPlanArrangement(
     taskId: Long? = null,
     navOptions: NavOptions? = null
 ) {
-    if (activeStatusId != null && taskId != null && taskPeriod != null)
-        throw RuntimeException(
-            "Cannot pass both taskPeriod, activeStatusId, and taskId to navigateToPlanArrangement"
-        )
+    require(
+        listOf(taskPeriod, activeStatusId, taskId)
+            .count { it != null } == 1
+    ) {
+        "Only one argument can be non-null at the same time"
+    }
+
     navigate(
         route = PlanArrangementRoute(
             periodOrdinal = taskPeriod?.ordinal,
