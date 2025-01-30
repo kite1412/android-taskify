@@ -25,7 +25,8 @@ class SettingsViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository
 ) : ViewModel() {
     val routeMenu = savedStateHandle.toRoute<SettingsRoute>()
-        .menu
+        .menuOrdinal
+        ?.let { Menu.entries[it] }
 
     val userData = userDataRepository.userData
         .stateIn(

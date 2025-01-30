@@ -13,14 +13,14 @@ import com.nrr.settings.SettingsScreen
 import kotlinx.serialization.Serializable
 
 @Serializable data class SettingsRoute(
-    val menu: Menu? = null
+    val menuOrdinal: Int? = null
 )
 
 fun NavController.navigateToSettings(
     menu: Menu? = null,
     navOptions: NavOptions? = null
 ) = navigate(
-    route = SettingsRoute(menu = menu),
+    route = SettingsRoute(menuOrdinal = menu?.ordinal),
     navOptions = navOptions
 )
 
