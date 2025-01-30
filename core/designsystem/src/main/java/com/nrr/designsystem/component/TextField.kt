@@ -98,17 +98,15 @@ object TaskifyTextFieldDefaults {
     )
 }
 
-// might cause issues if calling composable doesn't handle post config changes
-// since selected value saved locally here with rememberSaveable
 @Composable
 fun TextFieldWithOptions(
+    selected: String,
     options: List<String>,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     colors: TextFieldWithOptionsColors = TaskifyTextFieldWithOptionsDefaults.colors()
 ) {
     if (options.isNotEmpty()) {
-        var selected by rememberSaveable { mutableStateOf(options[0]) }
         var showOptions by rememberSaveable { mutableStateOf(false) }
         val rotateValue by animateFloatAsState(
             targetValue = if (showOptions) 180f else 0f,
@@ -123,10 +121,7 @@ fun TextFieldWithOptions(
             Box {
                 TextField(
                     value = selected,
-                    onValueChange = {
-                        selected = it
-                        onValueChange(it)
-                    },
+                    onValueChange = {},
                     modifier = Modifier.fillMaxWidth(),
                     trailingIcon = {
                         Icon(
@@ -159,8 +154,8 @@ fun TextFieldWithOptions(
                     options = options,
                     selected = selected,
                     onClick = {
-                        selected = it
                         showOptions = false
+                        onValueChange(it)
                     },
                     colors = colors
                 )
@@ -256,6 +251,7 @@ private fun TextFieldPreview() {
 private fun TextFieldWithOptionsPreview() {
     TaskifyTheme {
         TextFieldWithOptions(
+            selected = "",
             options = listOf("Hello", "World"),
             onValueChange = {},
             modifier = Modifier.fillMaxWidth()

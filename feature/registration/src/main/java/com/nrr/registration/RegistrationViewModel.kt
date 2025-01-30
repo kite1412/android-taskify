@@ -19,25 +19,27 @@ class RegistrationViewModel @Inject constructor(
     var username by mutableStateOf("")
         private set
 
-    private var languageConfig by mutableStateOf(LanguageConfig.SYSTEM_DEFAULT)
+    var languageConfig by mutableStateOf(LanguageConfig.SYSTEM_DEFAULT)
+        private set
 
-    private var themeConfig by mutableStateOf(ThemeConfig.SYSTEM_DEFAULT)
+    var themeConfig by mutableStateOf(ThemeConfig.SYSTEM_DEFAULT)
+        private set
 
-    fun setUserName(username: String) {
+    fun updateUsername(username: String) {
         if (username.length <= 20) this.username = username
     }
 
-    fun setLanguageConfig(languageConfig: String) {
+    fun updateLanguageConfig(languageConfig: String) {
         this.languageConfig = LanguageConfig.fromString(languageConfig)
     }
 
-    fun setThemeConfig(themeConfig: String) {
+    fun updateThemeConfig(themeConfig: String) {
         this.themeConfig = ThemeConfig.fromString(themeConfig)
     }
 
     internal fun register() = viewModelScope.launch {
-        userDataRepository.setUsername(username)
         userDataRepository.setLanguageConfig(languageConfig)
         userDataRepository.setThemeConfig(themeConfig)
+        userDataRepository.setUsername(username)
     }
 }

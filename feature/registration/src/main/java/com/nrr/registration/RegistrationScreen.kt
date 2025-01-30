@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -33,6 +34,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,6 +61,8 @@ import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.CharcoalClay
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.theme.softBeigeGradient
+import com.nrr.model.LanguageConfig
+import com.nrr.model.ThemeConfig
 import com.nrr.registration.model.FieldAction
 import com.nrr.registration.model.FieldData
 import com.nrr.registration.util.RegistrationDictionary
@@ -71,16 +75,19 @@ fun RegistrationScreen(
     modifier: Modifier = Modifier,
     viewModel: RegistrationViewModel = hiltViewModel()
 ) {
-    val fieldData = FieldData.fieldData(
+    val fieldData = FieldData.fieldsData(
         username = viewModel.username,
-        onUsernameChange = viewModel::setUserName,
-        onLanguageChange = viewModel::setLanguageConfig,
-        onThemeChange = viewModel::setThemeConfig
+        languageConfig = viewModel.languageConfig,
+        themeConfig = viewModel.themeConfig,
+        onUsernameChange = viewModel::updateUsername,
+        onLanguageChange = viewModel::updateLanguageConfig,
+        onThemeChange = viewModel::updateThemeConfig
     )
     val pagerState = rememberPagerState { fieldData.size }
     val scope = rememberCoroutineScope()
     val snackbarState = LocalSnackbarHostState.current
     val greeting = stringResource(RegistrationDictionary.greeting)
+    val register by rememberUpdatedState(viewModel::register)
 
     Content(
         fieldData = fieldData,
@@ -91,7 +98,7 @@ fun RegistrationScreen(
                     FieldAction.Previous -> pagerState.animateScrollToPage(pagerState.currentPage - 1)
                     FieldAction.Complete -> {
                         snackbarState.showSnackbar("$greeting ${viewModel.username}!") {
-                            if (it == SnackbarResult.Dismissed) viewModel.register()
+                            if (it == SnackbarResult.Dismissed) register()
                         }
                     }
                 }
@@ -146,8 +153,10 @@ private fun Content(
             pageSpacing = (horizontalPadding * 2).dp,
             userScrollEnabled = false
         ) { page ->
-            Field(
-                data = fieldData[page],
+            val data = fieldData[page]
+
+            if (data.options.size == 1) Field(
+                data = data,
                 modifier = Modifier.fillMaxWidth(),
                 trailingIcon = {
                     Text(
@@ -156,6 +165,10 @@ private fun Content(
                         color = Color.Black
                     )
                 }
+            ) else FieldWithOptions(
+                data = data,
+                options = data.options,
+                modifier = Modifier.fillMaxWidth()
             )
         }
         FieldActions(
@@ -174,8 +187,72 @@ private fun Content(
 private fun Field(
     data: FieldData,
     modifier: Modifier = Modifier,
-    // Only for regular TextField
     trailingIcon: @Composable ((String) -> Unit)? = null
+) {
+    FieldScaffold(
+        data = data,
+        modifier = modifier
+    ) {
+        TextField(
+            value = data.currentValue,
+            onValueChange = data.onValueChange,
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = {
+                Text(
+                    text = data.placeholder ?: "",
+                    color = Color.Black.copy(alpha = 0.7f),
+                    fontSize = MaterialTheme.typography.bodyMedium.fontSize
+                )
+            },
+            colors = TaskifyTextFieldDefaults.colors(
+                unfocusedTextColor = Color.Black,
+                focusedTextColor = Color.Black
+            ),
+            trailingIcon = if (trailingIcon != null) {
+                { trailingIcon.invoke(data.options[0]) }
+            } else null
+        )
+    }
+}
+
+@Composable
+private fun FieldWithOptions(
+    data: FieldData,
+    options: List<String>,
+    modifier: Modifier = Modifier
+) {
+    FieldScaffold(
+        data = data,
+        modifier = modifier
+    ) {
+        Column {
+            Text(
+                text = stringResource(RegistrationDictionary.changeLater),
+                fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                color = Color.Black.copy(alpha = 0.7f)
+            )
+            TextFieldWithOptions(
+                selected = data.currentValue,
+                options = options,
+                onValueChange = data.onValueChange,
+                modifier = Modifier.fillMaxWidth(),
+                colors = TaskifyTextFieldWithOptionsDefaults.colors(
+                    optionsBackground = CharcoalClay,
+                    optionsColor = Color.White,
+                    selectedOptionColor = Color.White,
+                    optionsSpacerColor = Color.White,
+                    selectedColor = Color.Black
+                )
+            )
+        }
+    }
+}
+
+@Composable
+private inline fun FieldScaffold(
+    data: FieldData,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
 ) {
     var initialFontSize by remember { mutableIntStateOf(24) }
     val shadowOffset by remember {
@@ -205,43 +282,7 @@ private fun Field(
             lineHeight = (initialFontSize + 8).sp,
             color = Color.Black
         )
-        if (data.options.size == 1) TextField(
-            value = data.options[0],
-            onValueChange = data.onValueChange,
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = {
-                Text(
-                    text = data.placeholder ?: "",
-                    color = Color.Black.copy(alpha = 0.7f),
-                    fontSize = MaterialTheme.typography.bodyMedium.fontSize
-                )
-            },
-            colors = TaskifyTextFieldDefaults.colors(
-                unfocusedTextColor = Color.Black,
-                focusedTextColor = Color.Black
-            ),
-            trailingIcon = if (trailingIcon != null) {
-                { trailingIcon.invoke(data.options[0]) }
-            } else null
-        ) else Column {
-            Text(
-                text = stringResource(RegistrationDictionary.changeLater),
-                fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                color = Color.Black.copy(alpha = 0.7f)
-            )
-            TextFieldWithOptions(
-                options = data.options,
-                onValueChange = data.onValueChange,
-                modifier = Modifier.fillMaxWidth(),
-                colors = TaskifyTextFieldWithOptionsDefaults.colors(
-                    optionsBackground = CharcoalClay,
-                    optionsColor = Color.White,
-                    selectedOptionColor = Color.White,
-                    optionsSpacerColor = Color.White,
-                    selectedColor = Color.Black
-                )
-            )
-        }
+        content()
     }
 }
 
@@ -320,7 +361,14 @@ private fun ContentPreview() {
     var username by remember { mutableStateOf("") }
     TaskifyTheme {
         Content(
-            fieldData = FieldData.fieldData(username, { username = it }, {}, {}),
+            fieldData = FieldData.fieldsData(
+                username = username,
+                languageConfig = LanguageConfig.SYSTEM_DEFAULT,
+                themeConfig = ThemeConfig.SYSTEM_DEFAULT,
+                onUsernameChange = { username = it },
+                onLanguageChange = {},
+                onThemeChange = {}
+            ),
             onAction = {
                 scope.launch {
                     when (it) {
