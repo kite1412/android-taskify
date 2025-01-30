@@ -1,5 +1,8 @@
 package com.nrr.todayplan
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nrr.data.repository.UserDataRepository
@@ -55,6 +58,9 @@ class TodayPlanViewModel @Inject constructor(
             initialValue = ""
         )
 
+    var showProfile by mutableStateOf(false)
+        private set
+
     fun deleteTask(task: Task) {
         viewModelScope.launch {
             removeActiveTaskUseCase(listOf(task))
@@ -65,5 +71,9 @@ class TodayPlanViewModel @Inject constructor(
         viewModelScope.launch {
             markTaskCompletedUseCase(task)
         }
+    }
+
+    fun updateShowProfile(value: Boolean) {
+        showProfile = value
     }
 }

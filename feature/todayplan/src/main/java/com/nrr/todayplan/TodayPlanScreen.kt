@@ -1,5 +1,7 @@
 package com.nrr.todayplan
 
+import android.os.Build
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -20,9 +22,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,11 +39,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -49,6 +59,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -77,6 +88,7 @@ import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.toTimeString
 import com.nrr.todayplan.util.TodayPlanDictionary
+import com.nrr.ui.DevicePreviews
 import com.nrr.ui.LocalSafeAnimateContent
 import com.nrr.ui.TaskCardTimeIndicator
 import com.nrr.ui.TaskPreviewParameter
@@ -98,6 +110,7 @@ internal fun TodayPlanScreen(
     val weeklyTasks by viewModel.weeklyTasks.collectAsStateWithLifecycle()
     val monthlyTasks by viewModel.monthlyTasks.collectAsStateWithLifecycle()
     val username by viewModel.username.collectAsStateWithLifecycle()
+    val showProfile = viewModel.showProfile
 
     Content(
         username = username,
@@ -273,6 +286,143 @@ private fun Content(
 }
 
 @Composable
+private fun Profile(
+    username: String,
+    onDismiss: () -> Unit,
+    onUsernameUpdate: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var editMode by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                    Color.Transparent else Color.Black.copy(0.4f)
+            )
+            .clickable(
+                indication = null,
+                interactionSource = null,
+                onClick = onDismiss
+            )
+    ) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .sizeIn(
+                    maxWidth = 400.dp,
+                    maxHeight = 350.dp
+                )
+                .background(MaterialTheme.colorScheme.onBackground)
+                .padding(16.dp)
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                ProfileHead(
+                    username = username,
+                    editMode = editMode,
+                    onUsernameUpdate = {
+                        onUsernameUpdate(it)
+                        editMode = false
+                    },
+                    onEditModeChange = {
+                        editMode = it
+                    }
+                )
+            }
+            Icon(
+                painter = painterResource(TaskifyIcon.cancel),
+                contentDescription = "back",
+                modifier = Modifier
+                    .size(24.dp)
+                    .align(Alignment.TopEnd)
+                    .clickable(
+                        indication = null,
+                        interactionSource = null,
+                        onClick = onDismiss
+                    )
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProfileHead(
+    username: String,
+    editMode: Boolean,
+    onUsernameUpdate: (String) -> Unit,
+    onEditModeChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var updatableUsername by rememberSaveable(username) {
+        mutableStateOf(username)
+    }
+    val focusRequester = remember { FocusRequester() }
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        UsernameLogo(
+            initial = username[0],
+            initialSize = 40
+        )
+        Column(
+            modifier = Modifier.padding(
+                top = 12.dp
+            )
+        ) {
+            BasicTextField(
+                value = updatableUsername,
+                onValueChange = { updatableUsername = it },
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .onFocusChanged {
+                        if (!it.isFocused) {
+                            onEditModeChange(false)
+                            updatableUsername = username
+                        }
+                    },
+                maxLines = 1,
+                singleLine = true,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                enabled = editMode,
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = { onUsernameUpdate(updatableUsername) }
+                )
+            )
+            AnimatedVisibility(
+                visible = !editMode
+            ) {
+                Text(
+                    text = stringResource(TodayPlanDictionary.changeUsername),
+                    modifier = Modifier.clickable(
+                        indication = null,
+                        interactionSource = null
+                    ) {
+                        onEditModeChange(true)
+                        focusRequester.requestFocus()
+                    },
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.tertiary,
+                    textDecoration = TextDecoration.Underline
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun GreetingHeader(
     username: String,
     modifier: Modifier = Modifier
@@ -304,20 +454,32 @@ private fun GreetingHeader(
                 onSizeChange = { greetingFontSize = it }
             )
         }
-        if (username.isNotEmpty()) Box(
-            modifier = Modifier
-                .clip(CircleShape)
-                .background(PastelGreen)
-                .size((initialNameSize * 2).dp)
-        ) {
-            Text(
-                text = username[0].uppercase(),
-                modifier = Modifier.align(Alignment.Center),
-                fontSize = initialNameSize.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-        }
+        if (username.isNotEmpty()) UsernameLogo(
+            initial = username[0],
+            initialSize = initialNameSize
+        )
+    }
+}
+
+@Composable
+private fun UsernameLogo(
+    initial: Char,
+    initialSize: Int,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .clip(CircleShape)
+            .background(PastelGreen)
+            .size((initialSize * 2).dp)
+    ) {
+        Text(
+            text = initial.uppercase(),
+            modifier = Modifier.align(Alignment.Center),
+            fontSize = initialSize.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
     }
 }
 
@@ -613,5 +775,18 @@ private fun ContentPreview(
                 modifier = Modifier.padding(32.dp)
             )
         }
+    }
+}
+
+@Preview
+@DevicePreviews
+@Composable
+private fun ProfilePreview() {
+    TaskifyTheme {
+        Profile(
+            onDismiss = {},
+            onUsernameUpdate = {},
+            username = "Kite1412"
+        )
     }
 }
