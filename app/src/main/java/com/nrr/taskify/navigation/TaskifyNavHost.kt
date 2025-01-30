@@ -50,7 +50,8 @@ fun TaskifyNavHost(
                     activeStatusId = status?.id,
                     taskPeriod = TaskPeriod.DAY.takeIf { status == null }
                 )
-            }
+            },
+            onSummariesClick = { /* TODO */ }
         )
         taskManagementScreen(
             onTaskClick = navController::navigateToTaskDetail

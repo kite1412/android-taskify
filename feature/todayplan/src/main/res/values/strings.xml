@@ -16,4 +16,5 @@
     <string name="todayplan_today_tasks_completed">Tasks complete!</string>
     <string name="todayplan_change_username">Change username</string>
     <string name="todayplan_cancel">Cancel</string>
+    <string name="todayplan_summaries">Summaries</string>
 </resources>

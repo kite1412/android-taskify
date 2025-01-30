@@ -33,4 +33,5 @@ object TaskifyIcon {
     val bell = R.drawable.bell
     val language = R.drawable.language
     val palette = R.drawable.palette
+    val note2 = R.drawable.note2
 }

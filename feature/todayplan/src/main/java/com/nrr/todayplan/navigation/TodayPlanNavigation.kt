@@ -22,7 +22,8 @@ fun NavGraphBuilder.todayPlanScreen(
     onWeeklyClick: (TaskPeriod) -> Unit,
     onMonthlyClick: (TaskPeriod) -> Unit,
     onSetTodayTasksClick: () -> Unit,
-    onScheduledTaskClick: (Task) -> Unit
+    onScheduledTaskClick: (Task) -> Unit,
+    onSummariesClick: () -> Unit
 ) {
     composable<TodayPlanRoute> {
         TodayPlanScreen(
@@ -31,7 +32,8 @@ fun NavGraphBuilder.todayPlanScreen(
             onWeeklyClick = onWeeklyClick,
             onMonthlyClick = onMonthlyClick,
             onSetTodayTasksClick = onSetTodayTasksClick,
-            onScheduledTaskClick = onScheduledTaskClick
+            onScheduledTaskClick = onScheduledTaskClick,
+            onSummariesClick = onSummariesClick
         )
     }
 }

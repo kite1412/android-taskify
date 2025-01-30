@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -115,6 +117,7 @@ internal fun TodayPlanScreen(
     onMonthlyClick: (TaskPeriod) -> Unit,
     onSetTodayTasksClick: () -> Unit,
     onScheduledTaskClick: (Task) -> Unit,
+    onSummariesClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TodayPlanViewModel = hiltViewModel()
 ) {
@@ -141,6 +144,7 @@ internal fun TodayPlanScreen(
         onDismissProfile = { viewModel.updateShowProfile(false) },
         onUsernameUpdate = viewModel::updateUsername,
         onLogoClick = { viewModel.updateShowProfile(true) },
+        onSummariesClick = onSummariesClick,
         modifier = modifier
     )
 }
@@ -188,6 +192,7 @@ private fun Content(
     onDismissProfile: () -> Unit,
     onUsernameUpdate: (String) -> Unit,
     onLogoClick: () -> Unit,
+    onSummariesClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val contentWithRoundRectShadowPadding = with(LocalDensity.current) {
@@ -336,7 +341,8 @@ private fun Content(
                 Profile(
                     username = username,
                     onDismiss = onDismissWrapper,
-                    onUsernameUpdate = onUsernameUpdate
+                    onUsernameUpdate = onUsernameUpdate,
+                    onSummariesClick = onSummariesClick
                 )
             }
         }
@@ -348,6 +354,7 @@ private fun Profile(
     username: String,
     onDismiss: () -> Unit,
     onUsernameUpdate: (String) -> Unit,
+    onSummariesClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var editMode by rememberSaveable {
@@ -388,6 +395,22 @@ private fun Profile(
                     editMode = it
                 }
             )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Spacer(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(3.dp)
+                        .clip(CircleShape)
+                        .background(LocalContentColor.current)
+                )
+                ProfileMenu(
+                    iconId = TaskifyIcon.note2,
+                    label = stringResource(TodayPlanDictionary.summaries),
+                    onClick = onSummariesClick
+                )
+            }
         }
         Icon(
             painter = painterResource(TaskifyIcon.cancel),
@@ -535,6 +558,48 @@ private fun ProfileHead(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ProfileMenu(
+    iconId: Int,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(iconId),
+                contentDescription = label,
+                modifier = Modifier.size(40.dp)
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        }
+        Icon(
+            painter = painterResource(TaskifyIcon.chevronDown),
+            contentDescription = label,
+            modifier = Modifier
+                .size(32.dp)
+                .rotate(-90f)
+        )
     }
 }
 
@@ -907,6 +972,7 @@ private fun ContentPreview(
                 onDismissProfile = {},
                 onUsernameUpdate = {},
                 onLogoClick = {},
+                onSummariesClick = {},
                 modifier = Modifier.padding(32.dp)
             )
         }
@@ -921,7 +987,8 @@ private fun ProfilePreview() {
         Profile(
             onDismiss = {},
             onUsernameUpdate = {},
-            username = "Kite1412"
+            username = "Kite1412",
+            onSummariesClick = {}
         )
     }
 }
