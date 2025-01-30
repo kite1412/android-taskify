@@ -37,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -103,6 +105,7 @@ import com.nrr.ui.TaskCardTimeIndicator
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.rememberTaskCardsState
 import com.nrr.ui.taskCards
+import kotlinx.coroutines.delay
 
 @Composable
 internal fun TodayPlanScreen(
@@ -208,7 +211,8 @@ private fun Content(
             ) {
                 GreetingHeader(
                     username = username,
-                    onLogoClick = onLogoClick
+                    onLogoClick = onLogoClick,
+                    showUsernameLogo = !showProfile
                 )
                 Row(
                     modifier = Modifier
@@ -304,14 +308,38 @@ private fun Content(
             }
         )
     }
-    if (showProfile) Dialog(
-        onDismissRequest = onDismissProfile
-    ) {
-        Profile(
-            username = username,
-            onDismiss = onDismissProfile,
-            onUsernameUpdate = onUsernameUpdate
-        )
+
+    if (showProfile) {
+        var animateContent by remember { mutableStateOf(false) }
+        var dismiss by remember { mutableStateOf(false) }
+        val onDismissWrapper = {
+            animateContent = false
+            dismiss = true
+        }
+
+        LaunchedEffect(dismiss) {
+            if (!animateContent && !dismiss) {
+                delay(10)
+                animateContent = true
+            } else if (dismiss) {
+                // arbitrary delay value
+                delay(80)
+                onDismissProfile()
+            }
+        }
+        CompositionLocalProvider(
+            LocalSafeAnimateContent provides animateContent
+        ) {
+            Dialog(
+                onDismissRequest = onDismissWrapper
+            ) {
+                Profile(
+                    username = username,
+                    onDismiss = onDismissWrapper,
+                    onUsernameUpdate = onUsernameUpdate
+                )
+            }
+        }
     }
 }
 
@@ -393,6 +421,10 @@ private fun ProfileHead(
     }
     val focusRequester = remember { FocusRequester() }
     val smallTextStyle = MaterialTheme.typography.bodySmall
+    val safeToAnimate = LocalSafeAnimateContent.current
+    val scale by animateFloatAsState(
+        targetValue = if (safeToAnimate) 1f else 0f
+    )
 
     LaunchedEffect(editMode) {
         if (editMode) focusRequester.requestFocus()
@@ -404,7 +436,8 @@ private fun ProfileHead(
     ) {
         UsernameLogo(
             initial = username[0],
-            initialSize = 40
+            initialSize = 40,
+            modifier = Modifier.scale(scale)
         )
         Column(
             modifier = Modifier.padding(
@@ -509,6 +542,7 @@ private fun ProfileHead(
 private fun GreetingHeader(
     username: String,
     onLogoClick: () -> Unit,
+    showUsernameLogo: Boolean,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -538,16 +572,23 @@ private fun GreetingHeader(
                 onSizeChange = { greetingFontSize = it }
             )
         }
-        if (username.isNotEmpty()) UsernameLogo(
-            initial = username[0],
-            initialSize = initialNameSize,
-            modifier = Modifier
-                .clickable(
-                    indication = null,
-                    interactionSource = null,
-                    onClick = onLogoClick
-                )
-        )
+        if (username.isNotEmpty()) {
+            val scale by animateFloatAsState(
+                targetValue = if (showUsernameLogo) 1f else 0f
+            )
+
+            UsernameLogo(
+                initial = username[0],
+                initialSize = initialNameSize,
+                modifier = Modifier
+                    .scale(scale)
+                    .clickable(
+                        indication = null,
+                        interactionSource = null,
+                        onClick = onLogoClick
+                    )
+            )
+        }
     }
 }
 
