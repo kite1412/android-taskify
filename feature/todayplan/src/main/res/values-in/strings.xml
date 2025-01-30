@@ -15,4 +15,5 @@
     <string name="todayplan_mark_as_completed">Selesai</string>
     <string name="todayplan_today_tasks_completed">Tugas selesai!</string>
     <string name="todayplan_change_username">Ganti nama</string>
+    <string name="todayplan_cancel">Batal</string>
 </resources>

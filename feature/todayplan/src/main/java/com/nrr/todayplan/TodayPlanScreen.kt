@@ -1,6 +1,7 @@
 package com.nrr.todayplan
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -391,9 +392,11 @@ private fun ProfileHead(
         )
     }
     val focusRequester = remember { FocusRequester() }
+    val smallTextStyle = MaterialTheme.typography.bodySmall
 
     LaunchedEffect(editMode) {
         if (editMode) focusRequester.requestFocus()
+        else focusRequester.freeFocus()
     }
     Row(
         modifier = modifier,
@@ -447,32 +450,55 @@ private fun ProfileHead(
             AnimatedContent(
                 targetState = editMode
             ) {
-                Text(
-                    text = buildAnnotatedString {
-                        if (!it) append(
-                            stringResource(TodayPlanDictionary.changeUsername)
-                        ) else {
-                            withStyle(
-                                style = SpanStyle(
-                                    color = if (updatableUsername.text.isBlank())
-                                        Color.Red else contentColor
-                                )
-                            ) {
-                                append(updatableUsername.text.length.toString())
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = buildAnnotatedString {
+                            if (!it) append(
+                                stringResource(TodayPlanDictionary.changeUsername)
+                            ) else {
+                                withStyle(
+                                    style = SpanStyle(
+                                        color = if (updatableUsername.text.isBlank())
+                                            Color.Red else contentColor
+                                    )
+                                ) {
+                                    append(updatableUsername.text.length.toString())
+                                }
+                                append("/20")
                             }
-                            append("/20")
-                        }
-                    },
-                    modifier = Modifier
-                        .clickable(
-                            indication = null,
-                            interactionSource = null
-                        ) {
-                            onEditModeChange(true)
                         },
-                    fontSize = 12.sp,
-                    color = if (!it) MaterialTheme.colorScheme.tertiary else contentColor,
-                    textDecoration = if (!it) TextDecoration.Underline else null
+                        modifier = Modifier
+                            .clickable(
+                                indication = null,
+                                interactionSource = null
+                            ) {
+                                onEditModeChange(true)
+                            },
+                        style = smallTextStyle,
+                        color = if (!it) MaterialTheme.colorScheme.tertiary else contentColor,
+                        textDecoration = if (!it) TextDecoration.Underline else null
+                    )
+                }
+            }
+            AnimatedVisibility(
+                visible = editMode,
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text(
+                    text = stringResource(TodayPlanDictionary.cancel),
+                    modifier = Modifier.clickable(
+                        indication = null,
+                        interactionSource = null
+                    ) {
+                        onEditModeChange(false)
+                    },
+                    style = smallTextStyle.copy(
+                        color = Red
+                    )
                 )
             }
         }
