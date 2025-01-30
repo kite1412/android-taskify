@@ -13,6 +13,9 @@ import com.nrr.summary.receiver.SUMMARY_GENERATION_ACTION
 import com.nrr.summary.receiver.SummaryGenerationReceiver
 import com.nrr.summary.worker.SummaryGenerationWorker.Companion.enqueuePeriodicSummaryGeneration
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
@@ -27,12 +30,19 @@ internal class DefaultSummariesGenerationScheduler @Inject constructor(
     private val workManager = WorkManager.getInstance(context)
 
     override fun scheduleSummariesGeneration() {
-         for (period in TaskPeriod.entries) {
-             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) schedulePeriodicSummaryGeneration(
-                period = period,
-                workName = getUniqueWorkName(period)
-            ) else scheduleWithAlarmManager(period)
-        }
+         CoroutineScope(Dispatchers.Default).launch {
+             for (period in TaskPeriod.entries) {
+                 workManager
+                     .getWorkInfosForUniqueWork(getUniqueWorkName(period))
+                     .get()
+                     .takeIf { it.isEmpty() } ?: continue
+
+                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) schedulePeriodicSummaryGeneration(
+                     period = period,
+                     workName = getUniqueWorkName(period)
+                 ) else scheduleWithAlarmManager(period)
+             }
+         }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
