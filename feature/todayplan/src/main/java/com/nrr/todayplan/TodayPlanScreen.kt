@@ -1,6 +1,6 @@
 package com.nrr.todayplan
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -59,12 +59,15 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -132,7 +135,7 @@ internal fun TodayPlanScreen(
         onSetTodayTasksClick = onSetTodayTasksClick,
         showProfile = showProfile,
         onDismissProfile = { viewModel.updateShowProfile(false) },
-        onUsernameUpdate = {  },
+        onUsernameUpdate = viewModel::updateUsername,
         onLogoClick = { viewModel.updateShowProfile(true) },
         modifier = modifier
     )
@@ -409,7 +412,9 @@ private fun ProfileHead(
 
             BasicTextField(
                 value = updatableUsername,
-                onValueChange = { updatableUsername = it },
+                onValueChange = {
+                    if (it.text.length <= 20) updatableUsername = it
+                },
                 modifier = Modifier
                     .focusRequester(focusRequester)
                     .onFocusChanged {
@@ -432,15 +437,32 @@ private fun ProfileHead(
                     imeAction = ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = { onUsernameUpdate(updatableUsername.text) }
+                    onDone = {
+                        if (updatableUsername.text.isNotEmpty())
+                            onUsernameUpdate(updatableUsername.text)
+                    }
                 ),
                 cursorBrush = SolidColor(contentColor)
             )
-            AnimatedVisibility(
-                visible = !editMode
+            AnimatedContent(
+                targetState = editMode
             ) {
                 Text(
-                    text = stringResource(TodayPlanDictionary.changeUsername),
+                    text = buildAnnotatedString {
+                        if (!it) append(
+                            stringResource(TodayPlanDictionary.changeUsername)
+                        ) else {
+                            withStyle(
+                                style = SpanStyle(
+                                    color = if (updatableUsername.text.isBlank())
+                                        Color.Red else contentColor
+                                )
+                            ) {
+                                append(updatableUsername.text.length.toString())
+                            }
+                            append("/20")
+                        }
+                    },
                     modifier = Modifier
                         .clickable(
                             indication = null,
@@ -449,8 +471,8 @@ private fun ProfileHead(
                             onEditModeChange(true)
                         },
                     fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.tertiary,
-                    textDecoration = TextDecoration.Underline
+                    color = if (!it) MaterialTheme.colorScheme.tertiary else contentColor,
+                    textDecoration = if (!it) TextDecoration.Underline else null
                 )
             }
         }

@@ -21,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class TodayPlanViewModel @Inject constructor(
     getTasksByPeriodUseCase: GetTasksByPeriodUseCase,
-    userDataRepository: UserDataRepository,
+    private val userDataRepository: UserDataRepository,
     private val removeActiveTaskUseCase: RemoveActiveTasksUseCase,
     private val markTaskCompletedUseCase: MarkTaskCompletedUseCase
 ) : ViewModel() {
@@ -75,5 +75,11 @@ class TodayPlanViewModel @Inject constructor(
 
     fun updateShowProfile(value: Boolean) {
         showProfile = value
+    }
+
+    fun updateUsername(newUsername: String) {
+        viewModelScope.launch {
+            userDataRepository.setUsername(newUsername)
+        }
     }
 }
