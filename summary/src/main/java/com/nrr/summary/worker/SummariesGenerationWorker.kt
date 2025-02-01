@@ -1,4 +1,4 @@
-package com.nrr.summary.receiver
+package com.nrr.summary.worker
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
@@ -89,7 +89,7 @@ class SummariesGenerationWorker @AssistedInject constructor(
     companion object {
         const val GENERATED_PERIODS_ORDINAL_KEY = "generated_period_ordinal"
 
-        internal fun periodicSummariesGenerationWorkRequest(
+        private fun periodicSummariesGenerationWorkRequest(
             builder: (PeriodicWorkRequest.Builder.() -> Unit)? = null
         ) = PeriodicWorkRequestBuilder<SummariesGenerationWorker>(
             repeatInterval = 1,

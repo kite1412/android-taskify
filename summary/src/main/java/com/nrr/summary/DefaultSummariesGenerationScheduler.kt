@@ -9,9 +9,11 @@ import androidx.annotation.RequiresApi
 import androidx.work.WorkManager
 import com.nrr.data.util.getEndDate
 import com.nrr.model.TaskPeriod
+import com.nrr.summary.receiver.SUMMARIES_GENERATION_ACTION
 import com.nrr.summary.receiver.SUMMARY_GENERATION_ACTION
-import com.nrr.summary.receiver.SummariesGenerationWorker.Companion.enqueuePeriodSummariesGeneration
+import com.nrr.summary.receiver.SummariesGenerationReceiver
 import com.nrr.summary.receiver.SummaryGenerationReceiver
+import com.nrr.summary.worker.SummariesGenerationWorker.Companion.enqueuePeriodSummariesGeneration
 import com.nrr.summary.worker.SummaryGenerationWorker.Companion.enqueuePeriodicSummaryGeneration
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -97,19 +99,17 @@ internal class DefaultSummariesGenerationScheduler @Inject constructor(
         override fun schedule() {
             CoroutineScope(Dispatchers.Default).launch {
                 // ensure scheduling only performed by SummariesGenerationWorker
-                for (period in TaskPeriod.entries) {
-                    val uniqueName = getUniqueWorkName(period)
-                    workManager
-                        .getWorkInfosForUniqueWork(uniqueName)
-                        .get()
-                        .firstOrNull()
-                        ?.let {
-                            workManager.cancelUniqueWork(uniqueName)
-                        }
+                for (period in TaskPeriod.entries)
+                    workManager.cancelUniqueWork(getUniqueWorkName(period))
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                        scheduleDailySummariesGeneration()
-                }
+                workManager
+                    .getWorkInfosForUniqueWork(SUMMARIES_GENERATION_WORK_NAME)
+                    .get()
+                    .takeIf { it.isEmpty() } ?: return@launch
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                    scheduleDailySummariesGeneration()
+                else scheduleWithAlarmManager()
             }
         }
 
@@ -125,6 +125,28 @@ internal class DefaultSummariesGenerationScheduler @Inject constructor(
                 }
             )
         }
+
+        private fun scheduleWithAlarmManager() {
+            with(context.getSystemService(Context.ALARM_SERVICE) as AlarmManager) {
+                val pendingIntent = summariesGenerationReceiverPendingIntent()
+                cancel(pendingIntent)
+                setAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    (Clock.System.now().getEndDate(TaskPeriod.DAY) + 1.seconds)
+                        .toEpochMilliseconds(),
+                    pendingIntent
+                )
+            }
+        }
+
+        private fun summariesGenerationReceiverPendingIntent() = PendingIntent.getBroadcast(
+            context,
+            -4,
+            Intent(context, SummariesGenerationReceiver::class.java).apply {
+                action = SUMMARIES_GENERATION_ACTION
+            },
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
     }
 
     companion object {

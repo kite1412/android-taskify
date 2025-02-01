@@ -9,5 +9,12 @@
                 <action android:name="com.nrr.summary.SUMMARY_GENERATION" />
             </intent-filter>
         </receiver>
+        <receiver android:name="com.nrr.summary.receiver.SummariesGenerationReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.nrr.summary.SUMMARIES_GENERATION" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
