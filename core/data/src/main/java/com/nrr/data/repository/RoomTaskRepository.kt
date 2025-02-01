@@ -78,4 +78,7 @@ internal class RoomTaskRepository @Inject constructor(
 
     override suspend fun deleteTasks(tasks: List<Task>): Int =
         taskDao.deleteTasks(tasks.map { it.id })
+
+    override suspend fun deleteActiveTasksByPeriod(period: TaskPeriod): Int =
+        activeTaskDao.deleteActiveTasksByPeriod(period)
 }

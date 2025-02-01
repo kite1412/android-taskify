@@ -36,4 +36,11 @@ interface ActiveTaskDao {
     """
     )
     suspend fun deleteActiveTasks(ids: List<Long>): Int
+
+    @Query(
+        """
+        DELETE FROM active_tasks
+        WHERE task_period = :period
+    """)
+    suspend fun deleteActiveTasksByPeriod(period: TaskPeriod): Int
 }

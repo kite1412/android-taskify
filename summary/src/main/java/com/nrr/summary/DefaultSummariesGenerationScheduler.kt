@@ -28,59 +28,75 @@ internal class DefaultSummariesGenerationScheduler @Inject constructor(
     @ApplicationContext private val context: Context
 ) : SummariesGenerationScheduler {
     private val workManager = WorkManager.getInstance(context)
+    private val scheduler: Scheduler = ScheduleByPeriod()
 
-    override fun scheduleSummariesGeneration() {
-         CoroutineScope(Dispatchers.Default).launch {
-             for (period in TaskPeriod.entries) {
-                 workManager
-                     .getWorkInfosForUniqueWork(getUniqueWorkName(period))
-                     .get()
-                     .takeIf { it.isEmpty() } ?: continue
+    override fun scheduleSummariesGeneration() =
+        scheduler.schedule()
 
-                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) schedulePeriodicSummaryGeneration(
-                     period = period,
-                     workName = getUniqueWorkName(period)
-                 ) else scheduleWithAlarmManager(period)
-             }
-         }
+    private interface Scheduler {
+        fun schedule()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun schedulePeriodicSummaryGeneration(
-        period: TaskPeriod,
-        workName: String
-    ) {
-        workManager.enqueuePeriodicSummaryGeneration(
-            uniqueWorkName = workName,
-            taskPeriod = period,
-            builder = {
-                setInitialDelay(initialExecutionDelay(period).toJavaDuration())
+    private inner class ScheduleByPeriod : Scheduler {
+        override fun schedule() {
+            CoroutineScope(Dispatchers.Default).launch {
+                for (period in TaskPeriod.entries) {
+                    workManager
+                        .getWorkInfosForUniqueWork(getUniqueWorkName(period))
+                        .get()
+                        .takeIf { it.isEmpty() } ?: continue
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) schedulePeriodicSummaryGeneration(
+                        period = period,
+                        workName = getUniqueWorkName(period)
+                    ) else scheduleWithAlarmManager(period)
+                }
             }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        private fun schedulePeriodicSummaryGeneration(
+            period: TaskPeriod,
+            workName: String
+        ) {
+            workManager.enqueuePeriodicSummaryGeneration(
+                uniqueWorkName = workName,
+                taskPeriod = period,
+                builder = {
+                    setInitialDelay(initialExecutionDelay(period).toJavaDuration())
+                }
+            )
+        }
+
+        private fun scheduleWithAlarmManager(period: TaskPeriod) {
+            val pendingIntent = summaryGenerationReceiverPendingIntent(period)
+
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+            alarmManager.cancel(pendingIntent)
+            alarmManager.setAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                (Clock.System.now().getEndDate(period) + 1.seconds).toEpochMilliseconds(),
+                pendingIntent
+            )
+        }
+
+        private fun summaryGenerationReceiverPendingIntent(period: TaskPeriod) = PendingIntent.getBroadcast(
+            context,
+            getPeriodId(period),
+            Intent(context, SummaryGenerationReceiver::class.java).apply {
+                action = SUMMARY_GENERATION_ACTION
+                putExtra(SummaryGenerationReceiver.TASK_PERIOD_ORDINAL_KEY, period.ordinal)
+            },
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
 
-    private fun scheduleWithAlarmManager(period: TaskPeriod) {
-        val pendingIntent = summaryGenerationReceiverPendingIntent(period)
+    private inner class DailySchedule : Scheduler {
+        override fun schedule() {
 
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-        alarmManager.cancel(pendingIntent)
-        alarmManager.setAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            (Clock.System.now().getEndDate(period) + 1.seconds).toEpochMilliseconds(),
-            pendingIntent
-        )
+        }
     }
-
-    private fun summaryGenerationReceiverPendingIntent(period: TaskPeriod) = PendingIntent.getBroadcast(
-        context,
-        getPeriodId(period),
-        Intent(context, SummaryGenerationReceiver::class.java).apply {
-            action = SUMMARY_GENERATION_ACTION
-            putExtra(SummaryGenerationReceiver.TASK_PERIOD_ORDINAL_KEY, period.ordinal)
-        },
-        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-    )
 
     companion object {
         private const val DAILY_SUMMARY_WORK_NAME = "daily_summary"

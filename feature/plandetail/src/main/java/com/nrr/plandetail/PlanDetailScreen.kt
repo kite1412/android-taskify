@@ -516,14 +516,14 @@ private fun Tasks(
         }
         val endPadding = 16.dp
         val state = rememberTaskCardsState(tasks, tasks)
-        val safeToScroll = LocalSafeAnimateContent.current.not()
+        val safeToInteract = LocalSafeAnimateContent.current.not()
 
         LazyColumn(
             modifier = modifier,
             contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(dashSpace),
             state = lazyListState,
-            userScrollEnabled = safeToScroll
+            userScrollEnabled = safeToInteract
         ) {
             taskCards(
                 tasks = tasks,
@@ -538,6 +538,7 @@ private fun Tasks(
                 },
                 state = state,
                 onClick = onClick,
+                swipeEnabled = safeToInteract,
                 content = { index, taskCard ->
                     Column(
                         modifier = Modifier.fillMaxWidth(),
