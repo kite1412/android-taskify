@@ -12,7 +12,6 @@ import com.nrr.notification.util.MAIN_ACTIVITY_NAME
 import com.nrr.notification.util.createNotification
 import com.nrr.summary.DefaultSummariesGenerationScheduler
 
-
 @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
 internal fun Context.showNotification(period: TaskPeriod) {
     val notification = createNotification {

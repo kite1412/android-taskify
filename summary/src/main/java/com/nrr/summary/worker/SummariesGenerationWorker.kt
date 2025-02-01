@@ -1,6 +1,8 @@
 package com.nrr.summary.worker
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -13,6 +15,7 @@ import com.nrr.data.repository.SummaryRepository
 import com.nrr.data.repository.TaskRepository
 import com.nrr.model.TaskPeriod
 import com.nrr.model.toLocalDateTime
+import com.nrr.summary.util.showNotification
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.datetime.Clock
@@ -21,13 +24,19 @@ import kotlin.time.Duration.Companion.days
 
 @HiltWorker
 class SummariesGenerationWorker @AssistedInject constructor(
-    @Assisted context: Context,
+    @Assisted private val context: Context,
     @Assisted params: WorkerParameters,
     private val summaryRepository: SummaryRepository,
     private val taskRepository: TaskRepository
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
-        val res = generateSummaries()
+        val res = generateSummaries().onEach { p ->
+            if (
+                context.checkSelfPermission(
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            ) context.showNotification(p)
+        }
 
         return Result.success(
             workDataOf(
