@@ -92,7 +92,9 @@ import com.nrr.ui.toStringLocalized
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import java.time.YearMonth
 import java.time.format.TextStyle
+import kotlin.math.abs
 
 @Composable
 internal fun PlanDetailScreen(
@@ -257,9 +259,31 @@ private fun weekIndicator(currentDate: Instant): String {
     val today = localDateTime.dayOfWeek.value
     val start = localDateTime.dayOfMonth - today + 1
     val end = start + 6
-    return "($start - " +
-            "$end " +
-            "${localDateTime.toMonthLocalized()})"
+    val prevMonth = localDateTime.monthNumber - 1
+    val prevYearMonth = YearMonth.of(
+        if (prevMonth == 0) localDateTime.year - 1 else localDateTime.year,
+        if (prevMonth == 0) 12 else prevMonth
+    )
+    var fixedStart: Int? = null
+
+    if (start <= 0)
+        fixedStart = prevYearMonth.lengthOfMonth() - abs(start)
+
+    return buildString {
+        append("(${fixedStart ?: start}")
+        append(
+            if (start <= 0) " ${
+                prevYearMonth.month.getDisplayName(
+                    TextStyle.FULL,
+                    getCurrentLocale()
+                )
+            }"
+            else ""
+        )
+        append(" - ")
+        append("$end ")
+        append("${localDateTime.toMonthLocalized()})")
+    }
 }
 
 @Composable
