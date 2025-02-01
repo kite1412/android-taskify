@@ -159,15 +159,19 @@ class PlanArrangementViewModel @Inject constructor(
     }
 
     fun updateStatusPeriod(period: TaskPeriod) {
+        val curDate = Clock.System.now().toLocalDateTime()
+
         taskEdit = taskEdit?.copy(
             selectedDueDate = if (period == TaskPeriod.DAY) taskEdit?.selectedDueDate?.copy(
-                dayOfMonth = taskEdit?.selectedStartDate?.dayOfMonth
+                dayOfMonth = taskEdit?.selectedStartDate?.dayOfMonth,
+                month = curDate.monthNumber
             ) else taskEdit?.selectedDueDate,
             activeStatus = taskEdit!!.activeStatus.copy(
                 period = period
             ),
             selectedStartDate = if (period == TaskPeriod.DAY) taskEdit?.selectedStartDate?.copy(
-                dayOfMonth = Clock.System.now().toLocalDateTime().dayOfMonth
+                dayOfMonth = curDate.dayOfMonth,
+                month = curDate.monthNumber
             ) else taskEdit?.selectedStartDate
         )
     }
@@ -246,17 +250,17 @@ class PlanArrangementViewModel @Inject constructor(
         )
     }
 
-    internal fun updateStatusStartDate(date: Int) {
+    internal fun updateStatusStartDate(day: Int, month: Int) {
         taskEdit = taskEdit?.copy(
-            selectedStartDate = taskEdit!!.selectedStartDate?.copy(dayOfMonth = date)
-                ?: Date(dayOfMonth = date)
+            selectedStartDate = taskEdit!!.selectedStartDate?.copy(dayOfMonth = day, month = month)
+                ?: Date(dayOfMonth = day, month = month)
         )
     }
 
-    internal fun updateStatusEndDate(date: Int) {
+    internal fun updateStatusEndDate(date: Int, month: Int) {
         taskEdit = taskEdit?.copy(
-            selectedDueDate = taskEdit!!.selectedDueDate?.copy(dayOfMonth = date)
-                ?: Date(dayOfMonth = date)
+            selectedDueDate = taskEdit!!.selectedDueDate?.copy(dayOfMonth = date, month = month)
+                ?: Date(dayOfMonth = date, month = month)
         )
     }
 }

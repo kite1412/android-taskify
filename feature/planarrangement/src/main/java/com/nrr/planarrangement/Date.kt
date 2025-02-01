@@ -6,23 +6,24 @@ import com.nrr.ui.toDateStringLocalized
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlin.time.Duration
 
 internal data class Date(
     val time: Time = Time(),
-    val dayOfMonth: Int? = null
+    val dayOfMonth: Int? = null,
+    val month: Int? = null
 ) : Comparable<Date> {
     fun toInstant(
-        ignoreTime: Boolean = false,
-        dayOfMonth: Int? = null
+        ignoreTime: Boolean = false
     ): Instant {
         val curDate = Clock.System.now().toLocalDateTime()
         val localDateTime = LocalDateTime(
             year = curDate.year,
-            month = curDate.month,
-            dayOfMonth = this.dayOfMonth ?: dayOfMonth ?: curDate.dayOfMonth,
+            month = month?.let { Month(it) } ?: curDate.month,
+            dayOfMonth = this.dayOfMonth ?: curDate.dayOfMonth,
             hour = if (!ignoreTime) time.hour else curDate.hour,
             minute = if (!ignoreTime) time.minute else curDate.minute
         )
@@ -52,6 +53,7 @@ internal data class Date(
 internal fun Instant.toDate() = with(toLocalDateTime()) {
     Date(
         time = Time(hour = hour, minute = minute),
-        dayOfMonth = dayOfMonth
+        dayOfMonth = dayOfMonth,
+        month = monthNumber
     )
 }

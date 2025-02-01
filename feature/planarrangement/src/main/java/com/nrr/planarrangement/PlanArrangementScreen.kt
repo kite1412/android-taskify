@@ -232,8 +232,8 @@ private fun Content(
     onPeriodEditChange: (TaskPeriod) -> Unit,
     onStartTimeChange: (Time) -> Unit,
     onEndTimeChange: (Time) -> Unit,
-    onStartDateChange: (Int) -> Unit,
-    onEndDateChange: (Int) -> Unit,
+    onStartDateChange: (day: Int, month: Int) -> Unit,
+    onEndDateChange: (day: Int, month: Int) -> Unit,
     onReminderChange: (Boolean) -> Unit,
     onDefaultChange: (Boolean) -> Unit,
     onPriorityChange: (TaskPriority) -> Unit,
@@ -489,8 +489,8 @@ private fun AssignTask(
     onPeriodChange: (TaskPeriod) -> Unit,
     onStartTimeChange: (Time) -> Unit,
     onEndTimeChange: (Time) -> Unit,
-    onStartDateChange: (Int) -> Unit,
-    onEndDateChange: (Int) -> Unit,
+    onStartDateChange: (day: Int, month: Int) -> Unit,
+    onEndDateChange: (day: Int, month: Int) -> Unit,
     onReminderChange: (Boolean) -> Unit,
     onDefaultChange: (Boolean) -> Unit,
     onPriorityChange: (TaskPriority) -> Unit,
@@ -641,8 +641,8 @@ private fun AssignmentConfiguration(
     onPeriodChange: (TaskPeriod) -> Unit,
     onStartTimeChange: (Time) -> Unit,
     onEndTimeChange: (Time) -> Unit,
-    onStartDateChange: (Int) -> Unit,
-    onEndDateChange: (Int) -> Unit,
+    onStartDateChange: (day: Int, month: Int) -> Unit,
+    onEndDateChange: (day: Int, month: Int) -> Unit,
     onReminderChange: (Boolean) -> Unit,
     onDefaultChange: (Boolean) -> Unit,
     onPriorityChange: (TaskPriority) -> Unit,
@@ -930,10 +930,10 @@ private fun TimeField(
                 editingStartTime = null
                 warning = null
             } else {
-                startDate?.let { st ->
+                startDate?.let { sd ->
                     val time = it.toTime()
                     val ed = endDate?.copy(time = time) ?: Date(time = time)
-                    if (st < ed) {
+                    if (sd < ed) {
                         onEndTimeChange(time)
                         editingStartTime = null
                         warning = null
@@ -980,8 +980,8 @@ private fun DateField(
     period: TaskPeriod,
     startDate: Date?,
     endDate: Date?,
-    onStartDateChange: (Int) -> Unit,
-    onEndDateChange: (Int) -> Unit,
+    onStartDateChange: (day: Int, month: Int) -> Unit,
+    onEndDateChange: (day: Int, month: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var editingStartDate by remember {
@@ -1020,7 +1020,7 @@ private fun DateField(
                         editingStartDate = true
                     },
                     action = if (startDate?.dayOfMonth == null) stringResource(PlanArrangementDictionary.none)
-                    else "${curDate.month.value}/${startDate.dayOfMonth}",
+                    else "${startDate.month ?: curDate.monthNumber}/${startDate.dayOfMonth}",
                     iconId = TaskifyIcon.calendar
                 )
             },
@@ -1030,7 +1030,7 @@ private fun DateField(
                         editingStartDate = false
                     },
                     action = if (endDate?.dayOfMonth == null) stringResource(PlanArrangementDictionary.none)
-                    else "${curDate.month.value}/${endDate.dayOfMonth}",
+                    else "${endDate.month ?: curDate.monthNumber}/${endDate.dayOfMonth}",
                     iconId = TaskifyIcon.calendar
                 )
             }
@@ -1039,10 +1039,15 @@ private fun DateField(
     if (editingStartDate != null) DatePicker(
         onDismiss = { editingStartDate = null },
         onConfirm = {
-            val dayOfMonth = Instant.fromEpochMilliseconds(it).toLocalDateTime()
-                .dayOfMonth
-            if (editingStartDate!!) onStartDateChange(dayOfMonth)
-            else onEndDateChange(dayOfMonth)
+            with(Instant.fromEpochMilliseconds(it).toLocalDateTime()) {
+                if (editingStartDate!!) onStartDateChange(
+                    dayOfMonth,
+                    monthNumber
+                ) else onEndDateChange(
+                    dayOfMonth,
+                    monthNumber
+                )
+            }
             editingStartDate = null
         },
         confirmText = stringResource(PlanArrangementDictionary.set),
@@ -1444,15 +1449,20 @@ private fun ContentPreview(
                         ?: Date(it)
                 )
             },
-            onStartDateChange = {
+            onStartDateChange = { d, m ->
                 taskEdit = taskEdit?.copy(
-                    selectedStartDate = taskEdit!!.selectedStartDate?.copy(dayOfMonth = it)
+                    selectedStartDate = taskEdit!!.selectedStartDate?.copy(
+                        dayOfMonth = d,
+                        month = m
+                    )
                 )
             },
-            onEndDateChange = {
+            onEndDateChange = { d, m ->
                 taskEdit = taskEdit?.copy(
-                    selectedDueDate = taskEdit!!.selectedDueDate?.copy(dayOfMonth = it)
-                        ?: Date(dayOfMonth = it)
+                    selectedDueDate = taskEdit!!.selectedDueDate?.copy(
+                        dayOfMonth = d,
+                        month = m
+                    ) ?: Date(dayOfMonth = d, month = m)
                 )
             },
             onReminderChange = {
