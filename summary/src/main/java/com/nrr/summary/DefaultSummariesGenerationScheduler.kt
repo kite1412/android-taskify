@@ -10,6 +10,7 @@ import androidx.work.WorkManager
 import com.nrr.data.util.getEndDate
 import com.nrr.model.TaskPeriod
 import com.nrr.summary.receiver.SUMMARY_GENERATION_ACTION
+import com.nrr.summary.receiver.SummariesGenerationWorker.Companion.enqueuePeriodSummariesGeneration
 import com.nrr.summary.receiver.SummaryGenerationReceiver
 import com.nrr.summary.worker.SummaryGenerationWorker.Companion.enqueuePeriodicSummaryGeneration
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -28,7 +29,7 @@ internal class DefaultSummariesGenerationScheduler @Inject constructor(
     @ApplicationContext private val context: Context
 ) : SummariesGenerationScheduler {
     private val workManager = WorkManager.getInstance(context)
-    private val scheduler: Scheduler = ScheduleByPeriod()
+    private val scheduler: Scheduler = DailySchedule()
 
     override fun scheduleSummariesGeneration() =
         scheduler.schedule()
@@ -94,7 +95,35 @@ internal class DefaultSummariesGenerationScheduler @Inject constructor(
 
     private inner class DailySchedule : Scheduler {
         override fun schedule() {
+            CoroutineScope(Dispatchers.Default).launch {
+                // ensure scheduling only performed by SummariesGenerationWorker
+                for (period in TaskPeriod.entries) {
+                    val uniqueName = getUniqueWorkName(period)
+                    workManager
+                        .getWorkInfosForUniqueWork(uniqueName)
+                        .get()
+                        .firstOrNull()
+                        ?.let {
+                            workManager.cancelUniqueWork(uniqueName)
+                        }
 
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                        scheduleDailySummariesGeneration()
+                }
+            }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        private fun scheduleDailySummariesGeneration() {
+            workManager.enqueuePeriodSummariesGeneration(
+                uniqueWorkName = SUMMARIES_GENERATION_WORK_NAME,
+                builder = {
+                    setInitialDelay(
+                        duration = initialExecutionDelay(TaskPeriod.DAY)
+                            .toJavaDuration()
+                    )
+                }
+            )
         }
     }
 
@@ -102,6 +131,7 @@ internal class DefaultSummariesGenerationScheduler @Inject constructor(
         private const val DAILY_SUMMARY_WORK_NAME = "daily_summary"
         private const val WEEKLY_SUMMARY_WORK_NAME = "weekly_summary"
         private const val MONTHLY_SUMMARY_WORK_NAME = "monthly_summary"
+        const val SUMMARIES_GENERATION_WORK_NAME = "summaries_generation"
 
         fun getUniqueWorkName(period: TaskPeriod) = when (period) {
             TaskPeriod.DAY -> DAILY_SUMMARY_WORK_NAME

@@ -3,8 +3,10 @@ package com.nrr.summary.receiver
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.nrr.data.repository.SummaryRepository
@@ -87,7 +89,7 @@ class SummariesGenerationWorker @AssistedInject constructor(
     companion object {
         const val GENERATED_PERIODS_ORDINAL_KEY = "generated_period_ordinal"
 
-        fun periodicSummariesGenerationWorkRequest(
+        internal fun periodicSummariesGenerationWorkRequest(
             builder: (PeriodicWorkRequest.Builder.() -> Unit)? = null
         ) = PeriodicWorkRequestBuilder<SummariesGenerationWorker>(
             repeatInterval = 1,
@@ -97,5 +99,16 @@ class SummariesGenerationWorker @AssistedInject constructor(
                 builder?.invoke(this)
             }
             .build()
+
+        internal fun WorkManager.enqueuePeriodSummariesGeneration(
+            uniqueWorkName: String,
+            builder: (PeriodicWorkRequest.Builder.() -> Unit)? = null
+        ) = enqueueUniquePeriodicWork(
+            uniqueWorkName = uniqueWorkName,
+            existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP,
+            request = periodicSummariesGenerationWorkRequest(
+                builder = builder
+            )
+        )
     }
 }
