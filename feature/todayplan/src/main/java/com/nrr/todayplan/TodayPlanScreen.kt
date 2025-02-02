@@ -144,7 +144,10 @@ internal fun TodayPlanScreen(
         onDismissProfile = { viewModel.updateShowProfile(false) },
         onUsernameUpdate = viewModel::updateUsername,
         onLogoClick = { viewModel.updateShowProfile(true) },
-        onSummariesClick = onSummariesClick,
+        onSummariesClick = {
+            viewModel.updateShowProfile(false)
+            onSummariesClick()
+        },
         modifier = modifier
     )
 }

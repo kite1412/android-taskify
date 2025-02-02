@@ -13,6 +13,8 @@ import com.nrr.plandetail.navigation.planDetailScreen
 import com.nrr.settings.Menu
 import com.nrr.settings.navigation.navigateToSettings
 import com.nrr.settings.navigation.settingsScreen
+import com.nrr.summaries.navigation.navigateToSummaries
+import com.nrr.summaries.navigation.summariesScreen
 import com.nrr.taskdetail.navigation.navigateToTaskDetail
 import com.nrr.taskdetail.navigation.taskDetailScreen
 import com.nrr.taskmanagement.navigation.taskManagementScreen
@@ -51,7 +53,7 @@ fun TaskifyNavHost(
                     taskPeriod = TaskPeriod.DAY.takeIf { status == null }
                 )
             },
-            onSummariesClick = { /* TODO */ }
+            onSummariesClick = navController::navigateToSummaries
         )
         taskManagementScreen(
             onTaskClick = navController::navigateToTaskDetail
@@ -83,6 +85,9 @@ fun TaskifyNavHost(
             }
         )
         settingsScreen(
+            onBackClick = navController::popBackStack
+        )
+        summariesScreen(
             onBackClick = navController::popBackStack
         )
         composable<FakeAnalyticsRoute> {  }
