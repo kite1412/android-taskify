@@ -2,4 +2,10 @@
 <resources>
     <string name="summaries_tasks_completed">Tugas terselesaikan</string>
     <string name="summaries_summaries">Ringkasan</string>
+    <string name="summaries_period">Periode</string>
+    <string name="summaries_start_date">Tanggal Mulai</string>
+    <string name="summaries_end_date">Tanggal Berakhir</string>
+    <string name="summaries_day">Harian</string>
+    <string name="summaries_week">Mingguan</string>
+    <string name="summaries_month">Bulanan</string>
 </resources>

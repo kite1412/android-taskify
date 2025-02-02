@@ -75,7 +75,6 @@ class PlanArrangementViewModel @Inject constructor(
     internal var taskEdit by mutableStateOf<TaskEdit?>(null)
         private set
 
-
     @OptIn(ExperimentalCoroutinesApi::class)
     internal val notificationOffset = snapshotFlow { taskEdit }
         .map {

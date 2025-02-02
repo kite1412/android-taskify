@@ -1,13 +1,17 @@
 package com.nrr.summaries
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,19 +27,25 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.Gray
 import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.Summary
 import com.nrr.model.TaskPeriod
 import com.nrr.model.toLocalDateTime
+import com.nrr.model.toTimeString
 import com.nrr.summaries.util.SummariesDictionary
+import com.nrr.summaries.util.toStringLocalized
 import com.nrr.ui.toDateStringLocalized
 import com.nrr.ui.toMonthLocalized
 
@@ -46,13 +56,24 @@ internal fun SummariesScreen(
     viewModel: SummariesViewModel = hiltViewModel()
 ) {
     val period = viewModel.period
+    val summary = viewModel.summary
+    val showingDetail = viewModel.showingDetail
     val summaries by viewModel.summaries.collectAsStateWithLifecycle()
 
     if (summaries != null) {
+        val backClick = {
+            if (showingDetail) viewModel.updateShowingDetail(false)
+            else onBackClick()
+        }
+
+        BackHandler(onBack = backClick)
         Content(
-            onBackClick = onBackClick,
+            onBackClick = backClick,
             summaries = summaries!!,
             period = period,
+            onSummaryClick = viewModel::updateSummary,
+            selectedSummary = summary,
+            showingDetail = showingDetail,
             modifier = modifier
         )
     }
@@ -86,6 +107,7 @@ internal fun Header(
 
 internal fun LazyListScope.summaries(
     summaries: List<Summary>,
+    onClick: (Summary) -> Unit,
     showIcon: Boolean
 ) = items(
     count = summaries.size,
@@ -93,7 +115,8 @@ internal fun LazyListScope.summaries(
 ) {
     SummaryCard(
         summary = summaries[it],
-        showIcon
+        onClick = onClick,
+        showIcon = showIcon
     )
 }
 
@@ -101,15 +124,11 @@ internal fun LazyListScope.summaries(
 internal fun SummaryCard(
     summary: Summary,
     showIcon: Boolean,
+    onClick: (Summary) -> Unit,
     modifier: Modifier = Modifier,
     selected: Boolean = false
 ) {
-    val title = when (summary.period) {
-        TaskPeriod.DAY -> summary.startDate.toDateStringLocalized()
-        TaskPeriod.WEEK -> summary.startDate.toLocalDateTime().dayOfWeek.toString() +
-                " - " + summary.endDate.toDateStringLocalized()
-        TaskPeriod.MONTH -> summary.startDate.toLocalDateTime().toMonthLocalized()
-    }
+    val title = getPeriodTitle(summary)
     val completed = summary.tasks.filter {
         it.completedAt != null
     }
@@ -123,6 +142,7 @@ internal fun SummaryCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(backgroundColor)
+            .clickable { onClick(summary) }
             .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -130,9 +150,9 @@ internal fun SummaryCard(
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
+            AdaptiveText(
                 text = title,
-                fontSize = 20.sp,
+                initialFontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
@@ -155,3 +175,90 @@ internal fun SummaryCard(
         )
     }
 }
+
+@Composable
+private fun getPeriodTitle(
+    summary: Summary
+) = when (summary.period) {
+    TaskPeriod.DAY -> summary.startDate.toDateStringLocalized()
+    TaskPeriod.WEEK -> summary.startDate.toLocalDateTime().dayOfMonth.toString() +
+            " - " + summary.endDate.toDateStringLocalized()
+    TaskPeriod.MONTH -> with(summary.startDate.toLocalDateTime()) {
+        toMonthLocalized() + " $year"
+    }
+}
+
+@Composable
+internal fun SummaryDetail(
+    summary: Summary?,
+    modifier: Modifier = Modifier
+) {
+   if (summary != null) LazyColumn(
+       modifier = modifier.fillMaxSize(),
+       verticalArrangement = Arrangement.spacedBy(16.dp)
+   ) {
+       item {
+           Column(
+               verticalArrangement = Arrangement.spacedBy(8.dp)
+           ) {
+               Text(
+                   text = stringResource(SummariesDictionary.period) +
+                        " (${summary.period.toStringLocalized()})",
+                   style = MaterialTheme.typography.bodyLarge.copy(
+                       fontWeight = FontWeight.Bold,
+                       color = MaterialTheme.colorScheme.primary
+                   )
+               )
+               AdaptiveText(
+                   text = getPeriodTitle(summary),
+                   initialFontSize = 20.sp,
+                   fontWeight = FontWeight.Bold
+               )
+           }
+       }
+       item {
+           Details(summary)
+       }
+   }
+}
+
+@Composable
+private fun Details(
+    summary: Summary,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        DetailField(
+            name = stringResource(SummariesDictionary.startDate),
+            value = summary.startDate.toDateStringLocalized() + " " +
+                summary.startDate.toTimeString()
+        )
+        DetailField(
+            name = stringResource(SummariesDictionary.endDate),
+            value = summary.endDate.toDateStringLocalized() + " " +
+                summary.endDate.toTimeString()
+        )
+    }
+}
+
+@Composable
+private fun DetailField(
+    name: String,
+    value: String,
+    modifier: Modifier = Modifier
+) = Text(
+    text = buildAnnotatedString {
+        withStyle(
+            SpanStyle(
+                color = MaterialTheme.colorScheme.primary
+            )
+        ) {
+            append("$name: ")
+        }
+        append(value)
+    },
+    style = MaterialTheme.typography.bodySmall
+)

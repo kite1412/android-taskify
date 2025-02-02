@@ -1,5 +1,11 @@
 package com.nrr.summaries
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,23 +22,42 @@ import com.nrr.model.TaskPeriod
 internal fun Content(
     summaries: List<Summary>,
     period: TaskPeriod,
+    selectedSummary: Summary?,
+    showingDetail: Boolean,
     onBackClick: () -> Unit,
+    onSummaryClick: (Summary) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         Header(
             onBackClick = onBackClick
         )
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        AnimatedContent(
+            targetState = !showingDetail,
+            modifier = modifier.fillMaxSize(),
+            transitionSpec = {
+                fadeIn() + slideInHorizontally {
+                    if (targetState) -it else it
+                } togetherWith
+                        fadeOut() + slideOutHorizontally {
+                    if (targetState) it else -it
+                }
+            }
         ) {
-            summaries(
-                summaries = summaries,
-                showIcon = true
+            if (it) LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                summaries(
+                    summaries = summaries,
+                    onClick = onSummaryClick,
+                    showIcon = true
+                )
+            } else SummaryDetail(
+                summary = selectedSummary
             )
         }
     }
@@ -45,7 +70,10 @@ private fun ContentPreview() {
         Content(
             onBackClick = {},
             summaries = listOf(),
-            period = TaskPeriod.DAY
+            period = TaskPeriod.DAY,
+            onSummaryClick = {},
+            selectedSummary = null,
+            showingDetail = false
         )
     }
 }
