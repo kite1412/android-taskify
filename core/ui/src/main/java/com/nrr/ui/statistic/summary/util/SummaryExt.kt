@@ -13,8 +13,8 @@ internal fun Summary.getPieChartData(option: PieChartOption): List<Pie> {
             val groups = tasks.groupBy {
                 when {
                     it.completedAt == null -> TaskSummaryStatus.NOT_COMPLETED
-                    it.dueDate != null && it.dueDate!! > it.completedAt!! -> TaskSummaryStatus.COMPLETED
-                    else -> TaskSummaryStatus.LATE
+                    it.dueDate != null && it.dueDate!! < it.completedAt!! -> TaskSummaryStatus.LATE
+                    else -> TaskSummaryStatus.COMPLETED
                 }
             }
             val pies = mutableListOf<Pie>()
