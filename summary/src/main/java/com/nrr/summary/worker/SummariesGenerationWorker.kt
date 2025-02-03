@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.days
 
 @HiltWorker
-class SummariesGenerationWorker @AssistedInject constructor(
+internal class SummariesGenerationWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted params: WorkerParameters,
     private val summaryRepository: SummaryRepository,

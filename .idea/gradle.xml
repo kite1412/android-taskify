@@ -40,6 +40,7 @@
             <option value="$PROJECT_DIR$/feature/plandetail" />
             <option value="$PROJECT_DIR$/feature/registration" />
             <option value="$PROJECT_DIR$/feature/settings" />
+            <option value="$PROJECT_DIR$/feature/summaries" />
             <option value="$PROJECT_DIR$/feature/taskdetail" />
             <option value="$PROJECT_DIR$/feature/taskmanagement" />
             <option value="$PROJECT_DIR$/feature/todayplan" />
