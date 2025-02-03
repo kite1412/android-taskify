@@ -2,14 +2,14 @@ package com.nrr.ui.statistic.summary.util
 
 import androidx.compose.runtime.Composable
 import com.nrr.model.Summary
-import com.nrr.ui.statistic.summary.PieChartOptions
+import com.nrr.ui.statistic.summary.PieChartOption
 import com.nrr.ui.statistic.summary.TaskSummaryStatus
 import ir.ehsannarmani.compose_charts.models.Pie
 
 @Composable
-internal fun Summary.getPieChartData(options: PieChartOptions): List<Pie> {
-    return when (options) {
-        PieChartOptions.STATUS -> {
+internal fun Summary.getPieChartData(option: PieChartOption): List<Pie> {
+    return when (option) {
+        PieChartOption.STATUS -> {
             val groups = tasks.groupBy {
                 when {
                     it.completedAt == null -> TaskSummaryStatus.NOT_COMPLETED
@@ -31,6 +31,6 @@ internal fun Summary.getPieChartData(options: PieChartOptions): List<Pie> {
             pies
         }
         // TODO modify TaskSummary model
-        PieChartOptions.TASK_TYPE -> listOf()
+        PieChartOption.TASK_TYPE -> listOf()
     }
 }

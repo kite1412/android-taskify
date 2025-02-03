@@ -11,6 +11,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -18,6 +22,7 @@ import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.Summary
 import com.nrr.model.TaskPeriod
 import com.nrr.ui.statistic.summary.DaySummaryStatistic
+import com.nrr.ui.statistic.summary.PieChartOption
 
 @Composable
 internal fun Content(
@@ -29,12 +34,19 @@ internal fun Content(
     onSummaryClick: (Summary) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var pieChartOption by remember {
+        mutableStateOf(PieChartOption.STATUS)
+    }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         Header(
-            onBackClick = onBackClick
+            onBackClick = {
+                pieChartOption = PieChartOption.STATUS
+                onBackClick()
+            }
         )
         AnimatedContent(
             targetState = !showingDetail,
@@ -63,7 +75,9 @@ internal fun Content(
                 )
                 item {
                     if (selectedSummary != null) DaySummaryStatistic(
-                        summary = selectedSummary
+                        summary = selectedSummary,
+                        option = pieChartOption,
+                        onOptionClick = { o -> pieChartOption = o }
                     )
                 }
             }
