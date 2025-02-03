@@ -5,6 +5,7 @@ import com.nrr.model.Task
 import com.nrr.notification.ScheduledTaskNotifier
 import javax.inject.Inject
 
+// TODO handle notification cancellation
 class RemoveActiveTasksUseCase @Inject constructor(
     private val taskRepository: TaskRepository,
     private val scheduledTaskNotifier: ScheduledTaskNotifier
