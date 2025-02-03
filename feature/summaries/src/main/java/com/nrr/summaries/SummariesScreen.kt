@@ -189,37 +189,40 @@ private fun getPeriodTitle(
 }
 
 @Composable
-internal fun SummaryDetail(
-    summary: Summary?,
-    modifier: Modifier = Modifier
+internal fun SummaryDetailFrame(
+    modifier: Modifier = Modifier,
+    content: LazyListScope.() -> Unit
+) = LazyColumn(
+    modifier = modifier.fillMaxSize(),
+    verticalArrangement = Arrangement.spacedBy(40.dp),
+    content = content
+)
+
+internal fun LazyListScope.detailHead(
+    summary: Summary?
 ) {
-   if (summary != null) LazyColumn(
-       modifier = modifier.fillMaxSize(),
-       verticalArrangement = Arrangement.spacedBy(16.dp)
-   ) {
-       item {
-           Column(
-               verticalArrangement = Arrangement.spacedBy(8.dp)
-           ) {
-               Text(
-                   text = stringResource(SummariesDictionary.period) +
-                        " (${summary.period.toStringLocalized()})",
-                   style = MaterialTheme.typography.bodyLarge.copy(
-                       fontWeight = FontWeight.Bold,
-                       color = MaterialTheme.colorScheme.primary
-                   )
-               )
-               AdaptiveText(
-                   text = getPeriodTitle(summary),
-                   initialFontSize = 20.sp,
-                   fontWeight = FontWeight.Bold
-               )
-           }
-       }
-       item {
-           Details(summary)
-       }
-   }
+    if (summary != null) {
+        item {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = stringResource(SummariesDictionary.period) +
+                            " (${summary.period.toStringLocalized()})",
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                )
+                AdaptiveText(
+                    text = getPeriodTitle(summary),
+                    initialFontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Details(summary)
+            }
+        }
+    }
 }
 
 @Composable

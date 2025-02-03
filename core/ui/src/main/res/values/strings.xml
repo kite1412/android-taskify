@@ -7,4 +7,7 @@
     <string name="ui_description">Description</string>
     <string name="ui_no_description">No description...</string>
     <string name="ui_title">Title</string>
+    <string name="ui_completed">Completed</string>
+    <string name="ui_late">Late</string>
+    <string name="ui_not_completed">Not Completed</string>
 </resources>

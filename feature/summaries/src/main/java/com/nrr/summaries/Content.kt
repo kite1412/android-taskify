@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.Summary
 import com.nrr.model.TaskPeriod
+import com.nrr.ui.statistic.summary.DaySummaryStatistic
 
 @Composable
 internal fun Content(
@@ -56,9 +57,16 @@ internal fun Content(
                     onClick = onSummaryClick,
                     showIcon = true
                 )
-            } else SummaryDetail(
-                summary = selectedSummary
-            )
+            } else SummaryDetailFrame {
+                detailHead(
+                    summary = selectedSummary
+                )
+                item {
+                    if (selectedSummary != null) DaySummaryStatistic(
+                        summary = selectedSummary
+                    )
+                }
+            }
         }
     }
 }

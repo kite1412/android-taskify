@@ -7,4 +7,7 @@
     <string name="ui_description">Deskripsi</string>
     <string name="ui_no_description">Tidak ada deskripsi...</string>
     <string name="ui_title">Nama</string>
+    <string name="ui_completed">Selesai</string>
+    <string name="ui_late">Terlambat</string>
+    <string name="ui_not_completed">Tidak Selesai</string>
 </resources>

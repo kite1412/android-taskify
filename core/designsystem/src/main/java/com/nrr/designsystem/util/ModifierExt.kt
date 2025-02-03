@@ -9,12 +9,13 @@ import androidx.compose.ui.graphics.Color
 fun Modifier.drawRoundRectShadow(
     color: Color = Color.Black,
     cornerRadius: CornerRadius = CornerRadius(10f),
-    alpha: Float = 0.25f
+    alpha: Float = 0.25f,
+    offset: Offset = Offset(x = -7f, y = 8f)
 ) = drawBehind {
     drawRoundRect(
         color = color,
         cornerRadius = cornerRadius,
-        topLeft = Offset(x = -7f, y = 8f),
+        topLeft = offset,
         size = this.size,
         alpha = alpha
     )
