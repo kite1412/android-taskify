@@ -11,6 +11,8 @@ dependencies {
     api(projects.core.model)
 
     testImplementation(libs.junit)
+
+    androidTestImplementation(libs.room.testing)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.kotlinx.coroutines.test)
 }

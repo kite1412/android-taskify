@@ -8,5 +8,6 @@ data class TaskSummary(
     val description: String?,
     val startDate: Instant,
     val dueDate: Instant?,
-    val completedAt: Instant?
+    val completedAt: Instant?,
+    val taskType: TaskType
 )

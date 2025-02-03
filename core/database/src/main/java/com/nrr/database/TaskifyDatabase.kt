@@ -24,9 +24,14 @@ import com.nrr.database.entity.TaskEntity
         ActiveTaskSummaryEntity::class,
         SummaryGroupEntity::class
     ],
-    version = 2,
+    version = 3,
     autoMigrations = [
-        AutoMigration(from = 1, to = 2)
+        AutoMigration(from = 1, to = 2),
+        AutoMigration(
+            from = 2,
+            to = 3,
+            spec = DatabaseMigrations.Schema2To3::class
+        )
     ],
     exportSchema = true
 )

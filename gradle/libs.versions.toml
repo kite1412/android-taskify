@@ -80,6 +80,7 @@ protobuf-protoc = { group = "com.google.protobuf", name = "protoc", version.ref 
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
 chart = { group = "io.github.ehsannarmani", name = "compose-charts", version.ref = "chart" }
 
 # gradle

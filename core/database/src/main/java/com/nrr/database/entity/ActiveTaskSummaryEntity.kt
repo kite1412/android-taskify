@@ -7,6 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.nrr.database.model.ActiveTask
 import com.nrr.model.TaskSummary
+import com.nrr.model.TaskType
 import kotlinx.datetime.Instant
 
 @Entity(
@@ -35,7 +36,9 @@ data class ActiveTaskSummaryEntity(
     @ColumnInfo(name = "due_date")
     val dueDate: Instant?,
     @ColumnInfo(name = "completed_at")
-    val completedAt: Instant?
+    val completedAt: Instant?,
+    @ColumnInfo(name = "task_type", defaultValue = "0")
+    val taskType: TaskType
 )
 
 fun ActiveTask.toSummary(summaryGroupId: Long) = ActiveTaskSummaryEntity(
@@ -45,7 +48,8 @@ fun ActiveTask.toSummary(summaryGroupId: Long) = ActiveTaskSummaryEntity(
     description = task.description,
     startDate = entity.startDate,
     dueDate = entity.dueDate,
-    completedAt = entity.completedAt
+    completedAt = entity.completedAt,
+    taskType = task.taskType
 )
 
 fun ActiveTaskSummaryEntity.asExternalModel() = TaskSummary(
@@ -54,5 +58,6 @@ fun ActiveTaskSummaryEntity.asExternalModel() = TaskSummary(
     description = description,
     startDate = startDate,
     dueDate = dueDate,
-    completedAt = completedAt
+    completedAt = completedAt,
+    taskType = taskType
 )
