@@ -12,4 +12,5 @@
     <string name="ui_not_completed">Tidak Selesai</string>
     <string name="ui_summary_statistics">Statistik Ringkasan</string>
     <string name="ui_task_type">Jenis Tugas</string>
+    <string name="ui_task_trend">Tren Tugas</string>
 </resources>

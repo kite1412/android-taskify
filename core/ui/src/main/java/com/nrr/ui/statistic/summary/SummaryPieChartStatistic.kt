@@ -6,7 +6,7 @@ import androidx.compose.ui.unit.dp
 import com.nrr.model.Summary
 
 @Composable
-fun DaySummaryStatistic(
+fun SummaryPieChartStatistic(
     summary: Summary,
     onOptionClick: (PieChartOption) -> Unit,
     option: PieChartOption,

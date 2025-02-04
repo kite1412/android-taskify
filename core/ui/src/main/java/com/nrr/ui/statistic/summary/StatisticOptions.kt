@@ -5,5 +5,5 @@ enum class PieChartOption {
 }
 
 enum class LineChartOption {
-    TIMELINE
+    TASK_TREND
 }

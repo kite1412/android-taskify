@@ -21,8 +21,9 @@ import androidx.compose.ui.unit.dp
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.Summary
 import com.nrr.model.TaskPeriod
-import com.nrr.ui.statistic.summary.DaySummaryStatistic
+import com.nrr.ui.statistic.summary.LineChartOption
 import com.nrr.ui.statistic.summary.PieChartOption
+import com.nrr.ui.statistic.summary.SummaryStatistics
 
 @Composable
 internal fun Content(
@@ -37,6 +38,9 @@ internal fun Content(
 ) {
     var pieChartOption by remember {
         mutableStateOf(PieChartOption.STATUS)
+    }
+    var lineChartOption by remember {
+        mutableStateOf(LineChartOption.TASK_TREND)
     }
 
     Column(
@@ -79,10 +83,12 @@ internal fun Content(
                     summary = selectedSummary
                 )
                 item {
-                    DaySummaryStatistic(
+                    SummaryStatistics(
                         summary = selectedSummary,
-                        option = pieChartOption,
-                        onOptionClick = { o -> pieChartOption = o }
+                        pieChartOption = pieChartOption,
+                        lineChartOption = lineChartOption,
+                        onPieChartOptionClick = { o -> pieChartOption = o },
+                        onLineChartOptionClick = { o -> lineChartOption = o }
                     )
                 }
                 taskSummaries(

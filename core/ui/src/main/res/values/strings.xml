@@ -13,4 +13,5 @@
     <string name="ui_summary_statistics">Summary Statistics</string>
     <string name="ui_status" translatable="false">Status</string>
     <string name="ui_task_type">Task Type</string>
+    <string name="ui_task_trend">Task Trend</string>
 </resources>

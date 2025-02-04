@@ -16,4 +16,5 @@ internal object UIDictionary {
     val summaryStatistics = R.string.ui_summary_statistics
     val status = R.string.ui_status
     val taskType = R.string.ui_task_type
+    val taskTrend = R.string.ui_task_trend
 }
