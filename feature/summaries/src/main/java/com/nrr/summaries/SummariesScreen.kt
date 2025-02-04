@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -82,6 +84,7 @@ internal fun SummariesScreen(
             onSummaryClick = viewModel::updateSummary,
             selectedSummary = summary,
             showingDetail = showingDetail,
+            onPeriodClick = viewModel::updatePeriod,
             modifier = modifier
         )
     }
@@ -274,6 +277,60 @@ private fun DetailField(
     },
     style = MaterialTheme.typography.bodySmall
 )
+
+internal fun LazyListScope.periodsTab(
+    period: TaskPeriod,
+    onPeriodClick: (TaskPeriod) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    item {
+        Row(
+            modifier = modifier
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) { 
+                items(TaskPeriod.entries) {
+                    PeriodTabItem(
+                        taskPeriod = it,
+                        selected = period == it,
+                        onClick = onPeriodClick
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PeriodTabItem(
+    taskPeriod: TaskPeriod,
+    selected: Boolean,
+    onClick: (TaskPeriod) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val backgroundColor by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.primary
+            else Color.Transparent
+    )
+    val contentColor by animateColorAsState(
+        targetValue = if (selected) Color.White
+            else MaterialTheme.colorScheme.primary
+    )
+
+    Text(
+        text = taskPeriod.toStringLocalized(),
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { onClick(taskPeriod) }
+            .background(backgroundColor)
+            .padding(8.dp),
+        color = contentColor
+    )
+}
 
 internal fun LazyListScope.taskSummaries(
     summary: Summary,

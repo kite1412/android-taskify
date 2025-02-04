@@ -32,6 +32,7 @@ internal fun Content(
     showingDetail: Boolean,
     onBackClick: () -> Unit,
     onSummaryClick: (Summary) -> Unit,
+    onPeriodClick: (TaskPeriod) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var pieChartOption by remember {
@@ -64,6 +65,10 @@ internal fun Content(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                periodsTab(
+                    period = period,
+                    onPeriodClick = onPeriodClick
+                )
                 summaries(
                     summaries = summaries,
                     onClick = onSummaryClick,
@@ -98,7 +103,8 @@ private fun ContentPreview() {
             period = TaskPeriod.DAY,
             onSummaryClick = {},
             selectedSummary = null,
-            showingDetail = false
+            showingDetail = false,
+            onPeriodClick = {}
         )
     }
 }
