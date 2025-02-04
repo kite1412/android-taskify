@@ -9,7 +9,10 @@ import com.nrr.ui.toStringLocalized
 import ir.ehsannarmani.compose_charts.models.Pie
 
 @Composable
-internal fun Summary.getPieChartData(option: PieChartOption): List<Pie> {
+internal fun Summary.getPieChartData(
+    option: PieChartOption,
+    selectedLabel: String
+): List<Pie> {
     return when (option) {
         PieChartOption.STATUS -> tasks.groupBy {
             when {
@@ -19,19 +22,23 @@ internal fun Summary.getPieChartData(option: PieChartOption): List<Pie> {
             }
         }
             .map { (t, l) ->
+                val label = t.toStringLocalized()
                 Pie(
-                    label = t.toStringLocalized(),
+                    label = label,
                     data = l.size.toDouble(),
-                    color = t.color()
+                    color = t.color(),
+                    selected = selectedLabel == label
                 )
             }
         PieChartOption.TASK_TYPE -> tasks
             .groupBy { it.taskType }
             .map { (t, l) ->
+                val label = t.toStringLocalized()
                 Pie(
-                    label = t.toStringLocalized(),
+                    label = label,
                     data = l.size.toDouble(),
-                    color = t.color()
+                    color = t.color(),
+                    selected = selectedLabel == label
                 )
             }
     }

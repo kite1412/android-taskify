@@ -18,7 +18,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,7 +47,12 @@ internal fun PieChartStatistic(
     modifier: Modifier = Modifier,
     chartStyle: Pie.Style = Pie.Style.Fill
 ) {
-    val data by rememberUpdatedState(summary.getPieChartData(option))
+    var selectedLabel by remember {
+        mutableStateOf("")
+    }
+    val data by rememberUpdatedState(
+        summary.getPieChartData(option, selectedLabel)
+    )
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -61,7 +69,10 @@ internal fun PieChartStatistic(
                 Option(
                     option = it,
                     selected = it == option,
-                    onClick = onOptionClick
+                    onClick = { o ->
+                        selectedLabel = ""
+                        onOptionClick(o)
+                    }
                 )
             }
         }
@@ -71,7 +82,13 @@ internal fun PieChartStatistic(
             PieChart(
                 data = data,
                 modifier = Modifier.size(chartSize),
-                style = chartStyle
+                style = chartStyle,
+                onPieClick = {
+                    val label = it.label
+                    if (label != null)
+                        selectedLabel = if (label == selectedLabel) ""
+                            else label
+                }
             )
             Column(
                 modifier = Modifier.padding(top = 16.dp),
