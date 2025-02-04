@@ -17,7 +17,6 @@ import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.TaskPriority
 import com.nrr.model.toLocalDateTime
-import com.nrr.notification.ScheduledTaskNotifier
 import com.nrr.planarrangement.navigation.PlanArrangementRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -37,7 +36,6 @@ class PlanArrangementViewModel @Inject constructor(
     userDataRepository: UserDataRepository,
     private val taskRepository: TaskRepository,
     private val saveActiveTasksUseCase: SaveActiveTasksUseCase,
-    private val scheduledTaskNotifier: ScheduledTaskNotifier,
     private val removeActiveTasksUseCase: RemoveActiveTasksUseCase
 ) : ViewModel() {
     // navigation from non-null ActiveStatus to be used in TaskEdit typically for
@@ -211,21 +209,7 @@ class PlanArrangementViewModel @Inject constructor(
 
     suspend fun save() {
         taskEdit?.toTask()?.let { t ->
-            val res = saveActiveTasksUseCase(listOf(t))
-            res.firstOrNull()?.let {
-                val task = t.copy(
-                    activeStatuses = listOf(
-                        t.activeStatuses.first().copy(
-                            id = it
-                        )
-                    )
-                )
-
-                if (taskEdit!!.activeStatus.reminderSet)
-                    scheduledTaskNotifier.scheduleReminder(task)
-                else
-                    scheduledTaskNotifier.cancelReminder(task)
-            }
+            saveActiveTasksUseCase(listOf(t))
         }
     }
 
