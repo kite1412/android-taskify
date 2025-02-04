@@ -131,7 +131,8 @@ internal fun sequentialTaskNotifierPendingIntent(
     reminderType: ReminderType? = null
 ) = PendingIntent.getBroadcast(
     context,
-    activeStatusId,
+    // constant request code to ensure the sent broadcast is always the same
+    -5,
     Intent(context, SequentialTaskNotifierReceiver::class.java).apply {
         action = SEQUENTIAL_TASK_NOTIFIER_ACTION
         putExtra(SequentialTaskNotifierReceiver.DATA_KEY, activeStatusId)
