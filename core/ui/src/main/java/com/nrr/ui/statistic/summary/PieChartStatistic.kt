@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -87,9 +86,9 @@ internal fun PieChartStatistic(
 
                         Box(
                             modifier = Modifier
-                                .size(8.dp)
+                                .size(12.dp)
                                 .fillMaxWidth()
-                                .clip(CircleShape)
+                                .clip(RoundedCornerShape(4.dp))
                                 .background(it.color)
                         )
                         AdaptiveText(
