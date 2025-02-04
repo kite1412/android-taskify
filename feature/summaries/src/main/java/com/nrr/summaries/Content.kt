@@ -69,17 +69,20 @@ internal fun Content(
                     onClick = onSummaryClick,
                     showIcon = true
                 )
-            } else SummaryDetailFrame {
+            } else if (selectedSummary != null) SummaryDetailFrame {
                 detailHead(
                     summary = selectedSummary
                 )
                 item {
-                    if (selectedSummary != null) DaySummaryStatistic(
+                    DaySummaryStatistic(
                         summary = selectedSummary,
                         option = pieChartOption,
                         onOptionClick = { o -> pieChartOption = o }
                     )
                 }
+                taskSummaries(
+                    summary = selectedSummary
+                )
             }
         }
     }

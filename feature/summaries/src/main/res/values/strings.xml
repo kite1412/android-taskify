@@ -8,4 +8,7 @@
     <string name="summaries_day">Day</string>
     <string name="summaries_week">Week</string>
     <string name="summaries_month">Month</string>
+    <string name="summaries_status" translatable="false">Status</string>
+    <string name="summaries_task_type">Task Type</string>
+    <string name="summaries_tasks">Tasks</string>
 </resources>

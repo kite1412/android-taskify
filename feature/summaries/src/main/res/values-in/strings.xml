@@ -8,4 +8,6 @@
     <string name="summaries_day">Harian</string>
     <string name="summaries_week">Mingguan</string>
     <string name="summaries_month">Bulanan</string>
+    <string name="summaries_task_type">Tipe Tugas</string>
+    <string name="summaries_tasks">Tugas</string>
 </resources>

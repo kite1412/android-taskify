@@ -17,9 +17,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,12 +45,17 @@ import com.nrr.designsystem.theme.Gray
 import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.Summary
 import com.nrr.model.TaskPeriod
+import com.nrr.model.TaskSummary
 import com.nrr.model.toLocalDateTime
 import com.nrr.model.toTimeString
 import com.nrr.summaries.util.SummariesDictionary
 import com.nrr.summaries.util.toStringLocalized
+import com.nrr.ui.color
+import com.nrr.ui.statusColor
+import com.nrr.ui.stringStatus
 import com.nrr.ui.toDateStringLocalized
 import com.nrr.ui.toMonthLocalized
+import com.nrr.ui.toStringLocalized
 
 @Composable
 internal fun SummariesScreen(
@@ -239,12 +246,12 @@ private fun Details(
         DetailField(
             name = stringResource(SummariesDictionary.startDate),
             value = summary.startDate.toDateStringLocalized() + " " +
-                summary.startDate.toTimeString()
+                    summary.startDate.toTimeString()
         )
         DetailField(
             name = stringResource(SummariesDictionary.endDate),
             value = summary.endDate.toDateStringLocalized() + " " +
-                summary.endDate.toTimeString()
+                    summary.endDate.toTimeString()
         )
     }
 }
@@ -266,4 +273,106 @@ private fun DetailField(
         append(value)
     },
     style = MaterialTheme.typography.bodySmall
+)
+
+internal fun LazyListScope.taskSummaries(
+    summary: Summary,
+    modifier: Modifier = Modifier
+) = item {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = stringResource(SummariesDictionary.tasks),
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            summary.tasks.sortedBy { it.startDate }.forEach {
+                TaskSummaryCard(
+                    taskSummary = it
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TaskSummaryCard(
+    taskSummary: TaskSummary,
+    modifier: Modifier = Modifier
+) {
+    val parentContentColor = LocalContentColor.current
+
+    CompositionLocalProvider(
+        LocalContentColor provides Gray
+    ) {
+        Column(
+            modifier = modifier,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            val titleFontSize = 18
+
+            Text(
+                text = "~ " + taskSummary.title,
+                fontSize = titleFontSize.sp,
+                fontWeight = FontWeight.Bold,
+                color = parentContentColor
+            )
+            Column(
+                modifier = Modifier.padding(start = titleFontSize.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                TaskSummaryField(
+                    name = stringResource(SummariesDictionary.status),
+                    value = taskSummary.stringStatus(),
+                    valueColor = taskSummary.statusColor()
+                )
+                TaskSummaryField(
+                    name = stringResource(SummariesDictionary.taskType),
+                    value = taskSummary.taskType.toStringLocalized(),
+                    valueColor = taskSummary.taskType.color()
+                )
+                TaskSummaryField(
+                    name = stringResource(SummariesDictionary.startDate),
+                    value = with(taskSummary.startDate) {
+                        toDateStringLocalized() + " (${toTimeString()})"
+                    }
+                )
+                taskSummary.dueDate?.let {
+                    TaskSummaryField(
+                        name = stringResource(SummariesDictionary.endDate),
+                        value = with(it) {
+                            toDateStringLocalized() + " (${toTimeString()})"
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TaskSummaryField(
+    name: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    valueColor: Color = LocalContentColor.current
+) = Text(
+    text = buildAnnotatedString {
+        append("$name:")
+        withStyle(
+            SpanStyle(color = valueColor)
+        ) {
+            append(" $value")
+        }
+    },
+    style = MaterialTheme.typography.bodyMedium
 )

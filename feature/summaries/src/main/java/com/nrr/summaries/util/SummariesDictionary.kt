@@ -11,4 +11,7 @@ internal object SummariesDictionary {
     val day = R.string.summaries_day
     val week = R.string.summaries_week
     val month = R.string.summaries_month
+    val status = R.string.summaries_status
+    val taskType = R.string.summaries_task_type
+    val tasks = R.string.summaries_tasks
 }
