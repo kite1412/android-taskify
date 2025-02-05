@@ -1,5 +1,6 @@
 package com.nrr.ui.statistic.summary
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.nrr.designsystem.theme.PastelGreen
@@ -18,12 +19,15 @@ enum class TaskSummaryStatus {
         LATE -> PastelOrange
     }
 
+    private fun toStringId() = when (this) {
+        COMPLETED -> UIDictionary.completed
+        NOT_COMPLETED -> UIDictionary.notCompleted
+        LATE -> UIDictionary.late
+    }
+
     @Composable
-    internal fun toStringLocalized() = stringResource(
-        when (this) {
-            COMPLETED -> UIDictionary.completed
-            NOT_COMPLETED -> UIDictionary.notCompleted
-            LATE -> UIDictionary.late
-        }
-    )
+    internal fun toStringLocalized() = stringResource(toStringId())
+
+    internal fun toStringLocalized(context: Context) =
+        context.getString(toStringId())
 }

@@ -17,27 +17,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nrr.model.Summary
-import com.nrr.model.TaskPeriod
-import com.nrr.model.toLocalDateTime
-import com.nrr.ui.statistic.summary.util.getLineChartData
-import com.nrr.ui.toDayLocalized
+import com.nrr.ui.statistic.summary.util.getColumnChartData
 import com.nrr.ui.util.UIDictionary
-import ir.ehsannarmani.compose_charts.LineChart
+import ir.ehsannarmani.compose_charts.ColumnChart
+import ir.ehsannarmani.compose_charts.models.BarProperties
+import ir.ehsannarmani.compose_charts.models.Bars
 import ir.ehsannarmani.compose_charts.models.HorizontalIndicatorProperties
 import ir.ehsannarmani.compose_charts.models.IndicatorCount
 import ir.ehsannarmani.compose_charts.models.LabelHelperProperties
 import ir.ehsannarmani.compose_charts.models.LabelProperties
 
 @Composable
-fun SummaryLineChartStatistic(
+fun SummaryColumnChartStatistic(
     summary: Summary,
-    option: LineChartOption,
-    onOptionClick: (LineChartOption) -> Unit,
+    option: ColumnChartOption,
+    onOptionClick: (ColumnChartOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val data = remember(summary) {
-        summary.getLineChartData(
+        summary.getColumnChartData(
             context = context,
             option = option
         )
@@ -51,10 +50,6 @@ fun SummaryLineChartStatistic(
         val labelStyle = MaterialTheme.typography.bodySmall.copy(
             color = contentColor
         )
-        val labels = summary.tasks.map {
-            if (summary.period == TaskPeriod.WEEK) it.startDate.toDayLocalized()
-            else it.startDate.toLocalDateTime().dayOfMonth.toString()
-        }
 
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -65,7 +60,7 @@ fun SummaryLineChartStatistic(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
-            LineChart(
+            ColumnChart(
                 data = data,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -76,12 +71,22 @@ fun SummaryLineChartStatistic(
                     contentBuilder = {
                         it.toInt().toString()
                     },
-                    count = IndicatorCount.CountBased(data.firstOrNull()?.values?.size ?: 0)
+                    count = IndicatorCount.StepBased(stepBy = 4.0)
                 ),
                 labelProperties = LabelProperties(
                     enabled = true,
-                    labels = labels,
-                    textStyle = labelStyle
+                    textStyle = labelStyle,
+                    rotation = LabelProperties.Rotation(
+                        degree = 0f
+                    )
+                ),
+                barProperties = BarProperties(
+                    cornerRadius = Bars.Data.Radius.Rectangle(
+                        topLeft = 6.dp,
+                        topRight = 6.dp
+                    ),
+                    spacing = 3.dp,
+                    thickness = 8.dp
                 )
             )
         }

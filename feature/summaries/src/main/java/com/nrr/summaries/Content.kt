@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.Summary
 import com.nrr.model.TaskPeriod
-import com.nrr.ui.statistic.summary.LineChartOption
+import com.nrr.ui.statistic.summary.ColumnChartOption
 import com.nrr.ui.statistic.summary.PieChartOption
 import com.nrr.ui.statistic.summary.SummaryStatistics
 
@@ -40,7 +40,7 @@ internal fun Content(
         mutableStateOf(PieChartOption.STATUS)
     }
     var lineChartOption by remember {
-        mutableStateOf(LineChartOption.TASK_TREND)
+        mutableStateOf(ColumnChartOption.TASK_TREND)
     }
 
     Column(

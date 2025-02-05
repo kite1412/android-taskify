@@ -4,6 +4,6 @@ enum class PieChartOption {
     STATUS, TASK_TYPE
 }
 
-enum class LineChartOption {
+enum class ColumnChartOption {
     TASK_TREND
 }
