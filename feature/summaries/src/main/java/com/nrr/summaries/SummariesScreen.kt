@@ -2,11 +2,13 @@ package com.nrr.summaries
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,7 +31,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -37,6 +43,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -58,6 +65,7 @@ import com.nrr.ui.stringStatus
 import com.nrr.ui.toDateStringLocalized
 import com.nrr.ui.toMonthLocalized
 import com.nrr.ui.toStringLocalized
+import kotlin.math.roundToInt
 
 @Composable
 internal fun SummariesScreen(
@@ -346,16 +354,46 @@ internal fun LazyListScope.taskSummaries(
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
         )
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            summary.tasks.sortedBy { it.startDate }.forEach {
-                TaskSummaryCard(
-                    taskSummary = it
+        SubcomposeLayout(
+            modifier = Modifier.padding(start = 16.dp)
+        ) { constraints ->
+            val tasks = subcompose("tasks") {
+                summary.tasks.sortedBy { it.startDate }.forEach {
+                    TaskSummaryCard(
+                        taskSummary = it,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }.map { it.measure(constraints) }
+            val taskSpace = 16.dp
+            val dashedLine = subcompose("dashedLine") {
+                VerticalDashedLine(
+                    maxHeight = (tasks
+                        .dropLast(1)
+                        .sumOf { it.height } + taskSpace.roundToPx() * tasks.size)
+                        .toDp()
                 )
+            }.map { it.measure(constraints) }
+            val fixedConstraints = constraints.copy(
+                maxHeight = tasks.sumOf { it.height }
+            )
+
+            layout(
+                width = fixedConstraints.maxWidth,
+                height = fixedConstraints.maxHeight
+            ) {
+                dashedLine.forEach {
+                    it.place(0, 0)
+                }
+                var nextY = 0
+
+                tasks.forEach {
+                    it.place(
+                        x = 12.dp.roundToPx(),
+                        y = nextY
+                    )
+                    nextY += taskSpace.roundToPx() + it.height
+                }
             }
         }
     }
@@ -433,3 +471,31 @@ private fun TaskSummaryField(
     },
     style = MaterialTheme.typography.bodyMedium
 )
+
+@Composable
+private fun VerticalDashedLine(
+    maxHeight: Dp,
+    modifier: Modifier = Modifier
+) {
+    val primaryColor = MaterialTheme.colorScheme.primary
+
+    Canvas(
+        modifier = Modifier.fillMaxHeight()
+    ) {
+        val dashHeight = 16.dp
+        val dashWidth = 3.dp
+        val dashSpace = 8.dp
+        val dashTotal = (maxHeight / (dashHeight + dashSpace)).roundToInt()
+        var nextY = 0f
+
+        repeat(dashTotal) {
+            drawRoundRect(
+                color = primaryColor,
+                topLeft = Offset(0f, nextY),
+                size = Size(dashWidth.toPx(), dashHeight.toPx()),
+                cornerRadius = CornerRadius(100f)
+            )
+            nextY += dashHeight.toPx() + dashSpace.toPx()
+        }
+    }
+}
