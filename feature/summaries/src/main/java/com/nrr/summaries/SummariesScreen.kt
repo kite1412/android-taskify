@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -24,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -48,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.window.core.layout.WindowWidthSizeClass
 import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.Gray
@@ -60,6 +64,9 @@ import com.nrr.model.toTimeString
 import com.nrr.summaries.util.SummariesDictionary
 import com.nrr.summaries.util.toStringLocalized
 import com.nrr.ui.color
+import com.nrr.ui.statistic.summary.ColumnChartOption
+import com.nrr.ui.statistic.summary.PieChartOption
+import com.nrr.ui.statistic.summary.SummaryStatistics
 import com.nrr.ui.statusColor
 import com.nrr.ui.stringStatus
 import com.nrr.ui.toDateStringLocalized
@@ -77,25 +84,35 @@ internal fun SummariesScreen(
     val summary = viewModel.summary
     val showingDetail = viewModel.showingDetail
     val summaries by viewModel.summaries.collectAsStateWithLifecycle()
+    val windowWidthClass = currentWindowAdaptiveInfo().windowSizeClass.windowWidthSizeClass
 
-    if (summaries != null) {
-        val backClick = {
-            if (showingDetail) viewModel.updateShowingDetail(false)
-            else onBackClick()
-        }
+    if (summaries != null)
+        if (windowWidthClass == WindowWidthSizeClass.COMPACT) {
+            val backClick = {
+                if (showingDetail) viewModel.updateShowingDetail(false)
+                else onBackClick()
+            }
 
-        BackHandler(onBack = backClick)
-        Content(
-            onBackClick = backClick,
+            BackHandler(onBack = backClick)
+            Content(
+                onBackClick = backClick,
+                summaries = summaries!!,
+                period = period,
+                onSummaryClick = viewModel::updateSummary,
+                selectedSummary = summary,
+                showingDetail = showingDetail,
+                onPeriodClick = viewModel::updatePeriod,
+                modifier = modifier
+            )
+        } else Content2Pane(
             summaries = summaries!!,
-            period = period,
             onSummaryClick = viewModel::updateSummary,
-            selectedSummary = summary,
-            showingDetail = showingDetail,
+            onBackClick = onBackClick,
+            period = period,
             onPeriodClick = viewModel::updatePeriod,
+            selectedSummary = summary!!,
             modifier = modifier
         )
-    }
 }
 
 @Composable
@@ -124,19 +141,32 @@ internal fun Header(
     }
 }
 
-internal fun LazyListScope.summaries(
+@Composable
+internal fun Summaries(
     summaries: List<Summary>,
     onClick: (Summary) -> Unit,
-    showIcon: Boolean
-) = items(
-    count = summaries.size,
-    key = { summaries[it].id }
+    showIcon: Boolean,
+    selectedSummary: Summary?,
+    modifier: Modifier = Modifier
 ) {
-    SummaryCard(
-        summary = summaries[it],
-        onClick = onClick,
-        showIcon = showIcon
-    )
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(
+            count = summaries.size,
+            key = { summaries[it].hashCode() }
+        ) {
+            val summary = summaries[it]
+
+            SummaryCard(
+                summary = summary,
+                onClick = onClick,
+                showIcon = showIcon,
+                selected = summary == selectedSummary && !showIcon
+            )
+        }
+    }
 }
 
 @Composable
@@ -209,14 +239,35 @@ private fun getPeriodTitle(
 }
 
 @Composable
-internal fun SummaryDetailFrame(
+internal fun SummaryDetail(
+    summary: Summary,
+    pieChartOption: PieChartOption,
+    lineChartOption: ColumnChartOption,
+    onPieChartOptionClick: (PieChartOption) -> Unit,
+    onColumnChartOptionClick: (ColumnChartOption) -> Unit,
     modifier: Modifier = Modifier,
-    content: LazyListScope.() -> Unit
+    state: LazyListState = rememberLazyListState()
 ) = LazyColumn(
     modifier = modifier.fillMaxSize(),
     verticalArrangement = Arrangement.spacedBy(40.dp),
-    content = content
-)
+    state = state
+) {
+    detailHead(
+        summary = summary
+    )
+    item {
+        SummaryStatistics(
+            summary = summary,
+            pieChartOption = pieChartOption,
+            lineChartOption = lineChartOption,
+            onPieChartOptionClick = onPieChartOptionClick,
+            onLineChartOptionClick = onColumnChartOptionClick
+        )
+    }
+    taskSummaries(
+        summary = summary
+    )
+}
 
 internal fun LazyListScope.detailHead(
     summary: Summary?
@@ -286,28 +337,27 @@ private fun DetailField(
     style = MaterialTheme.typography.bodySmall
 )
 
-internal fun LazyListScope.periodsTab(
+@Composable
+internal fun PeriodsTab(
     period: TaskPeriod,
     onPeriodClick: (TaskPeriod) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    item {
-        Row(
-            modifier = modifier
-                .padding(8.dp),
+    Row(
+        modifier = modifier
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) { 
-                items(TaskPeriod.entries) {
-                    PeriodTabItem(
-                        taskPeriod = it,
-                        selected = period == it,
-                        onClick = onPeriodClick
-                    )
-                }
+            items(TaskPeriod.entries) {
+                PeriodTabItem(
+                    taskPeriod = it,
+                    selected = period == it,
+                    onClick = onPeriodClick
+                )
             }
         }
     }
@@ -365,17 +415,18 @@ internal fun LazyListScope.taskSummaries(
                     )
                 }
             }.map { it.measure(constraints) }
-            val taskSpace = 16.dp
+            val taskSpacePx = 16.dp.roundToPx()
             val dashedLine = subcompose("dashedLine") {
                 VerticalDashedLine(
                     maxHeight = (tasks
                         .dropLast(1)
-                        .sumOf { it.height } + taskSpace.roundToPx() * tasks.size)
+                        .sumOf { it.height + taskSpacePx } +
+                            dashHeight.roundToPx() + dashSpace.roundToPx())
                         .toDp()
                 )
             }.map { it.measure(constraints) }
             val fixedConstraints = constraints.copy(
-                maxHeight = tasks.sumOf { it.height }
+                maxHeight = tasks.sumOf { it.height } + taskSpacePx * (tasks.size - 1)
             )
 
             layout(
@@ -392,7 +443,7 @@ internal fun LazyListScope.taskSummaries(
                         x = 12.dp.roundToPx(),
                         y = nextY
                     )
-                    nextY += taskSpace.roundToPx() + it.height
+                    nextY += taskSpacePx + it.height
                 }
             }
         }
@@ -472,6 +523,9 @@ private fun TaskSummaryField(
     style = MaterialTheme.typography.bodyMedium
 )
 
+private val dashHeight = 16.dp
+private val dashSpace = 8.dp
+
 @Composable
 private fun VerticalDashedLine(
     maxHeight: Dp,
@@ -482,9 +536,7 @@ private fun VerticalDashedLine(
     Canvas(
         modifier = Modifier.fillMaxHeight()
     ) {
-        val dashHeight = 16.dp
         val dashWidth = 3.dp
-        val dashSpace = 8.dp
         val dashTotal = (maxHeight / (dashHeight + dashSpace)).roundToInt()
         var nextY = 0f
 

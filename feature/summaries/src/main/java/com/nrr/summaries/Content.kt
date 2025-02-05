@@ -9,7 +9,6 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,7 +22,6 @@ import com.nrr.model.Summary
 import com.nrr.model.TaskPeriod
 import com.nrr.ui.statistic.summary.ColumnChartOption
 import com.nrr.ui.statistic.summary.PieChartOption
-import com.nrr.ui.statistic.summary.SummaryStatistics
 
 @Composable
 internal fun Content(
@@ -39,7 +37,7 @@ internal fun Content(
     var pieChartOption by remember {
         mutableStateOf(PieChartOption.STATUS)
     }
-    var lineChartOption by remember {
+    var columnChartOption by remember {
         mutableStateOf(ColumnChartOption.TASK_TREND)
     }
 
@@ -65,36 +63,26 @@ internal fun Content(
                 }
             }
         ) {
-            if (it) LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+            if (it) Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                periodsTab(
+                if (!showingDetail) PeriodsTab(
                     period = period,
                     onPeriodClick = onPeriodClick
                 )
-                summaries(
+                Summaries(
                     summaries = summaries,
                     onClick = onSummaryClick,
-                    showIcon = true
+                    showIcon = true,
+                    selectedSummary = selectedSummary
                 )
-            } else if (selectedSummary != null) SummaryDetailFrame {
-                detailHead(
-                    summary = selectedSummary
-                )
-                item {
-                    SummaryStatistics(
-                        summary = selectedSummary,
-                        pieChartOption = pieChartOption,
-                        lineChartOption = lineChartOption,
-                        onPieChartOptionClick = { o -> pieChartOption = o },
-                        onLineChartOptionClick = { o -> lineChartOption = o }
-                    )
-                }
-                taskSummaries(
-                    summary = selectedSummary
-                )
-            }
+            } else if (selectedSummary != null) SummaryDetail(
+                summary = selectedSummary,
+                pieChartOption = pieChartOption,
+                lineChartOption = columnChartOption,
+                onPieChartOptionClick = { o -> pieChartOption = o },
+                onColumnChartOptionClick = { o -> columnChartOption = o }
+            )
         }
     }
 }
