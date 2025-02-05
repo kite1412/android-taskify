@@ -19,6 +19,7 @@ import com.nrr.model.Summary
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.toLocalDateTime
+import com.nrr.notification.ScheduledTaskNotifier
 import com.nrr.summary.util.showNotification
 import com.nrr.summary.worker.SummariesGenerationWorker.Companion.enqueuePeriodSummariesGeneration
 import dagger.assisted.Assisted
@@ -56,7 +57,8 @@ internal class SummariesGenerationWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted params: WorkerParameters,
     private val summaryRepository: SummaryRepository,
-    private val taskRepository: TaskRepository
+    private val taskRepository: TaskRepository,
+    private val scheduledTaskNotifier: ScheduledTaskNotifier
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         val res = generateSummaries().onEach { p ->
@@ -123,7 +125,11 @@ internal class SummariesGenerationWorker @AssistedInject constructor(
 
                 if (defaults.isEmpty()) return@also
 
-                taskRepository.saveActiveTasks(defaults.toNextPeriod(period))
+                val nextPeriodTasks = defaults.toNextPeriod(period)
+                taskRepository.saveActiveTasks(nextPeriodTasks)
+                nextPeriodTasks.forEach {
+                    scheduledTaskNotifier.scheduleReminder(it)
+                }
             }
         }
     }
