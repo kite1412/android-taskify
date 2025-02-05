@@ -1,4 +1,4 @@
-package com.nrr.database
+package com.nrr.summaries
 
 import org.junit.Test
 

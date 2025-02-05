@@ -10,6 +10,7 @@ import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.Clock
 import javax.inject.Inject
 
 internal class RoomTaskRepository @Inject constructor(
@@ -72,7 +73,7 @@ internal class RoomTaskRepository @Inject constructor(
     override suspend fun setActiveTaskAsCompleted(task: Task): Long =
         task.activeStatuses.firstOrNull()?.let {
             activeTaskDao.insertActiveTasks(
-                listOf(it.copy(isCompleted = true).asEntity(task.id))
+                listOf(it.copy(completedAt = Clock.System.now()).asEntity(task.id))
             ).firstOrNull() ?: 0
         } ?: 0
 

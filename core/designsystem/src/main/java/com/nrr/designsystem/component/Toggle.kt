@@ -39,7 +39,6 @@ fun Toggle(
     enabled: Boolean = true,
     showState: Boolean = false,
     colors: ToggleColors = ToggleDefaults.colors()
-
 ) {
     val containerHeight = ToggleDefaults.CONTAINER_HEIGHT
     val containerWidth = ToggleDefaults.CONTAINER_WIDTH

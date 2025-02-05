@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="summaries_tasks_completed">Tasks completed</string>
+    <string name="summaries_summaries">Summaries</string>
+    <string name="summaries_period">Period</string>
+    <string name="summaries_start_date">Start Date</string>
+    <string name="summaries_end_date">End Date</string>
+    <string name="summaries_day">Day</string>
+    <string name="summaries_week">Week</string>
+    <string name="summaries_month">Month</string>
+    <string name="summaries_status" translatable="false">Status</string>
+    <string name="summaries_task_type">Task Type</string>
+    <string name="summaries_tasks">Tasks</string>
+</resources>

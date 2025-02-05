@@ -10,4 +10,11 @@ internal object UIDictionary {
     val description = R.string.ui_description
     val noDescription = R.string.ui_no_description
     val title = R.string.ui_title
+    val completed = R.string.ui_completed
+    val late = R.string.ui_late
+    val notCompleted = R.string.ui_not_completed
+    val summaryStatistics = R.string.ui_summary_statistics
+    val status = R.string.ui_status
+    val taskType = R.string.ui_task_type
+    val taskTrend = R.string.ui_task_trend
 }

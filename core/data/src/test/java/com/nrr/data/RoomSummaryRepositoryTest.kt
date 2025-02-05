@@ -86,7 +86,6 @@ class RoomSummaryRepositoryTest {
                     startDate = now,
                     dueDate = null,
                     completedAt = null,
-                    isCompleted = false,
                     taskPriority = TaskPriority.HIGH,
                     reminderSet = true,
                     isSet = true,

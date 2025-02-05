@@ -1,4 +1,6 @@
+
 import androidx.room.gradle.RoomExtension
+import com.android.build.gradle.LibraryExtension
 import com.nrr.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -16,6 +18,11 @@ class AndroidRoomConventionPlugin : Plugin<Project> {
 
             extensions.configure<RoomExtension> {
                 schemaDirectory("$projectDir/schemas")
+            }
+            extensions.configure<LibraryExtension> {
+                sourceSets.apply {
+                    getByName("androidTest").assets.srcDirs("$projectDir/schemas")
+                }
             }
 
             dependencies {

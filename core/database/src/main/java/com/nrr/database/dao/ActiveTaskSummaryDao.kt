@@ -8,5 +8,5 @@ import com.nrr.database.entity.ActiveTaskSummaryEntity
 @Dao
 interface ActiveTaskSummaryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertActiveTaskSummaries(summaries: List<ActiveTaskSummaryEntity>): List<Long>
+    suspend fun insertActiveTaskSummaries(summaries: List<ActiveTaskSummaryEntity>): List<Long>
 }

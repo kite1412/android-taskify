@@ -16,6 +16,7 @@ kotlinxCoroutinesTest = "1.10.1"
 kotlinxDatetime = "0.6.1"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.0"
+chart = "0.1.1"
 composeBom = "2025.01.00"
 appcompat = "1.7.0"
 material = "1.12.0"
@@ -79,6 +80,8 @@ protobuf-protoc = { group = "com.google.protobuf", name = "protoc", version.ref 
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
+chart = { group = "io.github.ehsannarmani", name = "compose-charts", version.ref = "chart" }
 
 # gradle
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
