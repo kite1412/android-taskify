@@ -127,9 +127,7 @@ internal class SummariesGenerationWorker @AssistedInject constructor(
 
                 val nextPeriodTasks = defaults.toNextPeriod(period)
                 taskRepository.saveActiveTasks(nextPeriodTasks)
-                nextPeriodTasks.forEach {
-                    scheduledTaskNotifier.scheduleReminder(it)
-                }
+                scheduledTaskNotifier.scheduleReminders(nextPeriodTasks, period)
             }
         }
     }

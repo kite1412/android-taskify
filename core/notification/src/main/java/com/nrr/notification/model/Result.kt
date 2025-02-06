@@ -7,7 +7,8 @@ sealed interface Result {
         enum class Reason {
             START_DATE_IN_PAST,
             EXACT_ALARM_NOT_PERMITTED,
-            BOTH_DATE_IN_PAST
+            BOTH_DATE_IN_PAST,
+            NOT_IMPLEMENTED
         }
     }
     data class Success(

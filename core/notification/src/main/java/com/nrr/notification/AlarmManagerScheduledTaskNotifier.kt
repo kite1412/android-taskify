@@ -37,6 +37,9 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
     override suspend fun scheduleReminder(task: Task): Result =
         scheduler.scheduleReminder(task)
 
+    override suspend fun scheduleReminders(tasks: List<Task>, period: TaskPeriod): Result =
+        scheduler.scheduleReminders(tasks, period)
+
     override fun cancelReminder(activeTask: Task) =
         scheduler.cancelReminder(activeTask)
 
@@ -130,6 +133,72 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
 
             // TODO set warning
             return Result.Success(null)
+        }
+
+        override suspend fun scheduleReminders(
+            tasks: List<Task>,
+            period: TaskPeriod
+        ): Result {
+            val reminders = tasks.map(Task::toTaskReminders)
+            val userData = userDataRepository.userData.first()
+            val queue = userData.reminderQueue
+            val notificationOffset = when (period) {
+                TaskPeriod.DAY -> userData.dayNotificationOffset
+                TaskPeriod.WEEK -> userData.weekNotificationOffset
+                TaskPeriod.MONTH -> userData.monthNotificationOffset
+            }.toDuration()
+            val reminderActiveTaskIds = reminders.map { it.first.activeTaskId }
+
+            queue
+                .mapIndexed { i, r -> i to r }
+                .filter {
+                    it.second.activeTaskId in reminderActiveTaskIds
+                }
+                .map { it.first }
+                .let {
+                    userDataRepository.removeTaskReminders(it)
+                }
+
+            val flattenedWithFixedDate = reminders
+                .map { p ->
+                    listOf(
+                        p.first.copy(date = p.first.date - notificationOffset),
+                        p.second?.date?.minus(notificationOffset)?.let {
+                            p.second?.copy(date = it)
+                        }
+                    )
+                }
+                .flatten()
+            val now = Clock.System.now()
+
+            queue
+                .filter {
+                    it.activeTaskId !in reminderActiveTaskIds
+                }
+                .toMutableList().apply {
+                    addAll(
+                        flattenedWithFixedDate
+                            .filterNotNull()
+                            .filter {
+                                it.date > now
+                            }
+                    )
+                }
+                .sortedBy { it.date }
+                .mapIndexed { i, r -> i to r }
+                .filter { it.second.activeTaskId in reminderActiveTaskIds }
+                .takeIf { it.isNotEmpty() }
+                ?.let {
+                    userDataRepository.addTaskReminders(
+                        it.associate { p -> p }
+                    )
+                    if (it.first().first == 0) {
+                        context.sendBroadcast(sequentialTaskSchedulerIntent(context))
+                        return Result.Success(null)
+                    }
+                }
+
+            return Result.Fail(Reason.BOTH_DATE_IN_PAST)
         }
 
         override fun cancelReminder(activeTask: Task) {
