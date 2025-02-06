@@ -93,20 +93,23 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
                 TaskPeriod.WEEK -> userData.weekNotificationOffset
                 TaskPeriod.MONTH -> userData.monthNotificationOffset
             }.toDuration()
-            val deleteIndexes = queue.mapIndexed { index, r ->
-                index to r.activeTaskId
-            }
+            val now = Clock.System.now()
+            val deleteIndexes = queue
+                .mapIndexed { i, r -> i to r}
                 .filter {
-                    it.second == reminders.first.activeTaskId
+                    it.second.activeTaskId == reminders.first.activeTaskId
+                        || it.second.date <= now
                 }
                 .map { it.first }
 
             userDataRepository.removeTaskReminders(deleteIndexes)
 
-            queue = queue.filter { it.activeTaskId != reminders.first.activeTaskId }
+            queue = queue.filter {
+                it.activeTaskId != reminders.first.activeTaskId
+                    && it.date > now
+            }
             val startDate = reminders.first.date - notificationOffset
 
-            val now = Clock.System.now()
             val remindersInQueue = queue.toMutableList().apply {
                 if (startDate > now) {
                     add(reminders.first.copy(date = startDate))
@@ -149,10 +152,12 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
             }.toDuration()
             val reminderActiveTaskIds = reminders.map { it.first.activeTaskId }
 
+            val now = Clock.System.now()
             queue
                 .mapIndexed { i, r -> i to r }
                 .filter {
                     it.second.activeTaskId in reminderActiveTaskIds
+                        || it.second.date <= now
                 }
                 .map { it.first }
                 .let {
@@ -169,11 +174,11 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
                     )
                 }
                 .flatten()
-            val now = Clock.System.now()
 
             queue
                 .filter {
                     it.activeTaskId !in reminderActiveTaskIds
+                        && it.date > now
                 }
                 .toMutableList().apply {
                     addAll(
