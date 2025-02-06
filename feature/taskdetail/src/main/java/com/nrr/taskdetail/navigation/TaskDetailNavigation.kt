@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import com.nrr.model.ActiveStatus
 import com.nrr.model.Task
 import com.nrr.taskdetail.TaskDetailScreen
 import kotlinx.serialization.Serializable
@@ -20,12 +21,14 @@ fun NavController.navigateToTaskDetail(
 
 fun NavGraphBuilder.taskDetailScreen(
     onBackClick: () -> Unit,
-    onPlanTaskClick: (Task) -> Unit
+    onPlanTaskClick: (Task) -> Unit,
+    onActiveStatusClick: (ActiveStatus) -> Unit
 ) {
     composable<TaskDetailRoute> {
         TaskDetailScreen(
             onBackClick = onBackClick,
-            onPlanTaskClick = onPlanTaskClick
+            onPlanTaskClick = onPlanTaskClick,
+            onActiveStatusClick = onActiveStatusClick
         )
     }
 }

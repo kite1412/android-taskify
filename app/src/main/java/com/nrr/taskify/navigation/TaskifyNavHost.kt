@@ -62,6 +62,11 @@ fun TaskifyNavHost(
             onBackClick = navController::popBackStack,
             onPlanTaskClick = {
                 navController.navigateToPlanArrangement(taskId = it.id)
+            },
+            onActiveStatusClick = {
+                navController.navigateToPlanArrangement(
+                    activeStatusId = it.id
+                )
             }
         )
         planDetailScreen(

@@ -68,6 +68,7 @@ import com.nrr.designsystem.component.TaskifyButtonDefaults
 import com.nrr.designsystem.component.TextField
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
+import com.nrr.model.ActiveStatus
 import com.nrr.model.Task
 import com.nrr.model.TaskType
 import com.nrr.model.toTimeString
@@ -91,6 +92,7 @@ import kotlinx.datetime.Instant
 internal fun TaskDetailScreen(
     onBackClick: () -> Unit,
     onPlanTaskClick: (Task) -> Unit,
+    onActiveStatusClick: (ActiveStatus) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TaskDetailViewModel = hiltViewModel()
 ) {
@@ -141,6 +143,7 @@ internal fun TaskDetailScreen(
         onDelete = viewModel::deleteConfirmation,
         onDismissConfirmation = viewModel::dismissConfirmation,
         onPlanTaskClick = onPlanTaskClick,
+        onStatusClick = onActiveStatusClick,
         modifier = modifier
     )
 }
@@ -162,6 +165,7 @@ private fun Content(
     onConfirm: (ConfirmationType) -> Unit,
     onDismissConfirmation: () -> Unit,
     onPlanTaskClick: (Task) -> Unit,
+    onStatusClick: (ActiveStatus) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var deleteButtonHeight by remember { mutableStateOf(0.dp) }
@@ -199,7 +203,8 @@ private fun Content(
                 ) else DetailPage(
                     task = task,
                     onPlanClick = onPlanTaskClick,
-                    contentPadding = PaddingValues(bottom = deleteButtonHeight + 16.dp)
+                    contentPadding = PaddingValues(bottom = deleteButtonHeight + 16.dp),
+                    onStatusClick = onStatusClick
                 )
             }
         }
@@ -316,6 +321,7 @@ private fun DetailPage(
     task: Task?,
     onPlanClick: (Task) -> Unit,
     modifier: Modifier = Modifier,
+    onStatusClick: (ActiveStatus) -> Unit,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     task?.let {
@@ -343,7 +349,8 @@ private fun DetailPage(
                 ) {
                     TaskStatuses(
                         statuses = it.activeStatuses,
-                        modifier = Modifier.weight(0.8f)
+                        modifier = Modifier.weight(0.8f),
+                        onStatusClick = onStatusClick
                     )
                     RoundRectButton(
                         onClick = { onPlanClick(task) },
@@ -727,6 +734,7 @@ private fun ContentPreview(
             onConfirm = {},
             onDismissConfirmation = {},
             onPlanTaskClick = {},
+            onStatusClick = {},
             modifier = Modifier
         )
     }

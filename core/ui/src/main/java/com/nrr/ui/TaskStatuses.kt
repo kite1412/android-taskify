@@ -1,6 +1,7 @@
 package com.nrr.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -35,7 +38,8 @@ private val space = 4.dp
 fun TaskStatuses(
     statuses: List<ActiveStatus>,
     modifier: Modifier = Modifier,
-    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(6.dp)
+    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(6.dp),
+    onStatusClick: ((ActiveStatus) -> Unit)? = null
 ) {
     val (today, rest) = statuses.partition { it.period == TaskPeriod.DAY }
     val (week, month) = rest.partition { it.period == TaskPeriod.WEEK }
@@ -46,15 +50,18 @@ fun TaskStatuses(
     ) {
         if (today.isNotEmpty()) ActiveIndicator(
             statuses = today.sortedBy { it.startDate },
-            period = TaskPeriod.DAY
+            period = TaskPeriod.DAY,
+            onStatusClick = onStatusClick
         )
         if (week.isNotEmpty()) ActiveIndicator(
             statuses = week.sortedBy { it.startDate },
-            period = TaskPeriod.WEEK
+            period = TaskPeriod.WEEK,
+            onStatusClick = onStatusClick
         )
         if (month.isNotEmpty()) ActiveIndicator(
             statuses = month.sortedBy { it.startDate },
-            period = TaskPeriod.MONTH
+            period = TaskPeriod.MONTH,
+            onStatusClick = onStatusClick
         )
     } else Indicator(
         color = Gray,
@@ -93,7 +100,8 @@ private fun Indicator(
 private fun ActiveIndicator(
     statuses: List<ActiveStatus>,
     period: TaskPeriod,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onStatusClick: ((ActiveStatus) -> Unit)? = null
 ) {
     Column(
         modifier = modifier,
@@ -114,10 +122,20 @@ private fun ActiveIndicator(
                 text = it.startDate.toDateStringLocalized() +
                         " (${it.startDate.toTimeString()}" +
                         "${if (it.dueDate != null) " - " + it.dueDate?.toTimeString() else ""})",
-                modifier = Modifier.padding(start = CIRCLE_DIAMETER.dp + space),
+                modifier = Modifier
+                    .padding(start = CIRCLE_DIAMETER.dp + space)
+                    .then(
+                        if (onStatusClick != null) Modifier.clickable(
+                            indication = null,
+                            interactionSource = null
+                        ) { onStatusClick(it) }
+                        else Modifier
+                    ),
                 fontWeight = FontWeight.Bold,
                 fontSize = (CIRCLE_DIAMETER - 2).sp,
-                lineHeight = (CIRCLE_DIAMETER - 2).sp
+                lineHeight = (CIRCLE_DIAMETER - 2).sp,
+                color = if (onStatusClick != null) MaterialTheme.colorScheme.tertiary
+                    else LocalContentColor.current
             )
         }
     }
