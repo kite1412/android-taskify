@@ -24,7 +24,6 @@ import kotlinx.serialization.Serializable
 
 // TODO remove later
 @Serializable data object FakeAnalyticsRoute
-@Serializable data object FakeProfileRoute
 
 @Composable
 fun TaskifyNavHost(
@@ -96,6 +95,5 @@ fun TaskifyNavHost(
             onBackClick = navController::popBackStack
         )
         composable<FakeAnalyticsRoute> {  }
-        composable<FakeProfileRoute> {  }
     }
 }

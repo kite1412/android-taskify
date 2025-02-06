@@ -13,7 +13,6 @@ import androidx.window.core.layout.WindowWidthSizeClass
 import com.nrr.designsystem.component.Destination
 import com.nrr.settings.navigation.SettingsRoute
 import com.nrr.taskify.navigation.FakeAnalyticsRoute
-import com.nrr.taskify.navigation.FakeProfileRoute
 import com.nrr.taskify.navigation.TopLevelDestination
 import com.nrr.taskmanagement.navigation.navigateToTaskManagement
 import com.nrr.todayplan.navigation.navigateToTodayPlan
@@ -71,7 +70,6 @@ class TaskifyAppState(
             Destination.HOME -> navController.navigateToTodayPlan(navOptions)
             Destination.TASKS -> navController.navigateToTaskManagement(navOptions)
             Destination.ANALYTICS -> navController.navigate(FakeAnalyticsRoute, navOptions)
-            Destination.PROFILE -> navController.navigate(FakeProfileRoute, navOptions)
         }
     }
 }

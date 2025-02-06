@@ -11,6 +11,5 @@ enum class TopLevelDestination(
 ) {
     TODAY_PLAN(Destination.HOME, TodayPlanRoute::class),
     TASK_MANAGEMENT(Destination.TASKS, TaskManagementRoute::class),
-    ANALYTICS(Destination.ANALYTICS, FakeAnalyticsRoute::class),
-    PROFILE(Destination.PROFILE, FakeProfileRoute::class)
+    ANALYTICS(Destination.ANALYTICS, FakeAnalyticsRoute::class)
 }

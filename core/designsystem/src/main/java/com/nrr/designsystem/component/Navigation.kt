@@ -75,10 +75,6 @@ enum class Destination(
     ANALYTICS(
         id = TaskifyIcon.chart,
         label = "Analytics"
-    ),
-    PROFILE(
-        id = TaskifyIcon.profile,
-        label = "Profile"
     );
 
     internal companion object {
