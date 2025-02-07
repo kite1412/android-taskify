@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import com.nrr.analytics.navigation.analyticsScreen
 import com.nrr.model.TaskPeriod
 import com.nrr.planarrangement.navigation.navigateToPlanArrangement
 import com.nrr.planarrangement.navigation.planArrangementScreen
@@ -20,10 +20,6 @@ import com.nrr.taskdetail.navigation.taskDetailScreen
 import com.nrr.taskmanagement.navigation.taskManagementScreen
 import com.nrr.todayplan.navigation.TodayPlanRoute
 import com.nrr.todayplan.navigation.todayPlanScreen
-import kotlinx.serialization.Serializable
-
-// TODO remove later
-@Serializable data object FakeAnalyticsRoute
 
 @Composable
 fun TaskifyNavHost(
@@ -57,6 +53,8 @@ fun TaskifyNavHost(
         taskManagementScreen(
             onTaskClick = navController::navigateToTaskDetail
         )
+        analyticsScreen()
+
         taskDetailScreen(
             onBackClick = navController::popBackStack,
             onPlanTaskClick = {
@@ -94,6 +92,5 @@ fun TaskifyNavHost(
         summariesScreen(
             onBackClick = navController::popBackStack
         )
-        composable<FakeAnalyticsRoute> {  }
     }
 }

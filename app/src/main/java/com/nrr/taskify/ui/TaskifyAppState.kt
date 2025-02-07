@@ -10,9 +10,9 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.navOptions
 import androidx.window.core.layout.WindowWidthSizeClass
+import com.nrr.analytics.navigation.navigateToAnalytics
 import com.nrr.designsystem.component.Destination
 import com.nrr.settings.navigation.SettingsRoute
-import com.nrr.taskify.navigation.FakeAnalyticsRoute
 import com.nrr.taskify.navigation.TopLevelDestination
 import com.nrr.taskmanagement.navigation.navigateToTaskManagement
 import com.nrr.todayplan.navigation.navigateToTodayPlan
@@ -69,7 +69,7 @@ class TaskifyAppState(
         when (des) {
             Destination.HOME -> navController.navigateToTodayPlan(navOptions)
             Destination.TASKS -> navController.navigateToTaskManagement(navOptions)
-            Destination.ANALYTICS -> navController.navigate(FakeAnalyticsRoute, navOptions)
+            Destination.ANALYTICS -> navController.navigateToAnalytics(navOptions)
         }
     }
 }

@@ -22,14 +22,13 @@ dependencies {
     implementation(projects.feature.planarrangement)
     implementation(projects.feature.settings)
     implementation(projects.feature.summaries)
+    implementation(projects.feature.analytics)
 
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.work)
     implementation(libs.androidx.core.splashscreen)
-    // TODO remove later
-    implementation(libs.kotlinx.serialization.json)
-    
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.compose.ui.tooling.preview)
