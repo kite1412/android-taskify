@@ -36,6 +36,7 @@
             <option value="$PROJECT_DIR$/core/notification" />
             <option value="$PROJECT_DIR$/core/ui" />
             <option value="$PROJECT_DIR$/feature" />
+            <option value="$PROJECT_DIR$/feature/analytics" />
             <option value="$PROJECT_DIR$/feature/planarrangement" />
             <option value="$PROJECT_DIR$/feature/plandetail" />
             <option value="$PROJECT_DIR$/feature/registration" />
