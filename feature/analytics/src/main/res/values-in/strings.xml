@@ -4,4 +4,9 @@
     <string name="analytics_tasks">Tugas</string>
     <string name="analytics_total_tasks">Total Tugas</string>
     <string name="analytics_assigned">Ditugaskan</string>
+    <string name="analytics_assigned_tasks">Tugas yang Ditugaskan</string>
+    <string name="analytics_day">Harian</string>
+    <string name="analytics_week">Mingguan</string>
+    <string name="analytics_month">Bulanan</string>
+    <string name="analytics_tasks_size">%1$d tugas</string>
 </resources>

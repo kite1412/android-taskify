@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AnalyticsViewModel @Inject constructor(
-    private val taskRepository: TaskRepository
+    taskRepository: TaskRepository
 ) : ViewModel() {
     val tasks = taskRepository.getTasks()
         .stateIn(

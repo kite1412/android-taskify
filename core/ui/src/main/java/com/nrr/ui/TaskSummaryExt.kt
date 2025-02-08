@@ -5,6 +5,7 @@ import androidx.compose.ui.res.stringResource
 import com.nrr.model.TaskSummary
 import com.nrr.ui.statistic.summary.TaskSummaryStatus
 import com.nrr.ui.util.UIDictionary
+import com.nrr.ui.util.resolveProgressStatus
 
 @Composable
 fun TaskSummary.stringStatus() = stringResource(
@@ -20,8 +21,13 @@ fun TaskSummary.stringStatus() = stringResource(
 @Composable
 fun TaskSummary.statusColor() = statusLogic().color()
 
-internal fun TaskSummary.statusLogic() = when {
-    completedAt == null -> TaskSummaryStatus.NOT_COMPLETED
-    dueDate != null && dueDate!! < completedAt!! -> TaskSummaryStatus.LATE
+internal fun TaskSummary.statusLogic() = when (
+    resolveProgressStatus(
+        target = completedAt,
+        limit = dueDate
+    )
+) {
+    -1 -> TaskSummaryStatus.NOT_COMPLETED
+    0 -> TaskSummaryStatus.LATE
     else -> TaskSummaryStatus.COMPLETED
 }

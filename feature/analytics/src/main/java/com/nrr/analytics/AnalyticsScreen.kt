@@ -3,16 +3,19 @@ package com.nrr.analytics
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,12 +31,22 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.analytics.util.AnalyticsDictionary
+import com.nrr.analytics.util.periodBars
 import com.nrr.analytics.util.taskTypePieData
 import com.nrr.designsystem.util.TaskifyDefault
+import com.nrr.model.ActiveStatus
 import com.nrr.model.Task
+import com.nrr.model.TaskPeriod
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.statistic.Label
+import ir.ehsannarmani.compose_charts.ColumnChart
 import ir.ehsannarmani.compose_charts.PieChart
+import ir.ehsannarmani.compose_charts.models.BarProperties
+import ir.ehsannarmani.compose_charts.models.Bars
+import ir.ehsannarmani.compose_charts.models.HorizontalIndicatorProperties
+import ir.ehsannarmani.compose_charts.models.IndicatorCount
+import ir.ehsannarmani.compose_charts.models.LabelHelperProperties
+import ir.ehsannarmani.compose_charts.models.LabelProperties
 import ir.ehsannarmani.compose_charts.models.Pie
 
 @Composable
@@ -74,6 +87,14 @@ private fun Content(
                     )
                 }
             )
+            section(
+                sectionName = context.getString(AnalyticsDictionary.assignedTasks),
+                content = {
+                    AssignedTasksSection(
+                        activeTasks = tasks.flatMap { it.activeStatuses }
+                    )
+                }
+            )
         }
     }
 }
@@ -110,10 +131,97 @@ private fun LazyListScope.section(
     }
     item {
         Column(
-            modifier = Modifier.padding(start = 8.dp),
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             content = content
         )
+    }
+}
+
+@Composable
+private fun ColumnScope.TasksSection(
+    tasks: List<Task>,
+    modifier: Modifier = Modifier
+) {
+    SectionFields(
+        nameValues = listOf(
+            stringResource(AnalyticsDictionary.totalTasks) to tasks.size.toString(),
+            stringResource(AnalyticsDictionary.assigned) to
+                tasks.sumOf { it.activeStatuses.count() }.toString()
+        )
+    )
+    PieChartStatistic(
+        data = tasks.taskTypePieData()
+    )
+}
+
+@Composable
+private fun ColumnScope.AssignedTasksSection(
+    activeTasks: List<ActiveStatus>,
+    modifier: Modifier = Modifier
+) {
+    val (day, rest) = activeTasks.partition { it.period == TaskPeriod.DAY }
+    val (week, month) = rest.partition { it.period == TaskPeriod.WEEK }
+    val tasksSize = @Composable { size: Int ->
+        stringResource(AnalyticsDictionary.tasksSize, size)
+    }
+
+    SectionFields(
+        nameValues = listOf(
+            stringResource(AnalyticsDictionary.day) to
+                tasksSize(day.size),
+            stringResource(AnalyticsDictionary.week) to
+                tasksSize(week.size),
+            stringResource(AnalyticsDictionary.month) to
+                tasksSize(month.size)
+        )
+    )
+    ColumnChartStatistic(
+        data = activeTasks.periodBars()
+    )
+}
+
+@Composable
+private fun ColumnChartStatistic(
+    data: List<Bars>,
+    modifier: Modifier = Modifier
+) {
+    BoxWithConstraints(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        val style = MaterialTheme.typography.bodyMedium.copy(
+            color = LocalContentColor.current
+        )
+
+        ColumnChart(
+            data = data,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(maxWidth / 1.5f),
+            barProperties = BarProperties(
+                thickness = 8.dp,
+                cornerRadius = Bars.Data.Radius.Rectangle(
+                    topRight = 4.dp,
+                    topLeft = 4.dp
+                )
+            ),
+            labelProperties = LabelProperties(
+                enabled = true,
+                textStyle = style
+            ),
+            indicatorProperties = HorizontalIndicatorProperties(
+                textStyle = style,
+                contentBuilder = {
+                    it.toInt().toString()
+                },
+                count = IndicatorCount.StepBased(4.0)
+            ),
+            labelHelperProperties = LabelHelperProperties(
+                textStyle = style
+            )
+       )
     }
 }
 
@@ -145,25 +253,21 @@ private fun PieChartStatistic(
 }
 
 @Composable
-private fun ColumnScope.TasksSection(
-    tasks: List<Task>,
+private fun SectionFields(
+    nameValues: List<Pair<String, String>>,
     modifier: Modifier = Modifier
 ) {
     Column(
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        SectionField(
-            name = stringResource(AnalyticsDictionary.totalTasks),
-            value = tasks.size.toString()
-        )
-        SectionField(
-            name = stringResource(AnalyticsDictionary.assigned),
-            value = tasks.sumOf { it.activeStatuses.count() }.toString()
-        )
+        nameValues.forEach { (n, v) ->
+            SectionField(
+                name = n,
+                value = v
+            )
+        }
     }
-    PieChartStatistic(
-        data = tasks.taskTypePieData()
-    )
 }
 
 @Composable
