@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="analytics_analytics">Analitik</string>
+    <string name="analytics_tasks">Tugas</string>
+    <string name="analytics_total_tasks">Total Tugas</string>
+    <string name="analytics_assigned">Ditugaskan</string>
+</resources>

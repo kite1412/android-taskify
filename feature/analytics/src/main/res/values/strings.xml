@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="analytics_analytics">Analytics</string>
+    <string name="analytics_tasks">Tasks</string>
+    <string name="analytics_total_tasks">Total Tasks</string>
+    <string name="analytics_assigned">Assigned</string>
+</resources>

@@ -5,3 +5,8 @@ plugins {
 android {
     namespace = "com.nrr.analytics"
 }
+
+dependencies {
+    implementation(projects.core.data)
+    implementation(libs.chart)
+}
