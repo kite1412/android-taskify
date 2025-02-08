@@ -1,0 +1,13 @@
+# FIX
+ - Charts
+  - Make the size responsive to the device screen
+  - Adjust step according to data size
+
+ - Extensions
+  - Make TaskPeriod 'toStringLocalized' common to all feature modules
+
+# FEATURE
+ - Summary report popup
+
+# OTHER
+ - Handle time zone change event
