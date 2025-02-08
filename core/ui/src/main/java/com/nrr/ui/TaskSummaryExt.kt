@@ -9,7 +9,7 @@ import com.nrr.ui.util.UIDictionary
 @Composable
 fun TaskSummary.stringStatus() = stringResource(
     with(statusLogic()) {
-        when(this) {
+        when (this) {
             TaskSummaryStatus.NOT_COMPLETED -> UIDictionary.notCompleted
             TaskSummaryStatus.LATE -> UIDictionary.late
             else -> UIDictionary.completed

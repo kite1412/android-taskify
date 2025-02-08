@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -22,16 +21,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.model.Summary
+import com.nrr.ui.statistic.Label
 import com.nrr.ui.statistic.summary.util.getPieChartData
 import com.nrr.ui.util.UIDictionary
 import ir.ehsannarmani.compose_charts.PieChart
@@ -95,27 +92,10 @@ internal fun PieChartStatistic(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 data.forEach {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val style = MaterialTheme.typography.bodyMedium
-
-                        Box(
-                            modifier = Modifier
-                                .size(12.dp)
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(it.color)
-                        )
-                        AdaptiveText(
-                            text = it.label!!,
-                            initialFontSize = style.fontSize,
-                            style = style,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 2
-                        )
-                    }
+                    Label(
+                        name = it.label!!,
+                        color = it.color
+                    )
                 }
             }
         }

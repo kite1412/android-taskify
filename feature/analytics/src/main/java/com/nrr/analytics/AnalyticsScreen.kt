@@ -1,10 +1,15 @@
 package com.nrr.analytics
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.CircularProgressIndicator
@@ -23,9 +28,13 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.analytics.util.AnalyticsDictionary
+import com.nrr.analytics.util.taskTypePieData
 import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.Task
 import com.nrr.ui.TaskPreviewParameter
+import com.nrr.ui.statistic.Label
+import ir.ehsannarmani.compose_charts.PieChart
+import ir.ehsannarmani.compose_charts.models.Pie
 
 @Composable
 internal fun AnalyticsScreen(
@@ -86,6 +95,9 @@ private fun LazyListScope.section(
 ) {
     stickyHeader {
         Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
@@ -98,9 +110,37 @@ private fun LazyListScope.section(
     }
     item {
         Column(
+            modifier = Modifier.padding(start = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             content = content
         )
+    }
+}
+
+@Composable
+private fun PieChartStatistic(
+    data: List<Pie>,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        PieChart(
+            data = data,
+            modifier = Modifier.size(150.dp)
+        )
+        Column(
+            modifier = Modifier.padding(top = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            data.forEach {
+                Label(
+                    name = it.label!! + ": ${it.data.toInt()}",
+                    color = it.color
+                )
+            }
+        }
     }
 }
 
@@ -121,6 +161,9 @@ private fun ColumnScope.TasksSection(
             value = tasks.sumOf { it.activeStatuses.count() }.toString()
         )
     }
+    PieChartStatistic(
+        data = tasks.taskTypePieData()
+    )
 }
 
 @Composable
