@@ -60,6 +60,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nrr.data.util.getEndDate
+import com.nrr.data.util.getStartDate
 import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.RoundRectButton
@@ -92,9 +94,7 @@ import com.nrr.ui.toStringLocalized
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import java.time.YearMonth
 import java.time.format.TextStyle
-import kotlin.math.abs
 
 @Composable
 internal fun PlanDetailScreen(
@@ -255,35 +255,10 @@ private fun Header(
 
 @Composable
 private fun weekIndicator(currentDate: Instant): String {
-    val localDateTime = currentDate.toLocalDateTime()
-    val today = localDateTime.dayOfWeek.value
-    val start = localDateTime.dayOfMonth - today + 1
-    val end = start + 6
-    val prevMonth = localDateTime.monthNumber - 1
-    val prevYearMonth = YearMonth.of(
-        if (prevMonth == 0) localDateTime.year - 1 else localDateTime.year,
-        if (prevMonth == 0) 12 else prevMonth
-    )
-    var fixedStart: Int? = null
+    val start = currentDate.getStartDate(TaskPeriod.WEEK).toLocalDateTime()
+    val end = currentDate.getEndDate(TaskPeriod.WEEK).toLocalDateTime()
 
-    if (start <= 0)
-        fixedStart = prevYearMonth.lengthOfMonth() - abs(start)
-
-    return buildString {
-        append("(${fixedStart ?: start}")
-        append(
-            if (start <= 0) " ${
-                prevYearMonth.month.getDisplayName(
-                    TextStyle.FULL,
-                    getCurrentLocale()
-                )
-            }"
-            else ""
-        )
-        append(" - ")
-        append("$end ")
-        append("${localDateTime.toMonthLocalized()})")
-    }
+    return "(${start.dayOfMonth} - ${end.dayOfMonth} ${end.toMonthLocalized()})"
 }
 
 @Composable
