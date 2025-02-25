@@ -36,8 +36,8 @@ import kotlin.math.min
 import kotlin.time.Duration.Companion.days
 
 /**
- * This worker generates summaries for all available [TaskPeriod]s
- * and schedule [ActiveStatus]s with isDefault set to true for the next period.
+ * This worker generates summaries for all available [TaskPeriod]s, schedule [ActiveStatus]es
+ * with isDefault set to true for the next period, and delete tasks from previous period.
  *
  * The work execution happens every day with [TaskPeriod.DAY] summary
  * always generated (if any), and [TaskPeriod.WEEK] & [TaskPeriod.MONTH]

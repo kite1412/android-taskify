@@ -6,14 +6,14 @@ import com.nrr.model.ReminderType
 import com.nrr.model.TaskReminder
 import kotlinx.datetime.Instant
 
-fun TaskReminder.toTaskReminderProto(): TaskReminderProto =
+internal fun TaskReminder.toTaskReminderProto(): TaskReminderProto =
     TaskReminderProto.newBuilder()
         .setActiveTaskId(activeTaskId)
         .setReminderType(ReminderTypeProto.entries[reminderType.ordinal])
         .setEpochMillis(date.toEpochMilliseconds())
         .build()
 
-fun TaskReminderProto.toTaskReminder() = TaskReminder(
+internal fun TaskReminderProto.toTaskReminder() = TaskReminder(
     activeTaskId = activeTaskId,
     reminderType = ReminderType.entries[reminderType.ordinal],
     date = Instant.fromEpochMilliseconds(epochMillis)

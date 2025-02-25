@@ -3,6 +3,7 @@ package com.nrr.data.repository
 import com.nrr.model.LanguageConfig
 import com.nrr.model.NotificationOffset
 import com.nrr.model.PushNotificationConfig
+import com.nrr.model.SummariesGenerationReport
 import com.nrr.model.TaskReminder
 import com.nrr.model.ThemeConfig
 import com.nrr.model.UserData
@@ -30,4 +31,6 @@ interface UserDataRepository {
     suspend fun removeTaskReminders(indexes: List<Int>)
 
     suspend fun removeAllTaskReminders()
+
+    suspend fun setSummariesGenerationReport(report: SummariesGenerationReport)
 }

@@ -4,6 +4,7 @@ import com.nrr.datastore.TaskifyPreferencesDataSource
 import com.nrr.model.LanguageConfig
 import com.nrr.model.NotificationOffset
 import com.nrr.model.PushNotificationConfig
+import com.nrr.model.SummariesGenerationReport
 import com.nrr.model.TaskReminder
 import com.nrr.model.ThemeConfig
 import com.nrr.model.UserData
@@ -45,4 +46,7 @@ class DataStoreUserDataRepository @Inject constructor(
 
     override suspend fun removeAllTaskReminders() =
         taskifyPreferencesDataSource.clearReminderQueue()
+
+    override suspend fun setSummariesGenerationReport(report: SummariesGenerationReport) =
+        taskifyPreferencesDataSource.setSummariesGenerationReport(report)
 }

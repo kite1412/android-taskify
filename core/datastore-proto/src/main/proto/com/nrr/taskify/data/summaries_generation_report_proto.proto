@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+option java_package = "com.nrr.datastore";
+option java_multiple_files = true;
+
+message SummariesGenerationReportProto {
+    int64 last_generation_utc_millis = 1;
+}
