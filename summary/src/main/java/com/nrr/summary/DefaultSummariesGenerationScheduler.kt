@@ -7,8 +7,8 @@ import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.work.WorkManager
-import com.nrr.data.util.getEndDate
 import com.nrr.model.TaskPeriod
+import com.nrr.model.getEndDate
 import com.nrr.summary.receiver.SUMMARIES_GENERATION_ACTION
 import com.nrr.summary.receiver.SUMMARY_GENERATION_ACTION
 import com.nrr.summary.receiver.SummariesGenerationReceiver

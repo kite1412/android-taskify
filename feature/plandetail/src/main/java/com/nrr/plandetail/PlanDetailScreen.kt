@@ -60,8 +60,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.nrr.data.util.getEndDate
-import com.nrr.data.util.getStartDate
 import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.RoundRectButton
@@ -76,6 +74,8 @@ import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.toLocalDateTime
 import com.nrr.model.toTimeString
+import com.nrr.model.getStartDate
+import com.nrr.model.getEndDate
 import com.nrr.plandetail.util.PlanDetailDictionary
 import com.nrr.plandetail.util.dashHeight
 import com.nrr.plandetail.util.dashSpace

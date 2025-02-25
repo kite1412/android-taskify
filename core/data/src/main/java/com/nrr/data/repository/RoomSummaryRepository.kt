@@ -1,7 +1,5 @@
 package com.nrr.data.repository
 
-import com.nrr.data.util.getEndDate
-import com.nrr.data.util.getStartDate
 import com.nrr.data.util.normalize
 import com.nrr.database.RoomTransactionScope
 import com.nrr.database.dao.ActiveTaskDao
@@ -15,6 +13,8 @@ import com.nrr.database.model.SummaryGroup
 import com.nrr.database.model.asExternalModel
 import com.nrr.model.Summary
 import com.nrr.model.TaskPeriod
+import com.nrr.model.getStartDate
+import com.nrr.model.getEndDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map

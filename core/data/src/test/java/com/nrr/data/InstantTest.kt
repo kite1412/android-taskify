@@ -1,10 +1,10 @@
 package com.nrr.data
 
-import com.nrr.data.util.getEndDate
-import com.nrr.data.util.getStartDate
 import com.nrr.data.util.normalize
 import com.nrr.model.TaskPeriod
 import com.nrr.model.toLocalDateTime
+import com.nrr.model.getStartDate
+import com.nrr.model.getEndDate
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone

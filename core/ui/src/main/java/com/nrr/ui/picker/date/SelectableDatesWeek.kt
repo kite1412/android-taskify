@@ -12,8 +12,7 @@ object SelectableDatesWeek : CustomSelectableDates {
         val firstDayOfWeek = curDate.dayOfMonth - (curDate.dayOfWeek.value - 1)
         val lastDayOfWeek = firstDayOfWeek + 6
 
-        return date.month == curDate.month
-                && date.dayOfMonth in firstDayOfWeek..lastDayOfWeek
+        return date.dayOfMonth in firstDayOfWeek..lastDayOfWeek
                 && date.dayOfWeek >= curDate.dayOfWeek
     }
 
