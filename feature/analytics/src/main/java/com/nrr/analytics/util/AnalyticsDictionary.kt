@@ -12,4 +12,9 @@ internal object AnalyticsDictionary {
     val week = R.string.analytics_week
     val month = R.string.analytics_month
     val tasksSize = R.string.analytics_tasks_size
+    val taskInsights = R.string.analytics_task_insights
+    val frequentlyAssigned = R.string.analytics_frequently_assigned
+    val total = R.string.analytics_total
+    val completed = R.string.analytics_completed
+    val late = R.string.analytics_late
 }

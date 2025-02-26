@@ -9,4 +9,9 @@
     <string name="analytics_week">Week</string>
     <string name="analytics_month">Month</string>
     <string name="analytics_tasks_size">%1$d tasks</string>
+    <string name="analytics_task_insights">Task Insights</string>
+    <string name="analytics_frequently_assigned">Frequently Assigned</string>
+    <string name="analytics_total" translatable="false">Total</string>
+    <string name="analytics_completed">Completed</string>
+    <string name="analytics_late">Late</string>
 </resources>

@@ -2,6 +2,7 @@ package com.nrr.analytics
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nrr.data.repository.SummaryRepository
 import com.nrr.data.repository.TaskRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -11,9 +12,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AnalyticsViewModel @Inject constructor(
-    taskRepository: TaskRepository
+    taskRepository: TaskRepository,
+    summaryRepository: SummaryRepository
 ) : ViewModel() {
     val tasks = taskRepository.getTasks()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = null
+        )
+
+    val summaries = summaryRepository.getSummaries()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),

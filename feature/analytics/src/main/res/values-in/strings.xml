@@ -9,4 +9,8 @@
     <string name="analytics_week">Mingguan</string>
     <string name="analytics_month">Bulanan</string>
     <string name="analytics_tasks_size">%1$d tugas</string>
+    <string name="analytics_task_insights">Wawasan Tugas</string>
+    <string name="analytics_frequently_assigned">Sering Ditugaskan</string>
+    <string name="analytics_completed">Selesai</string>
+    <string name="analytics_late">Terlambat</string>
 </resources>
