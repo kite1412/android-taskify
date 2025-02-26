@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +36,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.analytics.util.AnalyticsDictionary
 import com.nrr.analytics.util.periodBars
 import com.nrr.analytics.util.taskTypePieData
+import com.nrr.designsystem.LocalScaffoldComponentSizes
+import com.nrr.designsystem.ScaffoldComponent
 import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.ActiveStatus
 import com.nrr.model.Task
@@ -69,6 +74,7 @@ private fun Content(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val bottomBarHeight = LocalScaffoldComponentSizes.current[ScaffoldComponent.BOTTOM_NAVIGATION_BAR]
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -77,7 +83,8 @@ private fun Content(
         Header()
         LazyColumn(
             modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(bottom = bottomBarHeight?.height ?: 0.dp)
         ) {
             section(
                 sectionName = context.getString(AnalyticsDictionary.tasks),
@@ -123,8 +130,17 @@ private fun LazyListScope.section(
         ) {
             Text(
                 text = sectionName,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    shadow = Shadow(
+                        color = MaterialTheme.colorScheme.primary,
+                        offset = Offset(
+                            x = -4f,
+                            y = 4f
+                        )
+                    )
+                )
             )
             headerContent?.invoke()
         }
