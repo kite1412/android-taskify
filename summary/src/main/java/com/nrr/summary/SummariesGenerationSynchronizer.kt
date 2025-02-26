@@ -67,7 +67,10 @@ class SummariesGenerationSynchronizer @Inject constructor(
                 it.activeStatuses.first().startDate.getStartDate(period)
             }
             .filterKeys {
-                !it.isCurrentPeriod(now, period)
+                !it.isCurrentPeriod(
+                    now = now,
+                    period = period
+                )
             }
 
         grouped.forEach { (startDate, tasks) ->

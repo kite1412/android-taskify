@@ -4,10 +4,7 @@
   - Adjust step according to data size
 
  - Summaries Generation
-  - Generate summaries & schedule default tasks manually if the scheduled generation fails
-
- - Extensions
-  - Make TaskPeriod 'toStringLocalized' common to all feature modules
+  - Generate summaries & schedule default tasks manually if the scheduled generation fails ✅
 
 # FEATURE
  - Summary report popup

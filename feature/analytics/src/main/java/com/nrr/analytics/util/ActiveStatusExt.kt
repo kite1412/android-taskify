@@ -22,7 +22,7 @@ internal fun List<ActiveStatus>.periodBars() =
             }
 
             Bars(
-                label = k.toString(),
+                label = k.toStringLocalized(),
                 values = v
                     .groupBy(status)
                     .map { (s, t) ->
