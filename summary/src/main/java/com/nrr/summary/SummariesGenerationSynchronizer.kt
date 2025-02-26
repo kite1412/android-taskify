@@ -60,9 +60,15 @@ class SummariesGenerationSynchronizer @Inject constructor(
 
         if (tasks.isEmpty()) return
 
-        val grouped = tasks.groupBy {
-            it.activeStatuses.first().startDate.getStartDate(period)
-        }
+        val now = Clock.System.now()
+
+        val grouped = tasks
+            .groupBy {
+                it.activeStatuses.first().startDate.getStartDate(period)
+            }
+            .filterKeys {
+                !it.isCurrentPeriod(now, period)
+            }
 
         grouped.forEach { (startDate, tasks) ->
             summaryRepository.createSummary(
@@ -76,7 +82,6 @@ class SummariesGenerationSynchronizer @Inject constructor(
             if (nonDefaults.isNotEmpty()) taskRepository.deleteActiveTasks(nonDefaults)
 
             if (defaults.isNotEmpty()) {
-                val now = Clock.System.now()
                 val adjustedTasks = defaults.map {
                     it.copy(
                         activeStatuses = it.activeStatuses.map { s ->
@@ -97,6 +102,13 @@ class SummariesGenerationSynchronizer @Inject constructor(
             }
         }
     }
+
+    private fun Instant.isCurrentPeriod(
+        now: Instant,
+        period: TaskPeriod
+    ): Boolean =
+        this in now.getStartDate(period)..now.getEndDate(period)
+
 
     private interface NextPeriodResolver {
         val period: TaskPeriod
