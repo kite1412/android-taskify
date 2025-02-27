@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,12 +25,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +40,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -66,6 +70,9 @@ import com.nrr.model.TaskPeriod
 import com.nrr.model.TaskSummary
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.statistic.Label
+import com.nrr.ui.stringStatusId
+import com.nrr.ui.util.resolveProgressStatus
+import com.nrr.ui.util.statusColor
 import ir.ehsannarmani.compose_charts.ColumnChart
 import ir.ehsannarmani.compose_charts.PieChart
 import ir.ehsannarmani.compose_charts.models.BarProperties
@@ -76,6 +83,8 @@ import ir.ehsannarmani.compose_charts.models.LabelHelperProperties
 import ir.ehsannarmani.compose_charts.models.LabelProperties
 import ir.ehsannarmani.compose_charts.models.Pie
 import kotlin.math.min
+
+private typealias Line = Pair<Int, Color>
 
 @Composable
 internal fun AnalyticsScreen(
@@ -245,12 +254,21 @@ private fun ColumnScope.TaskInsightsSection(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        if (taskSummaries.isNotEmpty()) TaskInsight(
-            name = stringResource(AnalyticsDictionary.frequentlyAssigned)
-        ) {
-            FrequentlyAssigned(
-                taskSummaries = taskSummaries
-            )
+        if (taskSummaries.isNotEmpty()) {
+            TaskInsight(
+                name = stringResource(AnalyticsDictionary.frequentlyAssigned)
+            ) {
+                FrequentlyAssigned(
+                    taskSummaries = taskSummaries
+                )
+            }
+            TaskInsight(
+                name = stringResource(AnalyticsDictionary.pastAssignments)
+            ) {
+                PastAssignments(
+                    taskSummaries = taskSummaries
+                )
+            }
         }
     }
 }
@@ -298,7 +316,12 @@ private fun FrequentlyAssigned(
 
     AnimatedContent(
         targetState = expanded,
-        modifier = modifier,
+        modifier = modifier.clickable(
+            indication = null,
+            interactionSource = null
+        ) {
+            expanded = !expanded
+        },
         transitionSpec = {
             fadeIn() + slideInVertically { 0 } togetherWith
                 fadeOut() + slideOutVertically {
@@ -343,6 +366,96 @@ private fun FrequentlyAssigned(
                         expanded = !expanded
                     }
                     .rotate(rotation)
+            )
+        }
+    }
+}
+
+@Composable
+private fun PastAssignments(
+    taskSummaries: List<TaskSummary>,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val grouped by rememberUpdatedState(
+        newValue = taskSummaries.groupBy {
+            resolveProgressStatus(
+                target = it.completedAt,
+                limit = it.dueDate
+            )
+        }
+    )
+    val lines by remember {
+        derivedStateOf {
+            grouped.map {
+                it.value.size to statusColor(it.key)
+            }
+        }
+    }
+    val statuses by remember {
+        derivedStateOf {
+            grouped.map { (k ,v) ->
+                Triple(
+                    first = context.getString(v.first().stringStatusId()),
+                    second = statusColor(k),
+                    third = v.size
+                )
+            }
+        }
+    }
+    val style = MaterialTheme.typography.bodyMedium
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        ColoredLine(
+            lines = lines
+        )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = stringResource(AnalyticsDictionary.total) + ": ${taskSummaries.size}",
+                style = style
+            )
+            statuses.forEach {
+                Text(
+                    text = it.first + ": " + it.third.toString(),
+                    style = style.copy(
+                        color = it.second
+                    )
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ColoredLine(
+    lines: List<Line>,
+    modifier: Modifier = Modifier
+) {
+    val fixedLines = remember(lines) {
+        val total = lines.sumOf { it.first }
+
+        lines.map {
+            it.first / total.toFloat() to it.second
+        }
+    }
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(12.dp)
+            .clip(RoundedCornerShape(100))
+    ) {
+        fixedLines.forEach {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(it.first)
+                    .background(it.second)
             )
         }
     }

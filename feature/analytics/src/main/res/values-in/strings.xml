@@ -13,4 +13,5 @@
     <string name="analytics_frequently_assigned">Sering Ditugaskan</string>
     <string name="analytics_completed">Selesai</string>
     <string name="analytics_late">Terlambat</string>
+    <string name="analytics_past_assignments">Penugasan Sebelumnya</string>
 </resources>

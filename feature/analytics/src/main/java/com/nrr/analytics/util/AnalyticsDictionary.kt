@@ -17,4 +17,5 @@ internal object AnalyticsDictionary {
     val total = R.string.analytics_total
     val completed = R.string.analytics_completed
     val late = R.string.analytics_late
+    val pastAssignments = R.string.analytics_past_assignments
 }

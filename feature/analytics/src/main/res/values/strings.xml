@@ -14,4 +14,5 @@
     <string name="analytics_total" translatable="false">Total</string>
     <string name="analytics_completed">Completed</string>
     <string name="analytics_late">Late</string>
+    <string name="analytics_past_assignments">Past Assignments</string>
 </resources>

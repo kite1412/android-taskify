@@ -8,15 +8,15 @@ import com.nrr.ui.util.UIDictionary
 import com.nrr.ui.util.resolveProgressStatus
 
 @Composable
-fun TaskSummary.stringStatus() = stringResource(
-    with(statusLogic()) {
-        when (this) {
-            TaskSummaryStatus.NOT_COMPLETED -> UIDictionary.notCompleted
-            TaskSummaryStatus.LATE -> UIDictionary.late
-            else -> UIDictionary.completed
-        }
+fun TaskSummary.stringStatus() = stringResource(stringStatusId())
+
+fun TaskSummary.stringStatusId() = with(statusLogic()) {
+    when (this) {
+        TaskSummaryStatus.NOT_COMPLETED -> UIDictionary.notCompleted
+        TaskSummaryStatus.LATE -> UIDictionary.late
+        else -> UIDictionary.completed
     }
-)
+}
 
 @Composable
 fun TaskSummary.statusColor() = statusLogic().color()
