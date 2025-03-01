@@ -6,8 +6,12 @@
  - Summaries Generation
   - Generate summaries & schedule default tasks manually if the scheduled generation fails ✅
 
+ - Reminder Scheduling
+  - Reschedule reminders upon notification offset config change
+
 # FEATURE
  - Summary report popup
+ - Show time in week & month plan
 
 # OTHER
  - Handle time zone change event
