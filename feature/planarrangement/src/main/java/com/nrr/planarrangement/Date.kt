@@ -8,8 +8,10 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.offsetIn
 import kotlinx.datetime.toInstant
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 
 internal data class Date(
     val time: Time = Time(),
@@ -17,18 +19,24 @@ internal data class Date(
     val month: Int? = null
 ) : Comparable<Date> {
     fun toInstant(
-        ignoreTime: Boolean = false
+        ignoreTime: Boolean = false,
+        useCurrentTimeZone: Boolean = false
     ): Instant {
-        val curDate = Clock.System.now().toLocalDateTime()
-        val localDateTime = LocalDateTime(
-            year = curDate.year,
-            month = month?.let { Month(it) } ?: curDate.month,
-            dayOfMonth = this.dayOfMonth ?: curDate.dayOfMonth,
-            hour = if (!ignoreTime) time.hour else curDate.hour,
-            minute = if (!ignoreTime) time.minute else curDate.minute
-        )
+        val curDate = Clock.System.now()
+        val localDateTime = with(curDate.toLocalDateTime()) {
+            LocalDateTime(
+                year = year,
+                month = this@Date.month?.let { Month(it) } ?: month,
+                dayOfMonth = this@Date.dayOfMonth ?: dayOfMonth,
+                hour = if (!ignoreTime) this@Date.time.hour else hour,
+                minute = if (!ignoreTime) this@Date.time.minute else minute
+            )
+        }
 
-        return localDateTime.toInstant(TimeZone.currentSystemDefault())
+        return localDateTime.toInstant(TimeZone.currentSystemDefault()) +
+            (if (useCurrentTimeZone)
+                curDate.offsetIn(TimeZone.currentSystemDefault()).totalSeconds / 3600
+            else 0).hours
     }
 
     override infix fun compareTo(other: Date): Int {
