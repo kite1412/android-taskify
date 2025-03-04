@@ -528,7 +528,10 @@ private fun ColumnChartStatistic(
             ),
             labelProperties = LabelProperties(
                 enabled = true,
-                textStyle = style
+                textStyle = style,
+                rotation = LabelProperties.Rotation(
+                    degree = 0f
+                )
             ),
             indicatorProperties = HorizontalIndicatorProperties(
                 textStyle = style,
