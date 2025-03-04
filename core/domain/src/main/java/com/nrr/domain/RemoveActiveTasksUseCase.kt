@@ -10,21 +10,12 @@ class RemoveActiveTasksUseCase @Inject constructor(
     private val scheduledTaskNotifier: ScheduledTaskNotifier
 ) {
     suspend operator fun invoke(tasks: List<Task>): Int {
-        val (defaultTasks, activeTasks) = tasks.partition { t ->
-            t.activeStatuses.any { it.isDefault }
-        }
-        val ids = if (defaultTasks.isNotEmpty()) taskRepository.saveTasks(
-            defaultTasks.map {
-                it.copy(activeStatuses = it.activeStatuses.map { s -> s.copy(isDefault = false) })
-            }
-        ).size else 0
-
         tasks.forEach {
             scheduledTaskNotifier.cancelReminder(it)
         }
 
-        return (if (activeTasks.isNotEmpty())
-            taskRepository.deleteActiveTasks(activeTasks)
-        else 0) + ids
+        return (if (tasks.isNotEmpty())
+            taskRepository.deleteActiveTasks(tasks)
+        else 0)
     }
 }

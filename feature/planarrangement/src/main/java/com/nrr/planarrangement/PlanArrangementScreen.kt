@@ -1060,8 +1060,8 @@ private fun DateField(
             selectableDates = if (period == TaskPeriod.WEEK) SelectableDatesWeek
                 else SelectableDatesMonth,
             initialSelectedDateMillis = if (editingStartDate!!) if (startDate?.dayOfMonth == null)
-                null else startDate.toInstant(true).toEpochMilliseconds()
-                else endDate?.toInstant(true)?.toEpochMilliseconds()
+                null else startDate.toInstant(ignoreTime = true, useCurrentTimeZone = true).toEpochMilliseconds()
+                else endDate?.toInstant(ignoreTime = true, useCurrentTimeZone = true)?.toEpochMilliseconds()
         ),
         confirmColors = TaskifyButtonDefaults.textButtonColors(
             contentColor = MaterialTheme.colorScheme.tertiary

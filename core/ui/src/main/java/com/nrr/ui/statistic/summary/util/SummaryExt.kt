@@ -26,7 +26,8 @@ internal fun Summary.getPieChartData(
     selectedLabel: String
 ): List<Pie> {
     return when (option) {
-        PieChartOption.STATUS -> tasks.groupBy(TaskSummary::statusLogic)
+        PieChartOption.STATUS -> tasks
+            .groupBy(TaskSummary::statusLogic)
             .map { (t, l) ->
                 val label = t.toStringLocalized()
                 Pie(

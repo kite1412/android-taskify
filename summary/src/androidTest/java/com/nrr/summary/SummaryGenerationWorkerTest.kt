@@ -14,10 +14,10 @@ import androidx.work.WorkerParameters
 import androidx.work.testing.WorkManagerTestInitHelper
 import androidx.work.workDataOf
 import com.nrr.data.repository.SummaryRepository
-import com.nrr.data.util.getEndDate
-import com.nrr.data.util.getStartDate
 import com.nrr.model.Summary
 import com.nrr.model.TaskPeriod
+import com.nrr.model.getEndDate
+import com.nrr.model.getStartDate
 import com.nrr.summary.worker.SummaryGenerationWorker
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow

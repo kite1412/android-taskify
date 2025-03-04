@@ -1,5 +1,6 @@
 package com.nrr.taskify.navigation
 
+import com.nrr.analytics.navigation.AnalyticsRoute
 import com.nrr.designsystem.component.Destination
 import com.nrr.taskmanagement.navigation.TaskManagementRoute
 import com.nrr.todayplan.navigation.TodayPlanRoute
@@ -11,5 +12,5 @@ enum class TopLevelDestination(
 ) {
     TODAY_PLAN(Destination.HOME, TodayPlanRoute::class),
     TASK_MANAGEMENT(Destination.TASKS, TaskManagementRoute::class),
-    ANALYTICS(Destination.ANALYTICS, FakeAnalyticsRoute::class)
+    ANALYTICS(Destination.ANALYTICS, AnalyticsRoute::class)
 }

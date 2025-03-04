@@ -2,6 +2,8 @@ package com.nrr.datastore
 
 import android.util.Log
 import androidx.datastore.core.DataStore
+import com.nrr.datastore.util.toSummariesGenerationReport
+import com.nrr.datastore.util.toSummariesGenerationReportProto
 import com.nrr.datastore.util.toTaskReminder
 import com.nrr.datastore.util.toTaskReminderProto
 import com.nrr.datastore.util.toTimeUnit
@@ -9,11 +11,13 @@ import com.nrr.datastore.util.toTimeUnitProto
 import com.nrr.model.LanguageConfig
 import com.nrr.model.NotificationOffset
 import com.nrr.model.PushNotificationConfig
+import com.nrr.model.SummariesGenerationReport
 import com.nrr.model.TaskReminder
 import com.nrr.model.ThemeConfig
 import com.nrr.model.TimeUnit
 import com.nrr.model.UserData
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.Clock
 import javax.inject.Inject
 
 class TaskifyPreferencesDataSource @Inject constructor(
@@ -48,7 +52,15 @@ class TaskifyPreferencesDataSource @Inject constructor(
                     )
                 },
                 pushNotification = PushNotificationConfig.entries[it.pushNotification.ordinal],
-                reminderQueue = it.reminderQueueList.map(TaskReminderProto::toTaskReminder)
+                reminderQueue = it.reminderQueueList.map(TaskReminderProto::toTaskReminder),
+                summariesGenerationReport = it.summariesGenerationReport
+                    .toBuilder()
+                    .apply {
+                        if (lastGenerationUtcMillis == 0L)
+                            this.setLastGenerationUtcMillis(Clock.System.now().toEpochMilliseconds())
+                    }
+                    .build()
+                    .toSummariesGenerationReport()
             )
         }
 
@@ -162,8 +174,10 @@ class TaskifyPreferencesDataSource @Inject constructor(
         }
     }
 
-    // map of index and its TaskReminder
-    suspend fun addToReminderQueue(reminders: Map<Int, TaskReminder>) {
+    suspend fun addToReminderQueue(
+        // map of index and its TaskReminder
+        reminders: Map<Int, TaskReminder>
+    ) {
         try {
             userPreferences.updateData {
                 it.toBuilder()
@@ -204,6 +218,18 @@ class TaskifyPreferencesDataSource @Inject constructor(
             }
         } catch (e: Exception) {
             Log.e(tag, "Error removing all from reminder queue", e)
+        }
+    }
+
+    suspend fun setSummariesGenerationReport(report: SummariesGenerationReport) {
+        try {
+            userPreferences.updateData {
+                it.toBuilder()
+                    .setSummariesGenerationReport(report.toSummariesGenerationReportProto())
+                    .build()
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "Error updating summaries generation report", e)
         }
     }
 }

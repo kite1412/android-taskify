@@ -197,10 +197,10 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
                     userDataRepository.addTaskReminders(
                         it.associate { p -> p }
                     )
-                    if (it.first().first == 0) {
+                    if (it.first().first == 0)
                         context.sendBroadcast(sequentialTaskSchedulerIntent(context))
-                        return Result.Success(null)
-                    }
+
+                    return Result.Success(null)
                 }
 
             return Result.Fail(Reason.BOTH_DATE_IN_PAST)
