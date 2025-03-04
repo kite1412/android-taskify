@@ -119,7 +119,6 @@ private fun Content(
         Header()
         LazyColumn(
             modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(
                 bottom = bottomBarHeight?.height?.plus(16.dp) ?: 0.dp
             )
@@ -194,7 +193,11 @@ private fun LazyListScope.section(
     item {
         Column(
             modifier = Modifier
-                .padding(start = 8.dp)
+                .padding(
+                    start = 8.dp,
+                    top = 8.dp,
+                    bottom = 40.dp
+                )
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             content = content
