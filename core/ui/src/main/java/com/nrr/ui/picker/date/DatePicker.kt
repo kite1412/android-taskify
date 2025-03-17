@@ -19,6 +19,9 @@ import com.nrr.designsystem.component.TaskifyButtonDefaults
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.toLocalDateTime
 import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.offsetIn
+import kotlin.time.Duration.Companion.hours
 
 // title padding from DatePicker Material 3
 private val DatePickerTitlePadding =
@@ -86,7 +89,10 @@ fun rememberDefaultDatePickerState(
         },
         selectableDates = selectableDates,
         initialSelectedDateMillis = initialSelectedDateMillis
-            ?: this.toEpochMilliseconds()
+            ?: this.run {
+                (this + (offsetIn(TimeZone.currentSystemDefault())
+                    .totalSeconds / 3600).hours).toEpochMilliseconds()
+            }
     )
 }
 
