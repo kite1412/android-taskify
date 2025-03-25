@@ -58,7 +58,7 @@ class SequentialTaskNotifierReceiver : BroadcastReceiver() {
             val task = id.takeIf { it > 0 }?.let {
                 taskRepository.getActiveTasksByIds(listOf(it.toLong()))
                     .firstOrNull()?.firstOrNull() ?: run {
-                        removeFirstAndSendBroadcast()
+                        context.sendBroadcast(sequentialTaskSchedulerIntent(context))
                         return@launch
                     }
             } ?: return@launch
@@ -93,7 +93,7 @@ class SequentialTaskNotifierReceiver : BroadcastReceiver() {
                                 .firstOrNull()
                                 ?.let { l ->
                                     l.forEach { t ->
-                                        with (t.activeStatuses.first()) {
+                                        with(t.activeStatuses.first()) {
                                             if (!isCompleted && isSet) notifyScheduledTask(
                                                 context = context,
                                                 task = t,

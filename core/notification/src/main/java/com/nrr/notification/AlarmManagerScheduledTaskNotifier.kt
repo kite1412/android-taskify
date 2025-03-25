@@ -207,21 +207,19 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
         }
 
         override fun cancelReminder(activeTask: Task) {
-            val activeStatusId = activeTask.activeStatuses.firstOrNull()?.id?.toInt()
+            val activeStatusId = activeTask.activeStatuses.firstOrNull()?.id
                 ?: return
 
             CoroutineScope(Dispatchers.Main).launch {
                 val queue = userDataRepository.userData.first().reminderQueue
                 queue
                     .mapIndexed { i, r -> i to r }
-                    .filter { it.second.activeTaskId == activeStatusId.toLong() }
+                    .filter { it.second.activeTaskId == activeStatusId }
                     .let {
                         if (it.isNotEmpty()) userDataRepository.removeTaskReminders(
                             indexes = it.map { p -> p.first }
                         )
                     }
-
-                alarmManager.cancel(sequentialTaskNotifierPendingIntent(context, activeStatusId))
             }
         }
     }
