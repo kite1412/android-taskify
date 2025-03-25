@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import com.nrr.data.repository.TaskRepository
 import com.nrr.data.repository.UserDataRepository
+import com.nrr.model.PushNotificationConfig
 import com.nrr.model.ReminderType
 import com.nrr.model.TaskPeriod
 import com.nrr.notification.model.TaskWithReminder
@@ -66,6 +67,7 @@ class SequentialTaskNotifierReceiver : BroadcastReceiver() {
 
             val userData = userDataRepository.userData.first()
             val queue = userData.reminderQueue
+            val pushNotification = userData.pushNotification == PushNotificationConfig.PUSH_ALL
             val notificationOffset = when (task.activeStatuses.first().period) {
                 TaskPeriod.DAY -> userData.dayNotificationOffset
                 TaskPeriod.WEEK -> userData.weekNotificationOffset
@@ -94,7 +96,7 @@ class SequentialTaskNotifierReceiver : BroadcastReceiver() {
                                 ?.let { l ->
                                     l.forEach { t ->
                                         with(t.activeStatuses.first()) {
-                                            if (!isCompleted && isSet) notifyScheduledTask(
+                                            if (!isCompleted && isSet && pushNotification) notifyScheduledTask(
                                                 context = context,
                                                 task = t,
                                                 reminderType = reminders.first { r ->
