@@ -15,4 +15,5 @@
     <string name="settings_minute">Minute</string>
     <string name="settings_hour">Hour</string>
     <string name="settings_day">Day</string>
+    <string name="settings_notification_offset_warning">Changes on notification offset wont affect scheduled task reminders, reschedule the reminders to reflect the change.</string>
 </resources>

@@ -18,4 +18,5 @@ internal object SettingsDictionary {
     val minute = R.string.settings_minute
     val hour = R.string.settings_hour
     val day = R.string.settings_day
+    val notificationOffsetWarning = R.string.settings_notification_offset_warning
 }

@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -58,6 +59,8 @@ import com.nrr.designsystem.component.Toggle
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.Blue
 import com.nrr.designsystem.theme.CharcoalClay30
+import com.nrr.designsystem.theme.Gray
+import com.nrr.designsystem.theme.Red
 import com.nrr.model.LanguageConfig
 import com.nrr.model.NotificationOffset
 import com.nrr.model.PushNotificationConfig
@@ -277,8 +280,29 @@ internal fun NotificationsConfig(
                 onNotificationOffsetChange = onMonthNotificationOffsetChange,
                 enabled = pushNotification
             )
+            NotificationOffsetWarning(
+                pushNotification = pushNotification,
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
         }
     }
+}
+
+@Composable
+private fun NotificationOffsetWarning(
+    pushNotification: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = stringResource(SettingsDictionary.notificationOffsetWarning),
+        style = MaterialTheme.typography.bodySmall.copy(
+            color = if (pushNotification) Red else Gray,
+            textAlign = TextAlign.Center
+        ),
+        modifier = modifier
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -313,9 +337,8 @@ private fun NotificationOffsetSetting(
             ) {
                 Text(
                     text = period.toStringLocalized(),
-                    style = MaterialTheme.typography.bodyMedium,
-
-                    )
+                    style = MaterialTheme.typography.bodyMedium
+                )
                 Box {
                     var showTimeUnit by remember { mutableStateOf(false) }
 

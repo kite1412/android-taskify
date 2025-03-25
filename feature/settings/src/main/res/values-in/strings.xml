@@ -15,4 +15,5 @@
     <string name="settings_minute">Menit</string>
     <string name="settings_hour">Jam</string>
     <string name="settings_day">Hari</string>
+    <string name="settings_notification_offset_warning">Perubahan pada offset notifikasi tidak akan merubah pengingat tugas yang sudah ada, jadwalkan ulang pengingat tugas untuk menampilkan perubahan.</string>
 </resources>
