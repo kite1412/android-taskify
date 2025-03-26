@@ -21,6 +21,7 @@ import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.toLocalDateTime
 import com.nrr.notification.ScheduledTaskNotifier
+import com.nrr.summary.util.generatedToday
 import com.nrr.summary.util.showNotification
 import com.nrr.summary.worker.SummariesGenerationWorker.Companion.enqueuePeriodSummariesGeneration
 import dagger.assisted.Assisted
@@ -64,6 +65,11 @@ internal class SummariesGenerationWorker @AssistedInject constructor(
     private val userDataRepository: UserDataRepository
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
+        val report = userDataRepository.userData.first().summariesGenerationReport
+        val today = Clock.System.now()
+
+        if (report.generatedToday(today)) return Result.success()
+
         val res = generateSummaries().onEach { p ->
             if (
                 context.checkSelfPermission(
@@ -71,11 +77,10 @@ internal class SummariesGenerationWorker @AssistedInject constructor(
                 ) == PackageManager.PERMISSION_GRANTED
             ) context.showNotification(p)
         }
-        val report = userDataRepository.userData.first().summariesGenerationReport
 
         userDataRepository.setSummariesGenerationReport(
             report = report.copy(
-                lastGenerationDate = Clock.System.now()
+                lastGenerationDate = today
             )
         )
 

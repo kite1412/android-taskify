@@ -8,6 +8,7 @@ import com.nrr.model.getEndDate
 import com.nrr.model.getStartDate
 import com.nrr.model.toLocalDateTime
 import com.nrr.notification.ScheduledTaskNotifier
+import com.nrr.summary.util.generatedToday
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -32,12 +33,9 @@ class SummariesGenerationSynchronizer @Inject constructor(
     fun synchronize() {
         CoroutineScope(Dispatchers.Default).launch {
             val report = userDataRepository.userData.first().summariesGenerationReport
-            val lastGenerationDate = report.lastGenerationDate
             val today = Clock.System.now()
-            val todayStart = today.getStartDate(TaskPeriod.DAY)
-            val todayEnd = today.getEndDate(TaskPeriod.DAY)
 
-            if (lastGenerationDate in todayStart..todayEnd) return@launch
+            if (report.generatedToday(today)) return@launch
 
             userDataRepository.setSummariesGenerationReport(
                 report = report.copy(
