@@ -137,8 +137,11 @@ class SummariesGenerationSynchronizer @Inject constructor(
         override fun Instant.getNextPeriod(now: Instant): Instant {
             val date = toLocalDateTime()
             val nowDate = now.toLocalDateTime()
-            val adjusted = (now + (date.dayOfWeek.value - nowDate.dayOfWeek.value).days)
-                .toLocalDateTime()
+            val adjusted = LocalDateTime(
+                date = (now + (date.dayOfWeek.value - nowDate.dayOfWeek.value).days)
+                    .toLocalDateTime().date,
+                time = date.time
+            )
 
             return adjusted.toInstant(TimeZone.currentSystemDefault())
         }
