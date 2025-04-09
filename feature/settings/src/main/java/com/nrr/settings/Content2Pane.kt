@@ -70,7 +70,7 @@ internal fun Content2Pane(
     Row(
         modifier = modifier.fillMaxSize()
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxHeight()
                 .width(
@@ -80,7 +80,8 @@ internal fun Content2Pane(
                     )
                 )
                 .background(MaterialTheme.colorScheme.onBackground)
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Header(
                 onBackClick = onBackClick
@@ -153,44 +154,52 @@ private fun Menus(
     onMenuClick: (Menu) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    LazyColumn(
         modifier = modifier.fillMaxHeight(),
         verticalArrangement = Arrangement.spacedBy(
             space = 16.dp,
             alignment = Alignment.CenterVertically
         )
     ) {
-        MenuItem(
-            menu = Menu.THEME,
-            selected = selectedMenu == Menu.THEME,
-            onClick = onMenuClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            ThemeMenu()
+        item {
+            MenuItem(
+                menu = Menu.THEME,
+                selected = selectedMenu == Menu.THEME,
+                onClick = onMenuClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                ThemeMenu()
+            }
         }
-        MenuItem(
-            menu = Menu.LANGUAGES,
-            selected = selectedMenu == Menu.LANGUAGES,
-            onClick = onMenuClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            LanguagesMenu()
+        item {
+            MenuItem(
+                menu = Menu.LANGUAGES,
+                selected = selectedMenu == Menu.LANGUAGES,
+                onClick = onMenuClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                LanguagesMenu()
+            }
         }
-        MenuItem(
-            menu = Menu.NOTIFICATIONS,
-            selected = selectedMenu == Menu.NOTIFICATIONS,
-            onClick = onMenuClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            NotificationsMenu()
+        item {
+            MenuItem(
+                menu = Menu.NOTIFICATIONS,
+                selected = selectedMenu == Menu.NOTIFICATIONS,
+                onClick = onMenuClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                NotificationsMenu()
+            }
         }
-        MenuItem(
-            menu = Menu.REMINDERS,
-            selected = selectedMenu == Menu.REMINDERS,
-            onClick = onMenuClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            RemindersMenu()
+        item {
+            MenuItem(
+                menu = Menu.REMINDERS,
+                selected = selectedMenu == Menu.REMINDERS,
+                onClick = onMenuClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                RemindersMenu()
+            }
         }
     }
 }
