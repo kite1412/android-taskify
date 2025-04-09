@@ -16,4 +16,10 @@
     <string name="settings_hour">Hour</string>
     <string name="settings_day">Day</string>
     <string name="settings_notification_offset_warning">Changes on notification offset wont affect scheduled task reminders, reschedule the reminders to reflect the change.</string>
+    <string name="settings_reminders">Reminders</string>
+    <string name="settings_reminder_list">Reminder List</string>
+    <string name="settings_reminder_start">Start</string>
+    <string name="settings_reminder_end">End</string>
+    <string name="settings_reminder_type">Reminder type</string>
+    <string name="settings_reminders_empty">Reminders are empty</string>
 </resources>

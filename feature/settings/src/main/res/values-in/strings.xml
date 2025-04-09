@@ -16,4 +16,10 @@
     <string name="settings_hour">Jam</string>
     <string name="settings_day">Hari</string>
     <string name="settings_notification_offset_warning">Perubahan pada offset notifikasi tidak akan merubah pengingat tugas yang sudah ada, jadwalkan ulang pengingat tugas untuk menampilkan perubahan.</string>
+    <string name="settings_reminders">Pengingat Tugas</string>
+    <string name="settings_reminder_list">Daftar Pengingat Tugas</string>
+    <string name="settings_reminder_start">Mulai</string>
+    <string name="settings_reminder_end">Akhir</string>
+    <string name="settings_reminder_type">Tipe pengingat</string>
+    <string name="settings_reminders_empty">Tidak ada pengingat</string>
 </resources>

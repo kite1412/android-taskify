@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.nrr.data.repository.TaskRepository
 import com.nrr.data.repository.UserDataRepository
 import com.nrr.model.LanguageConfig
 import com.nrr.model.NotificationOffset
@@ -15,6 +16,7 @@ import com.nrr.model.ThemeConfig
 import com.nrr.settings.navigation.SettingsRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,7 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val userDataRepository: UserDataRepository
+    private val userDataRepository: UserDataRepository,
+    private val taskRepository: TaskRepository
 ) : ViewModel() {
     val routeMenu = savedStateHandle.toRoute<SettingsRoute>()
         .menuOrdinal
@@ -36,6 +39,9 @@ class SettingsViewModel @Inject constructor(
         )
 
     internal var currentMenu by mutableStateOf<Menu?>(null)
+        private set
+
+    internal var taskReminders by mutableStateOf<List<ReminderInfo>?>(null)
         private set
 
     fun updateTheme(themeConfig: ThemeConfig) {
@@ -81,5 +87,29 @@ class SettingsViewModel @Inject constructor(
 
     fun updateCurrentMenu(menu: Menu?) {
         currentMenu = menu
+    }
+
+    internal fun maybeLoadTaskReminders() {
+        if (currentMenu == Menu.REMINDERS
+            && taskReminders == null
+            && userData.value != null
+        ) {
+            viewModelScope.launch {
+                val rawReminders = userData.value!!.reminderQueue
+                val tasks = taskRepository.getActiveTasksByIds(
+                    activeTaskIds = rawReminders.map { it.activeTaskId }.distinct()
+                ).firstOrNull()
+
+                tasks?.let {
+                    taskReminders = rawReminders.mapNotNull { reminder ->
+                        tasks.find {
+                            it.activeStatuses.any { s -> s.id == reminder.activeTaskId }
+                        }?.let {
+                            ReminderInfo.from(it, reminder)
+                        }
+                    }
+                }
+            }
+        }
     }
 }

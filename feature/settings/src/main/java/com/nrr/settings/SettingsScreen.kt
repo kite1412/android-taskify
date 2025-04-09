@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,8 +43,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -66,9 +71,11 @@ import com.nrr.model.NotificationOffset
 import com.nrr.model.PushNotificationConfig
 import com.nrr.model.TaskPeriod
 import com.nrr.model.ThemeConfig
+import com.nrr.model.toTimeString
 import com.nrr.settings.util.SettingsDictionary
 import com.nrr.settings.util.notificationOffsetConstraint
 import com.nrr.settings.util.toStringLocalized
+import com.nrr.ui.color
 import com.nrr.ui.toStringLocalized
 import kotlin.math.roundToInt
 
@@ -90,6 +97,7 @@ internal fun SettingsScreen(
     val dayNotificationOffset = userData?.dayNotificationOffset
     val weekNotificationOffset = userData?.weekNotificationOffset
     val monthNotificationOffset = userData?.monthNotificationOffset
+    val taskReminders = viewModel.taskReminders
 
     if (userData != null)
         if (windowWidthClass == WindowWidthSizeClass.COMPACT) {
@@ -98,6 +106,9 @@ internal fun SettingsScreen(
                 else viewModel.updateCurrentMenu(null)
             }
 
+            LaunchedEffect(menu, userData) {
+                viewModel.maybeLoadTaskReminders()
+            }
             BackHandler(onBack = backClick)
             Content(
                 menu = menu,
@@ -118,6 +129,7 @@ internal fun SettingsScreen(
                 onWeekNotificationOffsetChange = viewModel::updateWeekNotificationOffset,
                 monthNotificationOffset = monthNotificationOffset!!,
                 onMonthNotificationOffsetChange = viewModel::updateMonthNotificationOffset,
+                taskReminders = taskReminders,
                 modifier = modifier
             )
         } else if (menu != null) Content2Pane(
@@ -136,6 +148,7 @@ internal fun SettingsScreen(
             onWeekNotificationOffsetChange = viewModel::updateWeekNotificationOffset,
             monthNotificationOffset = monthNotificationOffset!!,
             onMonthNotificationOffsetChange = viewModel::updateMonthNotificationOffset,
+            taskReminders = taskReminders,
             modifier = modifier
         )
 }
@@ -161,6 +174,14 @@ internal fun NotificationsMenu(modifier: Modifier = Modifier) =
     Menu(
         name = stringResource(SettingsDictionary.notifications),
         iconId = TaskifyIcon.bell,
+        modifier = modifier
+    )
+
+@Composable
+internal fun RemindersMenu(modifier: Modifier = Modifier) =
+    Menu(
+        name = stringResource(SettingsDictionary.reminders),
+        iconId = TaskifyIcon.calendarClock,
         modifier = modifier
     )
 
@@ -285,6 +306,94 @@ internal fun NotificationsConfig(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
                     .align(Alignment.CenterHorizontally)
+            )
+        }
+    }
+}
+
+@Composable
+internal fun TaskReminderList(
+    reminders: List<ReminderInfo>,
+    modifier: Modifier = Modifier
+) {
+    SubMenu(
+        name = stringResource(SettingsDictionary.reminderList)
+    ) {
+        if (reminders.isNotEmpty()) reminders.forEach {
+            TaskReminder(it)
+        }
+        else Text(
+            text = stringResource(SettingsDictionary.remindersEmpty),
+            modifier = Modifier.fillMaxWidth(),
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontStyle = FontStyle.Italic,
+                textAlign = TextAlign.Center
+            )
+        )
+    }
+}
+
+@Composable
+private fun TaskReminder(
+    reminder: ReminderInfo,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(reminder.taskType.color())
+                .padding(12.dp)
+        ) {
+            Icon(
+                painter = painterResource(reminder.taskIconId),
+                contentDescription = "task icon",
+                modifier = Modifier.size(24.dp)
+            )
+        }
+        Column(
+            modifier = Modifier.padding(top = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val bodySmall = MaterialTheme.typography.bodySmall
+
+                Icon(
+                    painter = painterResource(TaskifyIcon.clock),
+                    contentDescription = "clock",
+                    modifier = Modifier.size(bodySmall.fontSize.value.dp)
+                )
+                Text(
+                    text = reminder.remindedAt.toTimeString(),
+                    style = bodySmall
+                )
+            }
+            Text(
+                text = reminder.taskTitle,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.Bold
+                )
+            )
+            Text(
+                text = buildAnnotatedString {
+                    append(stringResource(SettingsDictionary.reminderType) + ": ")
+                    withStyle(
+                        style = SpanStyle(
+                            fontStyle = FontStyle.Italic
+                        )
+                    ) {
+                        append(reminder.reminderType.toStringLocalized())
+                    }
+                },
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = Gray
+                )
             )
         }
     }
@@ -524,7 +633,9 @@ internal inline fun SubMenu(
             )
         }
         Column(
-            modifier = Modifier.padding(start = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             content()

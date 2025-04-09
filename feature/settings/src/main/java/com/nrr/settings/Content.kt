@@ -62,6 +62,7 @@ internal fun Content(
     onWeekNotificationOffsetChange: (NotificationOffset) -> Unit,
     monthNotificationOffset: NotificationOffset,
     onMonthNotificationOffsetChange: (NotificationOffset) -> Unit,
+    taskReminders: List<ReminderInfo>?,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -107,6 +108,13 @@ internal fun Content(
                 ) {
                     NotificationsMenu()
                 }
+                MenuItem(
+                    menu = Menu.REMINDERS,
+                    indicator = "",
+                    onMenuClick = onMenuClick
+                ) {
+                    RemindersMenu()
+                }
             } else LazyColumn {
                 item {
                     when (it) {
@@ -128,6 +136,7 @@ internal fun Content(
                             monthNotificationOffset = monthNotificationOffset,
                             onMonthNotificationOffsetChange = onMonthNotificationOffsetChange
                         )
+                        Menu.REMINDERS -> if (taskReminders != null) TaskReminderList(taskReminders)
                     }
                 }
             }
@@ -201,6 +210,7 @@ private fun Header(
                     Menu.THEME -> SettingsDictionary.theme
                     Menu.LANGUAGES -> SettingsDictionary.languages
                     Menu.NOTIFICATIONS -> SettingsDictionary.notifications
+                    Menu.REMINDERS -> SettingsDictionary.reminders
                     null -> SettingsDictionary.settings
                 }
             ),
@@ -240,7 +250,8 @@ private fun ContentPreview() {
             weekNotificationOffset = notificationOffset,
             onWeekNotificationOffsetChange = { notificationOffset = it },
             monthNotificationOffset = notificationOffset,
-            onMonthNotificationOffsetChange = { notificationOffset = it }
+            onMonthNotificationOffsetChange = { notificationOffset = it },
+            taskReminders = listOf()
         )
     }
 }

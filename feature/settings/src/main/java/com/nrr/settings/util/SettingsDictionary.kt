@@ -19,4 +19,10 @@ internal object SettingsDictionary {
     val hour = R.string.settings_hour
     val day = R.string.settings_day
     val notificationOffsetWarning = R.string.settings_notification_offset_warning
+    val reminders = R.string.settings_reminders
+    val reminderList = R.string.settings_reminder_list
+    val reminderStart = R.string.settings_reminder_start
+    val reminderEnd = R.string.settings_reminder_end
+    val reminderType = R.string.settings_reminder_type
+    val remindersEmpty = R.string.settings_reminders_empty
 }

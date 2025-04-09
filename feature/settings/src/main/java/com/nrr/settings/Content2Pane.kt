@@ -63,6 +63,7 @@ internal fun Content2Pane(
     onWeekNotificationOffsetChange: (NotificationOffset) -> Unit,
     monthNotificationOffset: NotificationOffset,
     onMonthNotificationOffsetChange: (NotificationOffset) -> Unit,
+    taskReminders: List<ReminderInfo>?,
     modifier: Modifier = Modifier
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp
@@ -113,6 +114,7 @@ internal fun Content2Pane(
                         monthNotificationOffset = monthNotificationOffset,
                         onMonthNotificationOffsetChange = onMonthNotificationOffsetChange
                     )
+                    Menu.REMINDERS -> if (taskReminders != null) TaskReminderList(taskReminders)
                 }
             }
         }
@@ -182,6 +184,14 @@ private fun Menus(
         ) {
             NotificationsMenu()
         }
+        MenuItem(
+            menu = Menu.REMINDERS,
+            selected = selectedMenu == Menu.REMINDERS,
+            onClick = onMenuClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            RemindersMenu()
+        }
     }
 }
 
@@ -240,7 +250,8 @@ private fun Content2PanePreview() {
             weekNotificationOffset = NotificationOffset(1, TimeUnit.MINUTES),
             onWeekNotificationOffsetChange = {},
             monthNotificationOffset = NotificationOffset(1, TimeUnit.MINUTES),
-            onMonthNotificationOffsetChange = {}
+            onMonthNotificationOffsetChange = {},
+            taskReminders = listOf()
         )
     }
 }
