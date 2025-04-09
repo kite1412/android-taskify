@@ -99,6 +99,9 @@ internal fun SettingsScreen(
     val monthNotificationOffset = userData?.monthNotificationOffset
     val taskReminders = viewModel.taskReminders
 
+    LaunchedEffect(menu, userData) {
+        viewModel.maybeLoadTaskReminders()
+    }
     if (userData != null)
         if (windowWidthClass == WindowWidthSizeClass.COMPACT) {
             val backClick = {
@@ -106,9 +109,6 @@ internal fun SettingsScreen(
                 else viewModel.updateCurrentMenu(null)
             }
 
-            LaunchedEffect(menu, userData) {
-                viewModel.maybeLoadTaskReminders()
-            }
             BackHandler(onBack = backClick)
             Content(
                 menu = menu,
@@ -317,7 +317,8 @@ internal fun TaskReminderList(
     modifier: Modifier = Modifier
 ) {
     SubMenu(
-        name = stringResource(SettingsDictionary.reminderList)
+        name = stringResource(SettingsDictionary.reminderList),
+        modifier = modifier
     ) {
         if (reminders.isNotEmpty()) reminders.forEach {
             TaskReminder(it)
