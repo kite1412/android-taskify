@@ -17,7 +17,6 @@ import com.nrr.model.ThemeConfig
 import com.nrr.model.TimeUnit
 import com.nrr.model.UserData
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Clock
 import javax.inject.Inject
 
 class TaskifyPreferencesDataSource @Inject constructor(
@@ -53,14 +52,7 @@ class TaskifyPreferencesDataSource @Inject constructor(
                 },
                 pushNotification = PushNotificationConfig.entries[it.pushNotification.ordinal],
                 reminderQueue = it.reminderQueueList.map(TaskReminderProto::toTaskReminder),
-                summariesGenerationReport = it.summariesGenerationReport
-                    .toBuilder()
-                    .apply {
-                        if (lastGenerationUtcMillis == 0L)
-                            this.setLastGenerationUtcMillis(Clock.System.now().toEpochMilliseconds())
-                    }
-                    .build()
-                    .toSummariesGenerationReport()
+                summariesGenerationReport = it.summariesGenerationReport.toSummariesGenerationReport()
             )
         }
 
