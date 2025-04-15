@@ -32,10 +32,10 @@ class SaveActiveTasksUseCase @Inject constructor(
                         activeTasks[i].activeStatuses.first().copy(id = id)
                     )
                 )
-                if (task.activeStatuses.first().reminderSet)
+                if (task.activeStatuses.first().reminderSet) {
                     if (pushNotification == PushNotificationConfig.PUSH_ALL)
                         scheduledTaskNotifier.scheduleReminder(task)
-                else scheduledTaskNotifier.cancelReminder(task)
+                } else scheduledTaskNotifier.cancelReminder(task)
             }
         }
     }
