@@ -25,4 +25,5 @@ internal object SettingsDictionary {
     val reminderEnd = R.string.settings_reminder_end
     val reminderType = R.string.settings_reminder_type
     val remindersEmpty = R.string.settings_reminders_empty
+    val today = R.string.settings_today
 }

@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -71,12 +72,15 @@ import com.nrr.model.NotificationOffset
 import com.nrr.model.PushNotificationConfig
 import com.nrr.model.TaskPeriod
 import com.nrr.model.ThemeConfig
+import com.nrr.model.getStartDate
 import com.nrr.model.toTimeString
 import com.nrr.settings.util.SettingsDictionary
 import com.nrr.settings.util.notificationOffsetConstraint
 import com.nrr.settings.util.toStringLocalized
 import com.nrr.ui.color
+import com.nrr.ui.toDateStringLocalized
 import com.nrr.ui.toStringLocalized
+import kotlinx.datetime.Clock
 import kotlin.math.roundToInt
 
 @Composable
@@ -316,12 +320,31 @@ internal fun TaskReminderList(
     reminders: List<ReminderInfo>,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val groupedReminders = remember(reminders) {
+        reminders
+            .groupBy {
+                it.remindedAt.getStartDate(TaskPeriod.DAY)
+            }
+            .map { (i, reminders) ->
+                val now  = Clock.System.now().getStartDate(TaskPeriod.DAY)
+                (if (i == now) context.getString(SettingsDictionary.today)
+                    else i.toDateStringLocalized(context)) to reminders
+            }
+    }
+
     SubMenu(
         name = stringResource(SettingsDictionary.reminderList),
         modifier = modifier
     ) {
-        if (reminders.isNotEmpty()) reminders.forEach {
-            TaskReminder(it)
+        if (groupedReminders.isNotEmpty()) groupedReminders.forEach { (date, reminders) ->
+            SubMenu(
+                name = date
+            ) {
+                reminders.forEach {
+                    TaskReminder(it)
+                }
+            }
         }
         else Text(
             text = stringResource(SettingsDictionary.remindersEmpty),

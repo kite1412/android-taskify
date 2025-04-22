@@ -22,4 +22,5 @@
     <string name="settings_reminder_end">Akhir</string>
     <string name="settings_reminder_type">Tipe pengingat</string>
     <string name="settings_reminders_empty">Tidak ada pengingat</string>
+    <string name="settings_today">Hari Ini</string>
 </resources>

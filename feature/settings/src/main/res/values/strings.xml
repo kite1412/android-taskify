@@ -22,4 +22,5 @@
     <string name="settings_reminder_end">End</string>
     <string name="settings_reminder_type">Reminder type</string>
     <string name="settings_reminders_empty">Reminders are empty</string>
+    <string name="settings_today">Today</string>
 </resources>
