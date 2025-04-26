@@ -22,6 +22,10 @@ internal fun Project.configureBuildTypes(
                                 commonExtension = commonExtension
                             )
                         }
+                        debug {
+                            applicationIdSuffix = ".debug"
+                            versionNameSuffix = "-debug"
+                        }
                     }
                 }
             }
