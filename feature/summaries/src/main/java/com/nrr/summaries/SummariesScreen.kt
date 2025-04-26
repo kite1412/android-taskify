@@ -45,6 +45,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -153,7 +154,7 @@ internal fun Summaries(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(
+        if (summaries.isNotEmpty()) items(
             count = summaries.size,
             key = { summaries[it].hashCode() }
         ) {
@@ -164,6 +165,15 @@ internal fun Summaries(
                 onClick = onClick,
                 showIcon = showIcon,
                 selected = summary == selectedSummary && !showIcon
+            )
+        } else item {
+            Text(
+                text = stringResource(SummariesDictionary.noSummaries),
+                modifier = Modifier.fillMaxWidth(),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontStyle = FontStyle.Italic,
+                    textAlign = TextAlign.Center
+                )
             )
         }
     }

@@ -11,4 +11,5 @@
     <string name="summaries_status" translatable="false">Status</string>
     <string name="summaries_task_type">Task Type</string>
     <string name="summaries_tasks">Tasks</string>
+    <string name="summaries_no_summaries">No Summaries</string>
 </resources>

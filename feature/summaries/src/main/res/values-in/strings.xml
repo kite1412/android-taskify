@@ -10,4 +10,5 @@
     <string name="summaries_month">Bulanan</string>
     <string name="summaries_task_type">Tipe Tugas</string>
     <string name="summaries_tasks">Tugas</string>
+    <string name="summaries_no_summaries">Tidak Ada Ringkasan</string>
 </resources>
