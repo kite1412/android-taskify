@@ -87,6 +87,7 @@ import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.CircularTaskProgressIndicator
 import com.nrr.designsystem.icon.TaskifyIcon
+import com.nrr.designsystem.theme.Blue
 import com.nrr.designsystem.theme.CharcoalClay
 import com.nrr.designsystem.theme.Green
 import com.nrr.designsystem.theme.PastelGreen
@@ -168,11 +169,12 @@ private fun scheduleActions(
 ).apply {
     if (task.activeStatuses.firstOrNull()?.isCompleted == false)
         add(
-            Action(
+            index = 0,
+            element = Action(
                 action = completeMessage,
                 iconId = TaskifyIcon.check,
                 onClick = { onComplete(task) },
-                color = Green
+                color = Blue
             )
         )
 }.toList()
