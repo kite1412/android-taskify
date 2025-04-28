@@ -219,6 +219,9 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
                         if (it.isNotEmpty()) userDataRepository.removeTaskReminders(
                             indexes = it.map { p -> p.first }
                         )
+
+                        if (it.firstOrNull { p -> p.first == 0 } != null)
+                            context.sendBroadcast(sequentialTaskSchedulerIntent(context))
                     }
             }
         }
