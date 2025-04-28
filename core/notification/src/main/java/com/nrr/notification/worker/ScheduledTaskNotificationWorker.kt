@@ -20,6 +20,9 @@ import com.nrr.notification.util.gson
 
 private const val NOTIFICATION_ID = 1
 
+@Deprecated(
+    message = "Part of WorkManagerScheduledTaskNotifier"
+)
 // REQUIRE DATA OF TaskWithReminder TYPE
 internal class ScheduledTaskNotificationWorker(
     private val context: Context,

@@ -43,6 +43,13 @@ internal class AlarmManagerScheduledTaskNotifier @Inject constructor(
     override fun cancelReminder(activeTask: Task) =
         scheduler.cancelReminder(activeTask)
 
+    @Deprecated(
+        message = """
+            Use SequentialScheduler instead, as immediate scheduling could
+            potentially impact device performance.
+        """,
+        replaceWith = ReplaceWith("SequentialScheduler")
+    )
     private inner class ImmediateScheduler : ScheduledTaskNotifier {
         override suspend fun scheduleReminder(task: Task): Result {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S

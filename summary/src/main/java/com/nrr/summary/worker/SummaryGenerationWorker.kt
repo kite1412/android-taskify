@@ -20,6 +20,9 @@ import kotlinx.datetime.Clock
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.days
 
+@Deprecated(
+    message = "Part of DefaultSummariesGenerationScheduler.ScheduleByPeriod"
+)
 @HiltWorker
 internal class SummaryGenerationWorker @AssistedInject constructor(
     @Assisted private val context: Context,

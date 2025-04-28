@@ -40,6 +40,14 @@ internal class DefaultSummariesGenerationScheduler @Inject constructor(
         fun schedule()
     }
 
+    @Deprecated(
+        message = """
+            Enqueue 3 different periodic WorkManager works for the same task
+            and may potentially cause overlaps between summary generations, use a safer option
+            such as DailySchedule instead.
+        """,
+        replaceWith = ReplaceWith("DailySchedule")
+    )
     private inner class ScheduleByPeriod : Scheduler {
         override fun schedule() {
             CoroutineScope(Dispatchers.Default).launch {

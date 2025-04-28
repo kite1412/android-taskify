@@ -5,8 +5,8 @@ import android.os.Build
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.nrr.model.Task
 import com.nrr.model.ReminderType
+import com.nrr.model.Task
 import com.nrr.notification.model.Result
 import com.nrr.notification.model.Result.Fail.Reason
 import com.nrr.notification.model.Result.Success.Warning
@@ -21,6 +21,12 @@ import javax.inject.Singleton
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
+@Deprecated(
+    message = """
+        WorkManager is not as reliable as AlarmManager for exact scheduling,
+        use AlarmManager implementation instead.
+    """
+)
 @Singleton
 internal class WorkManagerScheduledTaskNotifier @Inject constructor(
     @ApplicationContext context: Context
