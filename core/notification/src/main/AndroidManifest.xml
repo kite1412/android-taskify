@@ -10,11 +10,11 @@
                 <action android:name="com.nrr.notification.SEQUENTIAL_TASK_NOTIFIER" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.nrr.notification.receiver.RemindLaterSchedulerReceiver"
+        <receiver android:name="com.nrr.notification.receiver.ReminderActionReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.nrr.notification.REMIND_LATER_SCHEDULER" />
+                <action android:name="com.nrr.notification.REMINDER_ACTION" />
             </intent-filter>
         </receiver>
         <receiver android:name="com.nrr.notification.receiver.SequentialTaskSchedulerReceiver"

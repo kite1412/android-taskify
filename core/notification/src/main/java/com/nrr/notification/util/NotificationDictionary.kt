@@ -14,4 +14,5 @@ internal object NotificationDictionary {
     val taskStartContentOverdue = R.string.notification_task_start_content_overdue
     val taskEndTitleOverdue = R.string.notification_task_end_title_overdue
     val taskEndContentOverdue = R.string.notification_task_end_content_overdue
+    val taskComplete = R.string.notification_task_complete
 }

@@ -11,4 +11,5 @@
     <string name="notification_task_start_content_overdue">Tugas kamu \'%1$s\' telah dimulai, ayo segera selesaikan!</string>
     <string name="notification_task_end_title_overdue">Tugas Terlambat!</string>
     <string name="notification_task_end_content_overdue">"Tugas '%1$s' belum diselesaikan, ayo segera selesaikan! "</string>
+    <string name="notification_task_complete">Selesai</string>
 </resources>

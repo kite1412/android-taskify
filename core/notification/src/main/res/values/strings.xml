@@ -11,4 +11,5 @@
     <string name="notification_task_start_content_overdue">Your task \'%1$s\' has started, let\'s get it done!</string>
     <string name="notification_task_end_title_overdue">Task Overdue!</string>
     <string name="notification_task_end_content_overdue">Task \'%1$s\' is overdue, let\'s wrap things up!</string>
+    <string name="notification_task_complete">Complete</string>
 </resources>

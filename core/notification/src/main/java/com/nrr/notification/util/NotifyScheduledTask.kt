@@ -11,12 +11,10 @@ import androidx.core.net.toUri
 import com.nrr.model.ReminderType
 import com.nrr.model.Task
 import com.nrr.notification.R
+import com.nrr.notification.model.ReminderAction
 import com.nrr.notification.model.toFiltered
 import com.nrr.notification.receiver.DEEP_LINK_SCHEME_AND_HOST
-import com.nrr.notification.receiver.REMIND_LATER_SCHEDULER_ACTION
-import com.nrr.notification.receiver.RemindLaterSchedulerReceiver
-import com.nrr.notification.receiver.SequentialTaskNotifierReceiver.Companion.DATA_KEY
-import com.nrr.notification.receiver.SequentialTaskNotifierReceiver.Companion.REMINDER_TYPE_ORDINAL_KEY
+import com.nrr.notification.receiver.reminderActionPendingIntent
 import kotlinx.datetime.Clock
 
 const val MAIN_ACTIVITY_NAME = "com.nrr.taskify.MainActivity"
@@ -43,19 +41,26 @@ internal fun notifyScheduledTask(
             type = reminderType,
             overdue = overdue
         )
+        val actions = listOf(
+            ReminderAction.REMIND_LATER to context.getString(NotificationDictionary.remindLater),
+            ReminderAction.COMPLETE to context.getString(NotificationDictionary.taskComplete)
+        )
 
         setContentTitle(title)
         setContentText(content)
         setSmallIcon(R.drawable.app_icon_small)
         setContentIntent(notificationContentIntentNotifier(context, task))
-        addAction(
-            0,
-            context.getString(NotificationDictionary.remindLater),
-            context.remindLaterSchedulerPendingIntent(
-                activeStatusId = taskFiltered.id.toInt(),
-                reminderTypeOrdinal = ReminderType.valueOf(reminderType.name).ordinal
+        actions.forEach { (action, message) ->
+            addAction(
+                0,
+                message,
+                context.reminderActionPendingIntent(
+                    reminderActionOrdinal = action.ordinal,
+                    activeStatusId = taskFiltered.id.toInt(),
+                    reminderTypeOrdinal = reminderType.ordinal
+                )
             )
-        )
+        }
         setAutoCancel(true)
     }
     NotificationManagerCompat.from(context)
@@ -78,20 +83,6 @@ private fun notificationContentIntentNotifier(
             context.packageName,
             MAIN_ACTIVITY_NAME
         )
-    },
-    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-)
-
-private fun Context.remindLaterSchedulerPendingIntent(
-    activeStatusId: Int,
-    reminderTypeOrdinal: Int
-) = PendingIntent.getBroadcast(
-    this,
-    activeStatusId,
-    Intent(this, RemindLaterSchedulerReceiver::class.java).apply {
-        action = REMIND_LATER_SCHEDULER_ACTION
-        putExtra(DATA_KEY, activeStatusId)
-        putExtra(REMINDER_TYPE_ORDINAL_KEY, reminderTypeOrdinal)
     },
     PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
 )
