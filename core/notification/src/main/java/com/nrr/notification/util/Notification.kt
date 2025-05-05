@@ -28,6 +28,11 @@ fun Context.createNotification(
         .build()
 }
 
+fun Context.cancelNotification(id: Int) {
+    (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+        .cancel(id)
+}
+
 private fun Context.ensureNotificationChannelExists() {
     if (VERSION.SDK_INT < VERSION_CODES.O) return
 
