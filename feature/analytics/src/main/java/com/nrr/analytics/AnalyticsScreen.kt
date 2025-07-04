@@ -243,7 +243,7 @@ private fun ColumnScope.AssignedTasksSection(
                 tasksSize(month.size)
         )
     )
-    ColumnChartStatistic(
+    if (activeTasks.isNotEmpty()) ColumnChartStatistic(
         data = activeTasks.periodBars()
     )
 }
