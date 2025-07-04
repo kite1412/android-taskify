@@ -125,13 +125,17 @@ internal fun TaskifyScaffold(
         showNavBar = showScaffoldComponents,
         currentDestination = currentDestination
     ) {
+        val contentPadding = if (applyContentPadding)
+            TaskifyDefault.CONTENT_PADDING.dp
+        else 0.dp
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
-                    if (applyContentPadding)
-                        TaskifyDefault.CONTENT_PADDING.dp
-                    else 0.dp
+                    start = contentPadding,
+                    end = contentPadding,
+                    top = contentPadding
                 )
         ) {
             Box(

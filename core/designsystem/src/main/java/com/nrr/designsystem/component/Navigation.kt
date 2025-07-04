@@ -56,6 +56,7 @@ import com.nrr.designsystem.ScaffoldComponent
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.CharcoalClay
 import com.nrr.designsystem.theme.TaskifyTheme
+import com.nrr.designsystem.util.TaskifyDefault
 import kotlin.math.abs
 
 enum class Destination(
@@ -373,7 +374,7 @@ fun NavigationScaffold(
                         onClick = onClickWrapper,
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
-                            .padding(bottom = 30.dp)
+                            .padding(bottom = TaskifyDefault.CONTENT_PADDING.dp)
                             .onGloballyPositioned {
                                 with(density) {
                                     scaffoldComponentSizes[ScaffoldComponent.BOTTOM_NAVIGATION_BAR] =

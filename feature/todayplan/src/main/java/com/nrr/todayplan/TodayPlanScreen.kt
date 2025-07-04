@@ -108,6 +108,7 @@ import com.nrr.ui.TaskCardTimeIndicator
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.rememberTaskCardsState
 import com.nrr.ui.taskCards
+import com.nrr.ui.util.rootContentBottomPadding
 import kotlinx.coroutines.delay
 
 @Composable
@@ -206,14 +207,12 @@ private fun Content(
     val removeMessage = stringResource(TodayPlanDictionary.removeFromSchedule)
     val completeMessage = stringResource(TodayPlanDictionary.markAsCompleted)
     val taskCardsState = rememberTaskCardsState(todayTasks, todayTasks)
-    val bottomBarHeight = LocalScaffoldComponentSizes.current[ScaffoldComponent.BOTTOM_NAVIGATION_BAR]
-        ?.height ?: 0.dp
 
     LazyColumn(
         modifier = modifier
             .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(bottom = 16.dp + bottomBarHeight),
+        contentPadding = PaddingValues(bottom = rootContentBottomPadding()),
     ) {
         item {
             Column(

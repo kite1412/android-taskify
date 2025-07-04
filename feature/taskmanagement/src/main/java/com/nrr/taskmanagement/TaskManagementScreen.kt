@@ -63,8 +63,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.nrr.designsystem.LocalScaffoldComponentSizes
-import com.nrr.designsystem.ScaffoldComponent
 import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.Checkbox
@@ -85,6 +83,7 @@ import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.TaskifyDialogDefaults
 import com.nrr.ui.rememberTaskCardsState
 import com.nrr.ui.taskCards
+import com.nrr.ui.util.rootContentBottomPadding
 
 @Composable
 internal fun TaskManagementScreen(
@@ -522,14 +521,12 @@ private fun Tasks(
         val afterRemoveMessage = stringResource(TaskManagementDictionary.removeTasksMessage)
         val afterDeleteMessage = stringResource(TaskManagementDictionary.deleteTasksMessage)
         val state = rememberTaskCardsState(tasks, tasks)
-        val bottomBarHeight = LocalScaffoldComponentSizes.current[ScaffoldComponent.BOTTOM_NAVIGATION_BAR]
-            ?.height ?: 0.dp
 
         LazyColumn(
             modifier = modifier,
             verticalArrangement = Arrangement.spacedBy(8.dp),
             state = tasksState,
-            contentPadding = PaddingValues(bottom = 16.dp + bottomBarHeight)
+            contentPadding = PaddingValues(bottom = rootContentBottomPadding())
         ) {
             taskCards(
                 tasks = tasks,

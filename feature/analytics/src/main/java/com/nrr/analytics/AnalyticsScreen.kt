@@ -72,6 +72,7 @@ import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.statistic.Label
 import com.nrr.ui.stringStatusId
 import com.nrr.ui.util.resolveProgressStatus
+import com.nrr.ui.util.rootContentBottomPadding
 import com.nrr.ui.util.statusColor
 import ir.ehsannarmani.compose_charts.ColumnChart
 import ir.ehsannarmani.compose_charts.PieChart
@@ -120,7 +121,7 @@ private fun Content(
         LazyColumn(
             modifier = modifier.fillMaxSize(),
             contentPadding = PaddingValues(
-                bottom = bottomBarHeight?.height?.plus(16.dp) ?: 0.dp
+                bottom = rootContentBottomPadding()
             )
         ) {
             section(
