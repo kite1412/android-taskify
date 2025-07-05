@@ -162,7 +162,11 @@ private fun Content(
         mutableIntStateOf(0)
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(bottom = TaskifyDefault.CONTENT_PADDING.dp)
+    ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(24.dp)

@@ -68,6 +68,7 @@ import com.nrr.designsystem.component.TaskifyButtonDefaults
 import com.nrr.designsystem.component.TextField
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
+import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.ActiveStatus
 import com.nrr.model.Task
 import com.nrr.model.TaskType
@@ -171,7 +172,11 @@ private fun Content(
     var deleteButtonHeight by remember { mutableStateOf(0.dp) }
     val density = LocalDensity.current
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(bottom = TaskifyDefault.CONTENT_PADDING.dp)
+    ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,

@@ -252,7 +252,9 @@ private fun Content(
     onDeleteActiveTask: (() -> Unit)? = null
 ) {
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(bottom = TaskifyDefault.CONTENT_PADDING.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         Header(
