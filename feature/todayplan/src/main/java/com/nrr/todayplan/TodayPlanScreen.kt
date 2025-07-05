@@ -37,6 +37,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -80,9 +81,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.window.core.layout.WindowWidthSizeClass
 import com.nrr.designsystem.LocalDarkTheme
-import com.nrr.designsystem.LocalScaffoldComponentSizes
-import com.nrr.designsystem.ScaffoldComponent
 import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.CircularTaskProgressIndicator
@@ -207,6 +207,7 @@ private fun Content(
     val removeMessage = stringResource(TodayPlanDictionary.removeFromSchedule)
     val completeMessage = stringResource(TodayPlanDictionary.markAsCompleted)
     val taskCardsState = rememberTaskCardsState(todayTasks, todayTasks)
+    val windowAdaptiveInfo = currentWindowAdaptiveInfo()
 
     LazyColumn(
         modifier = modifier
@@ -246,12 +247,33 @@ private fun Content(
 
                     }
                 }
-                TodayProgress(
-                    todayTasks = todayTasks,
-                    onSetTodayTasksClick = onSetTodayTasksClick,
-                    modifier = Modifier.padding(start = contentWithRoundRectShadowPadding)
-                )
-                Periods(
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Max),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    TodayProgress(
+                        todayTasks = todayTasks,
+                        onSetTodayTasksClick = onSetTodayTasksClick,
+                        modifier = Modifier
+                            .padding(start = contentWithRoundRectShadowPadding)
+                            .run {
+                                if (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED)
+                                    weight(0.7f)
+                                else fillMaxWidth()
+                            }
+                    )
+                    if (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) Periods(
+                        weeklyTasks = weeklyTasks,
+                        monthlyTasks = monthlyTasks,
+                        onWeeklyClick = onWeeklyClick,
+                        onMonthlyClick = onMonthlyClick,
+                        modifier = Modifier.weight(0.3f).fillMaxWidth(),
+                        rowOrder = false
+                    )
+                }
+                if (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.EXPANDED) Periods(
                     weeklyTasks = weeklyTasks,
                     monthlyTasks = monthlyTasks,
                     onWeeklyClick = onWeeklyClick,
@@ -752,7 +774,6 @@ private fun TodayProgress(
 
     Row(
         modifier = modifier
-            .fillMaxWidth()
             .drawRoundRectShadow(
                 cornerRadius = with(density) {
                     CornerRadius(x = cornerRadius.toPx(), y = cornerRadius.toPx())
@@ -839,36 +860,75 @@ private fun Periods(
     monthlyTasks: List<Task>,
     onWeeklyClick: (TaskPeriod) -> Unit,
     onMonthlyClick: (TaskPeriod) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    rowOrder: Boolean = true
 ) {
-    Row(
+    if (rowOrder) Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        PeriodCard(
-            period = stringResource(TodayPlanDictionary.weekly),
+        WeeklyCard(
             tasks = weeklyTasks,
-            modifier = Modifier
-                .weight(0.5f)
-                .clickable(
-                    indication = null,
-                    interactionSource = null
-                ) { onWeeklyClick(TaskPeriod.WEEK) },
-            imageColorFilter = ColorFilter.lighting(lightBlueGradient[0], Color.DarkGray)
+            onClick = onWeeklyClick,
+            modifier = Modifier.weight(0.5f)
         )
-        PeriodCard(
-            period = stringResource(TodayPlanDictionary.monthly),
+        MonthlyCard(
             tasks = monthlyTasks,
-            modifier = Modifier
-                .weight(0.5f)
-                .clickable(
-                    indication = null,
-                    interactionSource = null
-                ) { onMonthlyClick(TaskPeriod.MONTH) },
-            gradientBackgroundColors = lightRedGradient,
-            imageColorFilter = ColorFilter.lighting(lightRedGradient[0], Color(200, 35, 0))
+            onClick = onMonthlyClick,
+            modifier = Modifier.weight(0.5f)
+        )
+    } else Column(
+        modifier = modifier.fillMaxHeight(),
+        verticalArrangement = Arrangement.spacedBy(30.dp)
+    ) {
+        WeeklyCard(
+            tasks = weeklyTasks,
+            onClick = onWeeklyClick,
+            modifier = Modifier.fillMaxWidth()
+        )
+        MonthlyCard(
+            tasks = monthlyTasks,
+            onClick = onMonthlyClick,
+            modifier = Modifier.fillMaxWidth()
         )
     }
+}
+
+@Composable
+private fun WeeklyCard(
+    tasks: List<Task>,
+    onClick: (TaskPeriod) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    PeriodCard(
+        period = stringResource(TodayPlanDictionary.weekly),
+        tasks = tasks,
+        modifier = modifier
+            .clickable(
+                indication = null,
+                interactionSource = null
+            ) { onClick(TaskPeriod.WEEK) },
+        imageColorFilter = ColorFilter.lighting(lightBlueGradient[0], Color.DarkGray)
+    )
+}
+
+@Composable
+private fun MonthlyCard(
+    tasks: List<Task>,
+    onClick: (TaskPeriod) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    PeriodCard(
+        period = stringResource(TodayPlanDictionary.monthly),
+        tasks = tasks,
+        modifier = modifier
+            .clickable(
+                indication = null,
+                interactionSource = null
+            ) { onClick(TaskPeriod.MONTH) },
+        gradientBackgroundColors = lightRedGradient,
+        imageColorFilter = ColorFilter.lighting(lightRedGradient[0], Color(200, 35, 0))
+    )
 }
 
 @Composable
