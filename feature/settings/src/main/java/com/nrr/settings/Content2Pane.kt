@@ -157,8 +157,7 @@ private fun Menus(
     LazyColumn(
         modifier = modifier.fillMaxHeight(),
         verticalArrangement = Arrangement.spacedBy(
-            space = 16.dp,
-            alignment = Alignment.CenterVertically
+            space = 16.dp
         )
     ) {
         item {

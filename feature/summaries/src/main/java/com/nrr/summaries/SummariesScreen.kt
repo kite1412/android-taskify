@@ -111,7 +111,7 @@ internal fun SummariesScreen(
             onBackClick = onBackClick,
             period = period,
             onPeriodClick = viewModel::updatePeriod,
-            selectedSummary = summary!!,
+            selectedSummary = summary,
             modifier = modifier
         )
 }
