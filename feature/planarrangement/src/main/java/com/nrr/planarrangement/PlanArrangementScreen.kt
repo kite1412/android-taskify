@@ -43,6 +43,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,6 +58,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -119,6 +122,7 @@ import com.nrr.ui.Dialog
 import com.nrr.ui.EmptyTasks
 import com.nrr.ui.LocalExactAlarmState
 import com.nrr.ui.LocalSnackbarHostState
+import com.nrr.ui.TaskCardsDefaults
 import com.nrr.ui.TaskDescription
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.TaskStatuses
@@ -468,10 +472,13 @@ private fun Tasks(
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     val state = rememberTaskCardsState(tasks)
+    val windowAdaptiveInfo = currentWindowAdaptiveInfo()
 
-    LazyColumn(
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(TaskCardsDefaults.adaptiveGridColumnsCount(windowAdaptiveInfo)),
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = contentPadding
     ) {
         taskCards(
@@ -479,7 +486,7 @@ private fun Tasks(
             actions = { emptyList() },
             state = state,
             onClick = onClick
-        )
+        ) { _, _, card -> card() }
     }
 }
 

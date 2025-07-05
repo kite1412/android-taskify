@@ -72,10 +72,10 @@ import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.ActiveStatus
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
+import com.nrr.model.getEndDate
+import com.nrr.model.getStartDate
 import com.nrr.model.toLocalDateTime
 import com.nrr.model.toTimeString
-import com.nrr.model.getStartDate
-import com.nrr.model.getEndDate
 import com.nrr.plandetail.util.PlanDetailDictionary
 import com.nrr.plandetail.util.dashHeight
 import com.nrr.plandetail.util.dashSpace
@@ -538,21 +538,21 @@ private fun Tasks(
                 state = state,
                 onClick = onClick,
                 swipeEnabled = safeToInteract,
-                content = { index, taskCard ->
+                content = { index, task, taskCard ->
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.End
                     ) {
                         when (period) {
                             TaskPeriod.DAY -> Text(
-                                text = tasks[index].activeStatuses.first().startDate.toTimeString(),
+                                text = task.activeStatuses.first().startDate.toTimeString(),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp,
                                 color = MaterialTheme.colorScheme.primary
                             )
                             TaskPeriod.WEEK -> breakpoints.firstOrNull { it.index == index }?.let {
                                 TaskHeader(
-                                    header = tasks[index].activeStatuses.first().startDate.toDayLocalized(),
+                                    header = task.activeStatuses.first().startDate.toDayLocalized(),
                                     endPadding = endPadding,
                                     modifier = Modifier
                                         .padding(
@@ -560,7 +560,7 @@ private fun Tasks(
                                             bottom = dashSpace
                                         ),
                                     description = with(
-                                        tasks[index].activeStatuses.first().startDate.toLocalDateTime()
+                                        task.activeStatuses.first().startDate.toLocalDateTime()
                                     ) {
                                         "($dayOfMonth ${toMonthLocalized()})"
                                     },
@@ -568,7 +568,7 @@ private fun Tasks(
                                 )
                             }
                             TaskPeriod.MONTH-> breakpoints.firstOrNull { it.index == index }?.let {
-                                val localDateTime = tasks[index].activeStatuses.first().startDate.toLocalDateTime()
+                                val localDateTime = task.activeStatuses.first().startDate.toLocalDateTime()
                                 TaskHeader(
                                     header = with(localDateTime) {
                                         "${toMonthLocalized()} $dayOfMonth"
@@ -586,12 +586,12 @@ private fun Tasks(
                         }
                         Row {
                             if (period != TaskPeriod.DAY) TaskCardTimeIndicator(
-                                time = tasks[index].activeStatuses.first().startDate.toTimeString()
+                                time = task.activeStatuses.first().startDate.toTimeString()
                             )
                             val deepLinkTaskId = LocalDeepLinkTaskId.current
                             if (deepLinkTaskId != null) {
                                 val safeToAnimate = LocalSafeAnimateContent.current
-                                val highlight = deepLinkTaskId == tasks[index].activeStatuses.first().id
+                                val highlight = deepLinkTaskId == task.activeStatuses.first().id
                                 val animatedRotation by rememberInfiniteTransition()
                                     .animateFloat(
                                         initialValue = if (!safeToAnimate) 0f
@@ -612,7 +612,7 @@ private fun Tasks(
                             } else taskCard()
                         }
                         TaskSpacer(
-                            activeStatuses = tasks[index].activeStatuses,
+                            activeStatuses = task.activeStatuses,
                             dashedLine = index != tasks.lastIndex,
                             modifier = Modifier
                                 .padding(

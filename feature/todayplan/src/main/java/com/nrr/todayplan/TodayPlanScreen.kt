@@ -879,7 +879,7 @@ private fun Periods(
         )
     } else Column(
         modifier = modifier.fillMaxHeight(),
-        verticalArrangement = Arrangement.spacedBy(30.dp)
+        verticalArrangement = Arrangement.spacedBy(30.dp) // 10 (rect shadow) + 16 (calendar min y offset) + 4
     ) {
         WeeklyCard(
             tasks = weeklyTasks,

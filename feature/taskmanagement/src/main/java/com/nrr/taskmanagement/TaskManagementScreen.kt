@@ -21,9 +21,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -40,6 +41,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -64,7 +66,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.designsystem.component.Action
-import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.Checkbox
 import com.nrr.designsystem.component.RoundRectButton
 import com.nrr.designsystem.component.TaskifyButtonDefaults
@@ -74,11 +75,11 @@ import com.nrr.designsystem.theme.Blue
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.Task
-import com.nrr.model.TaskPeriod
 import com.nrr.taskmanagement.util.TaskManagementDictionary
 import com.nrr.ui.ConfirmationDialog
 import com.nrr.ui.EmptyTasks
 import com.nrr.ui.LocalSnackbarHostState
+import com.nrr.ui.TaskCardsDefaults
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.TaskifyDialogDefaults
 import com.nrr.ui.rememberTaskCardsState
@@ -101,7 +102,7 @@ internal fun TaskManagementScreen(
     val deleteMessage = stringResource(TaskManagementDictionary.deleteMessage)
     val removeTasksMessage = stringResource(TaskManagementDictionary.removeTasksMessage)
     val deleteTasksMessage = stringResource(TaskManagementDictionary.deleteTasksMessage)
-    val tasksState = rememberLazyListState()
+    val tasksState = rememberLazyGridState()
     val sortState = viewModel.sortState
     val filterState = viewModel.filterState
 
@@ -199,7 +200,7 @@ private fun Content(
     confirmation: ConfirmationType?,
     onConfirm: (ConfirmationType) -> Unit,
     onDismissConfirmation: () -> Unit,
-    tasksState: LazyListState,
+    tasksState: LazyGridState,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -512,7 +513,7 @@ private fun Tasks(
     onRemoveFromPlan: (Task) -> Unit,
     onDelete: (Task) -> Unit,
     showSnackbar: (String) -> Unit,
-    tasksState: LazyListState,
+    tasksState: LazyGridState,
     modifier: Modifier = Modifier
 ) {
     if (tasks.isNotEmpty()) {
@@ -521,11 +522,14 @@ private fun Tasks(
         val afterRemoveMessage = stringResource(TaskManagementDictionary.removeTasksMessage)
         val afterDeleteMessage = stringResource(TaskManagementDictionary.deleteTasksMessage)
         val state = rememberTaskCardsState(tasks, tasks)
+        val windowAdaptiveInfo = currentWindowAdaptiveInfo()
 
-        LazyColumn(
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(TaskCardsDefaults.adaptiveGridColumnsCount(windowAdaptiveInfo)),
             modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
             state = tasksState,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(bottom = rootContentBottomPadding())
         ) {
             taskCards(
@@ -553,42 +557,87 @@ private fun Tasks(
                 onLongClick = {
                     if (!editMode) onLongClick(it)
                 },
-                swipeEnabled = !editMode,
-                leadingIcon = {
-                    tasks[it].activeStatuses.firstOrNull()?.let { status ->
-                        AdaptiveText(
-                            text = stringResource(
-                                id = when (status.period) {
-                                    TaskPeriod.DAY -> {
-                                        if (status.isDefault) TaskManagementDictionary.daily
-                                        else TaskManagementDictionary.today
-                                    }
-                                    TaskPeriod.WEEK -> TaskManagementDictionary.weekly
-                                    TaskPeriod.MONTH -> TaskManagementDictionary.monthly
-                                }
-                            ),
-                            initialFontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                                .padding(end = 2.dp)
-                                .weight(0.15f),
-                            maxLines = 1
-                        )
+                swipeEnabled = !editMode
+            ) { _, task, card ->
+                Box {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        task.activeStatuses.firstOrNull()?.let {
+                            Text(
+                                text = "Set",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                        card()
                     }
-                },
-                additionalContent = if (editMode) {
-                    { t ->
-                        Checkbox(
-                            checked = checked(t),
-                            onCheckedChange = { onCheckedChange(t, it) },
-                            modifier = Modifier
-                                .align(Alignment.CenterEnd)
-                                .padding(end = 8.dp)
-                        )
-                    }
-                } else null
-            )
+                    if (editMode) Checkbox(
+                        checked = checked(task),
+                        onCheckedChange = { onCheckedChange(task, it) },
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 8.dp)
+                    )
+                }
+            }
         }
+//        LazyColumn(
+//            modifier = modifier,
+//            verticalArrangement = Arrangement.spacedBy(8.dp),
+//            state = tasksState,
+//            contentPadding = PaddingValues(bottom = rootContentBottomPadding())
+//        ) {
+//            taskCards(
+//                tasks = tasks,
+//                actions = {
+//                    taskActions(
+//                        task = it,
+//                        removeMessage = removeMessage,
+//                        deleteMessage = deleteMessage,
+//                        onRemove = { t ->
+//                            onRemoveFromPlan(t)
+//                            showSnackbar(afterRemoveMessage)
+//                        },
+//                        onDelete = { t ->
+//                            onDelete(t)
+//                            showSnackbar(afterDeleteMessage)
+//                        }
+//                    )
+//                },
+//                state = state,
+//                onClick = {
+//                    if (editMode) onCheckedChange(it, !checked(it))
+//                    else onClick(it)
+//                },
+//                onLongClick = {
+//                    if (!editMode) onLongClick(it)
+//                },
+//                swipeEnabled = !editMode
+//            ) { _, task, card ->
+//                Box {
+//                    Row(
+//                        verticalAlignment = Alignment.CenterVertically,
+//                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+//                    ) {
+//                        task.activeStatuses.firstOrNull()?.let {
+//                            Text(
+//                                text = "Set",
+//                                style = MaterialTheme.typography.bodySmall
+//                            )
+//                        }
+//                        card()
+//                    }
+//                    if (editMode) Checkbox(
+//                        checked = checked(task),
+//                        onCheckedChange = { onCheckedChange(task, it) },
+//                        modifier = Modifier
+//                            .align(Alignment.CenterEnd)
+//                            .padding(end = 8.dp)
+//                    )
+//                }
+//            }
+//        }
     }
 }
 
@@ -762,7 +811,7 @@ private fun ContentPreview(
                 confirmation = null,
                 onConfirm = {},
                 onDismissConfirmation = {},
-                tasksState = rememberLazyListState(),
+                tasksState = rememberLazyGridState(),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)

@@ -3,10 +3,15 @@ package com.nrr.ui
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.adaptive.WindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.window.core.layout.WindowWidthSizeClass
 import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.SwipeableState
 import com.nrr.model.Task
@@ -98,7 +103,7 @@ fun LazyListScope.taskCards(
     clickEnabled: (Int) -> Boolean = { onClick != null },
     showCard: (Task) -> Boolean = { true },
     swipeEnabled: Boolean = true,
-    content: @Composable (index: Int, taskCard: @Composable () -> Unit) -> Unit
+    content: @Composable (index: Int, task: Task, taskCard: @Composable () -> Unit) -> Unit
 ) {
     itemsIndexed(
         items = tasks,
@@ -115,7 +120,7 @@ fun LazyListScope.taskCards(
                         prevOpenedChange(task.hashCode())
                     }
                 }
-                content(index) {
+                content(index, task) {
                     TaskCard(
                         task = task,
                         actions = actions(task),
@@ -130,6 +135,60 @@ fun LazyListScope.taskCards(
             }
         }
     }
+}
+
+fun LazyGridScope.taskCards(
+    tasks: List<Task>,
+    actions: (Task) -> List<Action>,
+    state: TaskCardsState,
+    onClick: ((Task) -> Unit)? = null,
+    onLongClick: ((Task) -> Unit)? = null,
+    clickEnabled: (Int) -> Boolean = { onClick != null },
+    showCard: (Task) -> Boolean = { true },
+    swipeEnabled: Boolean = true,
+    content: @Composable (index: Int, task: Task, taskCard: @Composable () -> Unit) -> Unit
+) {
+    itemsIndexed(
+        items = tasks,
+        key = { _, t -> t.hashCode() }
+    ) { index, task ->
+        if (showCard(task)) {
+            with(state) {
+                val s = getState(task.hashCode())
+                LaunchedEffect(s.isOpen) {
+                    if (s.isOpen && prevOpened == -1) prevOpenedChange(task.hashCode())
+                    if (s.isOpen) openedChange(task.hashCode())
+                    if (prevOpened != opened) {
+                        states[prevOpened]!!.reset()
+                        prevOpenedChange(task.hashCode())
+                    }
+                }
+                content(index, task) {
+                    TaskCard(
+                        task = task,
+                        actions = actions(task),
+                        swipeableState = s,
+                        onClick = { onClick?.invoke(task) },
+                        onLongClick = { onLongClick?.invoke(task) },
+                        clickEnabled = clickEnabled(index),
+                        swipeEnabled = swipeEnabled,
+                        swipeableKeys = arrayOf(tasks)
+                    )
+                }
+            }
+        }
+    }
+}
+
+object TaskCardsDefaults {
+    @Composable
+    fun adaptiveGridColumnsCount(windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo()) =
+        when (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass) {
+            WindowWidthSizeClass.COMPACT -> 1
+            WindowWidthSizeClass.MEDIUM -> 2
+            WindowWidthSizeClass.EXPANDED -> 3
+            else -> 1
+        }
 }
 
 @Composable
