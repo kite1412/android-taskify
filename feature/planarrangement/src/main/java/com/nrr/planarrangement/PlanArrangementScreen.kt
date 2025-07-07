@@ -252,9 +252,7 @@ private fun Content(
     onDeleteActiveTask: (() -> Unit)? = null
 ) {
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(bottom = TaskifyDefault.CONTENT_PADDING.dp),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         Header(
@@ -299,7 +297,9 @@ private fun Content(
                             Tasks(
                                 tasks = tasks,
                                 onClick = onTaskClick,
-                                contentPadding = PaddingValues(bottom = newTaskButtonHeight + 16.dp)
+                                contentPadding = PaddingValues(
+                                    bottom = newTaskButtonHeight + 16.dp + TaskifyDefault.CONTENT_PADDING.dp
+                                )
                             )
                     }
                 }
@@ -312,6 +312,7 @@ private fun Content(
                     action = stringResource(PlanArrangementDictionary.newTask),
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
+                        .padding(bottom = TaskifyDefault.CONTENT_PADDING.dp)
                         .onGloballyPositioned {
                             with(density) {
                                 newTaskButtonHeight = it.size.height.toDp()
@@ -527,7 +528,9 @@ private fun AssignTask(
                     .fillMaxSize(),
                 state = state,
                 verticalArrangement = Arrangement.spacedBy(24.dp),
-                contentPadding = PaddingValues(bottom = saveButtonHeight)
+                contentPadding = PaddingValues(
+                    bottom = saveButtonHeight + TaskifyDefault.CONTENT_PADDING.dp
+                )
             ) {
                 item {
                     Title(
@@ -603,6 +606,7 @@ private fun AssignTask(
                 onClick = onSave,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
+                    .padding(bottom = TaskifyDefault.CONTENT_PADDING.dp)
                     .onGloballyPositioned {
                         with(density) {
                             saveButtonHeight = it.size.height.toDp()
