@@ -163,9 +163,7 @@ private fun Content(
     }
 
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(bottom = TaskifyDefault.CONTENT_PADDING.dp)
+        modifier = modifier.fillMaxSize()
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -201,7 +199,7 @@ private fun Content(
                         onClick = onTaskClick,
                         contentPadding = PaddingValues(
                             bottom = with(density) {
-                                (arrangePlanHeight + 8).toDp()
+                                (arrangePlanHeight + 8).toDp() + TaskifyDefault.CONTENT_PADDING.dp
                             }
                         ),
                         lazyListState = tasksState
@@ -216,6 +214,7 @@ private fun Content(
             onClick = onArrangePlanClick,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
+                .padding(bottom = TaskifyDefault.CONTENT_PADDING.dp)
                 .onGloballyPositioned {
                     arrangePlanHeight = it.size.height
                 }
