@@ -517,8 +517,8 @@ private fun Tasks(
     modifier: Modifier = Modifier
 ) {
     if (tasks.isNotEmpty()) {
-        val removeMessage = stringResource(TaskManagementDictionary.removeMessage)
-        val deleteMessage = stringResource(TaskManagementDictionary.deleteMessage)
+        val removeMessage = stringResource(TaskManagementDictionary.removeFromPlan)
+        val deleteMessage = stringResource(TaskManagementDictionary.delete)
         val afterRemoveMessage = stringResource(TaskManagementDictionary.removeTasksMessage)
         val afterDeleteMessage = stringResource(TaskManagementDictionary.deleteTasksMessage)
         val state = rememberTaskCardsState(tasks, tasks)
@@ -582,62 +582,6 @@ private fun Tasks(
                 }
             }
         }
-//        LazyColumn(
-//            modifier = modifier,
-//            verticalArrangement = Arrangement.spacedBy(8.dp),
-//            state = tasksState,
-//            contentPadding = PaddingValues(bottom = rootContentBottomPadding())
-//        ) {
-//            taskCards(
-//                tasks = tasks,
-//                actions = {
-//                    taskActions(
-//                        task = it,
-//                        removeMessage = removeMessage,
-//                        deleteMessage = deleteMessage,
-//                        onRemove = { t ->
-//                            onRemoveFromPlan(t)
-//                            showSnackbar(afterRemoveMessage)
-//                        },
-//                        onDelete = { t ->
-//                            onDelete(t)
-//                            showSnackbar(afterDeleteMessage)
-//                        }
-//                    )
-//                },
-//                state = state,
-//                onClick = {
-//                    if (editMode) onCheckedChange(it, !checked(it))
-//                    else onClick(it)
-//                },
-//                onLongClick = {
-//                    if (!editMode) onLongClick(it)
-//                },
-//                swipeEnabled = !editMode
-//            ) { _, task, card ->
-//                Box {
-//                    Row(
-//                        verticalAlignment = Alignment.CenterVertically,
-//                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-//                    ) {
-//                        task.activeStatuses.firstOrNull()?.let {
-//                            Text(
-//                                text = "Set",
-//                                style = MaterialTheme.typography.bodySmall
-//                            )
-//                        }
-//                        card()
-//                    }
-//                    if (editMode) Checkbox(
-//                        checked = checked(task),
-//                        onCheckedChange = { onCheckedChange(task, it) },
-//                        modifier = Modifier
-//                            .align(Alignment.CenterEnd)
-//                            .padding(end = 8.dp)
-//                    )
-//                }
-//            }
-//        }
     }
 }
 
