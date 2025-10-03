@@ -1,5 +1,6 @@
 [versions]
 adaptive = "1.0.0"
+# TODO update after updating android studio
 agp = "8.8.0"
 androidxDataStore = "1.1.2"
 androidxHilt = "1.2.0"

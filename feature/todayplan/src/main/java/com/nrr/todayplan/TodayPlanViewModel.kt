@@ -11,11 +11,14 @@ import com.nrr.domain.MarkTaskCompletedUseCase
 import com.nrr.domain.RemoveActiveTasksUseCase
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
+import com.nrr.model.toLocalDateTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,18 +28,6 @@ class TodayPlanViewModel @Inject constructor(
     private val removeActiveTaskUseCase: RemoveActiveTasksUseCase,
     private val markTaskCompletedUseCase: MarkTaskCompletedUseCase
 ) : ViewModel() {
-    val todayTasks = getTasksByPeriodUseCase(TaskPeriod.DAY)
-        .map {
-            it.sortedBy { t ->
-                t.activeStatuses.firstOrNull()?.startDate
-            }
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = emptyList()
-        )
-
     val weeklyTasks = getTasksByPeriodUseCase(TaskPeriod.WEEK)
         .stateIn(
             scope = viewModelScope,
@@ -45,6 +36,24 @@ class TodayPlanViewModel @Inject constructor(
         )
 
     val monthlyTasks = getTasksByPeriodUseCase(TaskPeriod.MONTH)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
+
+    val todayTasks = combine(
+        flow = getTasksByPeriodUseCase(TaskPeriod.DAY),
+        flow2 = weeklyTasks,
+        flow3 = monthlyTasks
+    ) { tt, wt, mt ->
+        listOf(
+            *tt.toTypedArray(),
+            *wt.filter(::isToday).toTypedArray(),
+            *mt.filter(::isToday).toTypedArray()
+        )
+            .sortedBy { it.activeStatuses.firstOrNull()?.startDate }
+    }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
@@ -60,6 +69,12 @@ class TodayPlanViewModel @Inject constructor(
 
     var showProfile by mutableStateOf(false)
         private set
+
+    private fun isToday(task: Task) =
+        task.activeStatuses.firstOrNull()
+            ?.startDate
+            ?.toLocalDateTime()
+            ?.date == Clock.System.now().toLocalDateTime().date
 
     fun deleteTask(task: Task) {
         viewModelScope.launch {

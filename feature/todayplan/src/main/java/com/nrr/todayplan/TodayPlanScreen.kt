@@ -364,7 +364,7 @@ private fun LazyListScope.todaySchedule(
                 Modifier
                     .align(Alignment.Center)
                     .fillMaxHeight()
-                    .padding(end = maxWidth / 2f)
+                    .padding(end = this.maxWidth / 2f)
                     .drawBehind {
                         val lineHeight = 13.dp.toPx()
                         val space = 4.dp.toPx()
