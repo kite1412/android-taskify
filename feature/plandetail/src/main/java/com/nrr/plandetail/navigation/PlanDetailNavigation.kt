@@ -24,7 +24,8 @@ fun NavController.navigateToPlanDetail(
 fun NavGraphBuilder.planDetailScreen(
     onBackClick: () -> Unit,
     onArrangePlanClick: (TaskPeriod) -> Unit,
-    onActiveTaskClick: (Task) -> Unit
+    onActiveTaskClick: (Task) -> Unit,
+    onWeeklyScheduleClick: () -> Unit
 ) {
     composable<PlanDetailRoute>(
         deepLinks = listOf(
@@ -36,7 +37,8 @@ fun NavGraphBuilder.planDetailScreen(
         PlanDetailScreen(
             onBackClick = onBackClick,
             onArrangePlanClick = onArrangePlanClick,
-            onActiveTaskClick = onActiveTaskClick
+            onActiveTaskClick = onActiveTaskClick,
+            onWeeklyScheduleClick = onWeeklyScheduleClick
         )
     }
 }

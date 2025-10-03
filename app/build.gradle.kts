@@ -23,6 +23,7 @@ dependencies {
     implementation(projects.feature.settings)
     implementation(projects.feature.summaries)
     implementation(projects.feature.analytics)
+    implementation(projects.feature.weeklyschedule)
 
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.hilt.navigation.compose)
