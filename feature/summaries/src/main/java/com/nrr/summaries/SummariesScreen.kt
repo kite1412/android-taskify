@@ -22,7 +22,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -56,7 +55,6 @@ import androidx.window.core.layout.WindowWidthSizeClass
 import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.Gray
-import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.Summary
 import com.nrr.model.TaskPeriod
 import com.nrr.model.TaskSummary
@@ -64,6 +62,7 @@ import com.nrr.model.toLocalDateTime
 import com.nrr.model.toTimeString
 import com.nrr.summaries.util.SummariesDictionary
 import com.nrr.summaries.util.toStringLocalized
+import com.nrr.ui.Header
 import com.nrr.ui.color
 import com.nrr.ui.statistic.summary.ColumnChartOption
 import com.nrr.ui.statistic.summary.PieChartOption
@@ -120,27 +119,11 @@ internal fun SummariesScreen(
 internal fun Header(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(
-            onClick = onBackClick
-        ) {
-            Icon(
-                painter = painterResource(TaskifyIcon.back),
-                contentDescription = "back"
-            )
-        }
-        Text(
-            text = stringResource(SummariesDictionary.summaries),
-            fontSize = TaskifyDefault.HEADER_FONT_SIZE.sp,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
+) = Header(
+    title = stringResource(SummariesDictionary.summaries),
+    onBackClick = onBackClick,
+    modifier = modifier
+)
 
 @Composable
 internal fun Summaries(

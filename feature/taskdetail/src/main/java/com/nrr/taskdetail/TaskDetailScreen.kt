@@ -59,7 +59,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nrr.designsystem.LocalDarkTheme
@@ -88,6 +87,7 @@ import com.nrr.ui.toDateStringLocalized
 import com.nrr.ui.toStringLocalized
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
+import com.nrr.ui.Header as _Header
 
 @Composable
 internal fun TaskDetailScreen(
@@ -270,35 +270,14 @@ private fun Header(
                         slideOutVertically { -it } + fadeOut()
             }
         ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(
-                    onClick = onBackClick,
-                    colors = IconButtonDefaults.iconButtonColors(
-                        contentColor = if (it) Color.Red else LocalContentColor.current
-                    )
-                ) {
-                    Icon(
-                        painter = painterResource(
-                            id = if (it) TaskifyIcon.cancel else TaskifyIcon.back
-                        ),
-                        contentDescription = "cancel",
-                        modifier = Modifier.size(40.dp)
-                    )
-                }
-                Text(
-                    text = stringResource(
-                        id = if (createMode) TaskDetailDictionary.createNew
-                        else if (it) TaskDetailDictionary.editTask
-                        else TaskDetailDictionary.detail
-                    ),
-                    modifier = Modifier.padding(top = 2.dp),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp
-                )
-            }
+            _Header(
+                title = stringResource(
+                    id = if (createMode) TaskDetailDictionary.createNew
+                    else if (it) TaskDetailDictionary.editTask
+                    else TaskDetailDictionary.detail
+                ),
+                onBackClick = onBackClick
+            )
         }
         AnimatedVisibility(
             visible = !createMode && !editMode,

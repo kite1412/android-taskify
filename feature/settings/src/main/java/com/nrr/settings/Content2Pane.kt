@@ -14,29 +14,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
-import androidx.compose.ui.unit.sp
-import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.LanguageConfig
@@ -45,6 +37,7 @@ import com.nrr.model.ThemeConfig
 import com.nrr.model.TimeUnit
 import com.nrr.settings.util.SettingsDictionary
 import com.nrr.ui.DevicePreviews
+import com.nrr.ui.Header as _Header
 
 @Composable
 internal fun Content2Pane(
@@ -127,25 +120,11 @@ private fun Header(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(
-            onClick = onBackClick
-        ) {
-            Icon(
-                painter = painterResource(TaskifyIcon.back),
-                contentDescription = "back"
-            )
-        }
-        Text(
-            text = stringResource(SettingsDictionary.settings),
-            fontSize = TaskifyDefault.HEADER_FONT_SIZE.sp,
-            fontWeight = FontWeight.Bold
-        )
-    }
+    _Header(
+        title = stringResource(SettingsDictionary.settings),
+        onBackClick = onBackClick,
+        modifier = modifier
+    )
 }
 
 @Composable

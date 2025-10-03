@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -61,7 +60,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.designsystem.component.Action
-import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.component.RoundRectButton
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.Blue
@@ -80,6 +78,7 @@ import com.nrr.plandetail.util.PlanDetailDictionary
 import com.nrr.plandetail.util.dashHeight
 import com.nrr.plandetail.util.dashSpace
 import com.nrr.plandetail.util.dashWidth
+import com.nrr.ui.Header
 import com.nrr.ui.LocalSafeAnimateContent
 import com.nrr.ui.TaskCardTimeIndicator
 import com.nrr.ui.TaskPreviewParameter
@@ -170,7 +169,13 @@ private fun Content(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Header(
-                period = period,
+                title = stringResource(
+                    id = when (period) {
+                        TaskPeriod.DAY -> PlanDetailDictionary.todayPlan
+                        TaskPeriod.WEEK -> PlanDetailDictionary.weekPlan
+                        TaskPeriod.MONTH -> PlanDetailDictionary.monthPlan
+                    }
+                ),
                 onBackClick = onBackClick
             )
             if (tasks?.isNotEmpty() == true) {
@@ -227,40 +232,6 @@ private fun Content(
                 onClick = {}
             )
         }
-    }
-}
-
-@Composable
-private fun Header(
-    period: TaskPeriod,
-    onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        IconButton(
-            onClick = onBackClick
-        ) {
-            Icon(
-                painter = painterResource(TaskifyIcon.back),
-                contentDescription = "back"
-            )
-        }
-        AdaptiveText(
-            text = stringResource(
-                id = when (period) {
-                    TaskPeriod.DAY -> PlanDetailDictionary.todayPlan
-                    TaskPeriod.WEEK -> PlanDetailDictionary.weekPlan
-                    TaskPeriod.MONTH -> PlanDetailDictionary.monthPlan
-                }
-            ),
-            initialFontSize = TaskifyDefault.HEADER_FONT_SIZE.sp,
-            fontWeight = FontWeight.Bold,
-            maxLines = 1
-        )
     }
 }
 

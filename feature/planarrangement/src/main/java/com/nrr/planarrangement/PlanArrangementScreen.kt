@@ -55,6 +55,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -141,6 +142,7 @@ import com.nrr.ui.toStringLocalized
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import com.nrr.ui.Header as _Header
 
 @Composable
 internal fun PlanArrangementScreen(
@@ -366,25 +368,13 @@ private fun Header(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = onBackClick
-            ) {
-                Icon(
-                    painter = painterResource(TaskifyIcon.back),
-                    contentDescription = "back"
-                )
-            }
-            AdaptiveText(
-                text = stringResource(PlanArrangementDictionary.arrangePlan),
-                initialFontSize = TaskifyDefault.HEADER_FONT_SIZE.sp,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
+        _Header(
+            title = stringResource(PlanArrangementDictionary.arrangePlan),
+            onBackClick = onBackClick,
+            style = LocalTextStyle.current.copy(
+                color = MaterialTheme.colorScheme.primary
             )
-        }
+        )
         onRemoveActiveTask?.let {
             IconButton(
                 onClick = it,

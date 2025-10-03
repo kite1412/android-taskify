@@ -15,9 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,19 +26,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
-import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.LanguageConfig
 import com.nrr.model.NotificationOffset
 import com.nrr.model.ThemeConfig
 import com.nrr.model.TimeUnit
 import com.nrr.settings.util.SettingsDictionary
+import com.nrr.ui.Header as _Header
 
 @Composable
 internal fun Content(
@@ -191,35 +187,19 @@ private fun Header(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        IconButton(
-            onClick = onBackClick
-        ) {
-            Icon(
-                painter = painterResource(TaskifyIcon.back),
-                contentDescription = "back",
-            )
-        }
-        Text(
-            text = stringResource(
-                when (menu) {
-                    Menu.THEME -> SettingsDictionary.theme
-                    Menu.LANGUAGES -> SettingsDictionary.languages
-                    Menu.NOTIFICATIONS -> SettingsDictionary.notifications
-                    Menu.REMINDERS -> SettingsDictionary.reminders
-                    null -> SettingsDictionary.settings
-                }
-            ),
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontSize = TaskifyDefault.HEADER_FONT_SIZE.sp,
-                fontWeight = FontWeight.Bold
-            )
-        )
-    }
+    _Header(
+        title = stringResource(
+            when (menu) {
+                Menu.THEME -> SettingsDictionary.theme
+                Menu.LANGUAGES -> SettingsDictionary.languages
+                Menu.NOTIFICATIONS -> SettingsDictionary.notifications
+                Menu.REMINDERS -> SettingsDictionary.reminders
+                null -> SettingsDictionary.settings
+            }
+        ),
+        onBackClick = onBackClick,
+        modifier = modifier
+    )
 }
 
 @Preview
