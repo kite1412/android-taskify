@@ -210,15 +210,23 @@ private fun Content(
         if (tasks?.isEmpty() == true) NoPlan(
             onArrangePlanClick = onArrangePlanClick
         )
-        if (tasks?.isNotEmpty() == true) ArrangePlan(
-            onClick = onArrangePlanClick,
+        Column(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(bottom = TaskifyDefault.CONTENT_PADDING.dp)
                 .onGloballyPositioned {
                     arrangePlanHeight = it.size.height
-                }
-        )
+                },
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalAlignment = Alignment.End
+        ) {
+            if (tasks?.isNotEmpty() == true) ArrangePlan(
+                onClick = onArrangePlanClick,
+            )
+            if (period == TaskPeriod.WEEK) Schedule(
+                onClick = {}
+            )
+        }
     }
 }
 
@@ -587,7 +595,10 @@ private fun Tasks(
                                 )
                             }
                         }
-                        Row {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
                             if (period != TaskPeriod.DAY) TaskCardTimeIndicator(
                                 time = task.activeStatuses.first().startDate.toTimeString()
                             )
@@ -810,15 +821,37 @@ private fun VerticalDashedLine(
 private fun ArrangePlan(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
-) {
-    RoundRectButton(
-        onClick = onClick,
-        action = stringResource(PlanDetailDictionary.arrangePlan),
-        modifier = modifier,
-        iconId = TaskifyIcon.pencil2,
-        contentPadding = PaddingValues(12.dp)
-    )
-}
+) = ActionButton(
+    action = stringResource(PlanDetailDictionary.arrangePlan),
+    onClick = onClick,
+    modifier = modifier,
+    iconId = TaskifyIcon.pencil2
+)
+
+@Composable
+private fun Schedule(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) = ActionButton(
+    action = stringResource(PlanDetailDictionary.schedule),
+    onClick = onClick,
+    modifier = modifier,
+    iconId = TaskifyIcon.calendar
+)
+
+@Composable
+private fun ActionButton(
+    action: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    iconId: Int? = null
+) = RoundRectButton(
+    onClick = onClick,
+    action = action,
+    modifier = modifier,
+    iconId = iconId,
+    contentPadding = PaddingValues(12.dp)
+)
 
 @Preview
 @Composable

@@ -20,4 +20,5 @@ internal object PlanDetailDictionary {
     val startDate = R.string.plandetail_start_date
     val arrangePlan = R.string.plandetail_arrange_plan
     val arrangeMessage = R.string.plandetail_arrange_message
+    val schedule = R.string.plandetail_schedule
 }

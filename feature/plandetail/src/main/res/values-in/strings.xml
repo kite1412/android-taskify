@@ -17,4 +17,5 @@
     <string name="plandetail_start_date">Tanggal Mulai</string>
     <string name="plandetail_arrange_plan">Atur Rencana</string>
     <string name="plandetail_arrange_message">Atur rencanamu di sini</string>
+    <string name="plandetail_schedule">Atur Jadwal</string>
 </resources>

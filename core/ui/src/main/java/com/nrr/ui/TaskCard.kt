@@ -152,8 +152,7 @@ fun RowScope.TaskCardTimeIndicator(
         text = time,
         initialFontSize = style.fontSize,
         modifier = modifier
-            .align(Alignment.CenterVertically)
-            .weight(0.1f),
+            .align(Alignment.CenterVertically),
         fontWeight = FontWeight.Bold,
         maxLines = 1,
         style = style
