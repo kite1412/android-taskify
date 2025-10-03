@@ -84,6 +84,7 @@ import com.nrr.ui.TaskCardTimeIndicator
 import com.nrr.ui.TaskPreviewParameter
 import com.nrr.ui.color
 import com.nrr.ui.getCurrentLocale
+import com.nrr.ui.layout.MainLayout
 import com.nrr.ui.rememberTaskCardsState
 import com.nrr.ui.taskCards
 import com.nrr.ui.toDateStringLocalized
@@ -164,10 +165,7 @@ private fun Content(
     Box(
         modifier = modifier.fillMaxSize()
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
+        MainLayout {
             Header(
                 title = stringResource(
                     id = when (period) {

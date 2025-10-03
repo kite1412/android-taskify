@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.Summary
 import com.nrr.model.TaskPeriod
+import com.nrr.ui.layout.MainLayout
 import com.nrr.ui.statistic.summary.ColumnChartOption
 import com.nrr.ui.statistic.summary.PieChartOption
 
@@ -41,10 +42,7 @@ internal fun Content(
         mutableStateOf(ColumnChartOption.TASK_TREND)
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
+    MainLayout(modifier = modifier) {
         Header(
             onBackClick = {
                 pieChartOption = PieChartOption.STATUS

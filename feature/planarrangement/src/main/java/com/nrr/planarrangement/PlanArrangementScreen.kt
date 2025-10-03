@@ -131,6 +131,7 @@ import com.nrr.ui.TaskTitle
 import com.nrr.ui.TaskTypeBar
 import com.nrr.ui.TaskifyDialogDefaults
 import com.nrr.ui.color
+import com.nrr.ui.layout.MainLayout
 import com.nrr.ui.picker.date.DatePicker
 import com.nrr.ui.picker.date.SelectableDatesMonth
 import com.nrr.ui.picker.date.SelectableDatesWeek
@@ -253,10 +254,7 @@ private fun Content(
     modifier: Modifier = Modifier,
     onDeleteActiveTask: (() -> Unit)? = null
 ) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
+    MainLayout(modifier = modifier) {
         Header(
             onBackClick = onBackClick,
             onRemoveActiveTask = onDeleteActiveTask

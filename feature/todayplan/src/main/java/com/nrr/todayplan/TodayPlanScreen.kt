@@ -107,6 +107,7 @@ import com.nrr.ui.LocalSafeAnimateContent
 import com.nrr.ui.TaskCardTimeIndicator
 import com.nrr.ui.TaskCardsState
 import com.nrr.ui.TaskPreviewParameter
+import com.nrr.ui.layout.MainLayout
 import com.nrr.ui.rememberTaskCardsState
 import com.nrr.ui.taskCards
 import com.nrr.ui.util.rootContentBottomPadding
@@ -234,9 +235,7 @@ private fun Content(
             contentPadding = PaddingValues(bottom = rootContentBottomPadding()),
         ) {
             item {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(24.dp)
-                ) {
+                MainLayout {
                     GreetingHeader(
                         username = username,
                         onLogoClick = onLogoClick,

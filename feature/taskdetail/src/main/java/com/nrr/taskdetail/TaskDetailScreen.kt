@@ -83,6 +83,7 @@ import com.nrr.ui.TaskTitle
 import com.nrr.ui.TaskTypeBar
 import com.nrr.ui.TaskifyDialogDefaults
 import com.nrr.ui.color
+import com.nrr.ui.layout.MainLayout
 import com.nrr.ui.toDateStringLocalized
 import com.nrr.ui.toStringLocalized
 import kotlinx.coroutines.launch
@@ -177,10 +178,8 @@ private fun Content(
             .fillMaxSize()
             .padding(bottom = TaskifyDefault.CONTENT_PADDING.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+        MainLayout(
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Header(
                 createMode = createMode,
