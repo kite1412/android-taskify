@@ -36,6 +36,7 @@ fun LazyListScope.taskCards(
     tasks: List<Task>,
     actions: (Task) -> List<Action>,
     state: TaskCardsState,
+    key: (index: Int, Task) -> Any = { _, t -> t.hashCode() },
     onClick: ((Task) -> Unit)? = null,
     onLongClick: ((Task) -> Unit)? = null,
     clickEnabled: (Int) -> Boolean = { onClick != null },
@@ -48,17 +49,18 @@ fun LazyListScope.taskCards(
 ) {
     itemsIndexed(
         items = tasks,
-        key = { _, t -> t.hashCode() }
+        key = key
     ) { index, task ->
         if (showCard(task)) {
             with(state) {
-                val s = getState(task.hashCode())
+                val key = key(index, task)
+                val s = getState(key)
                 LaunchedEffect(s.isOpen) {
-                    if (s.isOpen && prevOpened == -1) prevOpenedChange(task.hashCode())
-                    if (s.isOpen) openedChange(task.hashCode())
+                    if (s.isOpen && prevOpened == null) prevOpenedChange(key)
+                    if (s.isOpen) openedChange(key)
                     if (prevOpened != opened) {
                         states[prevOpened]!!.reset()
-                        prevOpenedChange(task.hashCode())
+                        prevOpenedChange(key)
                     }
                 }
                 TaskCard(
@@ -96,8 +98,9 @@ fun LazyListScope.taskCards(
 
 fun LazyListScope.taskCards(
     tasks: List<Task>,
-    actions: (Task) -> List<Action>,
+    actions: (index: Int, Task) -> List<Action>,
     state: TaskCardsState,
+    key: (index: Int, Task) -> Any = { _, t -> t.hashCode() },
     onClick: ((Task) -> Unit)? = null,
     onLongClick: ((Task) -> Unit)? = null,
     clickEnabled: (Int) -> Boolean = { onClick != null },
@@ -107,23 +110,24 @@ fun LazyListScope.taskCards(
 ) {
     itemsIndexed(
         items = tasks,
-        key = { _, t -> t.hashCode() }
+        key = key
     ) { index, task ->
         if (showCard(task)) {
             with(state) {
-                val s = getState(task.hashCode())
+                val key = key(index, task)
+                val s = getState(key)
                 LaunchedEffect(s.isOpen) {
-                    if (s.isOpen && prevOpened == -1) prevOpenedChange(task.hashCode())
-                    if (s.isOpen) openedChange(task.hashCode())
+                    if (s.isOpen && prevOpened == null) prevOpenedChange(key)
+                    if (s.isOpen) openedChange(key)
                     if (prevOpened != opened) {
                         states[prevOpened]!!.reset()
-                        prevOpenedChange(task.hashCode())
+                        prevOpenedChange(key)
                     }
                 }
                 content(index, task) {
                     TaskCard(
                         task = task,
-                        actions = actions(task),
+                        actions = actions(index, task),
                         swipeableState = s,
                         onClick = { onClick?.invoke(task) },
                         onLongClick = { onLongClick?.invoke(task) },
@@ -141,6 +145,7 @@ fun LazyGridScope.taskCards(
     tasks: List<Task>,
     actions: (Task) -> List<Action>,
     state: TaskCardsState,
+    key: (index: Int, Task) -> Any = { _, t -> t.hashCode() },
     onClick: ((Task) -> Unit)? = null,
     onLongClick: ((Task) -> Unit)? = null,
     clickEnabled: (Int) -> Boolean = { onClick != null },
@@ -150,17 +155,18 @@ fun LazyGridScope.taskCards(
 ) {
     itemsIndexed(
         items = tasks,
-        key = { _, t -> t.hashCode() }
+        key = key
     ) { index, task ->
         if (showCard(task)) {
             with(state) {
-                val s = getState(task.hashCode())
+                val key = key(index, task)
+                val s = getState(key)
                 LaunchedEffect(s.isOpen) {
-                    if (s.isOpen && prevOpened == -1) prevOpenedChange(task.hashCode())
-                    if (s.isOpen) openedChange(task.hashCode())
+                    if (s.isOpen && prevOpened == null) prevOpenedChange(key)
+                    if (s.isOpen) openedChange(key)
                     if (prevOpened != opened) {
                         states[prevOpened]!!.reset()
-                        prevOpenedChange(task.hashCode())
+                        prevOpenedChange(key)
                     }
                 }
                 content(index, task) {
@@ -199,29 +205,29 @@ fun rememberTaskCardsState(tasks: List<Task>, vararg keys: Any?) = remember(keys
 class TaskCardsState(
     tasks: List<Task>
 ) {
-    var opened = -1
+    var opened: Any? = null
         private set
 
-    var prevOpened = -1
+    var prevOpened: Any? = null
         private set
 
-    internal val states = mutableMapOf<Int, SwipeableState>()
+    internal val states = mutableMapOf<Any, SwipeableState>()
         .apply {
             tasks.forEach {
                 put(it.hashCode(), SwipeableState())
             }
         }
 
-    internal fun getState(i: Int): SwipeableState {
+    internal fun getState(i: Any): SwipeableState {
         if (states[i] == null) states[i] = SwipeableState()
         return states[i]!!
     }
 
-    internal fun prevOpenedChange(i: Int) {
+    internal fun prevOpenedChange(i: Any) {
         prevOpened = i
     }
 
-    internal fun openedChange(i: Int) {
+    internal fun openedChange(i: Any) {
         opened = i
     }
 }

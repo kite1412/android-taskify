@@ -5,3 +5,7 @@ plugins {
 android {
     namespace = "com.nrr.schedule"
 }
+
+dependencies {
+    implementation(projects.taskify.core.domain)
+}

@@ -14,4 +14,8 @@ internal object ScheduleDictionary {
     val cancel = R.string.schedule_cancel
     val choose = R.string.schedule_choose
     val chooseDate = R.string.schedule_choose_a_date
+    val tasks = R.string.schedule_tasks
+    val duration = R.string.schedule_duration
+    val addTask = R.string.schedule_add_task
+    val remove = R.string.schedule_remove
 }

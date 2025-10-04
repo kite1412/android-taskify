@@ -1,22 +1,32 @@
 package com.nrr.schedule
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -26,24 +36,34 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.RoundRectButton
 import com.nrr.designsystem.component.Toggle
 import com.nrr.designsystem.icon.TaskifyIcon
+import com.nrr.designsystem.theme.Red
+import com.nrr.designsystem.util.TaskifyDefault
+import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.TimeOffset
 import com.nrr.model.TimeUnit
 import com.nrr.model.toLocalDateTime
 import com.nrr.schedule.util.ScheduleDictionary
+import com.nrr.schedule.util.TaskDuration
 import com.nrr.ui.Header
 import com.nrr.ui.layout.MainLayout
 import com.nrr.ui.picker.date.DatePicker
+import com.nrr.ui.rememberTaskCardsState
+import com.nrr.ui.taskCards
 import com.nrr.ui.toStringLocalized
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
@@ -54,8 +74,12 @@ internal fun ScheduleScreen(
     modifier: Modifier = Modifier,
     viewModel: ScheduleViewModel = hiltViewModel()
 ) {
+    val availableTasks by viewModel.availableTasks.collectAsStateWithLifecycle()
+
     Content(
         period = viewModel.period,
+        taskDurations = viewModel.taskDurations,
+        availableTasks = availableTasks,
         timeOffset = viewModel.timeOffset,
         date = viewModel.date,
         onValueChange = viewModel::onTimeOffsetValueChange,
@@ -63,6 +87,8 @@ internal fun ScheduleScreen(
         dailySchedule = viewModel.dailySchedule,
         onDailyScheduleChange = viewModel::onDailyScheduleChange,
         onDateChange = viewModel::onDateChange,
+        onTaskSelect = viewModel::onTaskSelect,
+        onTaskRemove = viewModel::onTaskRemove,
         onBackClick = onBackClick,
         modifier = modifier
     )
@@ -72,6 +98,8 @@ internal fun ScheduleScreen(
 @Composable
 private fun Content(
     period: TaskPeriod,
+    taskDurations: List<TaskDuration>,
+    availableTasks: List<Task>,
     timeOffset: TimeOffset,
     dailySchedule: Boolean,
     date: LocalDate,
@@ -79,10 +107,13 @@ private fun Content(
     onTimeUnitChange: (TimeUnit) -> Unit,
     onDailyScheduleChange: (Boolean) -> Unit,
     onDateChange: (LocalDate) -> Unit,
+    onTaskSelect: (Task) -> Unit,
+    onTaskRemove: (TaskDuration) -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var pickDate by rememberSaveable { mutableStateOf(false) }
+    var showAvailableTasks by rememberSaveable { mutableStateOf(false) }
 
     MainLayout(modifier = modifier) {
         Header(
@@ -114,6 +145,11 @@ private fun Content(
                 onCheckedChange = onDailyScheduleChange
             )
         }
+        TaskOrganizer(
+            taskDurations = taskDurations,
+            onAddClick = { showAvailableTasks = true },
+            onTaskRemove = onTaskRemove
+        )
     }
 
     if (pickDate) DatePicker(
@@ -127,6 +163,12 @@ private fun Content(
         confirmText = stringResource(ScheduleDictionary.choose),
         cancelText = stringResource(ScheduleDictionary.cancel),
         title = stringResource(ScheduleDictionary.chooseDate)
+    )
+
+    if (showAvailableTasks) TaskPicker(
+        availableTasks = availableTasks,
+        onDismissRequest = { showAvailableTasks = false },
+        onTaskSelect = onTaskSelect
     )
 }
 
@@ -278,6 +320,133 @@ private fun Date(
 }
 
 @Composable
-private fun TaskPicker(modifier: Modifier = Modifier) {
+private fun TaskOrganizer(
+    taskDurations: List<TaskDuration>,
+    onAddClick: () -> Unit,
+    onTaskRemove: (TaskDuration) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val tasks = remember(taskDurations.size) {
+        taskDurations.map { it.task }
+    }
+    val state = rememberTaskCardsState(tasks)
 
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        val remove = stringResource(ScheduleDictionary.remove)
+
+        Text(
+            text = stringResource(ScheduleDictionary.tasks),
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.Bold
+            )
+        )
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            taskCards(
+                tasks = tasks,
+                actions = { i, _ ->
+                    listOf(
+                        Action(
+                            action = remove,
+                            iconId = TaskifyIcon.cancel,
+                            onClick = {
+                                onTaskRemove(taskDurations[i])
+                            },
+                            color = Red
+                        )
+                    )
+                },
+                state = state,
+                key = { i, t ->
+                    taskDurations.getOrNull(i)?.uuid ?: t.hashCode()
+                },
+                content = { _, _, card ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        card()
+                    }
+                }
+            )
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable(onClick = onAddClick)
+                        .background(MaterialTheme.colorScheme.onBackground)
+                        .padding(8.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(TaskifyIcon.add),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.background)
+                            .padding(8.dp)
+                            .size(24.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TaskPicker(
+    availableTasks: List<Task>,
+    onDismissRequest: () -> Unit,
+    onTaskSelect: (Task) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true
+        ),
+        modifier = modifier.fillMaxSize(),
+        contentWindowInsets = { WindowInsets.safeContent }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            val taskCardsState = rememberTaskCardsState(availableTasks)
+
+            Text(
+                text = stringResource(ScheduleDictionary.addTask),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.tertiary,
+                    fontSize = TaskifyDefault.HEADER_FONT_SIZE.sp
+                )
+            )
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                taskCards(
+                    tasks = availableTasks,
+                    actions = { _, _ -> emptyList() },
+                    state = taskCardsState,
+                    content = { _, _, card ->
+                        card()
+                    },
+                    onClick = {
+                        onTaskSelect(it)
+                        onDismissRequest()
+                    }
+                )
+            }
+        }
+    }
 }

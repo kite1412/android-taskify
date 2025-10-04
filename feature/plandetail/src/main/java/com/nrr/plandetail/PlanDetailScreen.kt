@@ -509,9 +509,9 @@ private fun Tasks(
         ) {
             taskCards(
                 tasks = tasks,
-                actions = {
+                actions = { _, task ->
                     actions(
-                        task = it,
+                        task = task,
                         removeMessage = removeMessage,
                         completeMessage = completeMessage,
                         onRemove = onRemove,
