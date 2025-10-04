@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="schedule_text">Schedule</string>
+    <string name="schedule_minute">Minute</string>
+    <string name="schedule_hour">Hour</string>
+    <string name="schedule_gap_between_tasks">Gap between tasks</string>
+    <string name="schedule_daily_schedule_setting">Daily schedule</string>
+    <string name="schedule_daily">Daily Schedule</string>
+    <string name="schedule_weekly">Weekly Schedule</string>
+    <string name="schedule_monthly">Monthly Schedule</string>
+    <string name="schedule_tasks">Tasks</string>
+    <string name="schedule_set">Set</string>
+    <string name="schedule_cancel">Cancel</string>
+    <string name="schedule_choose">Choose</string>
+    <string name="schedule_choose_a_date">Choose a date</string>
 </resources>

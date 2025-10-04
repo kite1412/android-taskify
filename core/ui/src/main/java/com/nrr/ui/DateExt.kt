@@ -6,6 +6,7 @@ import androidx.core.os.ConfigurationCompat
 import androidx.core.os.LocaleListCompat
 import com.nrr.model.toLocalDateTime
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import java.time.format.TextStyle
 import java.util.Locale
@@ -38,13 +39,18 @@ fun Instant.toDateStringLocalized(context: Context): String = getDateString(
     }
 )
 
-private fun Instant.getDateString(locale: Locale) = with(toLocalDateTime()) {
-    "$dayOfMonth " +
-            "${
-                month.getDisplayName(
-                    TextStyle.FULL,
-                    locale
-                )
-            } " +
-            "$year"
-}
+@Composable
+fun LocalDate.toStringLocalized() =
+    toStringLocalized(getCurrentLocale())
+
+private fun LocalDate.toStringLocalized(locale: Locale) = "$dayOfMonth " +
+        "${
+            month.getDisplayName(
+                TextStyle.FULL,
+                locale
+            )
+        } " +
+        "$year"
+
+private fun Instant.getDateString(locale: Locale) =
+    toLocalDateTime().date.toStringLocalized(locale)

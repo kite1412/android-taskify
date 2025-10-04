@@ -965,7 +965,7 @@ private fun TimeField(
                 BoxWithConstraints {
                     Text(
                         text = it,
-                        modifier = Modifier.width(maxWidth / 1.5f),
+                        modifier = Modifier.width(this.maxWidth / 1.5f),
                         color = Color.Red,
                         textAlign = TextAlign.Center
                     )

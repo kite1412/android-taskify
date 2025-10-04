@@ -229,7 +229,7 @@ private fun Content(
             if (tasks?.isNotEmpty() == true) ArrangePlan(
                 onClick = onArrangePlanClick,
             )
-            if (period == TaskPeriod.WEEK) Schedule(
+            Schedule(
                 onClick = onScheduleClick
             )
         }

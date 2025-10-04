@@ -9,7 +9,7 @@ import com.nrr.schedule.ScheduleScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class WeeklyScheduleRoute(
+data class ScheduleRoute(
     val periodOrdinal: Int
 )
 
@@ -17,14 +17,14 @@ fun NavController.navigateToSchedule(
     period: TaskPeriod,
     navOptions: NavOptions? = null
 ) = navigate(
-    route = WeeklyScheduleRoute(period.ordinal),
+    route = ScheduleRoute(period.ordinal),
     navOptions = navOptions
 )
 
 fun NavGraphBuilder.scheduleScreen(
     onBackClick: () -> Unit
 ) {
-    composable<WeeklyScheduleRoute> {
+    composable<ScheduleRoute> {
         ScheduleScreen(
             onBackClick = onBackClick
         )

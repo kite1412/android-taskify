@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="schedule_text">Atur Jadwal</string>
+    <string name="schedule_minute">Menit</string>
+    <string name="schedule_hour">Jam</string>
+    <string name="schedule_gap_between_tasks">Jarak antar tugas</string>
+    <string name="schedule_daily_schedule_setting">Jadwal tetap</string>
+    <string name="schedule_daily">Jadwal Harian</string>
+    <string name="schedule_weekly">Jadwal Mingguan</string>
+    <string name="schedule_monthly">Jadwal Bulanan</string>
+    <string name="schedule_tasks">Tugas</string>
+    <string name="schedule_set">Atur</string>
+    <string name="schedule_cancel">Batal</string>
+    <string name="schedule_choose">Pilih</string>
+    <string name="schedule_choose_a_date">Pilih tanggal</string>
 </resources>
