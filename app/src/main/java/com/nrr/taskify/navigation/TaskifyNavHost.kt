@@ -10,6 +10,8 @@ import com.nrr.planarrangement.navigation.navigateToPlanArrangement
 import com.nrr.planarrangement.navigation.planArrangementScreen
 import com.nrr.plandetail.navigation.navigateToPlanDetail
 import com.nrr.plandetail.navigation.planDetailScreen
+import com.nrr.schedule.navigation.navigateToSchedule
+import com.nrr.schedule.navigation.scheduleScreen
 import com.nrr.settings.Menu
 import com.nrr.settings.navigation.navigateToSettings
 import com.nrr.settings.navigation.settingsScreen
@@ -20,8 +22,6 @@ import com.nrr.taskdetail.navigation.taskDetailScreen
 import com.nrr.taskmanagement.navigation.taskManagementScreen
 import com.nrr.todayplan.navigation.TodayPlanRoute
 import com.nrr.todayplan.navigation.todayPlanScreen
-import com.nrr.weeklyschedule.navigation.navigateToWeeklySchedule
-import com.nrr.weeklyschedule.navigation.weeklyScheduleScreen
 
 @Composable
 fun TaskifyNavHost(
@@ -78,7 +78,9 @@ fun TaskifyNavHost(
                     taskPeriod = TaskPeriod.DAY.takeIf { status == null }
                 )
             },
-            onWeeklyScheduleClick = navController::navigateToWeeklySchedule
+            onScheduleClick = {
+                navController.navigateToSchedule(it)
+            }
         )
         planArrangementScreen(
             onBackClick = navController::popBackStack,
@@ -95,7 +97,7 @@ fun TaskifyNavHost(
         summariesScreen(
             onBackClick = navController::popBackStack
         )
-        weeklyScheduleScreen(
+        scheduleScreen(
             onBackClick = navController::popBackStack
         )
     }

@@ -101,7 +101,7 @@ internal fun PlanDetailScreen(
     onBackClick: () -> Unit,
     onArrangePlanClick: (TaskPeriod) -> Unit,
     onActiveTaskClick: (Task) -> Unit,
-    onWeeklyScheduleClick: () -> Unit,
+    onScheduleClick: (TaskPeriod) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PlanDetailViewModel = hiltViewModel()
 ) {
@@ -141,7 +141,7 @@ internal fun PlanDetailScreen(
             onComplete = viewModel::markCompleted,
             onTaskClick = onActiveTaskClick,
             onArrangePlanClick = { onArrangePlanClick(period) },
-            onWeeklyScheduleClick = onWeeklyScheduleClick,
+            onScheduleClick = { onScheduleClick(period) },
             tasksState = state,
             modifier = modifier
         )
@@ -157,7 +157,7 @@ private fun Content(
     onComplete: (Task) -> Unit,
     onTaskClick: (Task) -> Unit,
     onArrangePlanClick: () -> Unit,
-    onWeeklyScheduleClick: () -> Unit,
+    onScheduleClick: () -> Unit,
     tasksState: LazyListState,
     modifier: Modifier = Modifier
 ) {
@@ -230,7 +230,7 @@ private fun Content(
                 onClick = onArrangePlanClick,
             )
             if (period == TaskPeriod.WEEK) Schedule(
-                onClick = onWeeklyScheduleClick
+                onClick = onScheduleClick
             )
         }
     }
@@ -856,7 +856,7 @@ private fun ContentPreview(
             },
             onTaskClick = {},
             onArrangePlanClick = {},
-            onWeeklyScheduleClick = {},
+            onScheduleClick = {},
             tasksState = rememberLazyListState()
         )
     }

@@ -1,4 +1,4 @@
-package com.nrr.weeklyschedule
+package com.nrr.schedule
 
 import org.junit.Test
 

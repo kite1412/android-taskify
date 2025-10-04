@@ -3,5 +3,5 @@ plugins {
 }
 
 android {
-    namespace = "com.nrr.weeklyschedule"
+    namespace = "com.nrr.schedule"
 }
