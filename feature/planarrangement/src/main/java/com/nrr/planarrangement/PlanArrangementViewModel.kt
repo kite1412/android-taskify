@@ -12,7 +12,7 @@ import com.nrr.data.repository.TaskRepository
 import com.nrr.data.repository.UserDataRepository
 import com.nrr.domain.RemoveActiveTasksUseCase
 import com.nrr.domain.SaveActiveTasksUseCase
-import com.nrr.model.NotificationOffset
+import com.nrr.model.TimeOffset
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.TaskPriority
@@ -87,12 +87,12 @@ class PlanArrangementViewModel @Inject constructor(
                         TaskPeriod.MONTH -> it.monthNotificationOffset
                     }
                 }
-            } ?: flowOf(NotificationOffset.Default)
+            } ?: flowOf(TimeOffset.Default)
         }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = NotificationOffset.Default
+            initialValue = TimeOffset.Default
         )
 
     internal val saveEnabled = snapshotFlow { taskEdit }

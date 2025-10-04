@@ -9,7 +9,7 @@ import com.nrr.datastore.util.toTaskReminderProto
 import com.nrr.datastore.util.toTimeUnit
 import com.nrr.datastore.util.toTimeUnitProto
 import com.nrr.model.LanguageConfig
-import com.nrr.model.NotificationOffset
+import com.nrr.model.TimeOffset
 import com.nrr.model.PushNotificationConfig
 import com.nrr.model.SummariesGenerationReport
 import com.nrr.model.TaskReminder
@@ -31,7 +31,7 @@ class TaskifyPreferencesDataSource @Inject constructor(
                 languageConfig = LanguageConfig.entries[it.languageConfig.ordinal],
                 themeConfig = ThemeConfig.entries[it.themeConfig.ordinal],
                 dayNotificationOffset = with(it.dayNotificationOffset) {
-                    NotificationOffset(
+                    TimeOffset(
                         value = value.takeIf { v -> v > 0 } ?: 1,
                         timeUnit =
                             timeUnit.takeIf { tu -> tu != TimeUnitProto.TIME_UNIT_PROTO_DAYS }?.toTimeUnit()
@@ -39,13 +39,13 @@ class TaskifyPreferencesDataSource @Inject constructor(
                     )
                 },
                 weekNotificationOffset = with(it.weekNotificationOffset) {
-                    NotificationOffset(
+                    TimeOffset(
                         value = value.takeIf { v -> v > 0 } ?: 1,
                         timeUnit = timeUnit.toTimeUnit()
                     )
                 },
                 monthNotificationOffset = with(it.monthNotificationOffset) {
-                    NotificationOffset(
+                    TimeOffset(
                         value = value.takeIf { v -> v > 0 } ?: 1,
                         timeUnit = timeUnit.toTimeUnit()
                     )
@@ -100,7 +100,7 @@ class TaskifyPreferencesDataSource @Inject constructor(
         }
     }
 
-    suspend fun setDayNotificationOffsetConfig(newNotificationOffset: NotificationOffset) {
+    suspend fun setDayNotificationOffsetConfig(newNotificationOffset: TimeOffset) {
         try {
             userPreferences.updateData {
                 it.copy {
@@ -117,7 +117,7 @@ class TaskifyPreferencesDataSource @Inject constructor(
         }
     }
 
-    suspend fun setWeekNotificationOffsetConfig(newNotificationOffset: NotificationOffset) {
+    suspend fun setWeekNotificationOffsetConfig(newNotificationOffset: TimeOffset) {
         try {
             userPreferences.updateData {
                 it.copy {
@@ -134,7 +134,7 @@ class TaskifyPreferencesDataSource @Inject constructor(
         }
     }
 
-    suspend fun setMonthNotificationOffsetConfig(newNotificationOffset: NotificationOffset) {
+    suspend fun setMonthNotificationOffsetConfig(newNotificationOffset: TimeOffset) {
         try {
             userPreferences.updateData {
                 it.copy {

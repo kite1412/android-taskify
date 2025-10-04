@@ -10,7 +10,7 @@ import androidx.navigation.toRoute
 import com.nrr.data.repository.TaskRepository
 import com.nrr.data.repository.UserDataRepository
 import com.nrr.model.LanguageConfig
-import com.nrr.model.NotificationOffset
+import com.nrr.model.TimeOffset
 import com.nrr.model.PushNotificationConfig
 import com.nrr.model.ThemeConfig
 import com.nrr.settings.navigation.SettingsRoute
@@ -67,19 +67,19 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun updateDayNotificationOffset(offset: NotificationOffset) {
+    fun updateDayNotificationOffset(offset: TimeOffset) {
         viewModelScope.launch {
             userDataRepository.setDayNotificationOffsetConfig(offset)
         }
     }
 
-    fun updateWeekNotificationOffset(offset: NotificationOffset) {
+    fun updateWeekNotificationOffset(offset: TimeOffset) {
         viewModelScope.launch {
             userDataRepository.setWeekNotificationOffsetConfig(offset)
         }
     }
 
-    fun updateMonthNotificationOffset(offset: NotificationOffset) {
+    fun updateMonthNotificationOffset(offset: TimeOffset) {
         viewModelScope.launch {
             userDataRepository.setMonthNotificationOffsetConfig(offset)
         }

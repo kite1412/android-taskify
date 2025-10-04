@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.max
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.LanguageConfig
-import com.nrr.model.NotificationOffset
+import com.nrr.model.TimeOffset
 import com.nrr.model.ThemeConfig
 import com.nrr.model.TimeUnit
 import com.nrr.settings.util.SettingsDictionary
@@ -50,12 +50,12 @@ internal fun Content2Pane(
     onLanguageClick: (LanguageConfig) -> Unit,
     pushNotification: Boolean,
     onPushNotificationClick: (Boolean) -> Unit,
-    dayNotificationOffset: NotificationOffset,
-    onDayNotificationOffsetChange: (NotificationOffset) -> Unit,
-    weekNotificationOffset: NotificationOffset,
-    onWeekNotificationOffsetChange: (NotificationOffset) -> Unit,
-    monthNotificationOffset: NotificationOffset,
-    onMonthNotificationOffsetChange: (NotificationOffset) -> Unit,
+    dayNotificationOffset: TimeOffset,
+    onDayNotificationOffsetChange: (TimeOffset) -> Unit,
+    weekNotificationOffset: TimeOffset,
+    onWeekNotificationOffsetChange: (TimeOffset) -> Unit,
+    monthNotificationOffset: TimeOffset,
+    onMonthNotificationOffsetChange: (TimeOffset) -> Unit,
     taskReminders: List<ReminderInfo>?,
     modifier: Modifier = Modifier
 ) {
@@ -232,11 +232,11 @@ private fun Content2PanePreview() {
             onLanguageClick = {},
             pushNotification = true,
             onPushNotificationClick = {},
-            dayNotificationOffset = NotificationOffset(1, TimeUnit.MINUTES),
+            dayNotificationOffset = TimeOffset(1, TimeUnit.MINUTES),
             onDayNotificationOffsetChange = {},
-            weekNotificationOffset = NotificationOffset(1, TimeUnit.MINUTES),
+            weekNotificationOffset = TimeOffset(1, TimeUnit.MINUTES),
             onWeekNotificationOffsetChange = {},
-            monthNotificationOffset = NotificationOffset(1, TimeUnit.MINUTES),
+            monthNotificationOffset = TimeOffset(1, TimeUnit.MINUTES),
             onMonthNotificationOffsetChange = {},
             taskReminders = listOf()
         )

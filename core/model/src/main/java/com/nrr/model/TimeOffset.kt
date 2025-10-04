@@ -3,7 +3,7 @@ package com.nrr.model
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-data class NotificationOffset(
+data class TimeOffset(
     val value: Int,
     val timeUnit: TimeUnit
 ) {
@@ -17,6 +17,6 @@ data class NotificationOffset(
         )
 
     companion object {
-        val Default = NotificationOffset(1, TimeUnit.MINUTES)
+        val Default = TimeOffset(1, TimeUnit.MINUTES)
     }
 }

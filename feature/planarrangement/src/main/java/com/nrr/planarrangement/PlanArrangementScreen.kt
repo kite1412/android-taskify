@@ -108,7 +108,7 @@ import com.nrr.designsystem.theme.Green
 import com.nrr.designsystem.theme.Red
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.util.TaskifyDefault
-import com.nrr.model.NotificationOffset
+import com.nrr.model.TimeOffset
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.TaskPriority
@@ -249,7 +249,7 @@ private fun Content(
     onNewTaskClick: () -> Unit,
     showDeleteWarning: Boolean,
     onDismissDeleteWarning: () -> Unit,
-    notificationOffset: NotificationOffset,
+    notificationOffset: TimeOffset,
     onReminderSettingClick: () -> Unit,
     modifier: Modifier = Modifier,
     onDeleteActiveTask: (() -> Unit)? = null
@@ -494,7 +494,7 @@ private fun AssignTask(
     onPriorityChange: (TaskPriority) -> Unit,
     saveEnabled: Boolean,
     onSave: () -> Unit,
-    notificationOffset: NotificationOffset,
+    notificationOffset: TimeOffset,
     onReminderSettingClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -648,7 +648,7 @@ private fun AssignmentConfiguration(
     onDefaultChange: (Boolean) -> Unit,
     onPriorityChange: (TaskPriority) -> Unit,
     onReminderSettingClick: () -> Unit,
-    notificationOffset: NotificationOffset,
+    notificationOffset: TimeOffset,
     modifier: Modifier = Modifier
 ) {
     val status = taskEdit.activeStatus
@@ -1487,7 +1487,7 @@ private fun ContentPreview(
             onDeleteActiveTask = {},
             showDeleteWarning = false,
             onDismissDeleteWarning = {},
-            notificationOffset = NotificationOffset.Default,
+            notificationOffset = TimeOffset.Default,
             onReminderSettingClick = {}
         )
     }

@@ -68,10 +68,10 @@ import com.nrr.designsystem.theme.CharcoalClay30
 import com.nrr.designsystem.theme.Gray
 import com.nrr.designsystem.theme.Red
 import com.nrr.model.LanguageConfig
-import com.nrr.model.NotificationOffset
 import com.nrr.model.PushNotificationConfig
 import com.nrr.model.TaskPeriod
 import com.nrr.model.ThemeConfig
+import com.nrr.model.TimeOffset
 import com.nrr.model.getStartDate
 import com.nrr.model.toTimeString
 import com.nrr.settings.util.SettingsDictionary
@@ -261,12 +261,12 @@ internal fun LanguagesConfig(
 internal fun NotificationsConfig(
     pushNotification: Boolean,
     onPushNotificationClick: (Boolean) -> Unit,
-    dayNotificationOffset: NotificationOffset,
-    onDayNotificationOffsetChange: (NotificationOffset) -> Unit,
-    weekNotificationOffset: NotificationOffset,
-    onWeekNotificationOffsetChange: (NotificationOffset) -> Unit,
-    monthNotificationOffset: NotificationOffset,
-    onMonthNotificationOffsetChange: (NotificationOffset) -> Unit,
+    dayNotificationOffset: TimeOffset,
+    onDayNotificationOffsetChange: (TimeOffset) -> Unit,
+    weekNotificationOffset: TimeOffset,
+    onWeekNotificationOffsetChange: (TimeOffset) -> Unit,
+    monthNotificationOffset: TimeOffset,
+    onMonthNotificationOffsetChange: (TimeOffset) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -442,8 +442,8 @@ private fun NotificationOffsetWarning(
 @Composable
 private fun NotificationOffsetSetting(
     period: TaskPeriod,
-    notificationOffset: NotificationOffset,
-    onNotificationOffsetChange: (NotificationOffset) -> Unit,
+    notificationOffset: TimeOffset,
+    onNotificationOffsetChange: (TimeOffset) -> Unit,
     enabled: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -517,7 +517,7 @@ private fun NotificationOffsetSetting(
                                         showTimeUnit = false
                                         sliderValue = 1f
                                         onNotificationOffsetChange(
-                                            NotificationOffset(1, it)
+                                            TimeOffset(1, it)
                                         )
                                     }
                                 }

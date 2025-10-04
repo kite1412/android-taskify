@@ -32,8 +32,8 @@ import com.nrr.designsystem.component.AdaptiveText
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.LanguageConfig
-import com.nrr.model.NotificationOffset
 import com.nrr.model.ThemeConfig
+import com.nrr.model.TimeOffset
 import com.nrr.model.TimeUnit
 import com.nrr.settings.util.SettingsDictionary
 import com.nrr.ui.Header as _Header
@@ -52,12 +52,12 @@ internal fun Content(
     onLanguageClick: (LanguageConfig) -> Unit,
     pushNotification: Boolean,
     onPushNotificationClick: (Boolean) -> Unit,
-    dayNotificationOffset: NotificationOffset,
-    onDayNotificationOffsetChange: (NotificationOffset) -> Unit,
-    weekNotificationOffset: NotificationOffset,
-    onWeekNotificationOffsetChange: (NotificationOffset) -> Unit,
-    monthNotificationOffset: NotificationOffset,
-    onMonthNotificationOffsetChange: (NotificationOffset) -> Unit,
+    dayNotificationOffset: TimeOffset,
+    onDayNotificationOffsetChange: (TimeOffset) -> Unit,
+    weekNotificationOffset: TimeOffset,
+    onWeekNotificationOffsetChange: (TimeOffset) -> Unit,
+    monthNotificationOffset: TimeOffset,
+    onMonthNotificationOffsetChange: (TimeOffset) -> Unit,
     taskReminders: List<ReminderInfo>?,
     modifier: Modifier = Modifier
 ) {
@@ -208,7 +208,7 @@ private fun ContentPreview() {
     var curMenu by remember { mutableStateOf<Menu?>(null) }
     var theme by remember { mutableStateOf(ThemeConfig.SYSTEM_DEFAULT) }
     var notificationOffset by remember {
-        mutableStateOf(NotificationOffset(1, TimeUnit.MINUTES))
+        mutableStateOf(TimeOffset(1, TimeUnit.MINUTES))
     }
 
     TaskifyTheme {

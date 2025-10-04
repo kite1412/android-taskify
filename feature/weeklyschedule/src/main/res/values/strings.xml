@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="weeklyschedule_text">Weekly Schedule</string>
+    <string name="weeklyschedule_monday">Monday</string>
+    <string name="weeklyschedule_tuesday">Tuesday</string>
+    <string name="weeklyschedule_wednesday">Wednesday</string>
+    <string name="weeklyschedule_thursday">Thursday</string>
+    <string name="weeklyschedule_friday">Friday</string>
+    <string name="weeklyschedule_saturday">Saturday</string>
+    <string name="weeklyschedule_sunday">Sunday</string>
 </resources>
