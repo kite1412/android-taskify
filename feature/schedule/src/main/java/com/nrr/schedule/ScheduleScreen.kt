@@ -24,6 +24,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Slider
@@ -69,6 +70,8 @@ import com.nrr.model.toTimeString
 import com.nrr.schedule.util.ScheduleDictionary
 import com.nrr.schedule.util.TaskDuration
 import com.nrr.ui.Header
+import com.nrr.ui.color
+import com.nrr.ui.iconId
 import com.nrr.ui.layout.MainLayout
 import com.nrr.ui.picker.date.DatePicker
 import com.nrr.ui.picker.time.TimePicker
@@ -78,9 +81,6 @@ import com.nrr.ui.toStringLocalized
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -452,23 +452,11 @@ private fun TaskOrganizer(
                     taskDurations.getOrNull(i)?.uuid ?: t.hashCode()
                 },
                 content = { i, _, card ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            card()
-                        }
-                        taskDurations.getOrNull(i)?.let {
-                            TaskDuration(
-                                duration = it.duration,
-                                onClick = { onPickDuration(it) }
-                            )
-                        }
+                    taskDurations.getOrNull(i)?.let {
+                        TaskDuration(
+                            taskDuration = it,
+                            onPickDurationClick = { onPickDuration(it) }
+                        )
                     }
                 }
             )
@@ -499,31 +487,59 @@ private fun TaskOrganizer(
 
 @Composable
 private fun TaskDuration(
-    duration: Duration,
-    onClick: () -> Unit,
+    taskDuration: TaskDuration,
+    onPickDurationClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(
+    Row(
         modifier = modifier
+            .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.tertiary)
-            .clickable(onClick = onClick)
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
+            .background(taskDuration.task.taskType.color())
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = buildAnnotatedString {
-                val minutes = duration.inWholeMinutes % 60
-                val hours = duration.inWholeHours
-
-                if (hours != 0L) append("$hours ${stringResource(ScheduleDictionary.hours)}")
-                if (hours != 0L && minutes != 0L) append("\n")
-                if (minutes != 0L) append("$minutes ${stringResource(ScheduleDictionary.minutes)}")
-            },
-            style = MaterialTheme.typography.bodySmall.copy(
-                fontWeight = FontWeight.Bold
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(taskDuration.task.taskType.iconId()),
+                contentDescription = null,
+                modifier = Modifier.size(32.dp)
             )
-        )
+            Text(
+                text = taskDuration.task.title,
+                style = LocalTextStyle.current.copy(
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        }
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.tertiary)
+                .clickable(onClick = onPickDurationClick)
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = with(taskDuration.duration) {
+                    buildAnnotatedString {
+                        val minutes = inWholeMinutes % 60
+                        val hours = inWholeHours
+
+                        if (hours != 0L) append("$hours ${stringResource(ScheduleDictionary.hours)}")
+                        if (hours != 0L && minutes != 0L) append("\n")
+                        if (minutes != 0L) append("$minutes ${stringResource(ScheduleDictionary.minutes)}")
+                    }
+                },
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        }
     }
 }
 
@@ -607,8 +623,8 @@ private fun ScheduleStart(
 private fun TaskDurationPreview() {
     TaskifyTheme {
         TaskDuration(
-            duration = 2.hours + 1.minutes,
-            onClick = {}
+            taskDuration = TODO(),
+            onPickDurationClick = {}
         )
     }
 }

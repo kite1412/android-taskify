@@ -84,10 +84,14 @@ fun TaskCard(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .combinedClickable(
-                                onLongClick = { onLongClick?.invoke(task) },
-                                onClick = { onClick?.invoke(task) },
-                                enabled = clickEnabled
+                            .then(
+                                if (onClick != null || onLongClick != null) Modifier
+                                    .combinedClickable(
+                                        onLongClick = { onLongClick?.invoke(task) },
+                                        onClick = { onClick?.invoke(task) },
+                                        enabled = clickEnabled
+                                    )
+                                else Modifier
                             )
                             .clip(RoundedCornerShape(swipeableClip))
                             .background(task.color())
