@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="schedule_minute">Minute</string>
-    <string name="schedule_hour">Hour</string>
+    <string name="schedule_minute">Minutes</string>
+    <string name="schedule_hour">Hours</string>
     <string name="schedule_gap_between_tasks">Gap between tasks</string>
     <string name="schedule_daily_schedule_setting">Daily schedule</string>
     <string name="schedule_daily">Daily Schedule</string>
@@ -15,4 +15,5 @@
     <string name="schedule_duration">Duration</string>
     <string name="schedule_add_task">Add task</string>
     <string name="schedule_remove">Remove</string>
+    <string name="schedule_task_duration">Task duration</string>
 </resources>

@@ -24,6 +24,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
@@ -44,6 +45,7 @@ class ScheduleViewModel @Inject constructor(
             initialValue = emptyList()
         )
     internal val taskDurations = mutableStateListOf<TaskDuration>()
+    internal var pickDurationTask by mutableStateOf<TaskDuration?>(null)
 
     internal fun onTimeOffsetValueChange(new: Int) {
         timeOffset = timeOffset.copy(value = new)
@@ -76,6 +78,26 @@ class ScheduleViewModel @Inject constructor(
                 taskDurations.remove(it)
                 return
             }
+        }
+    }
+
+    internal fun onPickDuration(task: TaskDuration) {
+        pickDurationTask = task
+    }
+
+    internal fun dismissTimePicker() {
+        pickDurationTask = null
+    }
+
+    internal fun onPickDurationConfirm(hour: Int, minute: Int) {
+        pickDurationTask?.let { task ->
+            val i = taskDurations.indexOfFirst { task.uuid == it.uuid }
+            if (i != -1) {
+                taskDurations[i] = task.copy(
+                    duration = hour.hours + minute.minutes
+                )
+            }
+            dismissTimePicker()
         }
     }
 }

@@ -27,6 +27,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -40,7 +41,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -51,6 +54,7 @@ import com.nrr.designsystem.component.RoundRectButton
 import com.nrr.designsystem.component.Toggle
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.Red
+import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.designsystem.util.TaskifyDefault
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
@@ -62,12 +66,17 @@ import com.nrr.schedule.util.TaskDuration
 import com.nrr.ui.Header
 import com.nrr.ui.layout.MainLayout
 import com.nrr.ui.picker.date.DatePicker
+import com.nrr.ui.picker.time.TimePicker
 import com.nrr.ui.rememberTaskCardsState
 import com.nrr.ui.taskCards
 import com.nrr.ui.toStringLocalized
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ScheduleScreen(
     onBackClick: () -> Unit,
@@ -89,9 +98,28 @@ internal fun ScheduleScreen(
         onDateChange = viewModel::onDateChange,
         onTaskSelect = viewModel::onTaskSelect,
         onTaskRemove = viewModel::onTaskRemove,
+        onPickDuration = viewModel::onPickDuration,
         onBackClick = onBackClick,
         modifier = modifier
     )
+    viewModel.pickDurationTask?.let {
+        TimePicker(
+            onDismissRequest = viewModel::dismissTimePicker,
+            onConfirm = {
+                viewModel.onPickDurationConfirm(
+                    hour = it.hour,
+                    minute = it.minute
+                )
+            },
+            confirmText = stringResource(ScheduleDictionary.set),
+            cancelText = stringResource(ScheduleDictionary.cancel),
+            title = stringResource(ScheduleDictionary.taskDuration),
+            state = rememberTimePickerState(
+                initialHour = it.duration.inWholeHours.toInt(),
+                initialMinute = (it.duration.inWholeMinutes % 60).toInt()
+            )
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -109,6 +137,7 @@ private fun Content(
     onDateChange: (LocalDate) -> Unit,
     onTaskSelect: (Task) -> Unit,
     onTaskRemove: (TaskDuration) -> Unit,
+    onPickDuration: (TaskDuration) -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -148,7 +177,8 @@ private fun Content(
         TaskOrganizer(
             taskDurations = taskDurations,
             onAddClick = { showAvailableTasks = true },
-            onTaskRemove = onTaskRemove
+            onTaskRemove = onTaskRemove,
+            onPickDuration = onPickDuration
         )
     }
 
@@ -213,8 +243,8 @@ private fun OffsetBetweenTasks(
                             text = timeOffset.value.toString() + " ${
                                 stringResource(
                                     id = when (timeOffset.timeUnit) {
-                                        TimeUnit.MINUTES -> ScheduleDictionary.minute
-                                        else -> ScheduleDictionary.hour
+                                        TimeUnit.MINUTES -> ScheduleDictionary.minutes
+                                        else -> ScheduleDictionary.hours
                                     }
                                 )
                             }",
@@ -239,13 +269,13 @@ private fun OffsetBetweenTasks(
 
                     DropdownMenuItem(
                         text = {
-                            Text(stringResource(ScheduleDictionary.minute))
+                            Text(stringResource(ScheduleDictionary.minutes))
                         },
                         onClick = { onTimeUnitChange(TimeUnit.MINUTES) }
                     )
                     DropdownMenuItem(
                         text = {
-                            Text(stringResource(ScheduleDictionary.hour))
+                            Text(stringResource(ScheduleDictionary.hours))
                         },
                         onClick = { onTimeUnitChange(TimeUnit.HOURS) }
                     )
@@ -324,6 +354,7 @@ private fun TaskOrganizer(
     taskDurations: List<TaskDuration>,
     onAddClick: () -> Unit,
     onTaskRemove: (TaskDuration) -> Unit,
+    onPickDuration: (TaskDuration) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val tasks = remember(taskDurations.size) {
@@ -337,12 +368,25 @@ private fun TaskOrganizer(
     ) {
         val remove = stringResource(ScheduleDictionary.remove)
 
-        Text(
-            text = stringResource(ScheduleDictionary.tasks),
-            style = MaterialTheme.typography.bodyLarge.copy(
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            val style = MaterialTheme.typography.bodyLarge.copy(
                 fontWeight = FontWeight.Bold
             )
-        )
+
+            Text(
+                text = stringResource(ScheduleDictionary.tasks),
+                style = style
+            )
+            Text(
+                text = stringResource(ScheduleDictionary.duration),
+                style = style.copy(
+                    color = MaterialTheme.colorScheme.primary
+                )
+            )
+        }
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -364,13 +408,24 @@ private fun TaskOrganizer(
                 key = { i, t ->
                     taskDurations.getOrNull(i)?.uuid ?: t.hashCode()
                 },
-                content = { _, _, card ->
+                content = { i, _, card ->
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        card()
+                        Box(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            card()
+                        }
+                        taskDurations.getOrNull(i)?.let {
+                            TaskDuration(
+                                duration = it.duration,
+                                onClick = { onPickDuration(it) }
+                            )
+                        }
                     }
                 }
             )
@@ -396,6 +451,36 @@ private fun TaskOrganizer(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun TaskDuration(
+    duration: Duration,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.tertiary)
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = buildAnnotatedString {
+                val minutes = duration.inWholeMinutes % 60
+                val hours = duration.inWholeHours
+
+                if (hours != 0L) append("$hours ${stringResource(ScheduleDictionary.hours)}")
+                if (hours != 0L && minutes != 0L) append("\n")
+                if (minutes != 0L) append("$minutes ${stringResource(ScheduleDictionary.minutes)}")
+            },
+            style = MaterialTheme.typography.bodySmall.copy(
+                fontWeight = FontWeight.Bold
+            )
+        )
     }
 }
 
@@ -448,5 +533,16 @@ private fun TaskPicker(
                 )
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun TaskDurationPreview() {
+    TaskifyTheme {
+        TaskDuration(
+            duration = 2.hours + 1.minutes,
+            onClick = {}
+        )
     }
 }

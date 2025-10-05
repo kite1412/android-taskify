@@ -15,4 +15,5 @@
     <string name="schedule_duration">Durasi</string>
     <string name="schedule_add_task">Tambah tugas</string>
     <string name="schedule_remove">Hapus</string>
+    <string name="schedule_task_duration">Durasi tugas</string>
 </resources>
