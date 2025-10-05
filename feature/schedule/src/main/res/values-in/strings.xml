@@ -16,4 +16,6 @@
     <string name="schedule_add_task">Tambah tugas</string>
     <string name="schedule_remove">Hapus</string>
     <string name="schedule_task_duration">Durasi tugas</string>
+    <string name="schedule_start_at">Dimulai pada</string>
+    <string name="schedule_schedule_start_time">Waktu jadwal dimulai</string>
 </resources>

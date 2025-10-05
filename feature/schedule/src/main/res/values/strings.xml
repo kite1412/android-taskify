@@ -16,4 +16,6 @@
     <string name="schedule_add_task">Add task</string>
     <string name="schedule_remove">Remove</string>
     <string name="schedule_task_duration">Task duration</string>
+    <string name="schedule_start_at">Start at</string>
+    <string name="schedule_schedule_start_time">Schedule start time</string>
 </resources>

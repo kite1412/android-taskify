@@ -6,10 +6,13 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.size
@@ -51,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nrr.designsystem.component.Action
 import com.nrr.designsystem.component.RoundRectButton
+import com.nrr.designsystem.component.TaskifyButtonDefaults
 import com.nrr.designsystem.component.Toggle
 import com.nrr.designsystem.icon.TaskifyIcon
 import com.nrr.designsystem.theme.Red
@@ -61,6 +65,7 @@ import com.nrr.model.TaskPeriod
 import com.nrr.model.TimeOffset
 import com.nrr.model.TimeUnit
 import com.nrr.model.toLocalDateTime
+import com.nrr.model.toTimeString
 import com.nrr.schedule.util.ScheduleDictionary
 import com.nrr.schedule.util.TaskDuration
 import com.nrr.ui.Header
@@ -72,6 +77,7 @@ import com.nrr.ui.taskCards
 import com.nrr.ui.toStringLocalized
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -91,6 +97,7 @@ internal fun ScheduleScreen(
         availableTasks = availableTasks,
         timeOffset = viewModel.timeOffset,
         date = viewModel.date,
+        scheduleStartAt = viewModel.scheduleStartAt,
         onValueChange = viewModel::onTimeOffsetValueChange,
         onTimeUnitChange = viewModel::onTimeOffsetTimeUnitChange,
         dailySchedule = viewModel.dailySchedule,
@@ -100,15 +107,16 @@ internal fun ScheduleScreen(
         onTaskRemove = viewModel::onTaskRemove,
         onPickDuration = viewModel::onPickDuration,
         onBackClick = onBackClick,
+        onScheduleStartClick = viewModel::onPickScheduleStart,
         modifier = modifier
     )
     viewModel.pickDurationTask?.let {
         TimePicker(
-            onDismissRequest = viewModel::dismissTimePicker,
-            onConfirm = {
+            onDismissRequest = viewModel::dismissDurationPicker,
+            onConfirm = { s ->
                 viewModel.onPickDurationConfirm(
-                    hour = it.hour,
-                    minute = it.minute
+                    hour = s.hour,
+                    minute = s.minute
                 )
             },
             confirmText = stringResource(ScheduleDictionary.set),
@@ -120,6 +128,22 @@ internal fun ScheduleScreen(
             )
         )
     }
+    if (viewModel.pickScheduleStart) TimePicker(
+        onDismissRequest = viewModel::dismissScheduleStartPicker,
+        onConfirm = {
+            viewModel.onPickScheduleStartConfirm(
+                hour = it.hour,
+                minute = it.minute
+            )
+        },
+        confirmText = stringResource(ScheduleDictionary.set),
+        cancelText = stringResource(ScheduleDictionary.cancel),
+        title = stringResource(ScheduleDictionary.scheduleStartTime),
+        state = rememberTimePickerState(
+            initialHour = viewModel.scheduleStartAt.hour,
+            initialMinute = viewModel.scheduleStartAt.minute
+        )
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -131,6 +155,7 @@ private fun Content(
     timeOffset: TimeOffset,
     dailySchedule: Boolean,
     date: LocalDate,
+    scheduleStartAt: LocalTime,
     onValueChange: (Int) -> Unit,
     onTimeUnitChange: (TimeUnit) -> Unit,
     onDailyScheduleChange: (Boolean) -> Unit,
@@ -138,6 +163,7 @@ private fun Content(
     onTaskSelect: (Task) -> Unit,
     onTaskRemove: (TaskDuration) -> Unit,
     onPickDuration: (TaskDuration) -> Unit,
+    onScheduleStartClick: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -155,11 +181,28 @@ private fun Content(
             ),
             onBackClick = onBackClick
         )
-        Date(
-            selectedDate = date,
-            onClick = { pickDate = true },
-            modifier = Modifier.align(Alignment.End)
-        )
+        Row(
+            modifier = Modifier
+                .align(Alignment.End)
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Date(
+                selectedDate = date,
+                onClick = { pickDate = true },
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(2f)
+            )
+            ScheduleStart(
+                time = scheduleStartAt,
+                onClick = onScheduleStartClick,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(1.5f)
+            )
+        }
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -337,7 +380,7 @@ private fun Date(
     RoundRectButton(
         onClick = onClick,
         action = selectedDate.toStringLocalized(),
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
         iconId = TaskifyIcon.calendar,
         horizontalArrangement = Arrangement.spacedBy(
             space = 8.dp,
@@ -534,6 +577,29 @@ private fun TaskPicker(
             }
         }
     }
+}
+
+@Composable
+private fun ScheduleStart(
+    time: LocalTime,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    RoundRectButton(
+        onClick = onClick,
+        action = "${stringResource(ScheduleDictionary.startAt)}: ${time.toTimeString()}",
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(
+            space = 8.dp,
+            alignment = Alignment.CenterHorizontally
+        ),
+        textStyle = MaterialTheme.typography.bodyMedium.copy(
+            fontWeight = FontWeight.Bold
+        ),
+        colors = TaskifyButtonDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.tertiary
+        )
+    )
 }
 
 @Preview

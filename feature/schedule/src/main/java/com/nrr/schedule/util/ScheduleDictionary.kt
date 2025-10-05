@@ -19,4 +19,6 @@ internal object ScheduleDictionary {
     val addTask = R.string.schedule_add_task
     val remove = R.string.schedule_remove
     val taskDuration = R.string.schedule_task_duration
+    val startAt = R.string.schedule_start_at
+    val scheduleStartTime = R.string.schedule_schedule_start_time
 }

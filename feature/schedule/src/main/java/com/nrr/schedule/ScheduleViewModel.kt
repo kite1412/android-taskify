@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -46,6 +47,16 @@ class ScheduleViewModel @Inject constructor(
         )
     internal val taskDurations = mutableStateListOf<TaskDuration>()
     internal var pickDurationTask by mutableStateOf<TaskDuration?>(null)
+        private set
+    internal var pickScheduleStart by mutableStateOf(false)
+        private set
+    internal var scheduleStartAt by mutableStateOf(
+        LocalTime(
+            hour = 7,
+            minute = 0,
+            second = 0
+        )
+    )
 
     internal fun onTimeOffsetValueChange(new: Int) {
         timeOffset = timeOffset.copy(value = new)
@@ -85,7 +96,7 @@ class ScheduleViewModel @Inject constructor(
         pickDurationTask = task
     }
 
-    internal fun dismissTimePicker() {
+    internal fun dismissDurationPicker() {
         pickDurationTask = null
     }
 
@@ -97,7 +108,24 @@ class ScheduleViewModel @Inject constructor(
                     duration = hour.hours + minute.minutes
                 )
             }
-            dismissTimePicker()
+            dismissDurationPicker()
         }
+    }
+
+    internal fun onPickScheduleStart() {
+        pickScheduleStart = true
+    }
+
+    internal fun dismissScheduleStartPicker() {
+        pickScheduleStart = false
+    }
+
+    internal fun onPickScheduleStartConfirm(hour: Int, minute: Int) {
+        scheduleStartAt = LocalTime(
+            hour = hour,
+            minute = minute,
+            second = 0
+        )
+        dismissScheduleStartPicker()
     }
 }

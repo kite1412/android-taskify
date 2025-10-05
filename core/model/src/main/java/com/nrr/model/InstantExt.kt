@@ -2,6 +2,7 @@ package com.nrr.model
 
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
@@ -12,11 +13,9 @@ fun Instant.toLocalDateTime(): LocalDateTime =
     toLocalDateTime(TimeZone.currentSystemDefault())
 
 fun Instant.toTimeString(withSecond: Boolean = false): String =
-    toLocalDateTime().run {
-        "${hour.toString().padStart(2, '0')}:" +
-                minute.toString().padStart(2, '0') +
-                if (withSecond) ":" + second.toString().padStart(2, '0') else ""
-    }
+    formatTimeString(toLocalDateTime().time, withSecond)
+
+fun LocalTime.toTimeString(withSecond: Boolean = false) = formatTimeString(this, withSecond)
 
 fun Instant.getStartDate(period: TaskPeriod) = with(toLocalDateTime()) {
     val priorMonth = YearMonth.of(
@@ -85,3 +84,10 @@ fun Instant.getEndDate(
         second = 59
     ).toInstant(TimeZone.currentSystemDefault())
 }
+
+private fun formatTimeString(
+    time: LocalTime,
+    withSecond: Boolean = false
+) = "${time.hour.toString().padStart(2, '0')}:" +
+        time.minute.toString().padStart(2, '0') +
+        if (withSecond) ":" + time.second.toString().padStart(2, '0') else ""
