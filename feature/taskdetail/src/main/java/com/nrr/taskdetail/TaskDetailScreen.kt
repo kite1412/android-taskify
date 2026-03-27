@@ -84,8 +84,9 @@ import com.nrr.ui.TaskTypeBar
 import com.nrr.ui.TaskifyDialogDefaults
 import com.nrr.ui.color
 import com.nrr.ui.layout.MainLayout
-import com.nrr.ui.toDateStringLocalized
 import com.nrr.ui.toStringLocalized
+import com.nrr.ui.util.toDateStringLocalized
+import com.nrr.ui.util.toStringLocalized
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import com.nrr.ui.Header as _Header

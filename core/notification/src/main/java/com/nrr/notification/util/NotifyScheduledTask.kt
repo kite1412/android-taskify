@@ -15,7 +15,7 @@ import com.nrr.notification.model.toFiltered
 import com.nrr.notification.receiver.DEEP_LINK_SCHEME_AND_HOST
 import com.nrr.notification.receiver.completeActionPendingIntent
 import com.nrr.notification.receiver.reminderActionPendingIntent
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 
 const val MAIN_ACTIVITY_NAME = "com.nrr.taskify.MainActivity"
 

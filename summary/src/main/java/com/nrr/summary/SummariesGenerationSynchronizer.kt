@@ -14,15 +14,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import javax.inject.Inject
 import kotlin.math.max
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Instant
 
 class SummariesGenerationSynchronizer @Inject constructor(
     private val userDataRepository: UserDataRepository,
@@ -138,7 +138,7 @@ class SummariesGenerationSynchronizer @Inject constructor(
             val date = toLocalDateTime()
             val nowDate = now.toLocalDateTime()
             val adjusted = LocalDateTime(
-                date = (now + (date.dayOfWeek.value - nowDate.dayOfWeek.value).days)
+                date = (now + (date.dayOfWeek.ordinal - nowDate.dayOfWeek.ordinal).days)
                     .toLocalDateTime().date,
                 time = date.time
             )

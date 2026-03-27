@@ -16,8 +16,8 @@ import com.nrr.model.TaskPeriod
 import com.nrr.summary.util.showNotification
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.datetime.Clock
 import java.util.concurrent.TimeUnit
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 
 @Deprecated(

@@ -17,7 +17,7 @@ import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.TaskSummary
 import com.nrr.ui.TaskPreviewParameter
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 
 @Composable

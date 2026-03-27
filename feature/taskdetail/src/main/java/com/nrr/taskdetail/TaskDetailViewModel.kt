@@ -16,8 +16,8 @@ import com.nrr.model.TaskType
 import com.nrr.taskdetail.navigation.TaskDetailRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import javax.inject.Inject
+import kotlin.time.Clock
 
 @HiltViewModel
 class TaskDetailViewModel @Inject constructor(

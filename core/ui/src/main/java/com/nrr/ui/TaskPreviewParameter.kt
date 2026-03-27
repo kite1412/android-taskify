@@ -6,7 +6,7 @@ import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.TaskPriority
 import com.nrr.model.TaskType
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 

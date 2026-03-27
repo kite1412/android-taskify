@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import com.nrr.model.Task
 import com.nrr.ui.color
 import com.nrr.ui.toStringLocalized
+import com.nrr.ui.util.toStringLocalized
 import ir.ehsannarmani.compose_charts.models.Pie
 
 @Composable

@@ -15,6 +15,8 @@ import com.nrr.ui.statistic.summary.ColumnChartOption
 import com.nrr.ui.statistic.summary.PieChartOption
 import com.nrr.ui.statusLogic
 import com.nrr.ui.toStringLocalized
+import com.nrr.ui.util.getDisplayName
+import com.nrr.ui.util.toStringLocalized
 import ir.ehsannarmani.compose_charts.models.Bars
 import ir.ehsannarmani.compose_charts.models.Pie
 import kotlinx.datetime.DayOfWeek
@@ -93,7 +95,7 @@ internal fun Summary.getColumnChartData(
                 TaskPeriod.MONTH -> {
                     tasks
                         .groupBy {
-                            it.startDate.toLocalDateTime().dayOfMonth
+                            it.startDate.toLocalDateTime().day
                         }
                         .map { (k, v) ->
                             Bars(

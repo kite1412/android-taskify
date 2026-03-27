@@ -87,14 +87,16 @@ import com.nrr.ui.getCurrentLocale
 import com.nrr.ui.layout.MainLayout
 import com.nrr.ui.rememberTaskCardsState
 import com.nrr.ui.taskCards
-import com.nrr.ui.toDateStringLocalized
-import com.nrr.ui.toDayLocalized
-import com.nrr.ui.toMonthLocalized
 import com.nrr.ui.toStringLocalized
+import com.nrr.ui.util.getDisplayName
+import com.nrr.ui.util.toDateStringLocalized
+import com.nrr.ui.util.toDayLocalized
+import com.nrr.ui.util.toMonthLocalized
+import com.nrr.ui.util.toStringLocalized
 import kotlinx.coroutines.delay
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import java.time.format.TextStyle
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 @Composable
 internal fun PlanDetailScreen(
@@ -241,7 +243,7 @@ private fun weekIndicator(currentDate: Instant): String {
     val start = currentDate.getStartDate(TaskPeriod.WEEK).toLocalDateTime()
     val end = currentDate.getEndDate(TaskPeriod.WEEK).toLocalDateTime()
 
-    return "(${start.dayOfMonth} - ${end.dayOfMonth} ${end.toMonthLocalized()})"
+    return "(${start.day} - ${end.day} ${end.toMonthLocalized()})"
 }
 
 @Composable
@@ -484,7 +486,7 @@ private fun Tasks(
                 TaskPeriod.WEEK -> extractHeaderBreakpoint(
                     tasks = tasks,
                     breakpoint = { task ->
-                        task.activeStatuses.first().startDate.toLocalDateTime().dayOfWeek.value
+                        task.activeStatuses.first().startDate.toLocalDateTime().dayOfWeek.ordinal
                     }
                 )
                 TaskPeriod.MONTH -> extractHeaderBreakpoint(

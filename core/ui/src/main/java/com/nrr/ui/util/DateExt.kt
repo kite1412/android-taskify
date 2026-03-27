@@ -1,15 +1,34 @@
-package com.nrr.ui
+package com.nrr.ui.util
 
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.core.os.ConfigurationCompat
 import androidx.core.os.LocaleListCompat
 import com.nrr.model.toLocalDateTime
-import kotlinx.datetime.Instant
+import com.nrr.ui.getCurrentLocale
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.Month
 import java.time.format.TextStyle
 import java.util.Locale
+import kotlin.time.Instant
+
+fun DayOfWeek.getDisplayName(
+    style: TextStyle,
+    locale: Locale
+) = java.time.DayOfWeek.entries[ordinal].getDisplayName(
+    /*style = */style,
+    /*locale = */locale
+) ?: toString()
+
+fun Month.getDisplayName(
+    style: TextStyle,
+    locale: Locale
+) = java.time.Month.entries[ordinal].getDisplayName(
+    /*style = */style,
+    /*locale = */locale
+) ?: toString()
 
 @Composable
 fun LocalDateTime.toDayLocalized(): String =

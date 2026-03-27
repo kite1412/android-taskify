@@ -10,8 +10,8 @@ import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Clock
 import javax.inject.Inject
+import kotlin.time.Clock
 
 internal class RoomTaskRepository @Inject constructor(
     private val taskDao: TaskDao,

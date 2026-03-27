@@ -4,7 +4,7 @@ import com.nrr.model.ActiveStatus
 import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.TaskPriority
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 
 internal data class TaskEdit private constructor(
     val task: Task,

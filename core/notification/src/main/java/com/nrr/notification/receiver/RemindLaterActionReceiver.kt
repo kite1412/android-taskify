@@ -7,7 +7,7 @@ import android.content.Context
 import android.content.Intent
 import com.nrr.model.ReminderType
 import com.nrr.notification.util.cancelNotification
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
 
 const val REMIND_LATER_ACTION_ACTION = "com.nrr.notification.REMIND_LATER_ACTION_ACTION"

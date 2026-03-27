@@ -28,15 +28,15 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import java.time.YearMonth
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Instant
 
 /**
  * This worker generates summaries for all available [TaskPeriod]s, schedule [ActiveStatus]es
@@ -107,7 +107,7 @@ internal class SummariesGenerationWorker @AssistedInject constructor(
     private suspend fun tryGenerateWeekSummary() = tryGenerateSummary(
         period = TaskPeriod.WEEK,
         timeConstraint = {
-            toLocalDateTime().dayOfWeek.value == 1
+            toLocalDateTime().dayOfWeek.ordinal == 1
         }
     )
 

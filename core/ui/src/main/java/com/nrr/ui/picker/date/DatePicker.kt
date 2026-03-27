@@ -18,9 +18,9 @@ import androidx.compose.ui.unit.dp
 import com.nrr.designsystem.component.TaskifyButtonDefaults
 import com.nrr.designsystem.theme.TaskifyTheme
 import com.nrr.model.toLocalDateTime
-import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetIn
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
 
 // title padding from DatePicker Material 3

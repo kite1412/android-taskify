@@ -30,6 +30,7 @@ import com.nrr.model.Task
 import com.nrr.model.TaskPeriod
 import com.nrr.model.toTimeString
 import com.nrr.ui.util.UIDictionary
+import com.nrr.ui.util.toDateStringLocalized
 
 private const val CIRCLE_DIAMETER = 14
 private val space = 4.dp

@@ -4,8 +4,8 @@ import com.nrr.model.TaskPeriod
 import com.nrr.model.getEndDate
 import com.nrr.model.getStartDate
 import com.nrr.model.toLocalDateTime
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 object SelectableDatesWeek : CustomSelectableDates {
     override fun isSelectableDate(utcTimeMillis: Long): Boolean {

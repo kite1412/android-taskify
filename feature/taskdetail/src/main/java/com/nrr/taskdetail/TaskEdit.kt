@@ -3,7 +3,7 @@ package com.nrr.taskdetail
 import com.nrr.model.ActiveStatus
 import com.nrr.model.Task
 import com.nrr.model.TaskType
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 
 internal data class TaskEdit(
     val id: Long? = null,

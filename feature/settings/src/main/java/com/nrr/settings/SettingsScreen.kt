@@ -78,10 +78,10 @@ import com.nrr.settings.util.SettingsDictionary
 import com.nrr.settings.util.notificationOffsetConstraint
 import com.nrr.settings.util.toStringLocalized
 import com.nrr.ui.color
-import com.nrr.ui.toDateStringLocalized
 import com.nrr.ui.toStringLocalized
-import kotlinx.datetime.Clock
+import com.nrr.ui.util.toDateStringLocalized
 import kotlin.math.roundToInt
+import kotlin.time.Clock
 
 @Composable
 internal fun SettingsScreen(
@@ -321,6 +321,7 @@ internal fun TaskReminderList(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val todayString = stringResource(SettingsDictionary.today)
     val groupedReminders = remember(reminders) {
         reminders
             .groupBy {
@@ -328,7 +329,7 @@ internal fun TaskReminderList(
             }
             .map { (i, reminders) ->
                 val now  = Clock.System.now().getStartDate(TaskPeriod.DAY)
-                (if (i == now) context.getString(SettingsDictionary.today)
+                (if (i == now) todayString
                     else i.toDateStringLocalized(context)) to reminders
             }
     }

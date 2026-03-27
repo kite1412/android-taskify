@@ -1,7 +1,7 @@
 # Taskify
 A fully functional Android task management application that delivers reliability, ease of use, and an intuitive design to enhance productivity.
 
-![Android](https://img.shields.io/badge/Android-68c06e?logo=android&style=for-the-badge&logoColor=white) ![Kotlin Multiplatform](https://img.shields.io/badge/Kotlin-8b48fc?logo=kotlin&style=for-the-badge&logoColor=white) ![Jetpack Compose Multiplatform](https://img.shields.io/badge/Jetpack%20Compose-4285f4?logo=jetpack-compose&style=for-the-badge&logoColor=white)<br/>
+![Android](https://img.shields.io/badge/Android-68c06e?logo=android&style=for-the-badge&logoColor=white) ![Kotlin](https://img.shields.io/badge/Kotlin-8b48fc?logo=kotlin&style=for-the-badge&logoColor=white) ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-4285f4?logo=jetpack-compose&style=for-the-badge&logoColor=white)<br/>
 
 ## ✨ Features
 

@@ -77,7 +77,7 @@ import com.nrr.ui.picker.date.DatePicker
 import com.nrr.ui.picker.time.TimePicker
 import com.nrr.ui.rememberTaskCardsState
 import com.nrr.ui.taskCards
-import com.nrr.ui.toStringLocalized
+import com.nrr.ui.util.toStringLocalized
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime

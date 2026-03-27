@@ -69,9 +69,10 @@ import com.nrr.ui.statistic.summary.PieChartOption
 import com.nrr.ui.statistic.summary.SummaryStatistics
 import com.nrr.ui.statusColor
 import com.nrr.ui.stringStatus
-import com.nrr.ui.toDateStringLocalized
-import com.nrr.ui.toMonthLocalized
 import com.nrr.ui.toStringLocalized
+import com.nrr.ui.util.toDateStringLocalized
+import com.nrr.ui.util.toMonthLocalized
+import com.nrr.ui.util.toStringLocalized
 import kotlin.math.roundToInt
 
 @Composable

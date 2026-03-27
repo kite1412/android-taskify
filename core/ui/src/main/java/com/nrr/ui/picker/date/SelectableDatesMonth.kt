@@ -1,8 +1,8 @@
 package com.nrr.ui.picker.date
 
 import com.nrr.model.toLocalDateTime
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 object SelectableDatesMonth : CustomSelectableDates {
     override fun isSelectableDate(utcTimeMillis: Long): Boolean {
@@ -11,7 +11,7 @@ object SelectableDatesMonth : CustomSelectableDates {
             .toLocalDateTime()
 
         return curDate.month == date.month
-                && date.dayOfMonth >= curDate.dayOfMonth
+                && date.day >= curDate.day
     }
 
     override fun isSelectableYear(year: Int): Boolean {

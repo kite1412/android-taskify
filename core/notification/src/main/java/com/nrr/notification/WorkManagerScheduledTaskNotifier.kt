@@ -15,9 +15,9 @@ import com.nrr.notification.model.toFiltered
 import com.nrr.notification.util.gson
 import com.nrr.notification.worker.ScheduledTaskNotificationWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.datetime.Clock
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 

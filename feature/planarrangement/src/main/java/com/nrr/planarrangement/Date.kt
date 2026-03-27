@@ -2,16 +2,17 @@ package com.nrr.planarrangement
 
 import androidx.compose.runtime.Composable
 import com.nrr.model.toLocalDateTime
-import com.nrr.ui.toDateStringLocalized
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import com.nrr.ui.util.toDateStringLocalized
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.offsetIn
 import kotlinx.datetime.toInstant
+import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Instant
 
 internal data class Date(
     val time: Time = Time(),
@@ -27,10 +28,11 @@ internal data class Date(
             LocalDateTime(
                 year = year,
                 month = this@Date.month?.let { Month(it) } ?: month,
-                dayOfMonth = this@Date.dayOfMonth ?: dayOfMonth,
+                day = this@Date.dayOfMonth ?: day,
                 hour = if (!ignoreTime) this@Date.time.hour else hour,
-                minute = if (!ignoreTime) this@Date.time.minute else minute
-            )
+                minute = if (!ignoreTime) this@Date.time.minute else minute,
+                second = 0,
+                nanosecond = 0)
         }
 
         return localDateTime.toInstant(TimeZone.currentSystemDefault()) +
@@ -61,7 +63,7 @@ internal data class Date(
 internal fun Instant.toDate() = with(toLocalDateTime()) {
     Date(
         time = Time(hour = hour, minute = minute),
-        dayOfMonth = dayOfMonth,
-        month = monthNumber
+        dayOfMonth = day,
+        month = month.number
     )
 }

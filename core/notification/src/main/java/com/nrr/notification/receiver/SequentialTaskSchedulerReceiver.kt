@@ -12,8 +12,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import javax.inject.Inject
+import kotlin.time.Clock
 
 const val SEQUENTIAL_TASK_SCHEDULER_ACTION = "com.nrr.taskify.SEQUENTIAL_TASK_SCHEDULER"
 

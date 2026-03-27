@@ -140,9 +140,11 @@ import com.nrr.ui.picker.time.TimePicker
 import com.nrr.ui.rememberTaskCardsState
 import com.nrr.ui.taskCards
 import com.nrr.ui.toStringLocalized
+import com.nrr.ui.util.toStringLocalized
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlinx.datetime.number
+import kotlin.time.Clock
+import kotlin.time.Instant
 import com.nrr.ui.Header as _Header
 
 @Composable
@@ -1042,11 +1044,11 @@ private fun DateField(
         onConfirm = {
             with(Instant.fromEpochMilliseconds(it).toLocalDateTime()) {
                 if (editingStartDate!!) onStartDateChange(
-                    dayOfMonth,
-                    monthNumber
+                    day,
+                    month.number
                 ) else onEndDateChange(
-                    dayOfMonth,
-                    monthNumber
+                    day,
+                    month.number
                 )
             }
             editingStartDate = null
